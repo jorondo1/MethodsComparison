@@ -4,9 +4,9 @@
 #SBATCH -D /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison
 #SBATCH -o /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/logs/mOTU-%A_%a.slurm.out
 #SBATCH --time=24:00:00
-#SBATCH --mem=30G
+#SBATCH --mem=10G
 #SBATCH -N 1
-#SBATCH -n 24
+#SBATCH -n 8
 #SBATCH -A def-ilafores
 #SBATCH -J motus
 
