@@ -1,0 +1,50 @@
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-14-POLPIL-B/S-14-POLPIL-B_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-14-POLPIL-B/S-14-POLPIL-B_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-14-POLPIL-B/S-14-POLPIL-B_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-14-POLPIL-B/S-14-POLPIL-B_unmatched_2.fastq.gz -n S-14-POLPIL-B -t 24 -u -c -p
+#mOTU	consensus_taxonomy	NCBI_tax_id	S-14-POLPIL-B
+ref_mOTU_v31_00164	Pseudomonas sp. [Pseudomonas frederiksbergensis/Pseudomonas sp. GM102/Pseudomonas sp. GM21/Pseudomonas sp. GM50/Pseudomonas sp. GM79/Pseudomonas sp. GM41(2012)/Pseudomonas sp. URMO17WK12:I12/Pseudomonas sp. URMO17WK12:I11/Pseudomonas sp. C9/Pseudomonas sp. QTF5/Pseudomonas lini/Pseudomonas sp. RIT-PI-q/Pseudomonas sp. 655/Pseudomonas sp. Root329/Pseudomonas sp. FSL W5-0299/Pseudomonas fluorescens/Pseudomonas syringae/Pseudomonas sp. In5/Pseudomonas arsenicoxydans/Pseudomonas mandelii]	NA	2
+ref_mOTU_v31_00421	Herbaspirillum rhizosphaerae	346179	1
+ref_mOTU_v31_00440	Duganella sp. [Duganella sp. OV458/Duganella sp. OV510]	NA	2
+ref_mOTU_v31_00441	Duganella sp. CF402	1855289	2
+ref_mOTU_v31_00486	Variovorax sp. [Variovorax sp. OK605/Variovorax sp. OK212/Variovorax sp. OK202]	NA	1
+ref_mOTU_v31_00529	Oxalobacteraceae sp. [Janthinobacterium sp. HH01/Duganella sp. HH101/Duganella sp. HH105]	NA	1
+ref_mOTU_v31_00779	Mesorhizobium australicum [Mesorhizobium sp. LNHC209A00/Mesorhizobium sp. LNHC220B00/Mesorhizobium sp. LNHC229A00/Mesorhizobium australicum]	536018	1
+ref_mOTU_v31_00781	Mesorhizobium loti	381	1
+ref_mOTU_v31_01131	Methylobacterium brachiatum [Methylobacterium sp. GXF4/Methylobacterium sp. ARG-1/Methylobacterium brachiatum]	269660	2
+ref_mOTU_v31_01132	Methylobacterium pseudosasicola	582667	2
+ref_mOTU_v31_01133	Methylobacterium sp. GXS13	1730094	1
+ref_mOTU_v31_01134	Methylobacterium oryzae/phyllosphaerae [Methylobacterium sp. UNCCL110/Methylobacterium sp. UNCCL125/Methylobacterium oryzae/Methylobacterium phyllosphaerae]	NA	2
+ref_mOTU_v31_01135	Bacteria sp. [Methylobacterium sp. 285MFTsu5.1/Methylobacterium sp. EUR3 AL-11/Methylobacterium sp. C1/Methylobacterium sp. 275MFSha3.1/Methylobacterium sp. UNC300MFChir4.1/Methylobacterium sp. 13MFTsu3.1M2/Methylobacterium sp. ME121/Methylobacterium sp. Leaf361/Methylobacterium sp. yr668/Methylobacterium radiotolerans/Asanoa ferruginea]	NA	2
+ref_mOTU_v31_01141	Methylorubrum zatmanii/extorquens [Methylobacterium sp. Leaf90/Methylobacterium sp. Leaf92/Methylobacterium sp. Leaf119/Methylobacterium sp. Leaf121/Methylobacterium sp. Leaf122/Methylobacterium sp. Leaf123/Methylorubrum zatmanii/Methylorubrum extorquens/Methylobacterium sp. AMS5]	NA	1
+ref_mOTU_v31_01185	Bradyrhizobium diazoefficiens/japonicum [Bradyrhizobium sp. WSM2254/Bradyrhizobium diazoefficiens/Bradyrhizobium sp. cf659/Bradyrhizobium japonicum]	NA	2
+ref_mOTU_v31_01190	Bradyrhizobium japonicum [Bradyrhizobium japonicum/Bradyrhizobium sp.]	375	1
+ref_mOTU_v31_01222	Bradyrhizobium paxllaeri	190148	1
+ref_mOTU_v31_01692	Bradyrhizobium pachyrhizi/elkanii [Bradyrhizobium sp. UFLA 03-321/Bradyrhizobium sp. R5/Bradyrhizobium pachyrhizi/Bradyrhizobium elkanii]	NA	1
+ref_mOTU_v31_01696	Bradyrhizobium sp. th.b2	172088	1
+ref_mOTU_v31_02459	Streptomyces scabrisporus	159449	3
+ref_mOTU_v31_02530	Amycolatopsis sp. [Amycolatopsis keratiniphila/Amycolatopsis sp. MJM2582/Amycolatopsis sp. CB00013/Amycolatopsis japonica/Amycolatopsis decaplanina/Amycolatopsis orientalis/Amycolatopsis lurida/Amycolatopsis azurea/Amycolatopsis alba]	NA	1
+ref_mOTU_v31_03263	Sphingomonas mali	40682	1
+ref_mOTU_v31_03450	Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	196367	7
+ref_mOTU_v31_03451	Burkholderia sp. Leaf177	1736287	1
+ref_mOTU_v31_03944	Bradyrhizobium lablabi/ottawaense	NA	2
+ref_mOTU_v31_03945	Afipia sp. GAS231	1882747	1
+ref_mOTU_v31_03946	Bradyrhizobium sp. URHA0002	1298867	1
+ref_mOTU_v31_03987	Mucilaginibacter polytrichastri	1302689	1
+ref_mOTU_v31_04357	Leifsonia sp. 71-9	1895934	1
+ref_mOTU_v31_04458	Luteibacter rhizovicinus	242606	1
+ref_mOTU_v31_05361	Leifsonia sp. Root227	1736496	1
+ref_mOTU_v31_06139	Terriglobus sp. TAA 43	278961	1
+ref_mOTU_v31_06204	Caballeronia humi	326474	2
+ref_mOTU_v31_07332	Granulicella tundricola	940615	1
+ref_mOTU_v31_07352	Jatrophihabitans endophyticus	1206085	1
+ref_mOTU_v31_08120	Mucilaginibacter pineti	1391627	1
+ref_mOTU_v31_10367	Pseudonocardia sp. 73-21	1895809	2
+ref_mOTU_v31_10380	Solirubrobacterales bacterium 70-9	1895833	1
+ref_mOTU_v31_10899	Rhodopseudomonas palustris	1076	1
+ref_mOTU_v31_12102	Terriglobus roseus	392734	2
+ref_mOTU_v31_12118	Patulibacter minatonensis	298163	1
+ext_mOTU_v31_15161	Methylobacterium species incertae sedis	NA	1
+ext_mOTU_v31_16209	Rahnella species incertae sedis	NA	1
+ext_mOTU_v31_18771	Methylobacterium species incertae sedis	NA	2
+ext_mOTU_v31_19345	Burkholderiales species incertae sedis	NA	1
+ext_mOTU_v31_32699	Solirubrobacterales species incertae sedis	NA	1
+unassigned	unassigned	NA	32

@@ -1,0 +1,27 @@
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-17-POLPIL-B/S-17-POLPIL-B_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-17-POLPIL-B/S-17-POLPIL-B_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-17-POLPIL-B/S-17-POLPIL-B_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-17-POLPIL-B/S-17-POLPIL-B_unmatched_2.fastq.gz -n S-17-POLPIL-B -t 24 -u -c -p
+#mOTU	consensus_taxonomy	NCBI_tax_id	S-17-POLPIL-B
+ref_mOTU_v31_00469	Rhizobacter sp. Root404	1736528	1
+ref_mOTU_v31_00529	Oxalobacteraceae sp. [Janthinobacterium sp. HH01/Duganella sp. HH101/Duganella sp. HH105]	NA	1
+ref_mOTU_v31_00781	Mesorhizobium loti	381	1
+ref_mOTU_v31_01131	Methylobacterium brachiatum [Methylobacterium sp. GXF4/Methylobacterium sp. ARG-1/Methylobacterium brachiatum]	269660	1
+ref_mOTU_v31_01137	Methylobacterium mesophilicum	39956	1
+ref_mOTU_v31_01174	Bradyrhizobium sp. [Bradyrhizobium sp. LTSP849/Bradyrhizobium sp. LTSP857]	NA	1
+ref_mOTU_v31_01226	Bradyrhizobium retamae [Bradyrhizobium retamae/Bradyrhizobium sp. LMTR 3]	1300035	1
+ref_mOTU_v31_01417	Klenkia taihuensis/brasiliensis	NA	1
+ref_mOTU_v31_01692	Bradyrhizobium pachyrhizi/elkanii [Bradyrhizobium sp. UFLA 03-321/Bradyrhizobium sp. R5/Bradyrhizobium pachyrhizi/Bradyrhizobium elkanii]	NA	1
+ref_mOTU_v31_02854	Paraburkholderia ginsengisoli	311231	1
+ref_mOTU_v31_03450	Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	196367	9
+ref_mOTU_v31_03944	Bradyrhizobium lablabi/ottawaense	NA	1
+ref_mOTU_v31_03945	Afipia sp. GAS231	1882747	1
+ref_mOTU_v31_05307	Rathayibacter sp. [Rathayibacter sp. Leaf296/Rathayibacter sp. Leaf299/Rathayibacter sp. VKM Ac-2630]	NA	1
+ref_mOTU_v31_08294	Bradyrhizobium erythrophlei	1437360	1
+ref_mOTU_v31_10380	Solirubrobacterales bacterium 70-9	1895833	3
+ref_mOTU_v31_11294	Granulicella pectinivorans	474950	1
+ref_mOTU_v31_11307	Catenulispora acidiphila	304895	1
+ref_mOTU_v31_11645	Sphingomonas rubra	634430	1
+ext_mOTU_v31_15000	Burkholderiales species incertae sedis	NA	1
+ext_mOTU_v31_18818	Bradyrhizobium species incertae sedis	NA	1
+ext_mOTU_v31_24795	Solirubrobacterales species incertae sedis	NA	1
+ext_mOTU_v31_29927	Acidobacteriaceae species incertae sedis	NA	1
+unassigned	unassigned	NA	28

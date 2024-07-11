@@ -1,0 +1,47 @@
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-1-POLJUN-B/S-1-POLJUN-B_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-1-POLJUN-B/S-1-POLJUN-B_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-1-POLJUN-B/S-1-POLJUN-B_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-1-POLJUN-B/S-1-POLJUN-B_unmatched_2.fastq.gz -n S-1-POLJUN-B -t 24 -u -c -p
+#mOTU	consensus_taxonomy	NCBI_tax_id	S-1-POLJUN-B
+ref_mOTU_v31_00420	Herbaspirillum sp. CF444	1144319	1
+ref_mOTU_v31_00421	Herbaspirillum rhizosphaerae	346179	1
+ref_mOTU_v31_00441	Duganella sp. CF402	1855289	1
+ref_mOTU_v31_00469	Rhizobacter sp. Root404	1736528	1
+ref_mOTU_v31_00473	Variovorax paradoxus [Variovorax sp. PDC80/Variovorax paradoxus]	34073	1
+ref_mOTU_v31_00474	Variovorax paradoxus	34073	6
+ref_mOTU_v31_00475	Variovorax sp. [Variovorax sp. Root318D1/Variovorax sp. OV700]	NA	2
+ref_mOTU_v31_00477	Variovorax sp. [Variovorax sp. NFACC28/Variovorax sp. NFACC27/Variovorax sp. NFACC26/Variovorax sp. YR750]	NA	3
+ref_mOTU_v31_00478	Variovorax paradoxus	34073	4
+ref_mOTU_v31_00479	Variovorax sp. 770b2	1566271	6
+ref_mOTU_v31_00480	Variovorax paradoxus	34073	3
+ref_mOTU_v31_00481	Variovorax paradoxus	34073	4
+ref_mOTU_v31_00482	Variovorax sp. EL159	1566270	3
+ref_mOTU_v31_00483	Variovorax boronicumulans [Variovorax sp. Root473/Variovorax boronicumulans]	436515	3
+ref_mOTU_v31_00484	Variovorax sp. [Variovorax sp. OV084/Variovorax sp. YR634/Variovorax sp. YR266]	NA	3
+ref_mOTU_v31_00485	Variovorax paradoxus [Variovorax sp. SCN 67-85/Variovorax sp. SCN 67-20/Variovorax sp. 67-131/Variovorax paradoxus]	34073	1
+ref_mOTU_v31_00486	Variovorax sp. [Variovorax sp. OK605/Variovorax sp. OK212/Variovorax sp. OK202]	NA	4
+ref_mOTU_v31_00487	Variovorax sp. [Variovorax sp. CF313/Variovorax sp. Root411/Variovorax sp. Root434]	NA	4
+ref_mOTU_v31_00490	Pseudacidovorax intermedius	433924	1
+ref_mOTU_v31_00781	Mesorhizobium loti	381	2
+ref_mOTU_v31_00786	Mesorhizobium sp. [Mesorhizobium sp. SEMIA 3007/Mesorhizobium japonicum/Mesorhizobium huakuii/Mesorhizobium loti]	NA	1
+ref_mOTU_v31_01131	Methylobacterium brachiatum [Methylobacterium sp. GXF4/Methylobacterium sp. ARG-1/Methylobacterium brachiatum]	269660	1
+ref_mOTU_v31_01132	Methylobacterium pseudosasicola	582667	1
+ref_mOTU_v31_01134	Methylobacterium oryzae/phyllosphaerae [Methylobacterium sp. UNCCL110/Methylobacterium sp. UNCCL125/Methylobacterium oryzae/Methylobacterium phyllosphaerae]	NA	1
+ref_mOTU_v31_01135	Bacteria sp. [Methylobacterium sp. 285MFTsu5.1/Methylobacterium sp. EUR3 AL-11/Methylobacterium sp. C1/Methylobacterium sp. 275MFSha3.1/Methylobacterium sp. UNC300MFChir4.1/Methylobacterium sp. 13MFTsu3.1M2/Methylobacterium sp. ME121/Methylobacterium sp. Leaf361/Methylobacterium sp. yr668/Methylobacterium radiotolerans/Asanoa ferruginea]	NA	2
+ref_mOTU_v31_01174	Bradyrhizobium sp. [Bradyrhizobium sp. LTSP849/Bradyrhizobium sp. LTSP857]	NA	4
+ref_mOTU_v31_01226	Bradyrhizobium retamae [Bradyrhizobium retamae/Bradyrhizobium sp. LMTR 3]	1300035	1
+ref_mOTU_v31_01340	Sphingomonas sp. [Sphingomonas sp. Leaf34/Sphingomonas sp. Leaf38]	NA	1
+ref_mOTU_v31_01341	Sphingomonas sp. Leaf28	1735695	1
+ref_mOTU_v31_02850	Paraburkholderia phytofirmans	261302	2
+ref_mOTU_v31_03449	Caballeronia sordidicola	196367	1
+ref_mOTU_v31_03450	Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	196367	5
+ref_mOTU_v31_03451	Burkholderia sp. Leaf177	1736287	1
+ref_mOTU_v31_03899	Caulobacter sp. [Caulobacter sp. OV484/Caulobacter sp. Root342/Caulobacter sp. Root343]	NA	1
+ref_mOTU_v31_04458	Luteibacter rhizovicinus	242606	2
+ref_mOTU_v31_07816	Conexibacter woesei	191495	1
+ref_mOTU_v31_10367	Pseudonocardia sp. 73-21	1895809	1
+ref_mOTU_v31_10380	Solirubrobacterales bacterium 70-9	1895833	1
+ref_mOTU_v31_10901	Rhodopseudomonas palustris	1076	1
+ref_mOTU_v31_11294	Granulicella pectinivorans	474950	3
+ref_mOTU_v31_12102	Terriglobus roseus	392734	1
+ext_mOTU_v31_18841	Burkholderiales species incertae sedis	NA	1
+ext_mOTU_v31_32744	Thermoleophilia species incertae sedis	NA	4
+unassigned	unassigned	NA	35

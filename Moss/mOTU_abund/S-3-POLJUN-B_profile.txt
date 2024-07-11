@@ -1,0 +1,30 @@
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-3-POLJUN-B/S-3-POLJUN-B_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-3-POLJUN-B/S-3-POLJUN-B_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-3-POLJUN-B/S-3-POLJUN-B_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-3-POLJUN-B/S-3-POLJUN-B_unmatched_2.fastq.gz -n S-3-POLJUN-B -t 24 -u -c -p
+#mOTU	consensus_taxonomy	NCBI_tax_id	S-3-POLJUN-B
+ref_mOTU_v31_00123	Pseudomonas fluorescens/yamanorum [Pseudomonas sp. PAMC 25886/Pseudomonas sp. Ag1/Pseudomonas sp. PAMC 26793/Pseudomonas sp. ATCC PTA-122608/Pseudomonas fluorescens/Pseudomonas yamanorum]	NA	1
+ref_mOTU_v31_00781	Mesorhizobium loti	381	2
+ref_mOTU_v31_00783	Mesorhizobium opportunistum [Mesorhizobium sp. LNHC221B00/Mesorhizobium sp. LNHC232B00/Mesorhizobium opportunistum]	593909	1
+ref_mOTU_v31_01131	Methylobacterium brachiatum [Methylobacterium sp. GXF4/Methylobacterium sp. ARG-1/Methylobacterium brachiatum]	269660	1
+ref_mOTU_v31_01132	Methylobacterium pseudosasicola	582667	1
+ref_mOTU_v31_01135	Bacteria sp. [Methylobacterium sp. 285MFTsu5.1/Methylobacterium sp. EUR3 AL-11/Methylobacterium sp. C1/Methylobacterium sp. 275MFSha3.1/Methylobacterium sp. UNC300MFChir4.1/Methylobacterium sp. 13MFTsu3.1M2/Methylobacterium sp. ME121/Methylobacterium sp. Leaf361/Methylobacterium sp. yr668/Methylobacterium radiotolerans/Asanoa ferruginea]	NA	1
+ref_mOTU_v31_01185	Bradyrhizobium diazoefficiens/japonicum [Bradyrhizobium sp. WSM2254/Bradyrhizobium diazoefficiens/Bradyrhizobium sp. cf659/Bradyrhizobium japonicum]	NA	1
+ref_mOTU_v31_02024	Wolbachia pipientis [Wolbachia endosymbiont of Diaphorina citri/Wolbachia endosymbiont of Dactylopius coccus/Wolbachia endosymbiont of Operophtera brumata/Wolbachia endosymbiont of Culex quinquefasciatus/Wolbachia endosymbiont of Laodelphax striatella/Wolbachia endosymbiont of Drosophila simulans/Wolbachia pipientis]	955	1
+ref_mOTU_v31_03449	Caballeronia sordidicola	196367	1
+ref_mOTU_v31_03450	Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	196367	2
+ref_mOTU_v31_03945	Afipia sp. GAS231	1882747	1
+ref_mOTU_v31_03946	Bradyrhizobium sp. URHA0002	1298867	1
+ref_mOTU_v31_05437	Phenylobacterium sp. [Phenylobacterium sp. CCH12-B4/Phenylobacterium sp. RIFCSPHIGHO2_01_FULL_69_31]	NA	1
+ref_mOTU_v31_06204	Caballeronia humi	326474	1
+ref_mOTU_v31_07332	Granulicella tundricola	940615	1
+ref_mOTU_v31_07816	Conexibacter woesei	191495	2
+ref_mOTU_v31_08294	Bradyrhizobium erythrophlei	1437360	1
+ref_mOTU_v31_09315	Bradyrhizobiaceae bacterium Ga0074131	1752203	1
+ref_mOTU_v31_10367	Pseudonocardia sp. 73-21	1895809	2
+ref_mOTU_v31_10901	Rhodopseudomonas palustris	1076	1
+ref_mOTU_v31_11294	Granulicella pectinivorans	474950	2
+ref_mOTU_v31_11372	Actinoplanes missouriensis	1866	1
+ext_mOTU_v31_15000	Burkholderiales species incertae sedis	NA	1
+ext_mOTU_v31_22768	Actinobacteria species incertae sedis	NA	1
+ext_mOTU_v31_24795	Solirubrobacterales species incertae sedis	NA	2
+ext_mOTU_v31_32744	Thermoleophilia species incertae sedis	NA	3
+unassigned	unassigned	NA	33

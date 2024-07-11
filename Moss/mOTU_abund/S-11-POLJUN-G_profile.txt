@@ -1,0 +1,25 @@
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-11-POLJUN-G/S-11-POLJUN-G_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-11-POLJUN-G/S-11-POLJUN-G_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-11-POLJUN-G/S-11-POLJUN-G_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-11-POLJUN-G/S-11-POLJUN-G_unmatched_2.fastq.gz -n S-11-POLJUN-G -t 24 -u -c -p
+#mOTU	consensus_taxonomy	NCBI_tax_id	S-11-POLJUN-G
+ref_mOTU_v31_00137	Pseudomonas sp. [Pseudomonas sp. Os17/Pseudomonas sp. St29/Pseudomonas sp. NFPP16/Pseudomonas sp. NFPP15/Pseudomonas sp. NFPP14/Pseudomonas sp. NFPP13/Pseudomonas sp. NFPP12/Pseudomonas sp. NFPP10/Pseudomonas sp. NFPP09/Pseudomonas sp. NFPP08/Pseudomonas sp. NFPP05/Pseudomonas sp. NFPP19/Pseudomonas sp. NFPP18/Pseudomonas sp. NFPP17/Pseudomonas sp. NFPP25/Pseudomonas fluorescens/Pseudomonas protegens/Pseudomonas saponiphila]	NA	1
+ref_mOTU_v31_00440	Duganella sp. [Duganella sp. OV458/Duganella sp. OV510]	NA	1
+ref_mOTU_v31_00441	Duganella sp. CF402	1855289	1
+ref_mOTU_v31_00442	Duganella sacchari	551987	1
+ref_mOTU_v31_00486	Variovorax sp. [Variovorax sp. OK605/Variovorax sp. OK212/Variovorax sp. OK202]	NA	1
+ref_mOTU_v31_00529	Oxalobacteraceae sp. [Janthinobacterium sp. HH01/Duganella sp. HH101/Duganella sp. HH105]	NA	1
+ref_mOTU_v31_01131	Methylobacterium brachiatum [Methylobacterium sp. GXF4/Methylobacterium sp. ARG-1/Methylobacterium brachiatum]	269660	2
+ref_mOTU_v31_01132	Methylobacterium pseudosasicola	582667	1
+ref_mOTU_v31_01133	Methylobacterium sp. GXS13	1730094	1
+ref_mOTU_v31_01134	Methylobacterium oryzae/phyllosphaerae [Methylobacterium sp. UNCCL110/Methylobacterium sp. UNCCL125/Methylobacterium oryzae/Methylobacterium phyllosphaerae]	NA	1
+ref_mOTU_v31_01135	Bacteria sp. [Methylobacterium sp. 285MFTsu5.1/Methylobacterium sp. EUR3 AL-11/Methylobacterium sp. C1/Methylobacterium sp. 275MFSha3.1/Methylobacterium sp. UNC300MFChir4.1/Methylobacterium sp. 13MFTsu3.1M2/Methylobacterium sp. ME121/Methylobacterium sp. Leaf361/Methylobacterium sp. yr668/Methylobacterium radiotolerans/Asanoa ferruginea]	NA	2
+ref_mOTU_v31_01337	Sphingomonas sp. [Sphingomonas sp. Leaf198/Sphingomonas sp. Leaf242]	NA	1
+ref_mOTU_v31_02721	Ewingella americana	41202	2
+ref_mOTU_v31_02853	Paraburkholderia aspalathi [Paraburkholderia aspalathi/Burkholderia sp. ST111/Burkholderia sp. OLGA172/Burkholderia sp. GAS332]	1324617	1
+ref_mOTU_v31_02981	Xanthomonas translucens	343	7
+ref_mOTU_v31_03450	Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	196367	2
+ref_mOTU_v31_04737	Pseudomonas graminis	158627	4
+ref_mOTU_v31_06679	Sphingomonas sp. PAMC 26605	1112214	1
+ref_mOTU_v31_10367	Pseudonocardia sp. 73-21	1895809	1
+ext_mOTU_v31_15000	Burkholderiales species incertae sedis	NA	1
+ext_mOTU_v31_32744	Thermoleophilia species incertae sedis	NA	2
+unassigned	unassigned	NA	12

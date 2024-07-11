@@ -1,0 +1,35 @@
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-18-POLJUN-B/S-18-POLJUN-B_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-18-POLJUN-B/S-18-POLJUN-B_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-18-POLJUN-B/S-18-POLJUN-B_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-18-POLJUN-B/S-18-POLJUN-B_unmatched_2.fastq.gz -n S-18-POLJUN-B -t 24 -u -c -p
+#mOTU	consensus_taxonomy	NCBI_tax_id	S-18-POLJUN-B
+ref_mOTU_v31_00129	Pseudomonas sp. [Pseudomonas sp. AP19/Pseudomonas costantinii/Pseudomonas sp. Leaf15/Pseudomonas sp. 58 R 3/Pseudomonas salomonii/Pseudomonas antarctica/Pseudomonas fluorescens/Pseudomonas putida/Pseudomonas simiae]	NA	1
+ref_mOTU_v31_00133	 Pseudomonas sp. [Paraburkholderia insulsa/Pseudomonadales bacterium RIFCSPLOWO2_12_60_38/Pseudomonadales bacterium RIFCSPLOWO2_12_FULL_59_450/Pseudomonas azotoformans/Pseudomonas canadensis/Pseudomonas extremorientalis/Pseudomonas fluorescens/Pseudomonas lactis/Pseudomonas libanensis/Pseudomonas marginalis/Pseudomonas paralactis/Pseudomonas simiae/Pseudomonas sp. 24 E 1/Pseudomonas sp. 24 R 17/Pseudomonas sp. 35 E 8/Pseudomonas sp. 52 E 6/Pseudomonas sp. 58 R 12/Pseudomonas sp. AP42/Pseudomonas sp. BRG-100/Pseudomonas sp. bs2935/Pseudomonas sp. BTN1/Pseudomonas sp. CBZ-4/Pseudomonas sp. CF150/Pseudomonas sp. CFT9/Pseudomonas sp. CHM02/Pseudomonas sp. Eur1 9.41/Pseudomonas sp. FH1/Pseudomonas sp. FSL W5-0203/Pseudomonas sp. ICMP 19500/Pseudomonas sp. MF6394/Pseudomonas sp. NBRC 111137/Pseudomonas sp. NBRC 111138/Pseudomonas sp. NFPP02/Pseudomonas sp. NFPP04/Pseudomonas sp. NFPP11/Pseudomonas sp. NFPP24/Pseudomonas sp. NFPP28/Pseudomonas sp. NFR02/Pseudomonas sp. NFR09/Pseudomonas sp. OV546/Pseudomonas sp. R81/Pseudomonas sp. Root569/Pseudomonas sp. Root9/Pseudomonas sp. S1E40/Pseudomonas sp. WCS374/Pseudomonas synxantha/Pseudomonas tolaasii/Pseudomonas trivialis]	NA	2
+ref_mOTU_v31_00164	Pseudomonas sp. [Pseudomonas frederiksbergensis/Pseudomonas sp. GM102/Pseudomonas sp. GM21/Pseudomonas sp. GM50/Pseudomonas sp. GM79/Pseudomonas sp. GM41(2012)/Pseudomonas sp. URMO17WK12:I12/Pseudomonas sp. URMO17WK12:I11/Pseudomonas sp. C9/Pseudomonas sp. QTF5/Pseudomonas lini/Pseudomonas sp. RIT-PI-q/Pseudomonas sp. 655/Pseudomonas sp. Root329/Pseudomonas sp. FSL W5-0299/Pseudomonas fluorescens/Pseudomonas syringae/Pseudomonas sp. In5/Pseudomonas arsenicoxydans/Pseudomonas mandelii]	NA	2
+ref_mOTU_v31_00412	Collimonas pratensis	279113	1
+ref_mOTU_v31_00424	Janthinobacterium lividum [Janthinobacterium sp. RA13/Janthinobacterium sp. HH100/Janthinobacterium sp. HH102/Janthinobacterium sp. HH103/Janthinobacterium sp. HH104/Janthinobacterium sp. HH106/Janthinobacterium sp. HH107/Janthinobacterium sp. 344/Janthinobacterium sp. 551a/Janthinobacterium sp. 1_2014MBL_MicDiv/Janthinobacterium sp. KBS0711/Janthinobacterium sp. Ant5-2-1/Janthinobacterium sp. MP5059B/Janthinobacterium sp. OK676/Janthinobacterium sp. YR213/Janthinobacterium sp. TND4EL3/Janthinobacterium sp. LM6/Janthinobacterium sp. GW460W/Janthinobacterium sp. GW460P/Janthinobacterium sp. GW458P/Janthinobacterium sp. GW456W/Janthinobacterium sp. GW456P/Janthinobacterium lividum]	29581	1
+ref_mOTU_v31_00436	Massilia alkalitolerans [Massilia sp. LC238/Massilia alkalitolerans]	286638	1
+ref_mOTU_v31_00441	Duganella sp. CF402	1855289	1
+ref_mOTU_v31_00521	Duganella zoogloeoides/phyllosphaerae [Duganella sp. Leaf61/Duganella zoogloeoides/Duganella phyllosphaerae]	NA	1
+ref_mOTU_v31_00528	Rugamonas rubra	758825	2
+ref_mOTU_v31_00529	Oxalobacteraceae sp. [Janthinobacterium sp. HH01/Duganella sp. HH101/Duganella sp. HH105]	NA	3
+ref_mOTU_v31_00530	Oxalobacteraceae bacterium AB_14	1158293	1
+ref_mOTU_v31_00531	Duganella sp. CF517	1881038	3
+ref_mOTU_v31_00781	Mesorhizobium loti	381	1
+ref_mOTU_v31_01131	Methylobacterium brachiatum [Methylobacterium sp. GXF4/Methylobacterium sp. ARG-1/Methylobacterium brachiatum]	269660	1
+ref_mOTU_v31_01132	Methylobacterium pseudosasicola	582667	1
+ref_mOTU_v31_01133	Methylobacterium sp. GXS13	1730094	2
+ref_mOTU_v31_02102	Actinoplanes globisporus	113565	1
+ref_mOTU_v31_02852	Paraburkholderia fungorum [Paraburkholderia fungorum/Burkholderia sp. K24]	134537	1
+ref_mOTU_v31_02853	Paraburkholderia aspalathi [Paraburkholderia aspalathi/Burkholderia sp. ST111/Burkholderia sp. OLGA172/Burkholderia sp. GAS332]	1324617	1
+ref_mOTU_v31_03448	Caballeronia udeis	1232866	1
+ref_mOTU_v31_03450	Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	196367	2
+ref_mOTU_v31_04596	Methylibium sp. [Methylibium sp. CF468/Methylibium sp. YR605]	NA	1
+ref_mOTU_v31_08446	Massilia sp. 9096	1500894	1
+ref_mOTU_v31_10380	Solirubrobacterales bacterium 70-9	1895833	2
+ref_mOTU_v31_11294	Granulicella pectinivorans	474950	1
+ref_mOTU_v31_11649	Nostoc punctiforme	272131	3
+ref_mOTU_v31_11779	Sphingomonas sp. PR090111-T3T-6A	685778	2
+ext_mOTU_v31_18841	Burkholderiales species incertae sedis	NA	1
+ext_mOTU_v31_29927	Acidobacteriaceae species incertae sedis	NA	5
+ext_mOTU_v31_32696	Acidobacteriaceae species incertae sedis	NA	2
+ext_mOTU_v31_32744	Thermoleophilia species incertae sedis	NA	1
+unassigned	unassigned	NA	44

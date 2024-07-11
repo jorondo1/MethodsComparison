@@ -1,0 +1,48 @@
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-4-POLCOM-B/S-4-POLCOM-B_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-4-POLCOM-B/S-4-POLCOM-B_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-4-POLCOM-B/S-4-POLCOM-B_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-4-POLCOM-B/S-4-POLCOM-B_unmatched_2.fastq.gz -n S-4-POLCOM-B -t 24 -u -c -p
+#mOTU	consensus_taxonomy	NCBI_tax_id	S-4-POLCOM-B
+ref_mOTU_v31_00123	Pseudomonas fluorescens/yamanorum [Pseudomonas sp. PAMC 25886/Pseudomonas sp. Ag1/Pseudomonas sp. PAMC 26793/Pseudomonas sp. ATCC PTA-122608/Pseudomonas fluorescens/Pseudomonas yamanorum]	NA	1
+ref_mOTU_v31_00424	Janthinobacterium lividum [Janthinobacterium sp. RA13/Janthinobacterium sp. HH100/Janthinobacterium sp. HH102/Janthinobacterium sp. HH103/Janthinobacterium sp. HH104/Janthinobacterium sp. HH106/Janthinobacterium sp. HH107/Janthinobacterium sp. 344/Janthinobacterium sp. 551a/Janthinobacterium sp. 1_2014MBL_MicDiv/Janthinobacterium sp. KBS0711/Janthinobacterium sp. Ant5-2-1/Janthinobacterium sp. MP5059B/Janthinobacterium sp. OK676/Janthinobacterium sp. YR213/Janthinobacterium sp. TND4EL3/Janthinobacterium sp. LM6/Janthinobacterium sp. GW460W/Janthinobacterium sp. GW460P/Janthinobacterium sp. GW458P/Janthinobacterium sp. GW456W/Janthinobacterium sp. GW456P/Janthinobacterium lividum]	29581	1
+ref_mOTU_v31_00531	Duganella sp. CF517	1881038	1
+ref_mOTU_v31_00871	Burkholderia sp. [Burkholderia sp. A9/Burkholderia sp. WP40/Burkholderia sp. WP42/Burkholderia territorii/Burkholderia ambifaria/Burkholderia sp. USM B20/Burkholderia sp. RF2-non_BP3/Burkholderia sp. RF4-BP95/Burkholderia sp. RF7-non_BP1/Burkholderia sp. RF7-non_BP4/Burkholderia sp. LA-2-3-30-S1-D2/Burkholderia sp. FL-7-2-10-S1-D7/Burkholderia sp. MSMB0856/Burkholderia cepacia/Burkholderia sp. KJ006/Burkholderia latens/Burkholderia diffusa/Burkholderia vietnamiensis/Burkholderia cenocepacia]	NA	1
+ref_mOTU_v31_01131	Methylobacterium brachiatum [Methylobacterium sp. GXF4/Methylobacterium sp. ARG-1/Methylobacterium brachiatum]	269660	1
+ref_mOTU_v31_01174	Bradyrhizobium sp. [Bradyrhizobium sp. LTSP849/Bradyrhizobium sp. LTSP857]	NA	1
+ref_mOTU_v31_02636	Paraburkholderia caribensis	75105	1
+ref_mOTU_v31_02834	Paraburkholderia tuberum	157910	1
+ref_mOTU_v31_02838	Paraburkholderia phenazinium	60549	1
+ref_mOTU_v31_02839	Paraburkholderia phenazinium	60549	3
+ref_mOTU_v31_02840	Paraburkholderia phenazinium	60549	1
+ref_mOTU_v31_02850	Paraburkholderia phytofirmans	261302	1
+ref_mOTU_v31_02852	Paraburkholderia fungorum [Paraburkholderia fungorum/Burkholderia sp. K24]	134537	2
+ref_mOTU_v31_02853	Paraburkholderia aspalathi [Paraburkholderia aspalathi/Burkholderia sp. ST111/Burkholderia sp. OLGA172/Burkholderia sp. GAS332]	1324617	2
+ref_mOTU_v31_02855	Paraburkholderia fungorum	134537	2
+ref_mOTU_v31_03265	Sphingomonas asaccharolytica	40681	1
+ref_mOTU_v31_03448	Caballeronia udeis	1232866	1
+ref_mOTU_v31_03449	Caballeronia sordidicola	196367	2
+ref_mOTU_v31_03450	Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	196367	3
+ref_mOTU_v31_03838	Sphingomonas wittichii [Sphingomonas sp. YL-JM2C/Sphingomonas wittichii]	160791	1
+ref_mOTU_v31_03944	Bradyrhizobium lablabi/ottawaense	NA	1
+ref_mOTU_v31_03945	Afipia sp. GAS231	1882747	1
+ref_mOTU_v31_03946	Bradyrhizobium sp. URHA0002	1298867	1
+ref_mOTU_v31_04458	Luteibacter rhizovicinus	242606	1
+ref_mOTU_v31_06975	Nevskia soli	418856	1
+ref_mOTU_v31_07767	Acidobacteriaceae bacterium KBS 89	1267534	3
+ref_mOTU_v31_08120	Mucilaginibacter pineti	1391627	1
+ref_mOTU_v31_08294	Bradyrhizobium erythrophlei	1437360	1
+ref_mOTU_v31_10328	Acidobacteriales bacterium 59-55	1895690	1
+ref_mOTU_v31_10367	Pseudonocardia sp. 73-21	1895809	3
+ref_mOTU_v31_10762	Bradyrhizobium canariense	255045	2
+ref_mOTU_v31_11238	Phenylobacterium zucineum	284016	1
+ref_mOTU_v31_11294	Granulicella pectinivorans	474950	3
+ref_mOTU_v31_11307	Catenulispora acidiphila	304895	1
+ref_mOTU_v31_11695	Mucilaginibacter mallensis	652787	2
+ref_mOTU_v31_11771	Granulicella mallensis	940614	8
+ext_mOTU_v31_15000	Burkholderiales species incertae sedis	NA	1
+ext_mOTU_v31_29851	Bradyrhizobium species incertae sedis	NA	1
+ext_mOTU_v31_29927	Acidobacteriaceae species incertae sedis	NA	4
+ext_mOTU_v31_32620	Caballeronia species incertae sedis	NA	1
+ext_mOTU_v31_32696	Acidobacteriaceae species incertae sedis	NA	4
+ext_mOTU_v31_32738	Mycobacterium species incertae sedis	NA	1
+ext_mOTU_v31_32742	Bacteroidetes species incertae sedis	NA	2
+ext_mOTU_v31_32744	Thermoleophilia species incertae sedis	NA	1
+unassigned	unassigned	NA	32

@@ -1,0 +1,26 @@
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-5-POLPIL-B/S-5-POLPIL-B_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-5-POLPIL-B/S-5-POLPIL-B_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-5-POLPIL-B/S-5-POLPIL-B_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-5-POLPIL-B/S-5-POLPIL-B_unmatched_2.fastq.gz -n S-5-POLPIL-B -t 24 -u -c -p
+#mOTU	consensus_taxonomy	NCBI_tax_id	S-5-POLPIL-B
+ref_mOTU_v31_01132	Methylobacterium pseudosasicola	582667	1
+ref_mOTU_v31_01174	Bradyrhizobium sp. [Bradyrhizobium sp. LTSP849/Bradyrhizobium sp. LTSP857]	NA	1
+ref_mOTU_v31_01190	Bradyrhizobium japonicum [Bradyrhizobium japonicum/Bradyrhizobium sp.]	375	1
+ref_mOTU_v31_01191	Bradyrhizobium shewense/japonicum [Bradyrhizobium sp. WSM2793/Bradyrhizobium shewense/Bradyrhizobium sp. Rc3b/Bradyrhizobium japonicum]	NA	1
+ref_mOTU_v31_03448	Caballeronia udeis	1232866	1
+ref_mOTU_v31_03449	Caballeronia sordidicola	196367	1
+ref_mOTU_v31_03450	Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	196367	4
+ref_mOTU_v31_03945	Afipia sp. GAS231	1882747	1
+ref_mOTU_v31_04750	Tardiphaga sp. OK245	1855306	2
+ref_mOTU_v31_06204	Caballeronia humi	326474	1
+ref_mOTU_v31_08295	Bradyrhizobium erythrophlei	1437360	1
+ref_mOTU_v31_10367	Pseudonocardia sp. 73-21	1895809	2
+ref_mOTU_v31_10380	Solirubrobacterales bacterium 70-9	1895833	3
+ref_mOTU_v31_11294	Granulicella pectinivorans	474950	1
+ref_mOTU_v31_11695	Mucilaginibacter mallensis	652787	1
+ref_mOTU_v31_11771	Granulicella mallensis	940614	1
+ext_mOTU_v31_15000	Burkholderiales species incertae sedis	NA	1
+ext_mOTU_v31_15028	Alphaproteobacteria species incertae sedis	NA	1
+ext_mOTU_v31_15667	Bradyrhizobium species incertae sedis	NA	1
+ext_mOTU_v31_25025	Bradyrhizobium species incertae sedis	NA	2
+ext_mOTU_v31_32738	Mycobacterium species incertae sedis	NA	1
+ext_mOTU_v31_32744	Thermoleophilia species incertae sedis	NA	1
+unassigned	unassigned	NA	38

@@ -1,0 +1,26 @@
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-16-POLPIL-B/S-16-POLPIL-B_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-16-POLPIL-B/S-16-POLPIL-B_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-16-POLPIL-B/S-16-POLPIL-B_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-16-POLPIL-B/S-16-POLPIL-B_unmatched_2.fastq.gz -n S-16-POLPIL-B -t 24 -u -c -p
+#mOTU	consensus_taxonomy	NCBI_tax_id	S-16-POLPIL-B
+ref_mOTU_v31_00441	Duganella sp. CF402	1855289	1
+ref_mOTU_v31_00469	Rhizobacter sp. Root404	1736528	1
+ref_mOTU_v31_00487	Variovorax sp. [Variovorax sp. CF313/Variovorax sp. Root411/Variovorax sp. Root434]	NA	1
+ref_mOTU_v31_00516	Burkholderiales bacterium RIFCSPHIGHO2_01_FULL_63_240	1797552	1
+ref_mOTU_v31_00517	Leptothrix cholodnii	34029	1
+ref_mOTU_v31_00781	Mesorhizobium loti	381	2
+ref_mOTU_v31_01135	Bacteria sp. [Methylobacterium sp. 285MFTsu5.1/Methylobacterium sp. EUR3 AL-11/Methylobacterium sp. C1/Methylobacterium sp. 275MFSha3.1/Methylobacterium sp. UNC300MFChir4.1/Methylobacterium sp. 13MFTsu3.1M2/Methylobacterium sp. ME121/Methylobacterium sp. Leaf361/Methylobacterium sp. yr668/Methylobacterium radiotolerans/Asanoa ferruginea]	NA	2
+ref_mOTU_v31_01174	Bradyrhizobium sp. [Bradyrhizobium sp. LTSP849/Bradyrhizobium sp. LTSP857]	NA	1
+ref_mOTU_v31_01185	Bradyrhizobium diazoefficiens/japonicum [Bradyrhizobium sp. WSM2254/Bradyrhizobium diazoefficiens/Bradyrhizobium sp. cf659/Bradyrhizobium japonicum]	NA	1
+ref_mOTU_v31_01430	Streptacidiphilus albus	105425	1
+ref_mOTU_v31_01431	Streptacidiphilus carbonis/jeojiense	NA	3
+ref_mOTU_v31_01688	Bradyrhizobium sp. [Bradyrhizobium sp. LTSP885/Bradyrhizobium sp. LTSPM299]	NA	1
+ref_mOTU_v31_01692	Bradyrhizobium pachyrhizi/elkanii [Bradyrhizobium sp. UFLA 03-321/Bradyrhizobium sp. R5/Bradyrhizobium pachyrhizi/Bradyrhizobium elkanii]	NA	1
+ref_mOTU_v31_02102	Actinoplanes globisporus	113565	1
+ref_mOTU_v31_02854	Paraburkholderia ginsengisoli	311231	2
+ref_mOTU_v31_03449	Caballeronia sordidicola	196367	1
+ref_mOTU_v31_03450	Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	196367	8
+ref_mOTU_v31_03944	Bradyrhizobium lablabi/ottawaense	NA	1
+ref_mOTU_v31_03946	Bradyrhizobium sp. URHA0002	1298867	1
+ref_mOTU_v31_10380	Solirubrobacterales bacterium 70-9	1895833	2
+ref_mOTU_v31_11307	Catenulispora acidiphila	304895	2
+ext_mOTU_v31_15000	Burkholderiales species incertae sedis	NA	1
+unassigned	unassigned	NA	32

@@ -1,0 +1,28 @@
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-17-POLJUN-B/S-17-POLJUN-B_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-17-POLJUN-B/S-17-POLJUN-B_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-17-POLJUN-B/S-17-POLJUN-B_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-17-POLJUN-B/S-17-POLJUN-B_unmatched_2.fastq.gz -n S-17-POLJUN-B -t 24 -u -c -p
+#mOTU	consensus_taxonomy	NCBI_tax_id	S-17-POLJUN-B
+ref_mOTU_v31_00424	Janthinobacterium lividum [Janthinobacterium sp. RA13/Janthinobacterium sp. HH100/Janthinobacterium sp. HH102/Janthinobacterium sp. HH103/Janthinobacterium sp. HH104/Janthinobacterium sp. HH106/Janthinobacterium sp. HH107/Janthinobacterium sp. 344/Janthinobacterium sp. 551a/Janthinobacterium sp. 1_2014MBL_MicDiv/Janthinobacterium sp. KBS0711/Janthinobacterium sp. Ant5-2-1/Janthinobacterium sp. MP5059B/Janthinobacterium sp. OK676/Janthinobacterium sp. YR213/Janthinobacterium sp. TND4EL3/Janthinobacterium sp. LM6/Janthinobacterium sp. GW460W/Janthinobacterium sp. GW460P/Janthinobacterium sp. GW458P/Janthinobacterium sp. GW456W/Janthinobacterium sp. GW456P/Janthinobacterium lividum]	29581	1
+ref_mOTU_v31_00436	Massilia alkalitolerans [Massilia sp. LC238/Massilia alkalitolerans]	286638	1
+ref_mOTU_v31_00528	Rugamonas rubra	758825	2
+ref_mOTU_v31_00529	Oxalobacteraceae sp. [Janthinobacterium sp. HH01/Duganella sp. HH101/Duganella sp. HH105]	NA	3
+ref_mOTU_v31_00531	Duganella sp. CF517	1881038	1
+ref_mOTU_v31_01131	Methylobacterium brachiatum [Methylobacterium sp. GXF4/Methylobacterium sp. ARG-1/Methylobacterium brachiatum]	269660	1
+ref_mOTU_v31_02840	Paraburkholderia phenazinium	60549	2
+ref_mOTU_v31_03448	Caballeronia udeis	1232866	1
+ref_mOTU_v31_03449	Caballeronia sordidicola	196367	2
+ref_mOTU_v31_03450	Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	196367	5
+ref_mOTU_v31_03451	Burkholderia sp. Leaf177	1736287	1
+ref_mOTU_v31_05351	Methylibium sp. Root1272	1736441	1
+ref_mOTU_v31_07767	Acidobacteriaceae bacterium KBS 89	1267534	2
+ref_mOTU_v31_08294	Bradyrhizobium erythrophlei	1437360	1
+ref_mOTU_v31_09315	Bradyrhizobiaceae bacterium Ga0074131	1752203	1
+ref_mOTU_v31_10380	Solirubrobacterales bacterium 70-9	1895833	2
+ref_mOTU_v31_11238	Phenylobacterium zucineum	284016	1
+ref_mOTU_v31_11294	Granulicella pectinivorans	474950	1
+ref_mOTU_v31_11649	Nostoc punctiforme	272131	2
+ref_mOTU_v31_11771	Granulicella mallensis	940614	2
+ref_mOTU_v31_11779	Sphingomonas sp. PR090111-T3T-6A	685778	1
+ext_mOTU_v31_29927	Acidobacteriaceae species incertae sedis	NA	2
+ext_mOTU_v31_32663	Rhizobiales species incertae sedis	NA	1
+ext_mOTU_v31_32744	Thermoleophilia species incertae sedis	NA	11
+unassigned	unassigned	NA	66

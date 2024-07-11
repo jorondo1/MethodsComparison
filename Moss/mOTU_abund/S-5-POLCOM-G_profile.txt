@@ -1,0 +1,17 @@
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-5-POLCOM-G/S-5-POLCOM-G_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-5-POLCOM-G/S-5-POLCOM-G_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-5-POLCOM-G/S-5-POLCOM-G_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-5-POLCOM-G/S-5-POLCOM-G_unmatched_2.fastq.gz -n S-5-POLCOM-G -t 24 -u -c -p
+#mOTU	consensus_taxonomy	NCBI_tax_id	S-5-POLCOM-G
+ref_mOTU_v31_00129	Pseudomonas sp. [Pseudomonas sp. AP19/Pseudomonas costantinii/Pseudomonas sp. Leaf15/Pseudomonas sp. 58 R 3/Pseudomonas salomonii/Pseudomonas antarctica/Pseudomonas fluorescens/Pseudomonas putida/Pseudomonas simiae]	NA	2
+ref_mOTU_v31_00420	Herbaspirillum sp. CF444	1144319	2
+ref_mOTU_v31_00421	Herbaspirillum rhizosphaerae	346179	1
+ref_mOTU_v31_00441	Duganella sp. CF402	1855289	1
+ref_mOTU_v31_00781	Mesorhizobium loti	381	1
+ref_mOTU_v31_01131	Methylobacterium brachiatum [Methylobacterium sp. GXF4/Methylobacterium sp. ARG-1/Methylobacterium brachiatum]	269660	1
+ref_mOTU_v31_02853	Paraburkholderia aspalathi [Paraburkholderia aspalathi/Burkholderia sp. ST111/Burkholderia sp. OLGA172/Burkholderia sp. GAS332]	1324617	1
+ref_mOTU_v31_03401	Rouxiella silvae [Rouxiella silvae/Serratia sp. Leaf50]	1646373	1
+ref_mOTU_v31_03450	Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	196367	3
+ref_mOTU_v31_06975	Nevskia soli	418856	1
+ref_mOTU_v31_10367	Pseudonocardia sp. 73-21	1895809	1
+ref_mOTU_v31_11319	Actinophytocola xinjiangensis	485602	1
+ref_mOTU_v31_11771	Granulicella mallensis	940614	1
+unassigned	unassigned	NA	8

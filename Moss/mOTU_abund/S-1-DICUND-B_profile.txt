@@ -1,0 +1,9 @@
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-1-DICUND-B/S-1-DICUND-B_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-1-DICUND-B/S-1-DICUND-B_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-1-DICUND-B/S-1-DICUND-B_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-1-DICUND-B/S-1-DICUND-B_unmatched_2.fastq.gz -n S-1-DICUND-B -t 24 -u -c -p
+#mOTU	consensus_taxonomy	NCBI_tax_id	S-1-DICUND-B
+ref_mOTU_v31_00123	Pseudomonas fluorescens/yamanorum [Pseudomonas sp. PAMC 25886/Pseudomonas sp. Ag1/Pseudomonas sp. PAMC 26793/Pseudomonas sp. ATCC PTA-122608/Pseudomonas fluorescens/Pseudomonas yamanorum]	NA	2
+ref_mOTU_v31_03450	Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	196367	1
+ref_mOTU_v31_08294	Bradyrhizobium erythrophlei	1437360	1
+ext_mOTU_v31_32662	Acidobacteriaceae species incertae sedis	NA	1
+ext_mOTU_v31_32843	Mycobacterium species incertae sedis	NA	1
+unassigned	unassigned	NA	30

@@ -1,0 +1,17 @@
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-26-POLPIL-B/S-26-POLPIL-B_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-26-POLPIL-B/S-26-POLPIL-B_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-26-POLPIL-B/S-26-POLPIL-B_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-26-POLPIL-B/S-26-POLPIL-B_unmatched_2.fastq.gz -n S-26-POLPIL-B -t 24 -u -c -p
+#mOTU	consensus_taxonomy	NCBI_tax_id	S-26-POLPIL-B
+ref_mOTU_v31_00485	Variovorax paradoxus [Variovorax sp. SCN 67-85/Variovorax sp. SCN 67-20/Variovorax sp. 67-131/Variovorax paradoxus]	34073	1
+ref_mOTU_v31_01133	Methylobacterium sp. GXS13	1730094	1
+ref_mOTU_v31_01135	Bacteria sp. [Methylobacterium sp. 285MFTsu5.1/Methylobacterium sp. EUR3 AL-11/Methylobacterium sp. C1/Methylobacterium sp. 275MFSha3.1/Methylobacterium sp. UNC300MFChir4.1/Methylobacterium sp. 13MFTsu3.1M2/Methylobacterium sp. ME121/Methylobacterium sp. Leaf361/Methylobacterium sp. yr668/Methylobacterium radiotolerans/Asanoa ferruginea]	NA	1
+ref_mOTU_v31_01213	Rhodococcus sp. [Rhodococcus sp. YL-1/Rhodococcus enclensis/Rhodococcus sp. P27/Rhodococcus sp. 164Chir2E/Rhodococcus sp. 311R/Rhodococcus sp. ARP2/Rhodococcus sp. 008/Rhodococcus sp. KB6/Rhodococcus sp. YH3-3/Rhodococcus sp. BH4/Rhodococcus erythropolis/Rhodococcus sp. 1139/Rhodococcus sp. AJR001/Rhodococcus sp. D-1/Rhodococcus sp. 66b/Rhodococcus sp. ADH/Rhodococcus qingshengii/Rhodococcus hoagii]	NA	1
+ref_mOTU_v31_02841	Paraburkholderia caledonica/bryophila	NA	1
+ref_mOTU_v31_03450	Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	196367	5
+ref_mOTU_v31_04357	Leifsonia sp. 71-9	1895934	2
+ref_mOTU_v31_07526	Paenibacillus pini	669461	1
+ref_mOTU_v31_10380	Solirubrobacterales bacterium 70-9	1895833	1
+ref_mOTU_v31_11294	Granulicella pectinivorans	474950	2
+ref_mOTU_v31_11771	Granulicella mallensis	940614	2
+ext_mOTU_v31_15161	Methylobacterium species incertae sedis	NA	1
+ext_mOTU_v31_32744	Thermoleophilia species incertae sedis	NA	2
+unassigned	unassigned	NA	25

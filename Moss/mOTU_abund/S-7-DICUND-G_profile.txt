@@ -1,0 +1,23 @@
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-7-DICUND-G/S-7-DICUND-G_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-7-DICUND-G/S-7-DICUND-G_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-7-DICUND-G/S-7-DICUND-G_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-7-DICUND-G/S-7-DICUND-G_unmatched_2.fastq.gz -n S-7-DICUND-G -t 24 -u -c -p
+#mOTU	consensus_taxonomy	NCBI_tax_id	S-7-DICUND-G
+ref_mOTU_v31_01430	Streptacidiphilus albus	105425	1
+ref_mOTU_v31_02839	Paraburkholderia phenazinium	60549	2
+ref_mOTU_v31_02840	Paraburkholderia phenazinium	60549	2
+ref_mOTU_v31_02856	Burkholderia sp. 9120	1500897	1
+ext_mOTU_v31_15844	Bacteria species incertae sedis	NA	1
+ext_mOTU_v31_22736	Acidobacteria species incertae sedis	NA	2
+ext_mOTU_v31_22737	Acidobacteriaceae species incertae sedis	NA	2
+ext_mOTU_v31_22739	Acidobacteria species incertae sedis	NA	3
+ext_mOTU_v31_22746	Verrucomicrobiae species incertae sedis	NA	1
+ext_mOTU_v31_22759	Chromatiales species incertae sedis	NA	4
+ext_mOTU_v31_22760	Streptosporangiales species incertae sedis	NA	1
+ext_mOTU_v31_22773	Acidobacteria species incertae sedis	NA	4
+ext_mOTU_v31_32567	Rhizobiales species incertae sedis	NA	1
+ext_mOTU_v31_32591	Acidobacteria species incertae sedis	NA	1
+ext_mOTU_v31_32596	Acidobacteriaceae species incertae sedis	NA	1
+ext_mOTU_v31_32616	Acidobacteria species incertae sedis	NA	1
+ext_mOTU_v31_32662	Acidobacteriaceae species incertae sedis	NA	1
+ext_mOTU_v31_32663	Rhizobiales species incertae sedis	NA	1
+ext_mOTU_v31_32711	Acidobacteria species incertae sedis	NA	2
+unassigned	unassigned	NA	83

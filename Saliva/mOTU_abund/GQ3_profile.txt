@@ -1,0 +1,286 @@
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/projet_PROVID19/Saliva/preproc/GQ3/GQ3_paired_1.fastq -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/projet_PROVID19/Saliva/preproc/GQ3/GQ3_paired_2.fastq -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/projet_PROVID19/Saliva/preproc/GQ3/GQ3_unmatched_1.fastq -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/projet_PROVID19/Saliva/preproc/GQ3/GQ3_unmatched_2.fastq -n GQ3 -t 24 -u -c -p
+#mOTU	consensus_taxonomy	NCBI_tax_id	GQ3
+ref_mOTU_v31_00282	Streptococcus pneumoniae	1313	43
+ref_mOTU_v31_00283	Streptococcus sp. [Streptococcus pneumoniae/Streptococcus sp. HMSC070B10/Streptococcus sp. HMSC063B03/Streptococcus sp. HMSC077D04/Streptococcus sp. HMSC073F11/Streptococcus sp. CCUG 49591/Streptococcus pseudopneumoniae/Streptococcus mitis/Streptococcus sp. M334]	NA	599
+ref_mOTU_v31_00284	Streptococcus pseudopneumoniae	257758	6
+ref_mOTU_v31_00285	Streptococcus mitis	28037	1
+ref_mOTU_v31_00287	Streptococcus oralis	1303	5
+ref_mOTU_v31_00288	Streptococcus oralis [Streptococcus oralis/Streptococcus sp. oral taxon 071/Streptococcus sp. F0441]	1303	5
+ref_mOTU_v31_00289	Streptococcus oralis	1303	5
+ref_mOTU_v31_00290	Streptococcus oralis [Streptococcus sp. BS35b/Streptococcus sp. BS21/Streptococcus sp. BS29a/Streptococcus sp. SR1/Streptococcus oralis/Streptococcus sp. CM6]	1303	6
+ref_mOTU_v31_00291	Streptococcus oralis	1303	6
+ref_mOTU_v31_00292	Streptococcus oralis	1303	19
+ref_mOTU_v31_00293	Streptococcus sp. oral taxon 058	712622	2
+ref_mOTU_v31_00294	Streptococcus oralis/mitis	NA	4
+ref_mOTU_v31_00295	Streptococcus pseudopneumoniae	257758	1
+ref_mOTU_v31_00296	Streptococcus oralis	1303	109
+ref_mOTU_v31_00300	Streptococcus peroris [Streptococcus sp. HMSC34B10/Streptococcus peroris]	68891	8
+ref_mOTU_v31_00301	Streptococcus sp. [Streptococcus sp. SK140/Streptococcus oralis/Streptococcus sp. HMSC074B11/Streptococcus sp. HMSC061D10/Streptococcus sp. HMSC056C01/Streptococcus sp. HMSC034E03/Streptococcus sp. HMSC071D03/Streptococcus pseudopneumoniae/Streptococcus infantis/Streptococcus sp. oral taxon 431]	NA	484
+ref_mOTU_v31_00302	Streptococcus infantis	68892	10
+ref_mOTU_v31_00303	Streptococcus sp. HMSC067H01	1739491	25
+ref_mOTU_v31_00304	Streptococcus sp. HPH0090	1203590	15
+ref_mOTU_v31_00305	Streptococcus infantis	68892	36
+ref_mOTU_v31_00306	Streptococcus infantis	68892	112
+ref_mOTU_v31_00307	Streptococcus pseudopneumoniae/infantis [Streptococcus sp. HMSC062D07/Streptococcus pseudopneumoniae/Streptococcus infantis]	NA	114
+ref_mOTU_v31_00308	Streptococcus infantis	68892	2
+ref_mOTU_v31_00309	Streptococcus timonensis	1852387	11
+ref_mOTU_v31_00310	Streptococcus sp. [Streptococcus sp. I-G2/Streptococcus sp. I-P16]	NA	238
+ref_mOTU_v31_00311	Streptococcus australis [Streptococcus australis/Streptococcus sp. 400_SSPC/Streptococcus sp. 343_SSPC/Streptococcus sp. 1171_SSPC/Streptococcus sp. A12]	113107	243
+ref_mOTU_v31_00312	Streptococcus parasanguinis [Streptococcus sp. HSISM1/Streptococcus parasanguinis/Streptococcus sp. HMSC074F05/Streptococcus sp. HMSC057G03/Streptococcus sp. HMSC076C09/Streptococcus sp. HMSC073D05/Streptococcus sp. HMSC072C09/Streptococcus sp. HMSC072G04/Streptococcus sp. HMSC061E03/Streptococcus sp. HMSC065C01/Streptococcus sp. HMSC078D09/Streptococcus sp. HMSC065E03]	1318	644
+ref_mOTU_v31_00313	Streptococcus sp. F0442	999425	6
+ref_mOTU_v31_00346	Staphylococcus epidermidis [Staphylococcus epidermidis/Staphylococcus sp. HMSC34G04/Staphylococcus sp. HMSC074F11/Staphylococcus sp. HMSC077C03/Staphylococcus sp. HMSC058E12/Staphylococcus sp. HMSC074D07/Staphylococcus sp. HMSC070A07/Staphylococcus sp. HMSC063F05/Staphylococcus sp. HMSC077D09/Staphylococcus sp. HMSC064E11/Staphylococcus sp. HMSC063F03/Staphylococcus sp. HMSC034A07/Staphylococcus sp. HMSC077D08/Staphylococcus sp. HMSC036A09/Staphylococcus sp. HMSC077G12/Staphylococcus sp. HMSC077H01/Staphylococcus sp. HMSC075A04/Staphylococcus sp. HMSC072H01/Staphylococcus sp. HMSC034G11/Staphylococcus sp. HMSC034D07/Staphylococcus sp. HMSC062D04/Staphylococcus sp. HMSC067B04/Staphylococcus sp. HMSC066G04/Staphylococcus sp. HMSC073C02/Staphylococcus sp. HMSC065D05/Staphylococcus sp. HMSC065D11/Staphylococcus sp. HMSC068G12/Staphylococcus sp. HMSC073E10/Staphylococcus sp. HMSC076H12/Staphylococcus sp. HMSC055B03/Staphylococcus sp. HMSC062B11/Staphylococcus sp. HMSC055A10/Staphylococcus sp. HMSC068G11]	1282	1
+ref_mOTU_v31_00379	Lautropia mirabilis	47671	6
+ref_mOTU_v31_00571	Streptococcus intermedius	1338	3
+ref_mOTU_v31_00800	Cutibacterium acnes [Propionibacterium sp. CC003-HC2/Propionibacterium sp. KPL1847/Propionibacterium sp. KPL1849/Propionibacterium sp. KPL1854/Propionibacterium sp. KPL2003/Propionibacterium sp. KPL2008/Propionibacterium sp. KPL2009/Propionibacterium sp. MB3007/Propionibacterium sp. HMSC068C01/Propionibacterium sp. HMSC078F01/Propionibacterium sp. HMSC069G10/Propionibacterium sp. HMSC065F07/Propionibacterium sp. HMSC078F10/Propionibacterium sp. HMSC067A02/Propionibacterium sp. HMSC075A12/Propionibacterium sp. HMSC067A01/Propionibacterium sp. HMSC062D02/Propionibacterium sp. HMSC062D05/Cutibacterium acnes/Propionibacterium sp. CG1_02_60_36/Propionibacterium sp. 5_U_42AFAA/Propionibacterium sp. 409-HC1/Propionibacterium sp. 434-HC2]	1747	17
+ref_mOTU_v31_00999	Fusobacterium periodonticum	860	23
+ref_mOTU_v31_01002	Fusobacterium nucleatum subsp. vincentii [Fusobacterium sp. HMSC064B12/Fusobacterium nucleatum]	851	2
+ref_mOTU_v31_01004	Fusobacterium hwasookii/nucleatum [Fusobacterium sp. OBRC1/Fusobacterium hwasookii/Fusobacterium sp. HMSC064B11/Fusobacterium nucleatum/Fusobacterium sp. CM22]	NA	1
+ref_mOTU_v31_01068	Haemophilus parainfluenzae	729	144
+ref_mOTU_v31_01069	Haemophilus pittmaniae	249188	3
+ref_mOTU_v31_01074	Capnocytophaga sputigena	1019	1
+ref_mOTU_v31_01100	Haemophilus sputorum	1078480	4
+ref_mOTU_v31_01348	Streptococcus thermophilus [Streptococcus thermophilus CAG:236/Streptococcus thermophilus]	1308	2
+ref_mOTU_v31_01349	Streptococcus salivarius [Streptococcus salivarius/Streptococcus sp. HSISS2/Streptococcus sp. HSISS3/Streptococcus sp. C150]	1304	3
+ref_mOTU_v31_01350	Streptococcus salivarius	1304	245
+ref_mOTU_v31_01495	Neisseria sicca/macacae [Neisseria sp. HMSC06F02/Neisseria sp. HMSC70E02/Neisseria sp. HMSC077D05/Neisseria sp. HMSC074B07/Neisseria sp. HMSC055H02/Neisseria sp. HMSC067H09/Neisseria sp. HMSC065D04/Neisseria sicca/Neisseria macacae/Neisseria sp. GT4A_CT1]	NA	4
+ref_mOTU_v31_01539	Neisseria meningitidis [Neisseria sp. HMSC070F02/Neisseria meningitidis]	487	10
+ref_mOTU_v31_01589	Prevotella nigrescens	28133	3
+ref_mOTU_v31_01591	Streptococcus sanguinis	1305	12
+ref_mOTU_v31_01716	Prevotella pleuritidis	407975	4
+ref_mOTU_v31_01836	Haemophilus parahaemolyticus	735	7
+ref_mOTU_v31_01840	Prevotella veroralis	28137	1
+ref_mOTU_v31_01841	Prevotella sp. oral taxon 306	712461	15
+ref_mOTU_v31_01910	Isoptericola variabilis [Actinomyces sp. HPA0247/Isoptericola variabilis]	139208	12
+ref_mOTU_v31_01911	Actinobacteria sp. [Schaalia odontolytica/Actinomyces sp. HMSC035G02/Xylanimonas cellulosilytica/Sanguibacter keddieii/Actinomyces sp. ICM54]	NA	50
+ref_mOTU_v31_01912	Actinomyces sp. ICM39	1105029	16
+ref_mOTU_v31_01913	Actinomyces sp. [Actinomyces sp. ICM58/Actinomyces sp. oral taxon 172]	NA	3
+ref_mOTU_v31_01914	Actinomyces sp. ICM47	936548	22
+ref_mOTU_v31_01915	Actinomyces bouchesdurhonensis	1852361	5
+ref_mOTU_v31_01938	Veillonella parvula [Veillonella parvula/Veillonella sp. 6_1_27/Veillonella sp. 3_1_44]	29466	6
+ref_mOTU_v31_01939	Veillonella rogosae [Veillonella rogosae/Veillonella sp. oral taxon 158]	423477	22
+ref_mOTU_v31_01940	Veillonella dispar	39778	27
+ref_mOTU_v31_01941	Veillonella atypica [Veillonella sp. HPA0037/Veillonella atypica/Veillonella sp. ACP1/Veillonella sp. ICM51a]	39777	30
+ref_mOTU_v31_01942	Veillonella tobetsuensis	1110546	2
+ref_mOTU_v31_01958	Slackia exigua [Slackia sp. CM382/Slackia exigua]	84109	6
+ref_mOTU_v31_02018	Actinomyces naeslundii	1655	2
+ref_mOTU_v31_02019	Actinomyces oris	544580	43
+ref_mOTU_v31_02020	Actinomyces sp. oral taxon 170	712117	6
+ref_mOTU_v31_02041	Actinobacteria sp. [Actinomyces sp. ph3/Trueperella pyogenes/Streptomyces cattleya/Actinomyces sp. oral taxon 181]	NA	23
+ref_mOTU_v31_02114	Alloscardovia omnicolens [Alloscardovia sp. HMSC034E08/Alloscardovia omnicolens]	419015	1
+ref_mOTU_v31_02302	Leptotrichia wadei	157687	1
+ref_mOTU_v31_02391	Prevotella denticola	28129	2
+ref_mOTU_v31_02392	Prevotella intermedia	28131	2
+ref_mOTU_v31_02395	Prevotella conceptionensis [Prevotella sp. HMSC073D09/Prevotella conceptionensis/Prevotella sp. oral taxon 317]	340486	3
+ref_mOTU_v31_02398	Prevotella nanceiensis [Prevotella nanceiensis/Prevotella sp. oral taxon 299]	425941	9
+ref_mOTU_v31_02399	Prevotella oris [Prevotella sp. HMSC077E09/Prevotella sp. HMSC069G02/Prevotella sp. HMSC077E08/Prevotella oris]	28135	1
+ref_mOTU_v31_02442	Solobacterium moorei	102148	2
+ref_mOTU_v31_02522	Actinomyces massiliensis	461393	1
+ref_mOTU_v31_02523	Porphyromonas somerae [Porphyromonadaceae bacterium KA00676/Porphyromonas somerae/Porphyromonas sp. oral taxon 279/Porphyromonas sp. KLE 1280]	322095	45
+ref_mOTU_v31_02524	Rothia aeria/dentocariosa	NA	10
+ref_mOTU_v31_02535	Porphyromonas catoniae	41976	1
+ref_mOTU_v31_02795	Prevotella melaninogenica [Prevotella sp. ICM33/Prevotella melaninogenica]	28132	126
+ref_mOTU_v31_02796	Prevotella sp. F0091	1227276	1
+ref_mOTU_v31_02797	Prevotella sp. C561	563031	102
+ref_mOTU_v31_02949	Atopobium parvulum [Atopobium sp. ICM42b/Atopobium parvulum/Atopobium sp. BS2]	1382	79
+ref_mOTU_v31_02950	Atopobium parvulum	1382	1
+ref_mOTU_v31_03217	Pseudopropionibacterium propionicum	1750	1
+ref_mOTU_v31_03281	Peptostreptococcus stomatis	341694	1
+ref_mOTU_v31_03485	Prevotella sp. HJM029	1433844	3
+ref_mOTU_v31_03486	Prevotella histicola	470565	1
+ref_mOTU_v31_03518	Campylobacter concisus [Campylobacter concisus/Campylobacter sp. 10_1_50]	199	13
+ref_mOTU_v31_03691	Dialister invisus [Dialister invisus CAG:218/Dialister invisus]	218538	1
+ref_mOTU_v31_03846	Actinomyces marseillensis/pacaensis [Actinomyces sp. S6-Spd3/Actinomyces marseillensis/Actinomyces pacaensis]	NA	18
+ref_mOTU_v31_03966	Streptococcus cristatus	45634	5
+ref_mOTU_v31_03967	Streptococcus cristatus	45634	7
+ref_mOTU_v31_03969	Streptococcus gordonii [Streptococcus gordonii/Streptococcus sp. oral taxon 056]	1302	3
+ref_mOTU_v31_03970	Streptococcus gordonii	1302	6
+ref_mOTU_v31_04051	Leptotrichia sp. oral taxon 215	712359	19
+ref_mOTU_v31_04052	Leptotrichia sp. oral taxon 212	712357	1
+ref_mOTU_v31_04054	Actinomyces graevenitzii	55565	60
+ref_mOTU_v31_04194	Gemella haemolysans	1379	2
+ref_mOTU_v31_04195	Staphylococcaceae sp. [Gemella haemolysans/Staphylococcus pasteuri]	NA	4
+ref_mOTU_v31_04252	Prevotella salivae	228604	10
+ref_mOTU_v31_04287	Parvimonas micra	33033	1
+ref_mOTU_v31_04303	Gemella sanguinis	84135	77
+ref_mOTU_v31_04782	Granulicatella adiacens [Granulicatella sp. HMSC30F09/Granulicatella sp. HMSC31F03/Granulicatella sp. 572.rep1_STHE/Granulicatella sp. 572.rep2_STHE/Granulicatella adiacens]	46124	21
+ref_mOTU_v31_04783	Streptococcus sp. 263_SSPC	1579343	83
+ref_mOTU_v31_04789	Neisseria elongata	495	2
+ref_mOTU_v31_04790	Neisseria elongata [Neisseria sp. HMSC31F04/Neisseria elongata]	495	3
+ref_mOTU_v31_04794	Neisseria sp. [Neisseria sp. HMSC066H01/Neisseria sp. HMSC078C12/Neisseria sp. HMSC061B04/Neisseria sp. HMSC070A01/Neisseria lactamica/Neisseria meningitidis/Neisseria mucosa]	NA	81
+ref_mOTU_v31_04796	Neisseria subflava/meningitidis [Neisseria sp. HMSC072B12/Neisseria sp. HMSC058F07/Neisseria sp. HMSC075C12/Neisseria sp. HMSC063B05/Neisseria sp. HMSC071A01/Neisseria sp. HMSC067H04/Neisseria sp. HMSC067G12/Neisseria sp. HMSC067G11/Neisseria sp. HMSC068C12/Neisseria subflava/Neisseria meningitidis]	NA	14
+ref_mOTU_v31_04797	Neisseria flavescens [Neisseria sp. HMSC064D07/Neisseria flavescens]	484	25
+ref_mOTU_v31_04798	Neisseria sp. [Neisseria sp. HMSC15G01/Neisseria sp. HMSC064F03/Neisseria sp. HMSC078H04/Neisseria sp. HMSC056A04/Neisseria sp. HMSC070H10/Neisseria sp. HMSC072C05/Neisseria sp. HMSC066F04/Neisseria sp. HMSC061H08/Neisseria sp. HMSC068C04/Neisseria sp. HMSC061E12/Neisseria sp. HMSC073G10/Neisseria sp. HMSC069H12/Neisseria sp. HMSC066B07/Neisseria sp. HMSC075C10/Neisseria sp. HMSC056A03/Neisseria flavescens/Neisseria lactamica/Neisseria meningitidis]	NA	61
+ref_mOTU_v31_04800	Rothia dentocariosa [Rothia sp. HMSC08A08/Rothia sp. HMSC071F11/Rothia sp. HMSC058E10/Rothia sp. HMSC064D08/Rothia sp. HMSC067H10/Rothia sp. HMSC065G12/Rothia sp. HMSC036D11/Rothia sp. HMSC069C01/Rothia sp. HMSC065D02/Rothia dentocariosa]	2047	60
+ref_mOTU_v31_05264	Rothia mucilaginosa [Rothia sp. HMSC072B03/Rothia sp. HMSC062F03/Rothia sp. HMSC068F09/Rothia sp. HMSC072E10/Rothia mucilaginosa]	43675	18
+ref_mOTU_v31_05265	Rothia mucilaginosa [Rothia sp. HMSC071B01/Rothia sp. HMSC078H08/Rothia sp. HMSC065C03/Rothia sp. HMSC061D12/Rothia sp. HMSC069D01/Rothia sp. HMSC064F07/Rothia sp. HMSC075F09/Rothia sp. HMSC062H08/Rothia sp. HMSC065C12/Rothia sp. HMSC069C10/Rothia sp. HMSC065B04/Rothia sp. HMSC069C04/Rothia sp. HMSC073B08/Rothia sp. HMSC066G02/Rothia sp. HMSC068E02/Rothia sp. HMSC061E04/Rothia sp. HMSC072B04/Rothia sp. HMSC071C12/Rothia sp. HMSC066G07/Rothia sp. HMSC076D04/Rothia sp. HMSC066H02/Rothia sp. HMSC065D09/Rothia sp. HMSC061C12/Rothia mucilaginosa]	43675	719
+ref_mOTU_v31_06122	Neisseria bacilliformis	267212	3
+ref_mOTU_v31_06128	Cardiobacterium hominis	2718	1
+ref_mOTU_v31_06312	Capnocytophaga granulosa [Capnocytophaga granulosa/Capnocytophaga sp. CM59]	45242	1
+ref_mOTU_v31_06321	Lachnoanaerobaculum saburreum [Lachnoanaerobaculum saburreum/Lachnospiraceae bacterium oral taxon 082]	467210	1
+ref_mOTU_v31_06365	Selenomonas sputigena [Selenomonas sputigena/Selenomonas sp. CM52]	69823	2
+ref_mOTU_v31_06367	Corynebacterium matruchotii	43768	3
+ref_mOTU_v31_06382	Selenomonas noxia	135083	2
+ref_mOTU_v31_06398	Shuttleworthia satelles [Shuttleworthia satelles/Shuttleworthia sp. MSX8B]	177972	1
+ref_mOTU_v31_06402	Selenomonas sp. [Selenomonas sp. oral taxon 149/Selenomonas sp. oral taxon 478/Selenomonas sp. oral taxon 136]	NA	10
+ref_mOTU_v31_06403	Selenomonas flueggei	135080	10
+ref_mOTU_v31_06444	Peptoanaerobacter stomatis	796937	1
+ref_mOTU_v31_06445	Oribacterium parvum	1501329	3
+ref_mOTU_v31_06446	Oribacterium asaccharolyticum [Oribacterium asaccharolyticum/Oribacterium sp. oral taxon 108]	1501332	1
+ref_mOTU_v31_06466	[Eubacterium] sulci	143393	58
+ref_mOTU_v31_06478	Lachnoanaerobaculum sp. [Lachnoanaerobaculum sp. ICM7/Lachnoanaerobaculum sp. OBRC5-5/Lachnoanaerobaculum sp. MSX33]	NA	2
+ref_mOTU_v31_06543	Corynebacterium durum	61592	3
+ref_mOTU_v31_07224	[Eubacterium] nodatum	35518	1
+ref_mOTU_v31_07446	Actinobaculum sp. oral taxon 183	712888	2
+ref_mOTU_v31_07939	[Eubacterium] brachy	35517	1
+ref_mOTU_v31_11465	Porphyromonas endodontalis	28124	3
+ref_mOTU_v31_11466	Capnocytophaga gingivalis	1017	3
+ref_mOTU_v31_11495	Gemella morbillorum	29391	7
+ref_mOTU_v31_11576	Oribacterium sinus	237576	24
+ref_mOTU_v31_11593	Catonella morbi	43997	1
+ref_mOTU_v31_11629	Alloprevotella tannerae	76122	2
+ref_mOTU_v31_11632	Kingella oralis	505	3
+ref_mOTU_v31_11759	Bulleidia extructa	118748	9
+ref_mOTU_v31_11761	Alloprevotella rava	671218	5
+ref_mOTU_v31_11823	Megasphaera micronuciformis	187326	8
+ref_mOTU_v31_11939	Stomatobaculum longum	796942	5
+ref_mOTU_v31_11969	Scardovia wiggsiae	230143	1
+ref_mOTU_v31_12220	Prevotella pallens	60133	49
+meta_mOTU_v31_12274	Flavobacteriaceae species incertae sedis	NA	4
+meta_mOTU_v31_12290	Mogibacterium species incertae sedis	NA	40
+meta_mOTU_v31_12337	Peptostreptococcaceae species incertae sedis	NA	82
+meta_mOTU_v31_12359	Bacteroidales species incertae sedis	NA	87
+meta_mOTU_v31_12360	Leptotrichia species incertae sedis	NA	6
+meta_mOTU_v31_12387	Solobacterium species incertae sedis	NA	45
+meta_mOTU_v31_12392	Tannerella sp. oral taxon HOT-286	712710	1
+meta_mOTU_v31_12409	Bacteria species incertae sedis	NA	1
+meta_mOTU_v31_12444	Bacteria species incertae sedis	NA	11
+meta_mOTU_v31_12472	Prevotella species incertae sedis	NA	3
+meta_mOTU_v31_12478	Clostridium species incertae sedis	NA	22
+meta_mOTU_v31_12488	Oribacterium species incertae sedis	NA	3
+meta_mOTU_v31_12532	Bacteroidales species incertae sedis	NA	8
+meta_mOTU_v31_12555	Campylobacter species incertae sedis	NA	1
+meta_mOTU_v31_12574	Bacteria species incertae sedis	NA	1
+meta_mOTU_v31_12582	Catonella morbi	43997	30
+meta_mOTU_v31_12605	Stomatobaculum longum	796942	36
+meta_mOTU_v31_12689	Bacteria species incertae sedis	NA	30
+meta_mOTU_v31_12734	Bacteria species incertae sedis	NA	18
+meta_mOTU_v31_12764	Pasteurellaceae species incertae sedis	NA	6
+meta_mOTU_v31_12777	Clostridiales species incertae sedis	NA	2
+meta_mOTU_v31_12807	Lactobacillales species incertae sedis	NA	197
+meta_mOTU_v31_12847	Bacteria species incertae sedis	NA	5
+meta_mOTU_v31_12849	Bacteria species incertae sedis	NA	1
+meta_mOTU_v31_12931	Lautropia mirabilis	47671	1
+meta_mOTU_v31_12961	Leptotrichia species incertae sedis	NA	1
+meta_mOTU_v31_13009	Bacteria species incertae sedis	NA	31
+meta_mOTU_v31_13055	Firmicutes species incertae sedis	NA	55
+meta_mOTU_v31_13077	Clostridium species incertae sedis	NA	40
+meta_mOTU_v31_13135	Veillonella species incertae sedis	NA	43
+meta_mOTU_v31_13218	Pasteurellaceae species incertae sedis	NA	6
+meta_mOTU_v31_13222	Pseudopropionibacterium propionicum	1750	9
+meta_mOTU_v31_13253	Pasteurellaceae species incertae sedis	NA	8
+meta_mOTU_v31_13327	Oribacterium species incertae sedis	NA	2
+meta_mOTU_v31_13483	Bacteria species incertae sedis	NA	6
+meta_mOTU_v31_13579	Bacteria species incertae sedis	NA	1
+meta_mOTU_v31_13752	Bacteria species incertae sedis	NA	1
+meta_mOTU_v31_14177	Atopobium species incertae sedis	NA	2
+meta_mOTU_v31_14352	Bacteria species incertae sedis	NA	5
+meta_mOTU_v31_14360	Campylobacter species incertae sedis	NA	1
+meta_mOTU_v31_14387	Clostridiales species incertae sedis	NA	20
+ext_mOTU_v31_17438	Streptococcus species incertae sedis	NA	65
+ext_mOTU_v31_17439	Streptococcus species incertae sedis	NA	6
+ext_mOTU_v31_17440	Streptococcus species incertae sedis	NA	2
+ext_mOTU_v31_17442	Streptococcus species incertae sedis	NA	1
+ext_mOTU_v31_17443	Streptococcus species incertae sedis	NA	6
+ext_mOTU_v31_17444	Streptococcus species incertae sedis	NA	2
+ext_mOTU_v31_17463	Actinomyces species incertae sedis	NA	1
+ext_mOTU_v31_17471	Streptococcus species incertae sedis	NA	12
+ext_mOTU_v31_17472	Streptococcus species incertae sedis	NA	10
+ext_mOTU_v31_17473	Streptococcus species incertae sedis	NA	13
+ext_mOTU_v31_17837	Streptococcus species incertae sedis	NA	1
+ext_mOTU_v31_17848	Candidatus Saccharibacteria species incertae sedis	NA	1
+ext_mOTU_v31_17849	Candidatus Saccharibacteria species incertae sedis	NA	9
+ext_mOTU_v31_17851	Candidatus Saccharibacteria species incertae sedis	NA	5
+ext_mOTU_v31_17852	Candidatus Saccharibacteria species incertae sedis	NA	11
+ext_mOTU_v31_17853	Candidatus Saccharibacteria species incertae sedis	NA	5
+ext_mOTU_v31_17854	Candidatus Saccharibacteria species incertae sedis	NA	5
+ext_mOTU_v31_17855	Candidatus Saccharibacteria species incertae sedis	NA	4
+ext_mOTU_v31_17856	Candidatus Saccharibacteria species incertae sedis	NA	7
+ext_mOTU_v31_17857	Candidatus Saccharibacteria species incertae sedis	NA	2
+ext_mOTU_v31_17858	Candidatus Saccharibacteria species incertae sedis	NA	7
+ext_mOTU_v31_17914	Veillonella species incertae sedis	NA	1
+ext_mOTU_v31_17915	Veillonella species incertae sedis	NA	2
+ext_mOTU_v31_18018	Actinomyces species incertae sedis	NA	1
+ext_mOTU_v31_18022	Streptococcus species incertae sedis	NA	13
+ext_mOTU_v31_18023	Streptococcus species incertae sedis	NA	43
+ext_mOTU_v31_18024	Streptococcus species incertae sedis	NA	14
+ext_mOTU_v31_18027	Actinomyces species incertae sedis	NA	20
+ext_mOTU_v31_18159	Leptotrichia species incertae sedis	NA	15
+ext_mOTU_v31_19623	Treponema species incertae sedis	NA	2
+ext_mOTU_v31_19636	Treponema species incertae sedis	NA	3
+ext_mOTU_v31_19639	Kingella species incertae sedis	NA	2
+ext_mOTU_v31_19640	Aggregatibacter species incertae sedis	NA	1
+ext_mOTU_v31_19642	Erysipelotrichaceae species incertae sedis	NA	5
+ext_mOTU_v31_19643	Granulicatella species incertae sedis	NA	16
+ext_mOTU_v31_19645	Lachnospiraceae species incertae sedis	NA	9
+ext_mOTU_v31_19650	Aggregatibacter species incertae sedis	NA	2
+ext_mOTU_v31_19653	Aggregatibacter species incertae sedis	NA	1
+ext_mOTU_v31_19670	Streptococcus species incertae sedis	NA	6
+ext_mOTU_v31_19671	Streptococcus species incertae sedis	NA	8
+ext_mOTU_v31_19712	Candidatus Saccharibacteria species incertae sedis	NA	6
+ext_mOTU_v31_19713	Candidatus Saccharibacteria species incertae sedis	NA	16
+ext_mOTU_v31_19714	Candidatus Saccharibacteria species incertae sedis	NA	4
+ext_mOTU_v31_19715	Candidatus Saccharibacteria species incertae sedis	NA	13
+ext_mOTU_v31_19717	Candidatus Saccharibacteria species incertae sedis	NA	2
+ext_mOTU_v31_19746	Actinomyces species incertae sedis	NA	4
+ext_mOTU_v31_26700	Streptococcus species incertae sedis	NA	7
+ext_mOTU_v31_26785	Atopobium species incertae sedis	NA	4
+ext_mOTU_v31_26850	Streptococcus species incertae sedis	NA	34
+ext_mOTU_v31_26865	Haemophilus species incertae sedis	NA	8
+ext_mOTU_v31_26926	Candidatus Saccharibacteria species incertae sedis	NA	4
+ext_mOTU_v31_26956	Haemophilus species incertae sedis	NA	2
+ext_mOTU_v31_27080	Haemophilus species incertae sedis	NA	6
+ext_mOTU_v31_27166	Actinomyces species incertae sedis	NA	1
+ext_mOTU_v31_27168	Actinomyces species incertae sedis	NA	1
+ext_mOTU_v31_27189	Candidatus Saccharibacteria species incertae sedis	NA	2
+ext_mOTU_v31_27193	Atopobium species incertae sedis	NA	2
+ext_mOTU_v31_27194	Gemella species incertae sedis	NA	2
+ext_mOTU_v31_27195	Granulicatella species incertae sedis	NA	30
+ext_mOTU_v31_27255	Streptococcus species incertae sedis	NA	6
+ext_mOTU_v31_28185	Streptococcus species incertae sedis	NA	15
+ext_mOTU_v31_29357	Atopobium species incertae sedis	NA	10
+ext_mOTU_v31_29396	Lachnospiraceae species incertae sedis	NA	9
+ext_mOTU_v31_29413	Streptococcus species incertae sedis	NA	1
+ext_mOTU_v31_29417	Megasphaera species incertae sedis	NA	3
+ext_mOTU_v31_29427	Selenomonas species incertae sedis	NA	6
+ext_mOTU_v31_29428	Streptococcus species incertae sedis	NA	7
+ext_mOTU_v31_29429	Streptococcus species incertae sedis	NA	4
+ext_mOTU_v31_29435	Streptococcus species incertae sedis	NA	4
+ext_mOTU_v31_29437	Streptococcus species incertae sedis	NA	5
+ext_mOTU_v31_29438	Streptococcus species incertae sedis	NA	3
+ext_mOTU_v31_29442	Selenomonas species incertae sedis	NA	1
+ext_mOTU_v31_29450	Streptococcus species incertae sedis	NA	2
+ext_mOTU_v31_29454	Streptococcus species incertae sedis	NA	165
+ext_mOTU_v31_29457	Streptococcus species incertae sedis	NA	1
+ext_mOTU_v31_29460	Neisseria species incertae sedis	NA	1
+ext_mOTU_v31_29461	Neisseria species incertae sedis	NA	17
+ext_mOTU_v31_29463	Streptococcus species incertae sedis	NA	2
+ext_mOTU_v31_29465	Streptococcus species incertae sedis	NA	1
+ext_mOTU_v31_29469	Streptococcus species incertae sedis	NA	3
+ext_mOTU_v31_29474	Streptococcus species incertae sedis	NA	32
+ext_mOTU_v31_29479	Streptococcus species incertae sedis	NA	2
+ext_mOTU_v31_29480	Streptococcus species incertae sedis	NA	9
+ext_mOTU_v31_29483	Streptococcus species incertae sedis	NA	16
+ext_mOTU_v31_29490	Streptococcus species incertae sedis	NA	6
+ext_mOTU_v31_29496	Streptococcus species incertae sedis	NA	16
+ext_mOTU_v31_29510	Actinomyces species incertae sedis	NA	2
+ext_mOTU_v31_29542	Candidatus Saccharibacteria species incertae sedis	NA	4
+ext_mOTU_v31_29544	Candidatus Saccharibacteria species incertae sedis	NA	2
+ext_mOTU_v31_29553	Candidatus Saccharibacteria species incertae sedis	NA	6
+ext_mOTU_v31_29554	Candidatus Saccharibacteria species incertae sedis	NA	1
+ext_mOTU_v31_29568	Candidatus Saccharibacteria species incertae sedis	NA	6
+ext_mOTU_v31_29571	Candidatus Saccharibacteria species incertae sedis	NA	9
+ext_mOTU_v31_29583	Campylobacter species incertae sedis	NA	1
+ext_mOTU_v31_29593	Campylobacter species incertae sedis	NA	1
+ext_mOTU_v31_29616	Actinomycetaceae species incertae sedis	NA	5
+unassigned	unassigned	NA	216
