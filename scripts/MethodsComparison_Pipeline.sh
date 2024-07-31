@@ -77,7 +77,7 @@ ls */MPA_db2023/*/*_profile.txt | wc -l
 
 sbatch --mem=60G --array=1-"$NUM_SALIVA" $MC/scripts/gather_SLURM.sh Saliva $SALIVA_TSV "genbank-2022.03"
 sbatch --mem=60G --array=1-"$NUM_FECES" $MC/scripts/gather_SLURM.sh Feces $FECES_TSV "genbank-2022.03"
-sbatch --mem=60G --array=1-"$NUM_MOSS" $MC/scripts/gather_SLURM.sh Moss $MOSS_TSV "genbank-2022.03"
+sbatch --mem=80G --array=1-"$NUM_MOSS" $MC/scripts/gather_SLURM.sh Moss $MOSS_TSV "genbank-2022.03"
 
 sbatch --mem=15G --array=1-"$NUM_SALIVA" $MC/scripts/gather_SLURM.sh Saliva $SALIVA_TSV "gtdb-rs220"
 sbatch --mem=15G --array=1-"$NUM_FECES" $MC/scripts/gather_SLURM.sh Feces $FECES_TSV "gtdb-rs220"
