@@ -1,0 +1,47 @@
+#mpa_vJun23_CHOCOPhlAnSGB_202307
+#/usr/local/bin/metaphlan -t rel_ab --input_type fastq --add_viruses --unclassified_estimation --offline --tmp_dir /localscratch/ronj2303.5578954.0 --bowtie2db /nfs3_ib/nfs-ip34/fast/def-ilafores/metaphlan4_db -x mpa_vJun23_CHOCOPhlAnSGB_202307 --bowtie2out /localscratch/ronj2303.5578954.0/S-1-POLCOM-G.bowtie2.txt --nproc 24 -o /localscratch/ronj2303.5578954.0/S-1-POLCOM-G_profile.txt /localscratch/ronj2303.5578954.0/all_reads.fastq
+#19904138 reads processed
+#SampleID	Metaphlan_Analysis
+#clade_name	NCBI_tax_id	relative_abundance	additional_species
+UNCLASSIFIED	-1	99.60333	
+k__Bacteria	2	0.39666572064793537	
+k__Bacteria|p__Proteobacteria	2|1224	0.3954574371962697	
+k__Bacteria|p__Acidobacteria	2|57723	0.0012082834516656759	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria	2|1224|28211	0.3882586286982348	
+k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria	2|1224|1236	0.00719884816460699	
+k__Bacteria|p__Acidobacteria|c__Acidobacteriia	2|57723|204432	0.0012082834516656759	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales	2|1224|28211|204441	0.33634024251978845	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales	2|1224|28211|356	0.05191838617844632	
+k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Xanthomonadales	2|1224|1236|135614	0.00719884816460699	
+k__Bacteria|p__Acidobacteria|c__Acidobacteriia|o__Acidobacteriales	2|57723|204432|204433	0.0012082834516656759	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Acetobacteraceae	2|1224|28211|204441|433	0.30700784380874735	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Beijerinckiaceae	2|1224|28211|356|45404	0.03445624882436671	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Rhodospirillales_unclassified	2|1224|28211|204441|	0.029332359044469073	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Nitrobacteraceae	2|1224|28211|356|41294	0.017462137354079605	
+k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Xanthomonadales|f__Rhodanobacteraceae	2|1224|1236|135614|1775411	0.00719884816460699	
+k__Bacteria|p__Acidobacteria|c__Acidobacteriia|o__Acidobacteriales|f__Acidobacteriaceae	2|57723|204432|204433|204434	0.0012082834516656759	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Acetobacteraceae|g__Lichenicoccus	2|1224|28211|204441|433|2781897	0.2747292501241657	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Beijerinckiaceae|g__Beijerinckiaceae_unclassified	2|1224|28211|356|45404|	0.03243495931166103	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Acetobacteraceae|g__Acidisoma	2|1224|28211|204441|433|512381	0.03227863335115368	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Rhodospirillales_unclassified|g__Rhodospirillales_unclassified	2|1224|28211|204441||	0.029332359044469073	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Nitrobacteraceae|g__Bradyrhizobium	2|1224|28211|356|41294|374	0.017462137354079605	
+k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Xanthomonadales|f__Rhodanobacteraceae|g__Rhodanobacter	2|1224|1236|135614|1775411|75309	0.00719884816460699	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Beijerinckiaceae|g__Beijerinckia	2|1224|28211|356|45404|532	0.0020212895127056842	
+k__Bacteria|p__Acidobacteria|c__Acidobacteriia|o__Acidobacteriales|f__Acidobacteriaceae|g__Granulicella	2|57723|204432|204433|204434|940557	0.0012082834516656759	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Acetobacteraceae|g__Lichenicoccus|s__Lichenicoccus_roseus	2|1224|28211|204441|433|2781897|2683649	0.2747292501241657	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Beijerinckiaceae|g__Beijerinckiaceae_unclassified|s__Beijerinckiaceae_bacterium_RH_AL1	2|1224|28211|356|45404||2572036	0.03243495931166103	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Acetobacteraceae|g__Acidisoma|s__Acidisoma_sp_L85	2|1224|28211|204441|433|512381|1641850	0.03227863335115368	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Rhodospirillales_unclassified|g__Rhodospirillales_unclassified|s__Rhodospirillales_bacterium	2|1224|28211|204441|||2026786	0.029332359044469073	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Nitrobacteraceae|g__Bradyrhizobium|s__Bradyrhizobium_sp_S69	2|1224|28211|356|41294|374|1641856	0.017462137354079605	
+k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Xanthomonadales|f__Rhodanobacteraceae|g__Rhodanobacter|s__Rhodanobacter_sp_ANJX3	2|1224|1236|135614|1775411|75309|2723083	0.00719884816460699	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Beijerinckiaceae|g__Beijerinckia|s__Beijerinckia_sp_L45	2|1224|28211|356|45404|532|1641855	0.0020212895127056842	
+k__Bacteria|p__Acidobacteria|c__Acidobacteriia|o__Acidobacteriales|f__Acidobacteriaceae|g__Granulicella|s__Granulicella_tundricola	2|57723|204432|204433|204434|940557|940615	0.0012082834516656759	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Acetobacteraceae|g__Lichenicoccus|s__Lichenicoccus_roseus|t__SGB56546	2|1224|28211|204441|433|2781897|2683649|	0.2747292501241657	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Beijerinckiaceae|g__Beijerinckiaceae_unclassified|s__Beijerinckiaceae_bacterium_RH_AL1|t__SGB56617	2|1224|28211|356|45404||2572036|	0.03243495931166103	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Acetobacteraceae|g__Acidisoma|s__Acidisoma_sp_L85|t__SGB89246	2|1224|28211|204441|433|512381|1641850|	0.03227863335115368	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Acetobacteraceae|g__Acidisoma|s__Acidisoma_sp_S159
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Rhodospirillales_unclassified|g__Rhodospirillales_unclassified|s__Rhodospirillales_bacterium|t__SGB89907	2|1224|28211|204441|||2026786|	0.027631456434330726	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Nitrobacteraceae|g__Bradyrhizobium|s__Bradyrhizobium_sp_S69|t__SGB89701	2|1224|28211|356|41294|374|1641856|	0.017462137354079605	
+k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Xanthomonadales|f__Rhodanobacteraceae|g__Rhodanobacter|s__Rhodanobacter_sp_ANJX3|t__SGB88805	2|1224|1236|135614|1775411|75309|2723083|	0.00719884816460699	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Xanthomonadales|f__Rhodanobacteraceae|g__Rhodanobacter|s__Rhodanobacter_sp_K2T2
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Beijerinckiaceae|g__Beijerinckia|s__Beijerinckia_sp_L45|t__SGB89659	2|1224|28211|356|45404|532|1641855|	0.0020212895127056842	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Rhodospirillales_unclassified|g__Rhodospirillales_unclassified|s__Rhodospirillales_bacterium|t__SGB73291	2|1224|28211|204441|||2026786|	0.0017009422767104117	
+k__Bacteria|p__Acidobacteria|c__Acidobacteriia|o__Acidobacteriales|f__Acidobacteriaceae|g__Granulicella|s__Granulicella_tundricola|t__SGB9001	2|57723|204432|204433|204434|940557|940615|	0.0012082834516656759	

@@ -1,0 +1,75 @@
+#mpa_vOct22_CHOCOPhlAnSGB_202212
+#/usr/local/bin/metaphlan -t rel_ab --input_type fastq --add_viruses --unclassified_estimation --offline --tmp_dir /localscratch/ronj2303.5578794.0 --bowtie2db /nfs3_ib/nfs-ip34/fast/def-ilafores/metaphlan4_db -x mpa_vOct22_CHOCOPhlAnSGB_202212 --bowtie2out /localscratch/ronj2303.5578794.0/S-26-POLPIL-B.bowtie2.txt --nproc 24 -o /localscratch/ronj2303.5578794.0/S-26-POLPIL-B_profile.txt /localscratch/ronj2303.5578794.0/all_reads.fastq
+#24563242 reads processed
+#SampleID	Metaphlan_Analysis
+#clade_name	NCBI_tax_id	relative_abundance	additional_species
+UNCLASSIFIED	-1	99.12579	
+k__Bacteria	2	0.8742119357046533	
+k__Bacteria|p__Proteobacteria	2|1224	0.5510702464782373	
+k__Bacteria|p__Acidobacteria	2|57723	0.2271516451045607	
+k__Bacteria|p__Actinobacteria	2|201174	0.06836678279865313	
+k__Bacteria|p__Firmicutes	2|1239	0.018515022007482423	
+k__Bacteria|p__Planctomycetes	2|203682	0.00834732524688231	
+k__Bacteria|p__Bacteroidetes	2|976	0.0007608266476437597	
+k__Bacteria|p__Proteobacteria|c__Betaproteobacteria	2|1224|28216	0.4628372597042767	
+k__Bacteria|p__Acidobacteria|c__Acidobacteriia	2|57723|204432	0.2271516451045607	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria	2|1224|28211	0.08823298677396067	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia	2|201174|1760	0.06836678279865313	
+k__Bacteria|p__Firmicutes|c__Bacilli	2|1239|91061	0.018515022007482423	
+k__Bacteria|p__Planctomycetes|c__Planctomycetia	2|203682|203683	0.00834732524688231	
+k__Bacteria|p__Bacteroidetes|c__Sphingobacteriia	2|976|117747	0.0007608266476437597	
+k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales	2|1224|28216|80840	0.4628372597042767	
+k__Bacteria|p__Acidobacteria|c__Acidobacteriia|o__Acidobacteriales	2|57723|204432|204433	0.2271516451045607	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales	2|1224|28211|204441	0.07466696595569586	
+k__Bacteria|p__Firmicutes|c__Bacilli|o__Bacillales	2|1239|91061|1385	0.018515022007482423	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales	2|1224|28211|356	0.01356602081826481	
+k__Bacteria|p__Planctomycetes|c__Planctomycetia|o__Isosphaerales	2|203682|203683|2691356	0.00834732524688231	
+k__Bacteria|p__Bacteroidetes|c__Sphingobacteriia|o__Sphingobacteriales	2|976|117747|200666	0.0007608266476437597	
+k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae	2|1224|28216|80840|119060	0.4215820619828577	
+k__Bacteria|p__Acidobacteria|c__Acidobacteriia|o__Acidobacteriales|f__Acidobacteriaceae	2|57723|204432|204433|204434	0.2271516451045607	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Acetobacteraceae	2|1224|28211|204441|433	0.07219163485974814	
+k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae	2|1224|28216|80840|80864	0.04125528514261258	
+k__Bacteria|p__Firmicutes|c__Bacilli|o__Bacillales|f__Paenibacillaceae	2|1239|91061|1385|186822	0.018515022007482423	
+k__Bacteria|p__Planctomycetes|c__Planctomycetia|o__Isosphaerales|f__Isosphaeraceae	2|203682|203683|2691356|1763524	0.00834732524688231	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Rhodospirillales_unclassified	2|1224|28211|204441|	0.0024753310959477258	
+k__Bacteria|p__Bacteroidetes|c__Sphingobacteriia|o__Sphingobacteriales|f__Sphingobacteriaceae	2|976|117747|200666|84566	0.0007608266476437597	
+k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia	2|1224|28216|80840|119060|1827195	0.4215820619828577	
+k__Bacteria|p__Acidobacteria|c__Acidobacteriia|o__Acidobacteriales|f__Acidobacteriaceae|g__Acidisarcina	2|57723|204432|204433|204434|2608728	0.22639982283985471	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Acetobacteraceae|g__Lichenicoccus	2|1224|28211|204441|433|2781897	0.05769877454724925	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Corynebacteriales|f__Mycobacteriaceae|g__Mycolicibacterium	2|201174|1760|85007|1762|1866885	0.05213004451681061	
+k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__GGB65415	2|1224|28216|80840|80864|	0.04125528514261258	
+k__Bacteria|p__Firmicutes|c__Bacilli|o__Bacillales|f__Paenibacillaceae|g__Paenibacillus	2|1239|91061|1385|186822|44249	0.018515022007482423	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Micrococcales|f__Microbacteriaceae|g__Leifsonia	2|201174|1760|85006|85023|110932	0.016236825703036094	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Acetobacteraceae|g__Acidisoma	2|1224|28211|204441|433|512381	0.014492860312498882	
+k__Bacteria|p__Planctomycetes|c__Planctomycetia|o__Isosphaerales|f__Isosphaeraceae|g__GGB69028	2|203682|203683|2691356|1763524|	0.00834732524688231	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Rhodospirillales_unclassified|g__Rhodospirillales_unclassified	2|1224|28211|204441||	0.0024753310959477258	
+k__Bacteria|p__Bacteroidetes|c__Sphingobacteriia|o__Sphingobacteriales|f__Sphingobacteriaceae|g__Mucilaginibacter	2|976|117747|200666|84566|423349	0.0007608266476437597	
+k__Bacteria|p__Acidobacteria|c__Acidobacteriia|o__Acidobacteriales|f__Acidobacteriaceae|g__Terriglobus	2|57723|204432|204433|204434|392733	0.0007518222647060018	
+k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia_sordidicola	2|1224|28216|80840|119060|1827195|196367	0.4215820619828577	
+k__Bacteria|p__Acidobacteria|c__Acidobacteriia|o__Acidobacteriales|f__Acidobacteriaceae|g__Acidisarcina|s__Acidisarcina_polymorpha	2|57723|204432|204433|204434|2608728|2211140	0.22639982283985471	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Acetobacteraceae|g__Lichenicoccus|s__Lichenicoccus_roseus	2|1224|28211|204441|433|2781897|2683649	0.05769877454724925	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Corynebacteriales|f__Mycobacteriaceae|g__Mycolicibacterium|s__Mycolicibacterium_madagascariense	2|201174|1760|85007|1762|1866885|212765	0.05213004451681061	
+k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__GGB65415|s__GGB65415_SGB108191	2|1224|28216|80840|80864||	0.04125528514261258	
+k__Bacteria|p__Firmicutes|c__Bacilli|o__Bacillales|f__Paenibacillaceae|g__Paenibacillus|s__Paenibacillus_pini	2|1239|91061|1385|186822|44249|669461	0.018515022007482423	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Micrococcales|f__Microbacteriaceae|g__Leifsonia|s__Leifsonia_aquatica	2|201174|1760|85006|85023|110932|144185	0.016236825703036094	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Acetobacteraceae|g__Acidisoma|s__Acidisoma_sp_L85	2|1224|28211|204441|433|512381|1641850	0.014492860312498882	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium_sp_S69	2|1224|28211|356|41294|374|1641856	0.011171991432337616	
+k__Bacteria|p__Planctomycetes|c__Planctomycetia|o__Isosphaerales|f__Isosphaeraceae|g__GGB69028|s__GGB69028_SGB93070	2|203682|203683|2691356|1763524||	0.00834732524688231	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Rhodospirillales_unclassified|g__Rhodospirillales_unclassified|s__Rhodospirillales_bacterium	2|1224|28211|204441|||2026786	0.0024753310959477258	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium_sp_dw_411	2|1224|28211|356|41294|374|2720082	0.0023940293859271928	
+k__Bacteria|p__Bacteroidetes|c__Sphingobacteriia|o__Sphingobacteriales|f__Sphingobacteriaceae|g__Mucilaginibacter|s__Mucilaginibacter_frigoritolerans	2|976|117747|200666|84566|423349|652788	0.0007608266476437597	
+k__Bacteria|p__Acidobacteria|c__Acidobacteriia|o__Acidobacteriales|f__Acidobacteriaceae|g__Terriglobus|s__Terriglobus_roseus	2|57723|204432|204433|204434|392733|392734	0.0007518222647060018	
+k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia_sordidicola|t__SGB12952	2|1224|28216|80840|119060|1827195|196367|	0.4215820619828577	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Burkholderiaceae_unclassified|s__Burkholderiaceae_bacterium,k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Burkholderia|s__Burkholderia_sp_PAMC_28687,k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Burkholderia|s__Burkholderia_sp_PAMC_26561
+k__Bacteria|p__Acidobacteria|c__Acidobacteriia|o__Acidobacteriales|f__Acidobacteriaceae|g__Acidisarcina|s__Acidisarcina_polymorpha|t__SGB22128	2|57723|204432|204433|204434|2608728|2211140|	0.22639982283985471	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Acetobacteraceae|g__Lichenicoccus|s__Lichenicoccus_roseus|t__SGB56546	2|1224|28211|204441|433|2781897|2683649|	0.05769877454724925	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Corynebacteriales|f__Mycobacteriaceae|g__Mycolicibacterium|s__Mycolicibacterium_madagascariense|t__SGB86904	2|201174|1760|85007|1762|1866885|212765|	0.05213004451681061	
+k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__GGB65415|s__GGB65415_SGB108191|t__SGB108191	2|1224|28216|80840|80864|||	0.04125528514261258	
+k__Bacteria|p__Firmicutes|c__Bacilli|o__Bacillales|f__Paenibacillaceae|g__Paenibacillus|s__Paenibacillus_pini|t__SGB7464	2|1239|91061|1385|186822|44249|669461|	0.018515022007482423	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Micrococcales|f__Microbacteriaceae|g__Leifsonia|s__Leifsonia_aquatica|t__SGB16841	2|201174|1760|85006|85023|110932|144185|	0.016236825703036094	k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Micrococcales|f__Microbacteriaceae|g__Leifsonia|s__Leifsonia_naganoensis
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Acetobacteraceae|g__Acidisoma|s__Acidisoma_sp_L85|t__SGB89246	2|1224|28211|204441|433|512381|1641850|	0.014492860312498882	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Acetobacteraceae|g__Acidisoma|s__Acidisoma_sp_S159
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium_sp_S69|t__SGB89701	2|1224|28211|356|41294|374|1641856|	0.011171991432337616	
+k__Bacteria|p__Planctomycetes|c__Planctomycetia|o__Isosphaerales|f__Isosphaeraceae|g__GGB69028|s__GGB69028_SGB93070|t__SGB93070	2|203682|203683|2691356|1763524|||	0.00834732524688231	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Rhodospirillales_unclassified|g__Rhodospirillales_unclassified|s__Rhodospirillales_bacterium|t__SGB89907	2|1224|28211|204441|||2026786|	0.0024753310959477258	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium_sp_dw_411|t__SGB94022	2|1224|28211|356|41294|374|2720082|	0.0023940293859271928	
+k__Bacteria|p__Bacteroidetes|c__Sphingobacteriia|o__Sphingobacteriales|f__Sphingobacteriaceae|g__Mucilaginibacter|s__Mucilaginibacter_frigoritolerans|t__SGB78676	2|976|117747|200666|84566|423349|652788|	0.0007608266476437597	
+k__Bacteria|p__Acidobacteria|c__Acidobacteriia|o__Acidobacteriales|f__Acidobacteriaceae|g__Terriglobus|s__Terriglobus_roseus|t__SGB8997	2|57723|204432|204433|204434|392733|392734|	0.0007518222647060018	

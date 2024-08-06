@@ -1,0 +1,48 @@
+#mpa_vOct22_CHOCOPhlAnSGB_202212
+#/usr/local/bin/metaphlan -t rel_ab --input_type fastq --add_viruses --unclassified_estimation --offline --tmp_dir /localscratch/ronj2303.5578779.0 --bowtie2db /nfs3_ib/nfs-ip34/fast/def-ilafores/metaphlan4_db -x mpa_vOct22_CHOCOPhlAnSGB_202212 --bowtie2out /localscratch/ronj2303.5578779.0/S-9-DICUND-B.bowtie2.txt --nproc 24 -o /localscratch/ronj2303.5578779.0/S-9-DICUND-B_profile.txt /localscratch/ronj2303.5578779.0/all_reads.fastq
+#22623281 reads processed
+#SampleID	Metaphlan_Analysis
+#clade_name	NCBI_tax_id	relative_abundance	additional_species
+UNCLASSIFIED	-1	99.27367	
+k__Bacteria	2	0.7263338611261971	
+k__Bacteria|p__Actinobacteria	2|201174	0.5638000266537908	
+k__Bacteria|p__Proteobacteria	2|1224	0.15760151912165674	
+k__Bacteria|p__Verrucomicrobia	2|74201	0.004932315350749667	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia	2|201174|1760	0.5638000266537908	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria	2|1224|28211	0.11319586375414277	
+k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria	2|1224|1236	0.04129977914395225	
+k__Bacteria|p__Verrucomicrobia|c__Verrucomicrobia_unclassified	2|74201|	0.004932315350749667	
+k__Bacteria|p__Proteobacteria|c__Betaproteobacteria	2|1224|28216	0.003105803590175619	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Streptosporangiales	2|201174|1760|85012	0.5638000266537908	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales	2|1224|28211|204441	0.06684065566997996	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales	2|1224|28211|356	0.046355208084162804	
+k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Nevskiales	2|1224|1236|1775403	0.04129977914395225	
+k__Bacteria|p__Verrucomicrobia|c__Verrucomicrobia_unclassified|o__Verrucomicrobia_unclassified	2|74201||	0.004932315350749667	
+k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales	2|1224|28216|80840	0.003105803590175619	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Streptosporangiales|f__Treboniaceae	2|201174|1760|85012|2767072	0.5638000266537908	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Rhodospirillales_unclassified	2|1224|28211|204441|	0.06684065566997996	
+k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Nevskiales|f__Sinobacteraceae	2|1224|1236|1775403|568386	0.04129977914395225	
+k__Bacteria|p__Verrucomicrobia|c__Verrucomicrobia_unclassified|o__Verrucomicrobia_unclassified|f__Verrucomicrobia_unclassified	2|74201|||	0.004932315350749667	
+k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae	2|1224|28216|80840|119060	0.003105803590175619	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Streptosporangiales|f__Treboniaceae|g__GGB52803	2|201174|1760|85012|2767072|	0.5559894681115564	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Rhodospirillales_unclassified|g__Rhodospirillales_unclassified	2|1224|28211|204441||	0.06684065566997996	
+k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Nevskiales|f__Sinobacteraceae|g__Nevskia	2|1224|1236|1775403|568386|64001	0.04129977914395225	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Streptosporangiales|f__Treboniaceae|g__Trebonia	2|201174|1760|85012|2767072|2767073	0.007810558542234449	
+k__Bacteria|p__Verrucomicrobia|c__Verrucomicrobia_unclassified|o__Verrucomicrobia_unclassified|f__Verrucomicrobia_unclassified|g__Verrucomicrobia_unclassified	2|74201||||	0.004932315350749667	
+k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Paraburkholderia	2|1224|28216|80840|119060|1822464	0.003105803590175619	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Streptosporangiales|f__Treboniaceae|g__GGB52803|s__GGB52803_SGB86998	2|201174|1760|85012|2767072||	0.5559894681115564	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Rhodospirillales_unclassified|g__Rhodospirillales_unclassified|s__Rhodospirillales_bacterium	2|1224|28211|204441|||2026786	0.06684065566997996	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium_sp_dw_411	2|1224|28211|356|41294|374|2720082	0.04263572501472166	
+k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Nevskiales|f__Sinobacteraceae|g__Nevskia|s__Nevskia_soli	2|1224|1236|1775403|568386|64001|418856	0.04129977914395225	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Streptosporangiales|f__Treboniaceae|g__Trebonia|s__Trebonia_kvetii	2|201174|1760|85012|2767072|2767073|2480626	0.007810558542234449	
+k__Bacteria|p__Verrucomicrobia|c__Verrucomicrobia_unclassified|o__Verrucomicrobia_unclassified|f__Verrucomicrobia_unclassified|g__Verrucomicrobia_unclassified|s__Verrucomicrobia_bacterium	2|74201|||||2026799	0.004932315350749667	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium_sp_S69	2|1224|28211|356|41294|374|1641856	0.003719555702827256	
+k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Paraburkholderia|s__Paraburkholderia_phenazinium	2|1224|28216|80840|119060|1822464|60549	0.003105803590175619	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Streptosporangiales|f__Treboniaceae|g__GGB52803|s__GGB52803_SGB86998|t__SGB86998	2|201174|1760|85012|2767072|||	0.5559894681115564	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhodospirillales|f__Rhodospirillales_unclassified|g__Rhodospirillales_unclassified|s__Rhodospirillales_bacterium|t__SGB73291	2|1224|28211|204441|||2026786|	0.06684065566997996	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium_sp_dw_411|t__SGB94022	2|1224|28211|356|41294|374|2720082|	0.04263572501472166	
+k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Nevskiales|f__Sinobacteraceae|g__Nevskia|s__Nevskia_soli|t__SGB85668	2|1224|1236|1775403|568386|64001|418856|	0.04129977914395225	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Streptosporangiales|f__Treboniaceae|g__Trebonia|s__Trebonia_kvetii|t__SGB87004	2|201174|1760|85012|2767072|2767073|2480626|	0.007810558542234449	
+k__Bacteria|p__Verrucomicrobia|c__Verrucomicrobia_unclassified|o__Verrucomicrobia_unclassified|f__Verrucomicrobia_unclassified|g__Verrucomicrobia_unclassified|s__Verrucomicrobia_bacterium|t__SGB73357	2|74201|||||2026799|	0.004932315350749667	
+k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium_sp_S69|t__SGB89701	2|1224|28211|356|41294|374|1641856|	0.003719555702827256	
+k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Paraburkholderia|s__Paraburkholderia_phenazinium|t__SGB13033	2|1224|28216|80840|119060|1822464|60549|	0.003105803590175619	

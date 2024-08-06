@@ -10,7 +10,6 @@
 #SBATCH -A def-ilafores
 #SBATCH -J metaphlan
 
-
 echo "loading env"
 module load StdEnv/2020 apptainer/1.1.5
 

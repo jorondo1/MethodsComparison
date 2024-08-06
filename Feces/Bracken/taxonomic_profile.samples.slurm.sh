@@ -3,7 +3,7 @@
 #SBATCH --mail-type=END,FAIL
 #SBATCH -D /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/Feces/Bracken
 #SBATCH -o /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/logs/taxonomic_profile-%A_%a.slurm.out
-#SBATCH --time=24:00:00
+#SBATCH --time=72:00:00
 #SBATCH --mem=250G
 #SBATCH -N 1
 #SBATCH -n 48
