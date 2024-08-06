@@ -37,20 +37,36 @@ bracken="bash $ILL_PIPELINES/generateslurm_taxonomic_profile.sample.sh \
 	--slurm_log $MC/logs --slurm_walltime 72:00:00 --slurm_threads 48 --slurm_mem 250G"
 
 # Generate SLURM scripts https://github.com/jflucier/ILL_pipelines/blob/main/generateslurm_taxonomic_profile.sample.sh
-$bracken --sample_tsv $SALIVA_TSV --out $MC/Saliva/Bracken
-$bracken --sample_tsv $FECES_TSV --out $MC/Feces/Bracken
-$bracken --sample_tsv $MOSS_TSV --out $MC/Moss/Bracken
+$bracken --sample_tsv $SALIVA_TSV --out $MC/Saliva/Bracken05
+$bracken --sample_tsv $FECES_TSV --out $MC/Feces/Bracken05
+$bracken --sample_tsv $MOSS_TSV --out $MC/Moss/Bracken05
+
+$bracken --confidence 0.51 --sample_tsv $SALIVA_TSV --out $MC/Saliva/Bracken51
+$bracken --confidence 0.51 --sample_tsv $FECES_TSV --out $MC/Feces/Bracken51
+$bracken --confidence 0.51 --sample_tsv $MOSS_TSV --out $MC/Moss/Bracken51
 
 # Submit
-sbatch --array=1-"$NUM_Saliva" $MC/Saliva/Bracken/taxonomic_profile.samples.slurm.sh
-sbatch --array=1-"$NUM_Feces" $MC/Feces/Bracken/taxonomic_profile.samples.slurm.sh
-sbatch --array=1-"$NUM_Moss" $MC/Moss/Bracken/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_Saliva" $MC/Saliva/Bracken05/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_Feces" $MC/Feces/Bracken05/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_Moss" $MC/Moss/Bracken05/taxonomic_profile.samples.slurm.sh
 
+sbatch --array=1-"$NUM_Saliva" $MC/Saliva/Bracken51/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_Feces" $MC/Feces/Bracken51/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_Moss" $MC/Moss/Bracken51/taxonomic_profile.samples.slurm.sh
+
+for test in Bracken05 Bracken51; do
 for i in Saliva Feces Moss; do
 	eval exp=\$NUM_$i
-	num=$(ls $i/Bracken/*/*_bracken/*_bracken_S.MPA.TXT | wc -l)
-	echo "$num Bracken output for $i found, $exp expected."
+	num=$(ls $i/$test/*/*_bracken/*_bracken_S.MPA.TXT | wc -l)
+	echo "$num $test output for $i found, $exp expected."
 done
+done
+
+# Remove taxonomy_nt files from kraken out 
+rm */Bracken*/*/*_taxonomy_nt 
+rm */Bracken*/*/*/*.bracken
+rm */Bracken*/*/*/*.kreport
+
 
 ################
 # MetaPhlAn4 ###
@@ -85,16 +101,19 @@ for i in Saliva Feces Moss; do
 done
 done
 
+# Remove bowtie indexes
+rm */MPA_db*/*/*.bowtie2.txt
+
 #####################
 # Sourmash gather ###
 
 sbatch --mem=60G --array=1-"$NUM_Saliva" $MC/scripts/gather_SLURM.sh "Saliva" $SALIVA_TSV "genbank-2022.03"
-sbatch --mem=60G --array=1-"$NUM_Feces" $MC/scripts/gather_SLURM.sh "Feces" $FECES_TSV "genbank-2022.03"
+sbatch --mem=80G --array=1-"$NUM_Feces" $MC/scripts/gather_SLURM.sh "Feces" $FECES_TSV "genbank-2022.03"
 sbatch --mem=80G --array=1-"$NUM_Moss" $MC/scripts/gather_SLURM.sh "Moss" $MOSS_TSV "genbank-2022.03"
 
-sbatch --mem=15G --array=1-"$NUM_Saliva" $MC/scripts/gather_SLURM.sh "Saliva" $SALIVA_TSV "gtdb-rs220"
-sbatch --mem=15G --array=1-"$NUM_Feces" $MC/scripts/gather_SLURM.sh "Feces" $FECES_TSV "gtdb-rs220"
-sbatch --mem=15G --array=1-"$NUM_Moss" $MC/scripts/gather_SLURM.sh "Moss" $MOSS_TSV "gtdb-rs220"
+sbatch --mem=31G --array=1-"$NUM_Saliva" $MC/scripts/gather_SLURM.sh "Saliva" $SALIVA_TSV "gtdb-rs220"
+sbatch --mem=31G --array=1-"$NUM_Feces" $MC/scripts/gather_SLURM.sh "Feces" $FECES_TSV "gtdb-rs220"
+sbatch --mem=31G --array=1-"$NUM_Moss" $MC/scripts/gather_SLURM.sh "Moss" $MOSS_TSV "gtdb-rs220"
 
 for SM_db in genbank-2022.03 gtdb-rs220; do
 for i in Saliva Feces Moss; do

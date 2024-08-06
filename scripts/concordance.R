@@ -2,30 +2,28 @@ library(pacman)
 p_load(phyloseq,tidyverse,cccrm, magrittr,
        car, doParallel, cvequality)
 
-objectsToImport <- c("psSalivaKB","psSalivaSM","psSalivaMPA",
-                     "psFecesKB","psFecesSM", "psFecesMPA")
-for (i in objectsToImport) {assign(i,readRDS(paste0("../PROVID19/objects/",i,".rds")))}
+# functions
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/community_functions.R'))
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/rarefy_even_depth2.R'))
+source('scripts/myFunctions.R')
+
+objectsToImport <- c("psSalivaKB","psSalivaSM","psSalivaMPA",
+                     "psFecesKB","psFecesSM", "psFecesMPA")
+for (i in objectsToImport) {assign(i,readRDS(
+  paste0("/Users/jorondo/Library/CloudStorage/OneDrive-USherbrooke/Projets/PROVID19/objects/",i,".rds")))}
+
+# Metaphlan (MPA) output parsing
+salivaMPA2022 <- make_phylo_MPA('Saliva/MPA_db2022/*/*profile.txt', 
+                                psSalivaMPA@sam_data,
+                                c('Taxonomy', 'NCBI','Abundance', 'Void'))
+salivaMPA2023 <- make_phylo_MPA('Saliva/MPA_db2023/*/*profile.txt', 
+                                psSalivaMPA@sam_data,
+                                c('Taxonomy', 'NCBI','Abundance', 'Void'))
+salivaKB <- make_phylo_MPA('Saliva/Bracken/*/*_bracken/*_bracken_S.MPA.TXT', 
+                           psSalivaMPA@sam_data)
+
 
 ## Test with more current MPA database
-make_phylo_MPA <- function(files, sampleData) {
-  
-  MPA_raw <- parse_MPA(files)
-  
-  MPA_abund <- MPA_raw %>% dplyr::select(where(is.double), Species) %>% 
-    column_to_rownames('Species')
-  
-  MPA_tax <- MPA_raw %>% dplyr::select(where(is.character)) %>% 
-    mutate(Species2 = Species) %>% column_to_rownames('Species2') %>% as.matrix
-  
-  phyloseq(otu_table(MPA_abund, taxa_are_rows = TRUE),
-           sample_data(sampleData),
-           tax_table(MPA_tax)
-           )
-}
-psSalivaMPA_2022 <- make_phylo_MPA('MPA_abund_2022/*/*profile.txt', psSalivaMPA@sam_data)
-psSalivaMPA_2024 <- make_phylo_MPA('MPA_abund_2024/*/*profile.txt', psSalivaMPA@sam_data)
 divIDX <- c('Richness', 'Shannon', 'Simpson', 'Tail')
 
 # rarefy + diversity 
@@ -40,7 +38,7 @@ div.fun <- function(ps) {
 
 # iterate list on all datasets defined in objectsToImport
 div_rare <- list()
-for (ds in c(objectsToImport, 'psSalivaMPA_2022', 'psSalivaMPA_2024' )){
+for (ds in c('salivaKB', 'salivaMPA2022', 'salivaMPA2023' )){
   message(c('rarefying ', ds))
   div_rare[[ds]] <- div.fun(get(ds)) 
 }
