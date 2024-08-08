@@ -2,20 +2,13 @@ export MC=$ILAFORES/analysis/MethodsComparison
 export ILL_PIPELINES=$ILAFORES/analysis/MethodsComparison/ILL_pipelines
 cd $MC
 
-# Process fecal samples 
-# bash $ILL_PIPELINES/generateslurm_preprocess.kneaddata.sh \
-# 	--sample_tsv $MC/Feces/samples_to_process.tsv \
-# 	--out $ILAFORES/analysis/projet_PROVID19/Feces/preproc \
-# 	--db $FAST/host_genomes/GRCh38_index/grch38_1kgmaj \
-# 	--slurm_mem 125G --slurm_threads 24
-# correct script as the shell command needs to be anchored!
-
 export SALIVA_TSV=$PR19/Saliva/preproc/preprocessed_reads.sample.tsv
 export FECES_TSV=$PR19/Feces/preproc/preprocessed_reads.sample.tsv
 export MOSS_TSV=$MOSS/preproc/preprocessed_reads.sample.tsv
 export NUM_Saliva=$(wc $SALIVA_TSV | awk '{print $1}')
 export NUM_Feces=$(wc $FECES_TSV | awk '{print $1}')
 export NUM_Moss=$(wc $MOSS_TSV | awk '{print $1}')
+export DATASETS="Saliva Feces Moss"
 
 ############
 # mOTUs ####
@@ -24,7 +17,8 @@ sbatch --array=1-"$NUM_Saliva" $MC/scripts/motus_SLURM.sh Saliva $SALIVA_TSV
 sbatch --array=1-"$NUM_Feces" $MC/scripts/motus_SLURM.sh Feces $FECES_TSV
 sbatch --array=1-"$NUM_Moss" $MC/scripts/motus_SLURM.sh Moss $MOSS_TSV
 
-for i in Saliva Feces Moss; do
+# Check completion status
+for i in $DATASETS; do
 	eval exp=\$NUM_$i
 	num=$(ls $i/mOTU_abund/*_profile.txt | wc -l)
 	echo "$num mOTUs output for $i found, $exp expected."
@@ -54,8 +48,9 @@ sbatch --array=1-"$NUM_Saliva" $MC/Saliva/Bracken51/taxonomic_profile.samples.sl
 sbatch --array=1-"$NUM_Feces" $MC/Feces/Bracken51/taxonomic_profile.samples.slurm.sh
 sbatch --array=1-"$NUM_Moss" $MC/Moss/Bracken51/taxonomic_profile.samples.slurm.sh
 
+# Check completion status
 for test in Bracken05 Bracken51; do
-for i in Saliva Feces Moss; do
+for i in $DATASETS; do
 	eval exp=\$NUM_$i
 	num=$(ls $i/$test/*/*_bracken/*_bracken_S.MPA.TXT | wc -l)
 	echo "$num $test output for $i found, $exp expected."
@@ -66,7 +61,8 @@ done
 rm */Bracken*/*/*_taxonomy_nt 
 rm */Bracken*/*/*/*.bracken
 rm */Bracken*/*/*/*.kreport
-
+rm */Bracken*/*/*bugs_list.MPA.TXT
+rm */Bracken*/*/*_temp.MPA.TXT
 
 ################
 # MetaPhlAn4 ###
@@ -93,8 +89,9 @@ sbatch --array=1-"$NUM_Saliva" $MC/Saliva/MPA_db2023/metaphlan.slurm.sh
 sbatch --array=1-"$NUM_Feces" $MC/Feces/MPA_db2023/metaphlan.slurm.sh
 sbatch --array=1-"$NUM_Moss" $MC/Moss/MPA_db2023/metaphlan.slurm.sh
 
+# Check completion status
 for MPA in MPA_db2022 MPA_db2023; do
-for i in Saliva Feces Moss; do
+for i in $DATASETS; do
 	eval exp=\$NUM_$i
 	num=$(ls $i/$MPA/*/*_profile.txt | wc -l)
 	echo "$num $MPA output for $i found, $exp expected."
@@ -115,26 +112,41 @@ sbatch --mem=31G --array=1-"$NUM_Saliva" $MC/scripts/gather_SLURM.sh "Saliva" $S
 sbatch --mem=31G --array=1-"$NUM_Feces" $MC/scripts/gather_SLURM.sh "Feces" $FECES_TSV "gtdb-rs220"
 sbatch --mem=31G --array=1-"$NUM_Moss" $MC/scripts/gather_SLURM.sh "Moss" $MOSS_TSV "gtdb-rs220"
 
+# Check completion status
 for SM_db in genbank-2022.03 gtdb-rs220; do
-for i in Saliva Feces Moss; do
+for i in $DATASETS; do
 	eval exp=\$NUM_$i
 	num=$(ls $i/Sourmash/*${SM_db}_gather.csv | wc -l)
 	echo "$num $SM_db output for $i found, $exp expected."
 done
 done
 
+# Extract the lineage subset 
+for db in "gtdb-rs220" "genbank-2022.03"; do
+for i in $DATASETS; do 
+grep -f <(cat $i/Sourmash/*${db}_gather.csv | \
+	cut -d, -f10 | tail -n+2 | awk '{print $1}' | sed 's/"//' | sort -u) \
+	$ILAFORES/ref_dbs/sourmash_db/${db}*.lineages.csv > $i/Sourmash/${db}_lineages.csv
+done
+done
+
+
+
+## surplus taxa in sourmash rs220 index
+cat $MC/Feces/Sourmash/*rs220*_gather.csv | cut -d, -f10 | tail -n+2 | \
+	awk '{print $1}' | sed 's/"//' | sort -u > found_taxa.tsv # 8070 taxa
+
+# of which 1191 are not in the species reps lineage file
+grep -v -f <(cut -f1 $ILAFORES/ref_dbs/sourmash_db/bac120_taxonomy_r220.tsv | sed 's/^[^_]*_//' | sort -u) found_taxa.tsv | wc
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
+# Process fecal samples 
+# bash $ILL_PIPELINES/generateslurm_preprocess.kneaddata.sh \
+# 	--sample_tsv $MC/Feces/samples_to_process.tsv \
+# 	--out $ILAFORES/analysis/projet_PROVID19/Feces/preproc \
+# 	--db $FAST/host_genomes/GRCh38_index/grch38_1kgmaj \
+# 	--slurm_mem 125G --slurm_threads 24
+# correct script as the shell command needs to be anchored!

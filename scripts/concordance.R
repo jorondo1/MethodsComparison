@@ -12,16 +12,35 @@ objectsToImport <- c("psSalivaKB","psSalivaSM","psSalivaMPA",
 for (i in objectsToImport) {assign(i,readRDS(
   paste0("/Users/jorondo/Library/CloudStorage/OneDrive-USherbrooke/Projets/PROVID19/objects/",i,".rds")))}
 
-# Metaphlan (MPA) output parsing
-salivaMPA2022 <- make_phylo_MPA('Saliva/MPA_db2022/*/*profile.txt', 
-                                psSalivaMPA@sam_data,
-                                c('Taxonomy', 'NCBI','Abundance', 'Void'))
-salivaMPA2023 <- make_phylo_MPA('Saliva/MPA_db2023/*/*profile.txt', 
-                                psSalivaMPA@sam_data,
-                                c('Taxonomy', 'NCBI','Abundance', 'Void'))
-salivaKB <- make_phylo_MPA('Saliva/Bracken/*/*_bracken/*_bracken_S.MPA.TXT', 
-                           psSalivaMPA@sam_data)
+### When doing Feces, remove MSA-3001
 
+
+### RAW OUTPUT PARSING
+# Metaphlan (MPA)
+salivaMPA2022 <- parse_MPA(
+  MPA_files = 'Saliva/MPA_db2022/*/*profile.txt',
+  column_names = c('Taxonomy', 'NCBI','Abundance', 'Void')) %>% 
+  make_phylo_MPA(psSalivaMPA@sam_data)
+
+salivaMPA2023 <- parse_MPA(
+  MPA_files = 'Saliva/MPA_db2023/*/*profile.txt',
+  column_names = c('Taxonomy', 'NCBI','Abundance', 'Void')) %>% 
+  make_phylo_MPA(psSalivaMPA@sam_data)
+
+# Kraken
+salivaKB <- parse_MPA('Saliva/Bracken/*/*_bracken/*_bracken_S.MPA.TXT') %>% 
+  make_phylo_MPA(psSalivaMPA@sam_data)
+
+# Sourmash
+salivaSM_GB <- phyloseq(
+  otu_table(parse_SM('Saliva/Sourmash/*_genbank-2022.03_gather.csv'), taxa_are_rows = TRUE),
+  sample_data = psSalivaMPA@sam_data,
+  #tax_table = ???
+  )
+  
+
+salivaSM_GTDB <- parse_SM('Saliva/Sourmash/*_gtdb-rs220_gather.csv') %>% 
+  make_phylo_MPA(psSalivaMPA@sam_data)
 
 ## Test with more current MPA database
 divIDX <- c('Richness', 'Shannon', 'Simpson', 'Tail')
@@ -38,7 +57,7 @@ div.fun <- function(ps) {
 
 # iterate list on all datasets defined in objectsToImport
 div_rare <- list()
-for (ds in c('salivaKB', 'salivaMPA2022', 'salivaMPA2023' )){
+for (ds in c('salivaKB', 'salivaMPA2022', 'salivaMPA2023', 'salivaSM_GB', 'salivaSM_GTDB')){
   message(c('rarefying ', ds))
   div_rare[[ds]] <- div.fun(get(ds)) 
 }

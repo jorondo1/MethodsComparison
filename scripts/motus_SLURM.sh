@@ -23,4 +23,4 @@ export SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2
 mkdir -p $OUT_DIR
 
 motus profile -f $FQ_P1 -r $FQ_P2 -s $FQ_U1 -s $FQ_U2 -n $SAM_ID \
-	-t $SLURM_NTASKS -u -c -p | awk -F'\t' 'NR==1 || $4 != 0' > ${OUT_DIR}/${SAM_ID}_profile.txt
+	-t $SLURM_NTASKS -u -c -p  -q -k species | awk -F'\t' 'NR==1 || $4 != 0' > ${OUT_DIR}/${SAM_ID}_profile.txt
