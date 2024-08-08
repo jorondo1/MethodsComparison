@@ -28,4 +28,4 @@ echo "processing $SAM_ID files:\
 mkdir -p $OUT_DIR
 
 motus profile -f $FQ_P1 -r $FQ_P2 -s $FQ_U1 -s $FQ_U2 -n $SAM_ID \
-	-t $SLURM_NTASKS -c -p -k species -q | awk -F'\t' 'NR==1 || $4 != 0' > ${OUT_DIR}/${SAM_ID}_profile.txt
+	-t $SLURM_NTASKS -c -p -k mOTU -q | awk -F'\t' 'NR==1 || $4 != 0' > ${OUT_DIR}/${SAM_ID}_profile.txt
