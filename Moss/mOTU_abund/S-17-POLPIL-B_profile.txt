@@ -1,27 +1,27 @@
-# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
-# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-17-POLPIL-B/S-17-POLPIL-B_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-17-POLPIL-B/S-17-POLPIL-B_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-17-POLPIL-B/S-17-POLPIL-B_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-17-POLPIL-B/S-17-POLPIL-B_unmatched_2.fastq.gz -n S-17-POLPIL-B -t 24 -u -c -p
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-17-POLPIL-B/S-17-POLPIL-B_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-17-POLPIL-B/S-17-POLPIL-B_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-17-POLPIL-B/S-17-POLPIL-B_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-17-POLPIL-B/S-17-POLPIL-B_unmatched_2.fastq.gz -n S-17-POLPIL-B -t 8 -c -p -k mOTU -q
 #mOTU	consensus_taxonomy	NCBI_tax_id	S-17-POLPIL-B
-ref_mOTU_v31_00469	Rhizobacter sp. Root404	1736528	1
-ref_mOTU_v31_00529	Oxalobacteraceae sp. [Janthinobacterium sp. HH01/Duganella sp. HH101/Duganella sp. HH105]	NA	1
-ref_mOTU_v31_00781	Mesorhizobium loti	381	1
-ref_mOTU_v31_01131	Methylobacterium brachiatum [Methylobacterium sp. GXF4/Methylobacterium sp. ARG-1/Methylobacterium brachiatum]	269660	1
-ref_mOTU_v31_01137	Methylobacterium mesophilicum	39956	1
-ref_mOTU_v31_01174	Bradyrhizobium sp. [Bradyrhizobium sp. LTSP849/Bradyrhizobium sp. LTSP857]	NA	1
-ref_mOTU_v31_01226	Bradyrhizobium retamae [Bradyrhizobium retamae/Bradyrhizobium sp. LMTR 3]	1300035	1
-ref_mOTU_v31_01417	Klenkia taihuensis/brasiliensis	NA	1
-ref_mOTU_v31_01692	Bradyrhizobium pachyrhizi/elkanii [Bradyrhizobium sp. UFLA 03-321/Bradyrhizobium sp. R5/Bradyrhizobium pachyrhizi/Bradyrhizobium elkanii]	NA	1
-ref_mOTU_v31_02854	Paraburkholderia ginsengisoli	311231	1
-ref_mOTU_v31_03450	Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	196367	9
-ref_mOTU_v31_03944	Bradyrhizobium lablabi/ottawaense	NA	1
-ref_mOTU_v31_03945	Afipia sp. GAS231	1882747	1
-ref_mOTU_v31_05307	Rathayibacter sp. [Rathayibacter sp. Leaf296/Rathayibacter sp. Leaf299/Rathayibacter sp. VKM Ac-2630]	NA	1
-ref_mOTU_v31_08294	Bradyrhizobium erythrophlei	1437360	1
-ref_mOTU_v31_10380	Solirubrobacterales bacterium 70-9	1895833	3
-ref_mOTU_v31_11294	Granulicella pectinivorans	474950	1
-ref_mOTU_v31_11307	Catenulispora acidiphila	304895	1
-ref_mOTU_v31_11645	Sphingomonas rubra	634430	1
-ext_mOTU_v31_15000	Burkholderiales species incertae sedis	NA	1
-ext_mOTU_v31_18818	Bradyrhizobium species incertae sedis	NA	1
-ext_mOTU_v31_24795	Solirubrobacterales species incertae sedis	NA	1
-ext_mOTU_v31_29927	Acidobacteriaceae species incertae sedis	NA	1
+ref_mOTU_v31_00469	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiales fam. incertae sedis|g__Rhizobacter|s__Rhizobacter sp. Root404	2|1224|28216|80840|NA|212743|1736528	1
+ref_mOTU_v31_00529	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Oxalobacteraceae|g__Oxalobacteraceae gen. [Janthinobacterium/Duganella]|s__Oxalobacteraceae sp. [Janthinobacterium sp. HH01/Duganella sp. HH101/Duganella sp. HH105]	2|1224|28216|80840|75682|NA|NA	1
+ref_mOTU_v31_00781	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Phyllobacteriaceae|g__Mesorhizobium|s__Mesorhizobium loti	2|1224|28211|356|69277|68287|381	1
+ref_mOTU_v31_01131	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium brachiatum [Methylobacterium sp. GXF4/Methylobacterium sp. ARG-1/Methylobacterium brachiatum]	2|1224|28211|356|119045|407|269660	1
+ref_mOTU_v31_01137	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium mesophilicum	2|1224|28211|356|119045|407|39956	1
+ref_mOTU_v31_01174	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium sp. [Bradyrhizobium sp. LTSP849/Bradyrhizobium sp. LTSP857]	2|1224|28211|356|41294|374|NA	1
+ref_mOTU_v31_01226	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium retamae [Bradyrhizobium retamae/Bradyrhizobium sp. LMTR 3]	2|1224|28211|356|41294|374|1300035	1
+ref_mOTU_v31_01417	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Geodermatophilales|f__Geodermatophilaceae|g__Klenkia|s__Klenkia taihuensis/brasiliensis	2|201174|1760|1643682|85030|2183612|NA	1
+ref_mOTU_v31_01692	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium pachyrhizi/elkanii [Bradyrhizobium sp. UFLA 03-321/Bradyrhizobium sp. R5/Bradyrhizobium pachyrhizi/Bradyrhizobium elkanii]	2|1224|28211|356|41294|374|NA	1
+ref_mOTU_v31_02854	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Paraburkholderia|s__Paraburkholderia ginsengisoli	2|1224|28216|80840|119060|1822464|311231	1
+ref_mOTU_v31_03450	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	2|1224|28216|80840|119060|1827195|196367	9
+ref_mOTU_v31_03944	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium lablabi/ottawaense	2|1224|28211|356|41294|374|NA	1
+ref_mOTU_v31_03945	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Bradyrhizobiaceae|g__Afipia|s__Afipia sp. GAS231	2|1224|28211|356|41294|1033|1882747	1
+ref_mOTU_v31_05307	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Micrococcales|f__Microbacteriaceae|g__Rathayibacter|s__Rathayibacter sp. [Rathayibacter sp. Leaf296/Rathayibacter sp. Leaf299/Rathayibacter sp. VKM Ac-2630]	2|201174|1760|85006|85023|33886|NA	1
+ref_mOTU_v31_08294	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium erythrophlei	2|1224|28211|356|41294|374|1437360	1
+ref_mOTU_v31_10380	k__Bacteria|p__Actinobacteria|c__Thermoleophilia|o__Solirubrobacterales|f__Solirubrobacterales fam. incertae sedis|g__Solirubrobacterales gen. incertae sedis|s__Solirubrobacterales bacterium 70-9	2|201174|1497346|588673|NA|NA|1895833	3
+ref_mOTU_v31_11294	k__Bacteria|p__Acidobacteria|c__Acidobacteriia|o__Acidobacteriales|f__Acidobacteriaceae|g__Granulicella|s__Granulicella pectinivorans	2|57723|204432|204433|204434|940557|474950	1
+ref_mOTU_v31_11307	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Catenulisporales|f__Catenulisporaceae|g__Catenulispora|s__Catenulispora acidiphila	2|201174|1760|414714|414877|414878|304895	1
+ref_mOTU_v31_11645	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas rubra	2|1224|28211|204457|41297|13687|634430	1
+ext_mOTU_v31_15000	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiales fam. incertae sedis|g__Burkholderiales gen. incertae sedis|s__Burkholderiales species incertae sedis	2|1224|28216|80840|NA|NA|NA	1
+ext_mOTU_v31_18818	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium species incertae sedis	2|1224|28211|356|41294|374|NA	1
+ext_mOTU_v31_24795	k__Bacteria|p__Actinobacteria|c__Thermoleophilia|o__Solirubrobacterales|f__Solirubrobacterales fam. incertae sedis|g__Solirubrobacterales gen. incertae sedis|s__Solirubrobacterales species incertae sedis	2|201174|1497346|588673|NA|NA|NA	1
+ext_mOTU_v31_29927	k__Bacteria|p__Acidobacteria|c__Acidobacteriia|o__Acidobacteriales|f__Acidobacteriaceae|g__Acidobacteriaceae gen. incertae sedis|s__Acidobacteriaceae species incertae sedis	2|57723|204432|204433|204434|NA|NA	1
 unassigned	unassigned	NA	28

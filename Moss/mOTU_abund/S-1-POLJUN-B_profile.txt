@@ -1,47 +1,47 @@
-# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
-# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-1-POLJUN-B/S-1-POLJUN-B_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-1-POLJUN-B/S-1-POLJUN-B_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-1-POLJUN-B/S-1-POLJUN-B_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-1-POLJUN-B/S-1-POLJUN-B_unmatched_2.fastq.gz -n S-1-POLJUN-B -t 24 -u -c -p
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-1-POLJUN-B/S-1-POLJUN-B_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-1-POLJUN-B/S-1-POLJUN-B_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-1-POLJUN-B/S-1-POLJUN-B_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-1-POLJUN-B/S-1-POLJUN-B_unmatched_2.fastq.gz -n S-1-POLJUN-B -t 8 -c -p -k mOTU -q
 #mOTU	consensus_taxonomy	NCBI_tax_id	S-1-POLJUN-B
-ref_mOTU_v31_00420	Herbaspirillum sp. CF444	1144319	1
-ref_mOTU_v31_00421	Herbaspirillum rhizosphaerae	346179	1
-ref_mOTU_v31_00441	Duganella sp. CF402	1855289	1
-ref_mOTU_v31_00469	Rhizobacter sp. Root404	1736528	1
-ref_mOTU_v31_00473	Variovorax paradoxus [Variovorax sp. PDC80/Variovorax paradoxus]	34073	1
-ref_mOTU_v31_00474	Variovorax paradoxus	34073	6
-ref_mOTU_v31_00475	Variovorax sp. [Variovorax sp. Root318D1/Variovorax sp. OV700]	NA	2
-ref_mOTU_v31_00477	Variovorax sp. [Variovorax sp. NFACC28/Variovorax sp. NFACC27/Variovorax sp. NFACC26/Variovorax sp. YR750]	NA	3
-ref_mOTU_v31_00478	Variovorax paradoxus	34073	4
-ref_mOTU_v31_00479	Variovorax sp. 770b2	1566271	6
-ref_mOTU_v31_00480	Variovorax paradoxus	34073	3
-ref_mOTU_v31_00481	Variovorax paradoxus	34073	4
-ref_mOTU_v31_00482	Variovorax sp. EL159	1566270	3
-ref_mOTU_v31_00483	Variovorax boronicumulans [Variovorax sp. Root473/Variovorax boronicumulans]	436515	3
-ref_mOTU_v31_00484	Variovorax sp. [Variovorax sp. OV084/Variovorax sp. YR634/Variovorax sp. YR266]	NA	3
-ref_mOTU_v31_00485	Variovorax paradoxus [Variovorax sp. SCN 67-85/Variovorax sp. SCN 67-20/Variovorax sp. 67-131/Variovorax paradoxus]	34073	1
-ref_mOTU_v31_00486	Variovorax sp. [Variovorax sp. OK605/Variovorax sp. OK212/Variovorax sp. OK202]	NA	4
-ref_mOTU_v31_00487	Variovorax sp. [Variovorax sp. CF313/Variovorax sp. Root411/Variovorax sp. Root434]	NA	4
-ref_mOTU_v31_00490	Pseudacidovorax intermedius	433924	1
-ref_mOTU_v31_00781	Mesorhizobium loti	381	2
-ref_mOTU_v31_00786	Mesorhizobium sp. [Mesorhizobium sp. SEMIA 3007/Mesorhizobium japonicum/Mesorhizobium huakuii/Mesorhizobium loti]	NA	1
-ref_mOTU_v31_01131	Methylobacterium brachiatum [Methylobacterium sp. GXF4/Methylobacterium sp. ARG-1/Methylobacterium brachiatum]	269660	1
-ref_mOTU_v31_01132	Methylobacterium pseudosasicola	582667	1
-ref_mOTU_v31_01134	Methylobacterium oryzae/phyllosphaerae [Methylobacterium sp. UNCCL110/Methylobacterium sp. UNCCL125/Methylobacterium oryzae/Methylobacterium phyllosphaerae]	NA	1
-ref_mOTU_v31_01135	Bacteria sp. [Methylobacterium sp. 285MFTsu5.1/Methylobacterium sp. EUR3 AL-11/Methylobacterium sp. C1/Methylobacterium sp. 275MFSha3.1/Methylobacterium sp. UNC300MFChir4.1/Methylobacterium sp. 13MFTsu3.1M2/Methylobacterium sp. ME121/Methylobacterium sp. Leaf361/Methylobacterium sp. yr668/Methylobacterium radiotolerans/Asanoa ferruginea]	NA	2
-ref_mOTU_v31_01174	Bradyrhizobium sp. [Bradyrhizobium sp. LTSP849/Bradyrhizobium sp. LTSP857]	NA	4
-ref_mOTU_v31_01226	Bradyrhizobium retamae [Bradyrhizobium retamae/Bradyrhizobium sp. LMTR 3]	1300035	1
-ref_mOTU_v31_01340	Sphingomonas sp. [Sphingomonas sp. Leaf34/Sphingomonas sp. Leaf38]	NA	1
-ref_mOTU_v31_01341	Sphingomonas sp. Leaf28	1735695	1
-ref_mOTU_v31_02850	Paraburkholderia phytofirmans	261302	2
-ref_mOTU_v31_03449	Caballeronia sordidicola	196367	1
-ref_mOTU_v31_03450	Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	196367	5
-ref_mOTU_v31_03451	Burkholderia sp. Leaf177	1736287	1
-ref_mOTU_v31_03899	Caulobacter sp. [Caulobacter sp. OV484/Caulobacter sp. Root342/Caulobacter sp. Root343]	NA	1
-ref_mOTU_v31_04458	Luteibacter rhizovicinus	242606	2
-ref_mOTU_v31_07816	Conexibacter woesei	191495	1
-ref_mOTU_v31_10367	Pseudonocardia sp. 73-21	1895809	1
-ref_mOTU_v31_10380	Solirubrobacterales bacterium 70-9	1895833	1
-ref_mOTU_v31_10901	Rhodopseudomonas palustris	1076	1
-ref_mOTU_v31_11294	Granulicella pectinivorans	474950	3
-ref_mOTU_v31_12102	Terriglobus roseus	392734	1
-ext_mOTU_v31_18841	Burkholderiales species incertae sedis	NA	1
-ext_mOTU_v31_32744	Thermoleophilia species incertae sedis	NA	4
+ref_mOTU_v31_00420	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Oxalobacteraceae|g__Herbaspirillum|s__Herbaspirillum sp. CF444	2|1224|28216|80840|75682|963|1144319	1
+ref_mOTU_v31_00421	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Oxalobacteraceae|g__Herbaspirillum|s__Herbaspirillum rhizosphaerae	2|1224|28216|80840|75682|963|346179	1
+ref_mOTU_v31_00441	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Oxalobacteraceae|g__Duganella|s__Duganella sp. CF402	2|1224|28216|80840|75682|75654|1855289	1
+ref_mOTU_v31_00469	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiales fam. incertae sedis|g__Rhizobacter|s__Rhizobacter sp. Root404	2|1224|28216|80840|NA|212743|1736528	1
+ref_mOTU_v31_00473	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Variovorax|s__Variovorax paradoxus [Variovorax sp. PDC80/Variovorax paradoxus]	2|1224|28216|80840|80864|34072|34073	1
+ref_mOTU_v31_00474	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Variovorax|s__Variovorax paradoxus	2|1224|28216|80840|80864|34072|34073	6
+ref_mOTU_v31_00475	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Variovorax|s__Variovorax sp. [Variovorax sp. Root318D1/Variovorax sp. OV700]	2|1224|28216|80840|80864|34072|NA	2
+ref_mOTU_v31_00477	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Variovorax|s__Variovorax sp. [Variovorax sp. NFACC28/Variovorax sp. NFACC27/Variovorax sp. NFACC26/Variovorax sp. YR750]	2|1224|28216|80840|80864|34072|NA	3
+ref_mOTU_v31_00478	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Variovorax|s__Variovorax paradoxus	2|1224|28216|80840|80864|34072|34073	4
+ref_mOTU_v31_00479	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Variovorax|s__Variovorax sp. 770b2	2|1224|28216|80840|80864|34072|1566271	6
+ref_mOTU_v31_00480	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Variovorax|s__Variovorax paradoxus	2|1224|28216|80840|80864|34072|34073	3
+ref_mOTU_v31_00481	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Variovorax|s__Variovorax paradoxus	2|1224|28216|80840|80864|34072|34073	4
+ref_mOTU_v31_00482	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Variovorax|s__Variovorax sp. EL159	2|1224|28216|80840|80864|34072|1566270	3
+ref_mOTU_v31_00483	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Variovorax|s__Variovorax boronicumulans [Variovorax sp. Root473/Variovorax boronicumulans]	2|1224|28216|80840|80864|34072|436515	3
+ref_mOTU_v31_00484	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Variovorax|s__Variovorax sp. [Variovorax sp. OV084/Variovorax sp. YR634/Variovorax sp. YR266]	2|1224|28216|80840|80864|34072|NA	3
+ref_mOTU_v31_00485	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Variovorax|s__Variovorax paradoxus [Variovorax sp. SCN 67-85/Variovorax sp. SCN 67-20/Variovorax sp. 67-131/Variovorax paradoxus]	2|1224|28216|80840|80864|34072|34073	1
+ref_mOTU_v31_00486	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Variovorax|s__Variovorax sp. [Variovorax sp. OK605/Variovorax sp. OK212/Variovorax sp. OK202]	2|1224|28216|80840|80864|34072|NA	4
+ref_mOTU_v31_00487	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Variovorax|s__Variovorax sp. [Variovorax sp. CF313/Variovorax sp. Root411/Variovorax sp. Root434]	2|1224|28216|80840|80864|34072|NA	4
+ref_mOTU_v31_00490	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Pseudacidovorax|s__Pseudacidovorax intermedius	2|1224|28216|80840|80864|433923|433924	1
+ref_mOTU_v31_00781	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Phyllobacteriaceae|g__Mesorhizobium|s__Mesorhizobium loti	2|1224|28211|356|69277|68287|381	2
+ref_mOTU_v31_00786	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Phyllobacteriaceae|g__Mesorhizobium|s__Mesorhizobium sp. [Mesorhizobium sp. SEMIA 3007/Mesorhizobium japonicum/Mesorhizobium huakuii/Mesorhizobium loti]	2|1224|28211|356|69277|68287|NA	1
+ref_mOTU_v31_01131	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium brachiatum [Methylobacterium sp. GXF4/Methylobacterium sp. ARG-1/Methylobacterium brachiatum]	2|1224|28211|356|119045|407|269660	1
+ref_mOTU_v31_01132	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium pseudosasicola	2|1224|28211|356|119045|407|582667	1
+ref_mOTU_v31_01134	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium oryzae/phyllosphaerae [Methylobacterium sp. UNCCL110/Methylobacterium sp. UNCCL125/Methylobacterium oryzae/Methylobacterium phyllosphaerae]	2|1224|28211|356|119045|407|NA	1
+ref_mOTU_v31_01135	k__Bacteria|p__Bacteria phylum [Proteobacteria/Actinobacteria]|c__Bacteria class [Actinobacteria/Alphaproteobacteria]|o__Bacteria order [Rhizobiales/Micromonosporales]|f__Bacteria fam. [Methylobacteriaceae/Micromonosporaceae]|g__Bacteria gen. [Asanoa/Methylobacterium]|s__Bacteria sp. [Methylobacterium sp. 285MFTsu5.1/Methylobacterium sp. EUR3 AL-11/Methylobacterium sp. C1/Methylobacterium sp. 275MFSha3.1/Methylobacterium sp. UNC300MFChir4.1/Methylobacterium sp. 13MFTsu3.1M2/Methylobacterium sp. ME121/Methylobacterium sp. Leaf361/Methylobacterium sp. yr668/Methylobacterium radiotolerans/Asanoa ferruginea]	2|NA|NA|NA|NA|NA|NA	2
+ref_mOTU_v31_01174	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium sp. [Bradyrhizobium sp. LTSP849/Bradyrhizobium sp. LTSP857]	2|1224|28211|356|41294|374|NA	4
+ref_mOTU_v31_01226	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium retamae [Bradyrhizobium retamae/Bradyrhizobium sp. LMTR 3]	2|1224|28211|356|41294|374|1300035	1
+ref_mOTU_v31_01340	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas sp. [Sphingomonas sp. Leaf34/Sphingomonas sp. Leaf38]	2|1224|28211|204457|41297|13687|NA	1
+ref_mOTU_v31_01341	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas sp. Leaf28	2|1224|28211|204457|41297|13687|1735695	1
+ref_mOTU_v31_02850	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Paraburkholderia|s__Paraburkholderia phytofirmans	2|1224|28216|80840|119060|1822464|261302	2
+ref_mOTU_v31_03449	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia sordidicola	2|1224|28216|80840|119060|1827195|196367	1
+ref_mOTU_v31_03450	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	2|1224|28216|80840|119060|1827195|196367	5
+ref_mOTU_v31_03451	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Burkholderia|s__Burkholderia sp. Leaf177	2|1224|28216|80840|119060|32008|1736287	1
+ref_mOTU_v31_03899	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Caulobacterales|f__Caulobacteraceae|g__Caulobacter|s__Caulobacter sp. [Caulobacter sp. OV484/Caulobacter sp. Root342/Caulobacter sp. Root343]	2|1224|28211|204458|76892|75|NA	1
+ref_mOTU_v31_04458	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Xanthomonadales|f__Rhodanobacteraceae|g__Luteibacter|s__Luteibacter rhizovicinus	2|1224|1236|135614|1775411|242605|242606	2
+ref_mOTU_v31_07816	k__Bacteria|p__Actinobacteria|c__Thermoleophilia|o__Solirubrobacterales|f__Conexibacteraceae|g__Conexibacter|s__Conexibacter woesei	2|201174|1497346|588673|320583|191494|191495	1
+ref_mOTU_v31_10367	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Pseudonocardiales|f__Pseudonocardiaceae|g__Pseudonocardia|s__Pseudonocardia sp. 73-21	2|201174|1760|85010|2070|1847|1895809	1
+ref_mOTU_v31_10380	k__Bacteria|p__Actinobacteria|c__Thermoleophilia|o__Solirubrobacterales|f__Solirubrobacterales fam. incertae sedis|g__Solirubrobacterales gen. incertae sedis|s__Solirubrobacterales bacterium 70-9	2|201174|1497346|588673|NA|NA|1895833	1
+ref_mOTU_v31_10901	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Bradyrhizobiaceae|g__Rhodopseudomonas|s__Rhodopseudomonas palustris	2|1224|28211|356|41294|1073|1076	1
+ref_mOTU_v31_11294	k__Bacteria|p__Acidobacteria|c__Acidobacteriia|o__Acidobacteriales|f__Acidobacteriaceae|g__Granulicella|s__Granulicella pectinivorans	2|57723|204432|204433|204434|940557|474950	3
+ref_mOTU_v31_12102	k__Bacteria|p__Acidobacteria|c__Acidobacteriia|o__Acidobacteriales|f__Acidobacteriaceae|g__Terriglobus|s__Terriglobus roseus	2|57723|204432|204433|204434|392733|392734	1
+ext_mOTU_v31_18841	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiales fam. incertae sedis|g__Burkholderiales gen. incertae sedis|s__Burkholderiales species incertae sedis	2|1224|28216|80840|NA|NA|NA	1
+ext_mOTU_v31_32744	k__Bacteria|p__Actinobacteria|c__Thermoleophilia|o__Thermoleophilia order incertae sedis|f__Thermoleophilia fam. incertae sedis|g__Thermoleophilia gen. incertae sedis|s__Thermoleophilia species incertae sedis	2|201174|1497346|NA|NA|NA|NA	4
 unassigned	unassigned	NA	35

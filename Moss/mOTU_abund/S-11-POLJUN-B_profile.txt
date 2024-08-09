@@ -1,32 +1,32 @@
-# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
-# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-11-POLJUN-B/S-11-POLJUN-B_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-11-POLJUN-B/S-11-POLJUN-B_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-11-POLJUN-B/S-11-POLJUN-B_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-11-POLJUN-B/S-11-POLJUN-B_unmatched_2.fastq.gz -n S-11-POLJUN-B -t 24 -u -c -p
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-11-POLJUN-B/S-11-POLJUN-B_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-11-POLJUN-B/S-11-POLJUN-B_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-11-POLJUN-B/S-11-POLJUN-B_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-11-POLJUN-B/S-11-POLJUN-B_unmatched_2.fastq.gz -n S-11-POLJUN-B -t 8 -c -p -k mOTU -q
 #mOTU	consensus_taxonomy	NCBI_tax_id	S-11-POLJUN-B
-ref_mOTU_v31_00119	Pseudomonas batumici	226910	1
-ref_mOTU_v31_00527	Methylibium sp. CF059	1500261	1
-ref_mOTU_v31_00529	Oxalobacteraceae sp. [Janthinobacterium sp. HH01/Duganella sp. HH101/Duganella sp. HH105]	NA	1
-ref_mOTU_v31_00531	Duganella sp. CF517	1881038	1
-ref_mOTU_v31_00781	Mesorhizobium loti	381	1
-ref_mOTU_v31_01176	Bradyrhizobium canariense [Bradyrhizobium sp. WSM4349/Bradyrhizobium sp. URHA0013/Bradyrhizobium canariense/Bradyrhizobium sp. WSM1253/Bradyrhizobium sp. WSM471/Bradyrhizobium sp./Bradyrhizobium sp. WSM1417]	255045	1
-ref_mOTU_v31_01185	Bradyrhizobium diazoefficiens/japonicum [Bradyrhizobium sp. WSM2254/Bradyrhizobium diazoefficiens/Bradyrhizobium sp. cf659/Bradyrhizobium japonicum]	NA	1
-ref_mOTU_v31_01397	Agrobacterium deltaense/tumefaciens [Agrobacterium deltaense/Agrobacterium sp. JL28/Agrobacterium sp. D14/Agrobacterium sp. YIC 4121/Agrobacterium tumefaciens/Agrobacterium sp. C13/Agrobacterium sp. LY4/Agrobacterium sp. TS43/Agrobacterium sp. TS45]	NA	1
-ref_mOTU_v31_01692	Bradyrhizobium pachyrhizi/elkanii [Bradyrhizobium sp. UFLA 03-321/Bradyrhizobium sp. R5/Bradyrhizobium pachyrhizi/Bradyrhizobium elkanii]	NA	2
-ref_mOTU_v31_02849	Burkholderia sp. WP9	1500263	1
-ref_mOTU_v31_02850	Paraburkholderia phytofirmans	261302	1
-ref_mOTU_v31_02853	Paraburkholderia aspalathi [Paraburkholderia aspalathi/Burkholderia sp. ST111/Burkholderia sp. OLGA172/Burkholderia sp. GAS332]	1324617	3
-ref_mOTU_v31_02855	Paraburkholderia fungorum	134537	1
-ref_mOTU_v31_02981	Xanthomonas translucens	343	1
-ref_mOTU_v31_03212	Dyella japonica	231455	1
-ref_mOTU_v31_03449	Caballeronia sordidicola	196367	1
-ref_mOTU_v31_03450	Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	196367	1
-ref_mOTU_v31_03452	Caballeronia sordidicola	196367	1
-ref_mOTU_v31_04458	Luteibacter rhizovicinus	242606	2
-ref_mOTU_v31_04737	Pseudomonas graminis	158627	1
-ref_mOTU_v31_10367	Pseudonocardia sp. 73-21	1895809	1
-ref_mOTU_v31_10380	Solirubrobacterales bacterium 70-9	1895833	1
-ref_mOTU_v31_11649	Nostoc punctiforme	272131	1
-ext_mOTU_v31_25077	Streptosporangiales species incertae sedis	NA	1
-ext_mOTU_v31_29927	Acidobacteriaceae species incertae sedis	NA	1
-ext_mOTU_v31_32663	Rhizobiales species incertae sedis	NA	2
-ext_mOTU_v31_32744	Thermoleophilia species incertae sedis	NA	2
-ext_mOTU_v31_34619	Burkholderiales species incertae sedis	NA	1
+ref_mOTU_v31_00119	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Pseudomonas|s__Pseudomonas batumici	2|1224|1236|72274|135621|286|226910	1
+ref_mOTU_v31_00527	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiales fam. incertae sedis|g__Methylibium|s__Methylibium sp. CF059	2|1224|28216|80840|NA|316612|1500261	1
+ref_mOTU_v31_00529	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Oxalobacteraceae|g__Oxalobacteraceae gen. [Janthinobacterium/Duganella]|s__Oxalobacteraceae sp. [Janthinobacterium sp. HH01/Duganella sp. HH101/Duganella sp. HH105]	2|1224|28216|80840|75682|NA|NA	1
+ref_mOTU_v31_00531	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Oxalobacteraceae|g__Duganella|s__Duganella sp. CF517	2|1224|28216|80840|75682|75654|1881038	1
+ref_mOTU_v31_00781	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Phyllobacteriaceae|g__Mesorhizobium|s__Mesorhizobium loti	2|1224|28211|356|69277|68287|381	1
+ref_mOTU_v31_01176	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium canariense [Bradyrhizobium sp. WSM4349/Bradyrhizobium sp. URHA0013/Bradyrhizobium canariense/Bradyrhizobium sp. WSM1253/Bradyrhizobium sp. WSM471/Bradyrhizobium sp./Bradyrhizobium sp. WSM1417]	2|1224|28211|356|41294|374|255045	1
+ref_mOTU_v31_01185	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium diazoefficiens/japonicum [Bradyrhizobium sp. WSM2254/Bradyrhizobium diazoefficiens/Bradyrhizobium sp. cf659/Bradyrhizobium japonicum]	2|1224|28211|356|41294|374|NA	1
+ref_mOTU_v31_01397	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Rhizobiaceae|g__Agrobacterium|s__Agrobacterium deltaense/tumefaciens [Agrobacterium deltaense/Agrobacterium sp. JL28/Agrobacterium sp. D14/Agrobacterium sp. YIC 4121/Agrobacterium tumefaciens/Agrobacterium sp. C13/Agrobacterium sp. LY4/Agrobacterium sp. TS43/Agrobacterium sp. TS45]	2|1224|28211|356|82115|357|NA	1
+ref_mOTU_v31_01692	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium pachyrhizi/elkanii [Bradyrhizobium sp. UFLA 03-321/Bradyrhizobium sp. R5/Bradyrhizobium pachyrhizi/Bradyrhizobium elkanii]	2|1224|28211|356|41294|374|NA	2
+ref_mOTU_v31_02849	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Burkholderia|s__Burkholderia sp. WP9	2|1224|28216|80840|119060|32008|1500263	1
+ref_mOTU_v31_02850	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Paraburkholderia|s__Paraburkholderia phytofirmans	2|1224|28216|80840|119060|1822464|261302	1
+ref_mOTU_v31_02853	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Paraburkholderia|s__Paraburkholderia aspalathi [Paraburkholderia aspalathi/Burkholderia sp. ST111/Burkholderia sp. OLGA172/Burkholderia sp. GAS332]	2|1224|28216|80840|119060|1822464|1324617	3
+ref_mOTU_v31_02855	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Paraburkholderia|s__Paraburkholderia fungorum	2|1224|28216|80840|119060|1822464|134537	1
+ref_mOTU_v31_02981	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Xanthomonadales|f__Xanthomonadaceae|g__Xanthomonas|s__Xanthomonas translucens	2|1224|1236|135614|32033|338|343	1
+ref_mOTU_v31_03212	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Xanthomonadales|f__Rhodanobacteraceae|g__Dyella|s__Dyella japonica	2|1224|1236|135614|1775411|231454|231455	1
+ref_mOTU_v31_03449	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia sordidicola	2|1224|28216|80840|119060|1827195|196367	1
+ref_mOTU_v31_03450	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	2|1224|28216|80840|119060|1827195|196367	1
+ref_mOTU_v31_03452	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia sordidicola	2|1224|28216|80840|119060|1827195|196367	1
+ref_mOTU_v31_04458	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Xanthomonadales|f__Rhodanobacteraceae|g__Luteibacter|s__Luteibacter rhizovicinus	2|1224|1236|135614|1775411|242605|242606	2
+ref_mOTU_v31_04737	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Pseudomonas|s__Pseudomonas graminis	2|1224|1236|72274|135621|286|158627	1
+ref_mOTU_v31_10367	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Pseudonocardiales|f__Pseudonocardiaceae|g__Pseudonocardia|s__Pseudonocardia sp. 73-21	2|201174|1760|85010|2070|1847|1895809	1
+ref_mOTU_v31_10380	k__Bacteria|p__Actinobacteria|c__Thermoleophilia|o__Solirubrobacterales|f__Solirubrobacterales fam. incertae sedis|g__Solirubrobacterales gen. incertae sedis|s__Solirubrobacterales bacterium 70-9	2|201174|1497346|588673|NA|NA|1895833	1
+ref_mOTU_v31_11649	k__Bacteria|p__Cyanobacteria|c__Cyanobacteria class incertae sedis|o__Nostocales|f__Nostocaceae|g__Nostoc|s__Nostoc punctiforme	2|1117|NA|1161|1162|1177|272131	1
+ext_mOTU_v31_25077	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Streptosporangiales|f__Streptosporangiales fam. incertae sedis|g__Streptosporangiales gen. incertae sedis|s__Streptosporangiales species incertae sedis	2|201174|1760|85012|NA|NA|NA	1
+ext_mOTU_v31_29927	k__Bacteria|p__Acidobacteria|c__Acidobacteriia|o__Acidobacteriales|f__Acidobacteriaceae|g__Acidobacteriaceae gen. incertae sedis|s__Acidobacteriaceae species incertae sedis	2|57723|204432|204433|204434|NA|NA	1
+ext_mOTU_v31_32663	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Rhizobiales fam. incertae sedis|g__Rhizobiales gen. incertae sedis|s__Rhizobiales species incertae sedis	2|1224|28211|356|NA|NA|NA	2
+ext_mOTU_v31_32744	k__Bacteria|p__Actinobacteria|c__Thermoleophilia|o__Thermoleophilia order incertae sedis|f__Thermoleophilia fam. incertae sedis|g__Thermoleophilia gen. incertae sedis|s__Thermoleophilia species incertae sedis	2|201174|1497346|NA|NA|NA|NA	2
+ext_mOTU_v31_34619	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiales fam. incertae sedis|g__Burkholderiales gen. incertae sedis|s__Burkholderiales species incertae sedis	2|1224|28216|80840|NA|NA|NA	1
 unassigned	unassigned	NA	41

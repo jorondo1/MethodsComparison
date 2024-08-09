@@ -1,31 +1,31 @@
-# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
-# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/N-2-POLJUN-G/N-2-POLJUN-G_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/N-2-POLJUN-G/N-2-POLJUN-G_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/N-2-POLJUN-G/N-2-POLJUN-G_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/N-2-POLJUN-G/N-2-POLJUN-G_unmatched_2.fastq.gz -n N-2-POLJUN-G -t 24 -u -c -p
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/N-2-POLJUN-G/N-2-POLJUN-G_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/N-2-POLJUN-G/N-2-POLJUN-G_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/N-2-POLJUN-G/N-2-POLJUN-G_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/N-2-POLJUN-G/N-2-POLJUN-G_unmatched_2.fastq.gz -n N-2-POLJUN-G -t 8 -c -p -k mOTU -q
 #mOTU	consensus_taxonomy	NCBI_tax_id	N-2-POLJUN-G
-ref_mOTU_v31_00123	Pseudomonas fluorescens/yamanorum [Pseudomonas sp. PAMC 25886/Pseudomonas sp. Ag1/Pseudomonas sp. PAMC 26793/Pseudomonas sp. ATCC PTA-122608/Pseudomonas fluorescens/Pseudomonas yamanorum]	NA	1
-ref_mOTU_v31_00490	Pseudacidovorax intermedius	433924	1
-ref_mOTU_v31_01071	Brevundimonas diminuta/naejangsanensis	NA	1
-ref_mOTU_v31_01131	Methylobacterium brachiatum [Methylobacterium sp. GXF4/Methylobacterium sp. ARG-1/Methylobacterium brachiatum]	269660	2
-ref_mOTU_v31_01133	Methylobacterium sp. GXS13	1730094	1
-ref_mOTU_v31_01135	Bacteria sp. [Methylobacterium sp. 285MFTsu5.1/Methylobacterium sp. EUR3 AL-11/Methylobacterium sp. C1/Methylobacterium sp. 275MFSha3.1/Methylobacterium sp. UNC300MFChir4.1/Methylobacterium sp. 13MFTsu3.1M2/Methylobacterium sp. ME121/Methylobacterium sp. Leaf361/Methylobacterium sp. yr668/Methylobacterium radiotolerans/Asanoa ferruginea]	NA	3
-ref_mOTU_v31_01137	Methylobacterium mesophilicum	39956	1
-ref_mOTU_v31_01195	Bradyrhizobium sp. WSM3983	1038867	1
-ref_mOTU_v31_02980	Xanthomonas sacchari [Xanthomonas sp. NCPPB 1128/Xanthomonas sacchari]	56458	1
-ref_mOTU_v31_02981	Xanthomonas translucens	343	14
-ref_mOTU_v31_03450	Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	196367	1
-ref_mOTU_v31_03537	Rhizobium sp. [Rhizobium sp. 2MFCol3.1/Rhizobium sp. YR528]	NA	1
-ref_mOTU_v31_03945	Afipia sp. GAS231	1882747	1
-ref_mOTU_v31_04737	Pseudomonas graminis	158627	3
-ref_mOTU_v31_04820	Pseudomonas coleopterorum/rhizosphaerae [Pseudomonas coleopterorum/Pseudomonas sp. RIT-PI-a/Pseudomonas sp. Leaf129/Pseudomonas rhizosphaerae]	NA	1
-ref_mOTU_v31_06632	Sphingomonas phyllosphaerae	257003	2
-ref_mOTU_v31_07021	Pseudoxanthobacter soli	433840	1
-ref_mOTU_v31_10367	Pseudonocardia sp. 73-21	1895809	1
-ref_mOTU_v31_10380	Solirubrobacterales bacterium 70-9	1895833	1
-ref_mOTU_v31_11294	Granulicella pectinivorans	474950	1
-ref_mOTU_v31_11649	Nostoc punctiforme	272131	2
-ext_mOTU_v31_15161	Methylobacterium species incertae sedis	NA	1
-ext_mOTU_v31_18783	Methylobacterium species incertae sedis	NA	1
-ext_mOTU_v31_22736	Acidobacteria species incertae sedis	NA	1
-ext_mOTU_v31_28237	Sphingomonas species incertae sedis	NA	1
-ext_mOTU_v31_29904	Actinobacteria species incertae sedis	NA	1
-ext_mOTU_v31_32663	Rhizobiales species incertae sedis	NA	1
+ref_mOTU_v31_00123	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Pseudomonas|s__Pseudomonas fluorescens/yamanorum [Pseudomonas sp. PAMC 25886/Pseudomonas sp. Ag1/Pseudomonas sp. PAMC 26793/Pseudomonas sp. ATCC PTA-122608/Pseudomonas fluorescens/Pseudomonas yamanorum]	2|1224|1236|72274|135621|286|NA	1
+ref_mOTU_v31_00490	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Pseudacidovorax|s__Pseudacidovorax intermedius	2|1224|28216|80840|80864|433923|433924	1
+ref_mOTU_v31_01071	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Caulobacterales|f__Caulobacteraceae|g__Brevundimonas|s__Brevundimonas diminuta/naejangsanensis	2|1224|28211|204458|76892|41275|NA	1
+ref_mOTU_v31_01131	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium brachiatum [Methylobacterium sp. GXF4/Methylobacterium sp. ARG-1/Methylobacterium brachiatum]	2|1224|28211|356|119045|407|269660	2
+ref_mOTU_v31_01133	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium sp. GXS13	2|1224|28211|356|119045|407|1730094	1
+ref_mOTU_v31_01135	k__Bacteria|p__Bacteria phylum [Proteobacteria/Actinobacteria]|c__Bacteria class [Actinobacteria/Alphaproteobacteria]|o__Bacteria order [Rhizobiales/Micromonosporales]|f__Bacteria fam. [Methylobacteriaceae/Micromonosporaceae]|g__Bacteria gen. [Asanoa/Methylobacterium]|s__Bacteria sp. [Methylobacterium sp. 285MFTsu5.1/Methylobacterium sp. EUR3 AL-11/Methylobacterium sp. C1/Methylobacterium sp. 275MFSha3.1/Methylobacterium sp. UNC300MFChir4.1/Methylobacterium sp. 13MFTsu3.1M2/Methylobacterium sp. ME121/Methylobacterium sp. Leaf361/Methylobacterium sp. yr668/Methylobacterium radiotolerans/Asanoa ferruginea]	2|NA|NA|NA|NA|NA|NA	3
+ref_mOTU_v31_01137	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium mesophilicum	2|1224|28211|356|119045|407|39956	1
+ref_mOTU_v31_01195	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium sp. WSM3983	2|1224|28211|356|41294|374|1038867	1
+ref_mOTU_v31_02980	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Xanthomonadales|f__Xanthomonadaceae|g__Xanthomonas|s__Xanthomonas sacchari [Xanthomonas sp. NCPPB 1128/Xanthomonas sacchari]	2|1224|1236|135614|32033|338|56458	1
+ref_mOTU_v31_02981	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Xanthomonadales|f__Xanthomonadaceae|g__Xanthomonas|s__Xanthomonas translucens	2|1224|1236|135614|32033|338|343	14
+ref_mOTU_v31_03450	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	2|1224|28216|80840|119060|1827195|196367	1
+ref_mOTU_v31_03537	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Rhizobiaceae|g__Rhizobium|s__Rhizobium sp. [Rhizobium sp. 2MFCol3.1/Rhizobium sp. YR528]	2|1224|28211|356|82115|379|NA	1
+ref_mOTU_v31_03945	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Bradyrhizobiaceae|g__Afipia|s__Afipia sp. GAS231	2|1224|28211|356|41294|1033|1882747	1
+ref_mOTU_v31_04737	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Pseudomonas|s__Pseudomonas graminis	2|1224|1236|72274|135621|286|158627	3
+ref_mOTU_v31_04820	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Pseudomonas|s__Pseudomonas coleopterorum/rhizosphaerae [Pseudomonas coleopterorum/Pseudomonas sp. RIT-PI-a/Pseudomonas sp. Leaf129/Pseudomonas rhizosphaerae]	2|1224|1236|72274|135621|286|NA	1
+ref_mOTU_v31_06632	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas phyllosphaerae	2|1224|28211|204457|41297|13687|257003	2
+ref_mOTU_v31_07021	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Xanthobacteraceae|g__Pseudoxanthobacter|s__Pseudoxanthobacter soli	2|1224|28211|356|335928|433838|433840	1
+ref_mOTU_v31_10367	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Pseudonocardiales|f__Pseudonocardiaceae|g__Pseudonocardia|s__Pseudonocardia sp. 73-21	2|201174|1760|85010|2070|1847|1895809	1
+ref_mOTU_v31_10380	k__Bacteria|p__Actinobacteria|c__Thermoleophilia|o__Solirubrobacterales|f__Solirubrobacterales fam. incertae sedis|g__Solirubrobacterales gen. incertae sedis|s__Solirubrobacterales bacterium 70-9	2|201174|1497346|588673|NA|NA|1895833	1
+ref_mOTU_v31_11294	k__Bacteria|p__Acidobacteria|c__Acidobacteriia|o__Acidobacteriales|f__Acidobacteriaceae|g__Granulicella|s__Granulicella pectinivorans	2|57723|204432|204433|204434|940557|474950	1
+ref_mOTU_v31_11649	k__Bacteria|p__Cyanobacteria|c__Cyanobacteria class incertae sedis|o__Nostocales|f__Nostocaceae|g__Nostoc|s__Nostoc punctiforme	2|1117|NA|1161|1162|1177|272131	2
+ext_mOTU_v31_15161	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium species incertae sedis	2|1224|28211|356|119045|407|NA	1
+ext_mOTU_v31_18783	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium species incertae sedis	2|1224|28211|356|119045|407|NA	1
+ext_mOTU_v31_22736	k__Bacteria|p__Acidobacteria|c__Acidobacteria class incertae sedis|o__Acidobacteria order incertae sedis|f__Acidobacteria fam. incertae sedis|g__Acidobacteria gen. incertae sedis|s__Acidobacteria species incertae sedis	2|57723|NA|NA|NA|NA|NA	1
+ext_mOTU_v31_28237	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas species incertae sedis	2|1224|28211|204457|41297|13687|NA	1
+ext_mOTU_v31_29904	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Actinobacteria order incertae sedis|f__Actinobacteria fam. incertae sedis|g__Actinobacteria gen. incertae sedis|s__Actinobacteria species incertae sedis	2|201174|1760|NA|NA|NA|NA	1
+ext_mOTU_v31_32663	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Rhizobiales fam. incertae sedis|g__Rhizobiales gen. incertae sedis|s__Rhizobiales species incertae sedis	2|1224|28211|356|NA|NA|NA	1
 unassigned	unassigned	NA	29

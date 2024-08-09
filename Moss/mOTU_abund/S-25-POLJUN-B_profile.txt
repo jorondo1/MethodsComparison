@@ -1,19 +1,19 @@
-# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
-# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-25-POLJUN-B/S-25-POLJUN-B_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-25-POLJUN-B/S-25-POLJUN-B_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-25-POLJUN-B/S-25-POLJUN-B_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-25-POLJUN-B/S-25-POLJUN-B_unmatched_2.fastq.gz -n S-25-POLJUN-B -t 24 -u -c -p
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-25-POLJUN-B/S-25-POLJUN-B_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-25-POLJUN-B/S-25-POLJUN-B_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-25-POLJUN-B/S-25-POLJUN-B_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/S-25-POLJUN-B/S-25-POLJUN-B_unmatched_2.fastq.gz -n S-25-POLJUN-B -t 8 -c -p -k mOTU -q
 #mOTU	consensus_taxonomy	NCBI_tax_id	S-25-POLJUN-B
-ref_mOTU_v31_00781	Mesorhizobium loti	381	1
-ref_mOTU_v31_00786	Mesorhizobium sp. [Mesorhizobium sp. SEMIA 3007/Mesorhizobium japonicum/Mesorhizobium huakuii/Mesorhizobium loti]	NA	1
-ref_mOTU_v31_01131	Methylobacterium brachiatum [Methylobacterium sp. GXF4/Methylobacterium sp. ARG-1/Methylobacterium brachiatum]	269660	1
-ref_mOTU_v31_01132	Methylobacterium pseudosasicola	582667	1
-ref_mOTU_v31_01134	Methylobacterium oryzae/phyllosphaerae [Methylobacterium sp. UNCCL110/Methylobacterium sp. UNCCL125/Methylobacterium oryzae/Methylobacterium phyllosphaerae]	NA	1
-ref_mOTU_v31_01141	Methylorubrum zatmanii/extorquens [Methylobacterium sp. Leaf90/Methylobacterium sp. Leaf92/Methylobacterium sp. Leaf119/Methylobacterium sp. Leaf121/Methylobacterium sp. Leaf122/Methylobacterium sp. Leaf123/Methylorubrum zatmanii/Methylorubrum extorquens/Methylobacterium sp. AMS5]	NA	1
-ref_mOTU_v31_02102	Actinoplanes globisporus	113565	1
-ref_mOTU_v31_03450	Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	196367	2
-ref_mOTU_v31_04020	Kineosporia aurantiaca	49185	1
-ref_mOTU_v31_04105	Actinoplanes sp. SE50/110	134676	1
-ref_mOTU_v31_07816	Conexibacter woesei	191495	2
-ref_mOTU_v31_10367	Pseudonocardia sp. 73-21	1895809	1
-ref_mOTU_v31_11649	Nostoc punctiforme	272131	2
-ext_mOTU_v31_24795	Solirubrobacterales species incertae sedis	NA	3
-ext_mOTU_v31_32744	Thermoleophilia species incertae sedis	NA	3
+ref_mOTU_v31_00781	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Phyllobacteriaceae|g__Mesorhizobium|s__Mesorhizobium loti	2|1224|28211|356|69277|68287|381	1
+ref_mOTU_v31_00786	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Phyllobacteriaceae|g__Mesorhizobium|s__Mesorhizobium sp. [Mesorhizobium sp. SEMIA 3007/Mesorhizobium japonicum/Mesorhizobium huakuii/Mesorhizobium loti]	2|1224|28211|356|69277|68287|NA	1
+ref_mOTU_v31_01131	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium brachiatum [Methylobacterium sp. GXF4/Methylobacterium sp. ARG-1/Methylobacterium brachiatum]	2|1224|28211|356|119045|407|269660	1
+ref_mOTU_v31_01132	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium pseudosasicola	2|1224|28211|356|119045|407|582667	1
+ref_mOTU_v31_01134	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium oryzae/phyllosphaerae [Methylobacterium sp. UNCCL110/Methylobacterium sp. UNCCL125/Methylobacterium oryzae/Methylobacterium phyllosphaerae]	2|1224|28211|356|119045|407|NA	1
+ref_mOTU_v31_01141	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylorubrum|s__Methylorubrum zatmanii/extorquens [Methylobacterium sp. Leaf90/Methylobacterium sp. Leaf92/Methylobacterium sp. Leaf119/Methylobacterium sp. Leaf121/Methylobacterium sp. Leaf122/Methylobacterium sp. Leaf123/Methylorubrum zatmanii/Methylorubrum extorquens/Methylobacterium sp. AMS5]	2|1224|28211|356|119045|2282523|NA	1
+ref_mOTU_v31_02102	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Micromonosporales|f__Micromonosporaceae|g__Actinoplanes|s__Actinoplanes globisporus	2|201174|1760|85008|28056|1865|113565	1
+ref_mOTU_v31_03450	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	2|1224|28216|80840|119060|1827195|196367	2
+ref_mOTU_v31_04020	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Kineosporiales|f__Kineosporiaceae|g__Kineosporia|s__Kineosporia aurantiaca	2|201174|1760|622452|83778|49184|49185	1
+ref_mOTU_v31_04105	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Micromonosporales|f__Micromonosporaceae|g__Actinoplanes|s__Actinoplanes sp. SE50/110	2|201174|1760|85008|28056|1865|134676	1
+ref_mOTU_v31_07816	k__Bacteria|p__Actinobacteria|c__Thermoleophilia|o__Solirubrobacterales|f__Conexibacteraceae|g__Conexibacter|s__Conexibacter woesei	2|201174|1497346|588673|320583|191494|191495	2
+ref_mOTU_v31_10367	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Pseudonocardiales|f__Pseudonocardiaceae|g__Pseudonocardia|s__Pseudonocardia sp. 73-21	2|201174|1760|85010|2070|1847|1895809	1
+ref_mOTU_v31_11649	k__Bacteria|p__Cyanobacteria|c__Cyanobacteria class incertae sedis|o__Nostocales|f__Nostocaceae|g__Nostoc|s__Nostoc punctiforme	2|1117|NA|1161|1162|1177|272131	2
+ext_mOTU_v31_24795	k__Bacteria|p__Actinobacteria|c__Thermoleophilia|o__Solirubrobacterales|f__Solirubrobacterales fam. incertae sedis|g__Solirubrobacterales gen. incertae sedis|s__Solirubrobacterales species incertae sedis	2|201174|1497346|588673|NA|NA|NA	3
+ext_mOTU_v31_32744	k__Bacteria|p__Actinobacteria|c__Thermoleophilia|o__Thermoleophilia order incertae sedis|f__Thermoleophilia fam. incertae sedis|g__Thermoleophilia gen. incertae sedis|s__Thermoleophilia species incertae sedis	2|201174|1497346|NA|NA|NA|NA	3
 unassigned	unassigned	NA	28

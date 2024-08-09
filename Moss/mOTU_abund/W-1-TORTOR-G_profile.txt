@@ -1,50 +1,50 @@
-# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p -u | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
-# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/W-1-TORTOR-G/W-1-TORTOR-G_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/W-1-TORTOR-G/W-1-TORTOR-G_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/W-1-TORTOR-G/W-1-TORTOR-G_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/W-1-TORTOR-G/W-1-TORTOR-G_unmatched_2.fastq.gz -n W-1-TORTOR-G -t 24 -u -c -p
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/W-1-TORTOR-G/W-1-TORTOR-G_paired_1.fastq.gz -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/W-1-TORTOR-G/W-1-TORTOR-G_paired_2.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/W-1-TORTOR-G/W-1-TORTOR-G_unmatched_1.fastq.gz -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/boreal_moss/preproc/W-1-TORTOR-G/W-1-TORTOR-G_unmatched_2.fastq.gz -n W-1-TORTOR-G -t 8 -c -p -k mOTU -q
 #mOTU	consensus_taxonomy	NCBI_tax_id	W-1-TORTOR-G
-ref_mOTU_v31_00778	Mesorhizobium qingshengii	1165689	1
-ref_mOTU_v31_00781	Mesorhizobium loti	381	1
-ref_mOTU_v31_00785	Mesorhizobium loti [Mesorhizobium sp. Root172/Mesorhizobium loti]	381	1
-ref_mOTU_v31_00786	Mesorhizobium sp. [Mesorhizobium sp. SEMIA 3007/Mesorhizobium japonicum/Mesorhizobium huakuii/Mesorhizobium loti]	NA	2
-ref_mOTU_v31_01122	Methylobacterium sp. [Methylobacterium sp. 88A/Methylobacterium sp. Leaf85/Methylobacterium sp. Leaf93/Methylobacterium sp. Leaf106]	NA	1
-ref_mOTU_v31_01125	Methylobacterium sp. [Methylobacterium sp. Leaf88/Methylobacterium sp. Leaf89/Methylobacterium sp. Leaf94/Methylobacterium sp. Leaf111/Methylobacterium sp. Leaf465]	NA	1
-ref_mOTU_v31_01126	Methylobacterium sp. Leaf125	1736265	2
-ref_mOTU_v31_01127	Methylobacterium sp. Leaf104	1736254	1
-ref_mOTU_v31_01131	Methylobacterium brachiatum [Methylobacterium sp. GXF4/Methylobacterium sp. ARG-1/Methylobacterium brachiatum]	269660	1
-ref_mOTU_v31_01133	Methylobacterium sp. GXS13	1730094	2
-ref_mOTU_v31_01134	Methylobacterium oryzae/phyllosphaerae [Methylobacterium sp. UNCCL110/Methylobacterium sp. UNCCL125/Methylobacterium oryzae/Methylobacterium phyllosphaerae]	NA	2
-ref_mOTU_v31_01135	Bacteria sp. [Methylobacterium sp. 285MFTsu5.1/Methylobacterium sp. EUR3 AL-11/Methylobacterium sp. C1/Methylobacterium sp. 275MFSha3.1/Methylobacterium sp. UNC300MFChir4.1/Methylobacterium sp. 13MFTsu3.1M2/Methylobacterium sp. ME121/Methylobacterium sp. Leaf361/Methylobacterium sp. yr668/Methylobacterium radiotolerans/Asanoa ferruginea]	NA	3
-ref_mOTU_v31_01136	Methylobacterium sp. UNC378MF	1502748	2
-ref_mOTU_v31_01191	Bradyrhizobium shewense/japonicum [Bradyrhizobium sp. WSM2793/Bradyrhizobium shewense/Bradyrhizobium sp. Rc3b/Bradyrhizobium japonicum]	NA	2
-ref_mOTU_v31_01192	Bradyrhizobium sp. AT1	574934	2
-ref_mOTU_v31_01194	Bradyrhizobium sp. S23321	335659	1
-ref_mOTU_v31_01337	Sphingomonas sp. [Sphingomonas sp. Leaf198/Sphingomonas sp. Leaf242]	NA	2
-ref_mOTU_v31_01338	Sphingomonas sp. [Sphingomonas sp. Leaf230/Sphingomonas sp. OK281]	NA	1
-ref_mOTU_v31_01340	Sphingomonas sp. [Sphingomonas sp. Leaf34/Sphingomonas sp. Leaf38]	NA	2
-ref_mOTU_v31_01966	Sphingomonas sp. [Sphingomonas sp. PAMC 26621/Sphingomonas sp. PAMC 26617]	NA	1
-ref_mOTU_v31_02693	Leifsonia sp. 21MFCrub1.1	1798223	1
-ref_mOTU_v31_02804	Rhodanobacter spathiphylli [Rhodanobacter sp. Root179/Rhodanobacter sp. Root561/Rhodanobacter spathiphylli]	347483	1
-ref_mOTU_v31_02877	Intrasporangiaceae sp. [Terracoccus sp. 273MFTsu3.1/Terrabacter sp. Soil811/Terrabacter sp. Root85]	NA	2
-ref_mOTU_v31_02879	Corynebacterium variabile	1727	1
-ref_mOTU_v31_03450	Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	196367	5
-ref_mOTU_v31_03836	Luteibacter sp. 9135	1500893	1
-ref_mOTU_v31_03993	Mycolicibacterium chubuense/chlorophenolicum	NA	1
-ref_mOTU_v31_04721	Sphingomonas sp. NFR15	1566282	1
-ref_mOTU_v31_04737	Pseudomonas graminis	158627	1
-ref_mOTU_v31_05253	Actinoplanes sp. TFC3	1710355	1
-ref_mOTU_v31_05316	Nocardioides sp. [Nocardioides sp. Leaf285/Nocardioides sp. Leaf307]	NA	2
-ref_mOTU_v31_05330	Phycicoccus sp. [Phycicoccus sp. Root101/Phycicoccus sp. Root563]	NA	3
-ref_mOTU_v31_05361	Leifsonia sp. Root227	1736496	1
-ref_mOTU_v31_05459	Oscillatoria nigro-viridis	482564	29
-ref_mOTU_v31_05460	Microcoleus vaginatus	119532	4
-ref_mOTU_v31_06679	Sphingomonas sp. PAMC 26605	1112214	5
-ref_mOTU_v31_09212	Sphingomonas sp. Leaf33	1736215	1
-ref_mOTU_v31_09227	Sphingomonas sp. Leaf357	1736350	2
-ref_mOTU_v31_09244	Nocardioides sp. Root122	1736431	1
-ref_mOTU_v31_09249	Pseudolabrys sp. Root1462	1736466	1
-ref_mOTU_v31_10367	Pseudonocardia sp. 73-21	1895809	3
-ref_mOTU_v31_10572	Sphingomonas sp. LM7	1938607	1
-ref_mOTU_v31_11546	Nocardioides terrae	574651	1
-ref_mOTU_v31_11665	Marmoricola scoriae	642780	2
-ref_mOTU_v31_12102	Terriglobus roseus	392734	17
-ext_mOTU_v31_32770	Bradyrhizobium species incertae sedis	NA	1
+ref_mOTU_v31_00778	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Phyllobacteriaceae|g__Mesorhizobium|s__Mesorhizobium qingshengii	2|1224|28211|356|69277|68287|1165689	1
+ref_mOTU_v31_00781	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Phyllobacteriaceae|g__Mesorhizobium|s__Mesorhizobium loti	2|1224|28211|356|69277|68287|381	1
+ref_mOTU_v31_00785	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Phyllobacteriaceae|g__Mesorhizobium|s__Mesorhizobium loti [Mesorhizobium sp. Root172/Mesorhizobium loti]	2|1224|28211|356|69277|68287|381	1
+ref_mOTU_v31_00786	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Phyllobacteriaceae|g__Mesorhizobium|s__Mesorhizobium sp. [Mesorhizobium sp. SEMIA 3007/Mesorhizobium japonicum/Mesorhizobium huakuii/Mesorhizobium loti]	2|1224|28211|356|69277|68287|NA	2
+ref_mOTU_v31_01122	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium sp. [Methylobacterium sp. 88A/Methylobacterium sp. Leaf85/Methylobacterium sp. Leaf93/Methylobacterium sp. Leaf106]	2|1224|28211|356|119045|407|NA	1
+ref_mOTU_v31_01125	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium sp. [Methylobacterium sp. Leaf88/Methylobacterium sp. Leaf89/Methylobacterium sp. Leaf94/Methylobacterium sp. Leaf111/Methylobacterium sp. Leaf465]	2|1224|28211|356|119045|407|NA	1
+ref_mOTU_v31_01126	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium sp. Leaf125	2|1224|28211|356|119045|407|1736265	2
+ref_mOTU_v31_01127	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium sp. Leaf104	2|1224|28211|356|119045|407|1736254	1
+ref_mOTU_v31_01131	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium brachiatum [Methylobacterium sp. GXF4/Methylobacterium sp. ARG-1/Methylobacterium brachiatum]	2|1224|28211|356|119045|407|269660	1
+ref_mOTU_v31_01133	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium sp. GXS13	2|1224|28211|356|119045|407|1730094	2
+ref_mOTU_v31_01134	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium oryzae/phyllosphaerae [Methylobacterium sp. UNCCL110/Methylobacterium sp. UNCCL125/Methylobacterium oryzae/Methylobacterium phyllosphaerae]	2|1224|28211|356|119045|407|NA	2
+ref_mOTU_v31_01135	k__Bacteria|p__Bacteria phylum [Proteobacteria/Actinobacteria]|c__Bacteria class [Actinobacteria/Alphaproteobacteria]|o__Bacteria order [Rhizobiales/Micromonosporales]|f__Bacteria fam. [Methylobacteriaceae/Micromonosporaceae]|g__Bacteria gen. [Asanoa/Methylobacterium]|s__Bacteria sp. [Methylobacterium sp. 285MFTsu5.1/Methylobacterium sp. EUR3 AL-11/Methylobacterium sp. C1/Methylobacterium sp. 275MFSha3.1/Methylobacterium sp. UNC300MFChir4.1/Methylobacterium sp. 13MFTsu3.1M2/Methylobacterium sp. ME121/Methylobacterium sp. Leaf361/Methylobacterium sp. yr668/Methylobacterium radiotolerans/Asanoa ferruginea]	2|NA|NA|NA|NA|NA|NA	3
+ref_mOTU_v31_01136	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium sp. UNC378MF	2|1224|28211|356|119045|407|1502748	2
+ref_mOTU_v31_01191	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium shewense/japonicum [Bradyrhizobium sp. WSM2793/Bradyrhizobium shewense/Bradyrhizobium sp. Rc3b/Bradyrhizobium japonicum]	2|1224|28211|356|41294|374|NA	2
+ref_mOTU_v31_01192	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium sp. AT1	2|1224|28211|356|41294|374|574934	2
+ref_mOTU_v31_01194	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium sp. S23321	2|1224|28211|356|41294|374|335659	1
+ref_mOTU_v31_01337	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas sp. [Sphingomonas sp. Leaf198/Sphingomonas sp. Leaf242]	2|1224|28211|204457|41297|13687|NA	2
+ref_mOTU_v31_01338	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas sp. [Sphingomonas sp. Leaf230/Sphingomonas sp. OK281]	2|1224|28211|204457|41297|13687|NA	1
+ref_mOTU_v31_01340	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas sp. [Sphingomonas sp. Leaf34/Sphingomonas sp. Leaf38]	2|1224|28211|204457|41297|13687|NA	2
+ref_mOTU_v31_01966	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas sp. [Sphingomonas sp. PAMC 26621/Sphingomonas sp. PAMC 26617]	2|1224|28211|204457|41297|13687|NA	1
+ref_mOTU_v31_02693	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Micrococcales|f__Microbacteriaceae|g__Leifsonia|s__Leifsonia sp. 21MFCrub1.1	2|201174|1760|85006|85023|110932|1798223	1
+ref_mOTU_v31_02804	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Xanthomonadales|f__Rhodanobacteraceae|g__Rhodanobacter|s__Rhodanobacter spathiphylli [Rhodanobacter sp. Root179/Rhodanobacter sp. Root561/Rhodanobacter spathiphylli]	2|1224|1236|135614|1775411|75309|347483	1
+ref_mOTU_v31_02877	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Micrococcales|f__Intrasporangiaceae|g__Intrasporangiaceae gen. [Terrabacter/Terracoccus]|s__Intrasporangiaceae sp. [Terracoccus sp. 273MFTsu3.1/Terrabacter sp. Soil811/Terrabacter sp. Root85]	2|201174|1760|85006|85021|NA|NA	2
+ref_mOTU_v31_02879	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Corynebacteriales|f__Corynebacteriaceae|g__Corynebacterium|s__Corynebacterium variabile	2|201174|1760|85007|1653|1716|1727	1
+ref_mOTU_v31_03450	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia sordidicola [Burkholderia sp. PAMC 26561/Burkholderia sp. PAMC 28687/Caballeronia sordidicola]	2|1224|28216|80840|119060|1827195|196367	5
+ref_mOTU_v31_03836	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Xanthomonadales|f__Rhodanobacteraceae|g__Luteibacter|s__Luteibacter sp. 9135	2|1224|1236|135614|1775411|242605|1500893	1
+ref_mOTU_v31_03993	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Corynebacteriales|f__Mycobacteriaceae|g__Mycolicibacterium|s__Mycolicibacterium chubuense/chlorophenolicum	2|201174|1760|85007|1762|1866885|NA	1
+ref_mOTU_v31_04721	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas sp. NFR15	2|1224|28211|204457|41297|13687|1566282	1
+ref_mOTU_v31_04737	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Pseudomonas|s__Pseudomonas graminis	2|1224|1236|72274|135621|286|158627	1
+ref_mOTU_v31_05253	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Micromonosporales|f__Micromonosporaceae|g__Actinoplanes|s__Actinoplanes sp. TFC3	2|201174|1760|85008|28056|1865|1710355	1
+ref_mOTU_v31_05316	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Propionibacteriales|f__Nocardioidaceae|g__Nocardioides|s__Nocardioides sp. [Nocardioides sp. Leaf285/Nocardioides sp. Leaf307]	2|201174|1760|85009|85015|1839|NA	2
+ref_mOTU_v31_05330	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Micrococcales|f__Intrasporangiaceae|g__Phycicoccus|s__Phycicoccus sp. [Phycicoccus sp. Root101/Phycicoccus sp. Root563]	2|201174|1760|85006|85021|367298|NA	3
+ref_mOTU_v31_05361	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Micrococcales|f__Microbacteriaceae|g__Leifsonia|s__Leifsonia sp. Root227	2|201174|1760|85006|85023|110932|1736496	1
+ref_mOTU_v31_05459	k__Bacteria|p__Cyanobacteria|c__Cyanobacteria class incertae sedis|o__Oscillatoriales|f__Oscillatoriaceae|g__Oscillatoria|s__Oscillatoria nigro-viridis	2|1117|NA|1150|1892254|1158|482564	29
+ref_mOTU_v31_05460	k__Bacteria|p__Cyanobacteria|c__Cyanobacteria class incertae sedis|o__Oscillatoriales|f__Microcoleaceae|g__Microcoleus|s__Microcoleus vaginatus	2|1117|NA|1150|1892252|44471|119532	4
+ref_mOTU_v31_06679	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas sp. PAMC 26605	2|1224|28211|204457|41297|13687|1112214	5
+ref_mOTU_v31_09212	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas sp. Leaf33	2|1224|28211|204457|41297|13687|1736215	1
+ref_mOTU_v31_09227	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas sp. Leaf357	2|1224|28211|204457|41297|13687|1736350	2
+ref_mOTU_v31_09244	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Propionibacteriales|f__Nocardioidaceae|g__Nocardioides|s__Nocardioides sp. Root122	2|201174|1760|85009|85015|1839|1736431	1
+ref_mOTU_v31_09249	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Xanthobacteraceae|g__Pseudolabrys|s__Pseudolabrys sp. Root1462	2|1224|28211|356|335928|556257|1736466	1
+ref_mOTU_v31_10367	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Pseudonocardiales|f__Pseudonocardiaceae|g__Pseudonocardia|s__Pseudonocardia sp. 73-21	2|201174|1760|85010|2070|1847|1895809	3
+ref_mOTU_v31_10572	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas sp. LM7	2|1224|28211|204457|41297|13687|1938607	1
+ref_mOTU_v31_11546	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Propionibacteriales|f__Nocardioidaceae|g__Nocardioides|s__Nocardioides terrae	2|201174|1760|85009|85015|1839|574651	1
+ref_mOTU_v31_11665	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Propionibacteriales|f__Nocardioidaceae|g__Marmoricola|s__Marmoricola scoriae	2|201174|1760|85009|85015|86795|642780	2
+ref_mOTU_v31_12102	k__Bacteria|p__Acidobacteria|c__Acidobacteriia|o__Acidobacteriales|f__Acidobacteriaceae|g__Terriglobus|s__Terriglobus roseus	2|57723|204432|204433|204434|392733|392734	17
+ext_mOTU_v31_32770	k__Bacteria|p__Proteobacteria|c__Alphaproteobacteria|o__Rhizobiales|f__Bradyrhizobiaceae|g__Bradyrhizobium|s__Bradyrhizobium species incertae sedis	2|1224|28211|356|41294|374|NA	1
 unassigned	unassigned	NA	22
