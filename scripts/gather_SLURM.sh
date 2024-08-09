@@ -3,7 +3,7 @@
 #SBATCH --mail-type=END,FAIL
 #SBATCH -D /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison
 #SBATCH -o /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/logs/sourmash-%A_%a.slurm.out
-#SBATCH --time=24:00:00
+#SBATCH --time=48:00:00
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -A def-ilafores
