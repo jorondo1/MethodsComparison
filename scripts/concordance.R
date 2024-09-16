@@ -50,21 +50,22 @@ salivaMOTUS <- parse_MPA(
   make_phylo_MPA(psSalivaMPA@sam_data)
 
 ## Test with more current MPA database
-divIDX <- c('Richness', 'Shannon', 'Simpson', 'Tail')
+idx <- c(0,1,2)
 
 # rarefy + diversity 
 div.fun <- function(ps) {
   rare.ps <- rarefy_even_depth2(ps, rngseed = 1234) # rarefy
   div_estimate <- list() #initiate list
-  for (idx in divIDX) { # compute every diversity index 
-    div_estimate[[idx]] <- estimate_diversity(rare.ps, index = idx)
+  for (i in seq_along(idx)) { # compute every diversity index 
+    H_q=paste0("H_",i-1) # format H_0, H_1...
+    div_estimate[[H_q]] <- estimate_Hill(rare.ps, idx[i])
   }
   return(div_estimate)
 }
 
 # iterate list on all datasets defined in objectsToImport
 div_rare <- list()
-for (ds in c('salivaKB', 'salivaMPA2022', 'salivaMPA2023', 'salivaSM_GB', 'salivaSM_GTDB')){
+for (ds in c('salivaKB51', 'salivaMPA2022', 'salivaMPA2023', 'salivaSM_GB', 'salivaSM_GTDB', 'salivaMOTUS')){
   message(c('rarefying ', ds))
   div_rare[[ds]] <- div.fun(get(ds)) 
 }
