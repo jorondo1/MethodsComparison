@@ -28,18 +28,25 @@ salivaMPA2023 <- parse_MPA(
   make_phylo_MPA(psSalivaMPA@sam_data)
 
 # Kraken
-salivaKB <- parse_MPA('Saliva/Bracken/*/*_bracken/*_bracken_S.MPA.TXT') %>% 
+salivaKB51 <- parse_MPA('Saliva/Bracken51/*/*_bracken/*_bracken_S.MPA.TXT') %>% 
   make_phylo_MPA(psSalivaMPA@sam_data)
 
 # Sourmash
 salivaSM_GB <- phyloseq(
   otu_table(parse_SM('Saliva/Sourmash/*_genbank-2022.03_gather.csv'), taxa_are_rows = TRUE),
-  sample_data = psSalivaMPA@sam_data,
+  sample_data = psSalivaMPA@sam_data#,
   #tax_table = ???
   )
   
+salivaSM_GTDB <- phyloseq(
+  otu_table(parse_SM('Saliva/Sourmash/*_gtdb-rs220_gather.csv'), taxa_are_rows = TRUE),
+  sample_data = psSalivaMPA@sam_data#,
+  #tax_table = ???
+)
 
-salivaSM_GTDB <- parse_SM('Saliva/Sourmash/*_gtdb-rs220_gather.csv') %>% 
+salivaMOTUS <- parse_MPA(
+  MPA_files = "Saliva/MOTUS/*_profile.txt" , 
+  column_names = c('mOTU', 'Taxonomy', 'NCBI', 'Abundance')) %>% 
   make_phylo_MPA(psSalivaMPA@sam_data)
 
 ## Test with more current MPA database
