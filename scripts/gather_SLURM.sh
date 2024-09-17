@@ -24,7 +24,7 @@ export OUT_DIR=${PWD}/"${1}"/SM_${SM_DB}
 export SAM_NUM=$(awk "NR==$SLURM_ARRAY_TASK_ID" ${SAM_LIST})
 IFS=$'\t' read -r SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2 <<< "$SAM_NUM" # array it up
 export SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2
-export SIG="${OUT_DIR}/signatures/${SAM_ID}.sig"
+export SIG="${OUT_DIR}/../signatures/${SAM_ID}.sig"
 
 mkdir -p $OUT_DIR/signatures
 
