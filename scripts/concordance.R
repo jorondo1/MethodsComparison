@@ -7,34 +7,35 @@ source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/communi
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/rarefy_even_depth2.R'))
 source('scripts/myFunctions.R')
 
-objectsToImport <- c("psSalivaKB","psSalivaSM","psSalivaMPA",
-                     "psFecesKB","psFecesSM", "psFecesMPA")
+# Import External data
+objectsToImport <- c("psSalivaKB", "psFecesKB")
 for (i in objectsToImport) {assign(i,readRDS(
   paste0("/Users/jorondo/Library/CloudStorage/OneDrive-USherbrooke/Projets/PROVID19/objects/",i,".rds")))}
 moss.ps <-readRDS(url('https://github.com/jorondo1/borealMoss/raw/main/data/R_out/mossMAGs.RDS'))
 
-### When doing Feces, remove MSA-3001
-ps_list <- list()
-meta_parsing <- function(dsName, samData) {
+# Function to call parsing functions for each dataset,
+# results in a list containing 1 phyloseq object by dataset by tool (database)
+# with general structure List$Dataset$Database.ps
+meta_parsing <- function(dsName, samData, filtering = FALSE) {
   ps <- list()
   # Metaphlan  
   for (db in c('MPA_db2022', 'MPA_db2023')) {
     ps[[db]] <- parse_MPA(
       MPA_files = paste0(dsName,'/', db, '/*/*profile.txt'),
       column_names = c('Taxonomy', 'NCBI','Abundance', 'Void')) %>% 
-      assemble_phyloseq(samData)
+      assemble_phyloseq(samData, filtering = filtering)
   }
   
   # Kraken-bracken (using default headers from parse_MPA function)
   ps[['Bracken51']] <- parse_MPA(
     MPA_files = paste0(dsName,'/Bracken51/*/*_bracken/*_bracken_S.MPA.TXT')) %>% 
-    assemble_phyloseq(samData)
+    assemble_phyloseq(samData, filtering = filtering)
   
     # MOTUS
   ps[['MOTUS']] <- parse_MPA(
     MPA_files = paste0(dsName,"/MOTUS/*_profile.txt"), 
     column_names = c('mOTU', 'Taxonomy', 'NCBI', 'Abundance')) %>% 
-    assemble_phyloseq(samData)
+    assemble_phyloseq(samData, filtering = filtering)
   
   # Sourmash
   ps[['SM_genbank_202203']] <- left_join(
@@ -42,49 +43,61 @@ meta_parsing <- function(dsName, samData) {
     parse_genbank_lineages(paste0(dsName,'/SM_genbank_202203/genbank-2022.03_lineages.csv')),
     by = 'genome'
     ) %>% species_glom() %>%
-    assemble_phyloseq(samData)
-
+    assemble_phyloseq(samData, filtering = filtering)
+  
   for (db in c(#'SM_gtdb_rs214',
                'SM_gtdb_rs214_rep')) {
     ps[[db]] <- left_join(
       parse_SM(paste0(dsName,'/', db, '/*_gather.csv')),
       parse_GTDB_lineages(paste0(dsName,'/', db, '/', db, '_lineages.csv')),
       by = 'genome'
-    ) %>% assemble_phyloseq(samData)
+    ) %>% assemble_phyloseq(samData, filtering = filtering)
   }
   return(ps)
 }
 
+ps_list <- list()
 ps_list[['Saliva']] <- meta_parsing('Saliva', psSalivaKB@sam_data)
 ps_list[['Feces']] <- meta_parsing('Feces', psFecesKB@sam_data)
 ps_list[['Moss']] <- meta_parsing('Moss', moss.ps@sam_data)
+ps_list[['Moss']][['SM_gtdb_rs214_rep_MAGs']] <- moss.ps 
 ps_list$Moss$MPA_db2022 <- NULL
 ps_list$Moss$MPA_db2023 <- NULL
-ps_list$Moss$Bracken05 <- NULL
-## Test with more current MPA database
-idx <- c(0,1,2)
 
-# rarefy + diversity 
-div.fun <- function(ps) {
-  rare.ps <- rarefy_even_depth2(ps, rngseed = 1234) # rarefy
-  div_estimate <- list() #initiate list
-  for (i in seq_along(idx)) { # compute every diversity index 
-    H_q=paste0("H_",i-1) # format H_0, H_1...
-    div_estimate[[H_q]] <- estimate_Hill(rare.ps, idx[i])
-  }
-  return(div_estimate)
-}
+ps_list_filtered <- list()
+ps_list_filtered[['Saliva']] <- meta_parsing('Saliva', psSalivaKB@sam_data, filtering = TRUE)
+ps_list_filtered[['Feces']] <- meta_parsing('Feces', psFecesKB@sam_data, filtering = TRUE)
+ps_list_filtered[['Moss']] <- meta_parsing('Moss', moss.ps@sam_data, filtering = TRUE)
+ps_list_filtered[['Moss']][['SM_gtdb_rs214_rep_MAGs']] <- moss.ps%>% filter_low_prevalence()
+ps_list_filtered$Moss$MPA_db2022 <- NULL
+ps_list_filtered$Moss$MPA_db2023 <- NULL
 
-# Rarefy all datasets and compute diversity
-div_rare <- lapply(ps_list, function(sublist) {
-  lapply(sublist, div.fun)
+# compute sparseness for all datasets
+sparseness.df <- compile_sparseness(ps_list)
+sparseness_filtered.df <- compile_sparseness(ps_list_filtered)
+
+# Vizualise :
+bind_rows(sparseness.df, sparseness_filtered.df, .id = 'filtered') %>% 
+  mutate(filtered = case_when(filtered ==1 ~ 'no', TRUE ~'yes')) %>% 
+ggplot(aes(y = sparseness, x = dataset, fill = filtered)) +
+  geom_col(position = 'dodge') + theme_minimal() +
+  facet_grid(cols=vars(database), scales = 'free')
+
+# Rarefy all datasets
+ps_list_rare <- lapply(ps_list_filtered, function(sublist) {
+  lapply(sublist, rarefy_even_depth2, rngseed = 1234)
+})
+
+# Compute diversity across indices
+div_rare <- lapply(ps_list_rare, function(sublist) {
+  lapply(sublist, div.fun, idx = c(0,1,2))
 })
 
 # Check distribution of indices :
 lapply(div_rare, function(sublist) {
   lapply(sublist, function(subsublist) {
-  lapply(subsublist, function(element) {
-    shapiro.test(element)$p.value
+    lapply(subsublist, function(element) {
+      shapiro.test(element)$p.value
     })})
 }) 
 
