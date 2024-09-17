@@ -31,13 +31,13 @@ bracken="bash $ILL_PIPELINES/generateslurm_taxonomic_profile.sample.sh \
 	--slurm_log $MC/logs --slurm_walltime 72:00:00 --slurm_threads 48 --slurm_mem 250G"
 
 # Generate SLURM scripts https://github.com/jflucier/ILL_pipelines/blob/main/generateslurm_taxonomic_profile.sample.sh
-$bracken --sample_tsv $SALIVA_TSV --out $MC/Saliva/Bracken05
-$bracken --sample_tsv $FECES_TSV --out $MC/Feces/Bracken05
-$bracken --sample_tsv $MOSS_TSV --out $MC/Moss/Bracken05
+$bracken --sample_tsv $SALIVA_TSV --out $MC/Saliva/KB05
+$bracken --sample_tsv $FECES_TSV --out $MC/Feces/KB05
+$bracken --sample_tsv $MOSS_TSV --out $MC/Moss/KB05
 
-$bracken --confidence 0.51 --sample_tsv $SALIVA_TSV --out $MC/Saliva/Bracken51
-$bracken --confidence 0.51 --sample_tsv $FECES_TSV --out $MC/Feces/Bracken51
-$bracken --confidence 0.51 --sample_tsv $MOSS_TSV --out $MC/Moss/Bracken51
+$bracken --confidence 0.51 --sample_tsv $SALIVA_TSV --out $MC/Saliva/KB51
+$bracken --confidence 0.51 --sample_tsv $FECES_TSV --out $MC/Feces/KB51
+$bracken --confidence 0.51 --sample_tsv $MOSS_TSV --out $MC/Moss/KB51
 
 # Submit
 sbatch --array=1-"$NUM_Saliva" $MC/Saliva/Bracken05/taxonomic_profile.samples.slurm.sh
@@ -117,10 +117,10 @@ sbatch --mem=80G --array=1-"$NUM_Feces" $MC/scripts/gather_SLURM.sh "Feces" $FEC
 sbatch --mem=80G --array=1-"$NUM_Moss" $MC/scripts/gather_SLURM.sh "Moss" $MOSS_TSV "gtdb-rs214"
 
 # Check completion status
-for SM_db in genbank_202203 gtdb_rs220; do
+for SM_db in gtdb_rs214_rep gtdb_rs214; do
 for i in $DATASETS; do
 	eval exp=\$NUM_$i
-	num=$(ls $i/Sourmash/*${SM_db}_gather.csv | wc -l)
+	num=$(ls $i/SM_${SM_db}/*${SM_db}_gather.csv | wc -l)
 	echo "$num $SM_db output for $i found, $exp expected."
 done
 done

@@ -11,48 +11,47 @@ objectsToImport <- c("psSalivaKB","psSalivaSM","psSalivaMPA",
                      "psFecesKB","psFecesSM", "psFecesMPA")
 for (i in objectsToImport) {assign(i,readRDS(
   paste0("/Users/jorondo/Library/CloudStorage/OneDrive-USherbrooke/Projets/PROVID19/objects/",i,".rds")))}
+moss.ps <-readRDS(url('https://github.com/jorondo1/borealMoss/raw/main/data/R_out/mossMAGs.RDS'))
 
 ### When doing Feces, remove MSA-3001
+ps_list <- list()
+meta_parsing <- function(dsName, samData) {
+  ps <- list()
+  # Metaphlan  
+  for (db in c('MPA_db2022', 'MPA_db2023')) {
+    ps[[db]] <- parse_MPA(
+      MPA_files = paste0(dsName,'/', db, '/*/*profile.txt'),
+      column_names = c('Taxonomy', 'NCBI','Abundance', 'Void')) %>% 
+      assemble_phyloseq(samData)
+  }
+  
+  # Kraken-bracken (using default headers from parse_MPA function)
+  ps[['Bracken51']] <- parse_MPA(
+    MPA_files = paste0(dsName,'/Bracken51/*/*_bracken/*_bracken_S.MPA.TXT')) %>% 
+    assemble_phyloseq(samData)
+  
+  # MOTUS
+  ps[['MOTUS']] <- parse_MPA(
+    MPA_files = paste0(dsName,"/MOTUS/*_profile.txt"), 
+    column_names = c('mOTU', 'Taxonomy', 'NCBI', 'Abundance')) %>% 
+    assemble_phyloseq(samData)
+  # 
+  # # Sourmash
+  # ps_list[['SM_genbank_202203']] <- left_join(
+  #   parse_SM(paste0(dsName,'/SM_genbank_202203/*_genbank-2022.03_gather.csv')),
+  #   parse_genbank_lineages(paste0(dsName,'/SM_genbank_202203/genbank-2022.03_lineages.csv')), 
+  #   by = 'genome'
+  #   ) %>% species_glom() %>% 
+  #   assemble_phyloseq(samData)
+  # 
+  return(ps)
+}
 
-
-### RAW OUTPUT PARSING
-# Metaphlan (MPA)
-salivaMPA2022 <- parse_MPA(
-  MPA_files = 'Saliva/MPA_db2022/*/*profile.txt',
-  column_names = c('Taxonomy', 'NCBI','Abundance', 'Void')) %>% 
-  make_phylo_MPA(psSalivaMPA@sam_data)
-
-salivaMPA2023 <- parse_MPA(
-  MPA_files = 'Saliva/MPA_db2023/*/*profile.txt',
-  column_names = c('Taxonomy', 'NCBI','Abundance', 'Void')) %>% 
-  make_phylo_MPA(psSalivaMPA@sam_data)
-
-# Kraken
-salivaKB51 <- parse_MPA('Saliva/Bracken51/*/*_bracken/*_bracken_S.MPA.TXT') %>% 
-  make_phylo_MPA(psSalivaMPA@sam_data)
-
-#mOTUs
-salivaMOTUS <- parse_MPA(
-  MPA_files = "Saliva/MOTUS/*_profile.txt" , 
-  column_names = c('mOTU', 'Taxonomy', 'NCBI', 'Abundance')) %>% 
-  make_phylo_MPA(psSalivaMPA@sam_data)
-
-# Sourmash
-left_join(parse_SM('Saliva/Sourmash/*_genbank-2022.03_gather.csv'),
-          parse_genbank_lineages('Saliva/Sourmash/genbank-2022.03_lineages.csv'), 
-          by = 'genome') %>% View
-
-salivaSM_GB <- phyloseq(
-  otu_table(parse_SM('Saliva/Sourmash/*_genbank-2022.03_gather.csv'), taxa_are_rows = TRUE),
-  sample_data = psSalivaMPA@sam_data#,
-  #tax_table = ???
-)
-
-salivaSM_GTDB <- phyloseq(
-  otu_table(parse_SM('Saliva/Sourmash/*_gtdb-rs220_gather.csv'), taxa_are_rows = TRUE),
-  sample_data = psSalivaMPA@sam_data#,
-  #tax_table = ???
-)
+ps_list[['Saliva']] <- meta_parsing('Saliva', psSalivaKB@sam_data)
+ps_list[['Feces']] <- meta_parsing('Feces', psFecesKB@sam_data)
+ps_list[['Moss']] <- meta_parsing('Moss', moss.ps@sam_data)
+ps_list$Moss$MPA_db2022 <- NULL
+ps_list$Moss$MPA_db2023 <- NULL
 
 ## Test with more current MPA database
 idx <- c(0,1,2)
@@ -68,35 +67,37 @@ div.fun <- function(ps) {
   return(div_estimate)
 }
 
-# iterate list on all datasets defined in objectsToImport
-dataset_list <- c('salivaKB51', 'salivaMPA2022', 'salivaMPA2023', 'salivaSM_GB', 'salivaSM_GTDB', 'salivaMOTUS')
-div_rare <- list() # initiate list for rarefied diversity compilation
-for (ds in dataset_list){
-  message(c('rarefying ', ds))
-  div_rare[[ds]] <- div.fun(get(ds)) 
-}
+# Rarefy all datasets and compute diversity
+div_rare <- lapply(ps_list, function(sublist) {
+  lapply(sublist, div.fun)
+})
 
 # Check distribution of indices :
 lapply(div_rare, function(sublist) {
-  lapply(sublist, function(element) {
+  lapply(sublist, function(subsublist) {
+  lapply(subsublist, function(element) {
     shapiro.test(element)$p.value
-    })
+    })})
 }) 
 
 # Create long dataframe 
-Div_long <- map(names(div_rare), function(lvl1) { #iterate over dataset names
-  sublist <- div_rare[[lvl1]] # extract sublist
-  map(names(sublist), function(lvl2) { # iterate over index types
-    values <- sublist[[lvl2]]
-    tibble( # build dataset
-      Sample = names(values),
-      dataset = lvl1,
-      index = lvl2,
-      value = values
+Div_long <- map(names(div_rare), function(ds) { #iterate over dataset names
+  ds_sublist <- div_rare[[ds]] 
+  map(names(ds_sublist), function(db) { # iterate over databases
+    db_sublist <- ds_sublist[[db]]
+    map(names(db_sublist), function(hill) { # iterate over index types
+      values <- db_sublist[[hill]]
+      tibble( # build dataset
+        Sample = names(values),
+        dataset = ds,
+        database = db,
+        index = hill,
+        value = values
       )
-    }) %>% list_rbind # bind index types rows
-  }) %>% list_rbind # bind all datasets 
-  
+    }) %>% list_rbind # collapse list into single df
+  }) %>% list_rbind  
+}) %>% list_rbind 
+
 # Extract tool name and biome name from dataset name
 patterns <- str_c(c('saliva'), collapse='|')
 Div_long %<>% mutate(
@@ -112,9 +113,9 @@ Div_long %<>% mutate(
 
 # Visualise differences in diversity across tools
 Div_long %>% 
-  ggplot(aes(x = tool, y = value, fill = tool)) +
-  geom_violin() + theme_light() +
-  facet_grid(cols = vars(biome), rows=vars(index), scales = 'free')
+  ggplot(aes(x = database, y = value, fill = database)) +
+  geom_boxplot() + geom_line(aes(group = Sample), alpha=0.3)+ theme_light() +
+  facet_grid(cols = vars(dataset), rows=vars(index), scales = 'free')
 
 ################################################# Not updated below ############
 # Pretty obviously yeah
