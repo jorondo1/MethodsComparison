@@ -30,20 +30,28 @@ meta_parsing <- function(dsName, samData) {
     MPA_files = paste0(dsName,'/Bracken51/*/*_bracken/*_bracken_S.MPA.TXT')) %>% 
     assemble_phyloseq(samData)
   
-  # MOTUS
+    # MOTUS
   ps[['MOTUS']] <- parse_MPA(
     MPA_files = paste0(dsName,"/MOTUS/*_profile.txt"), 
     column_names = c('mOTU', 'Taxonomy', 'NCBI', 'Abundance')) %>% 
     assemble_phyloseq(samData)
-  # 
-  # # Sourmash
-  # ps_list[['SM_genbank_202203']] <- left_join(
-  #   parse_SM(paste0(dsName,'/SM_genbank_202203/*_genbank-2022.03_gather.csv')),
-  #   parse_genbank_lineages(paste0(dsName,'/SM_genbank_202203/genbank-2022.03_lineages.csv')), 
-  #   by = 'genome'
-  #   ) %>% species_glom() %>% 
-  #   assemble_phyloseq(samData)
-  # 
+  
+  # Sourmash
+  ps[['SM_genbank_202203']] <- left_join(
+    parse_SM(paste0(dsName,'/SM_genbank_202203/*_genbank-2022.03_gather.csv')),
+    parse_genbank_lineages(paste0(dsName,'/SM_genbank_202203/genbank-2022.03_lineages.csv')),
+    by = 'genome'
+    ) %>% species_glom() %>%
+    assemble_phyloseq(samData)
+
+  for (db in c(#'SM_gtdb_rs214',
+               'SM_gtdb_rs214_rep')) {
+    ps[[db]] <- left_join(
+      parse_SM(paste0(dsName,'/', db, '/*_gather.csv')),
+      parse_GTDB_lineages(paste0(dsName,'/', db, '/', db, '_lineages.csv')),
+      by = 'genome'
+    ) %>% assemble_phyloseq(samData)
+  }
   return(ps)
 }
 
@@ -52,7 +60,7 @@ ps_list[['Feces']] <- meta_parsing('Feces', psFecesKB@sam_data)
 ps_list[['Moss']] <- meta_parsing('Moss', moss.ps@sam_data)
 ps_list$Moss$MPA_db2022 <- NULL
 ps_list$Moss$MPA_db2023 <- NULL
-
+ps_list$Moss$Bracken05 <- NULL
 ## Test with more current MPA database
 idx <- c(0,1,2)
 
@@ -96,20 +104,7 @@ Div_long <- map(names(div_rare), function(ds) { #iterate over dataset names
       )
     }) %>% list_rbind # collapse list into single df
   }) %>% list_rbind  
-}) %>% list_rbind 
-
-# Extract tool name and biome name from dataset name
-patterns <- str_c(c('saliva'), collapse='|')
-Div_long %<>% mutate(
-  tool = str_remove(dataset, patterns),
-  biome = str_remove(str_remove(dataset, 'ps'), tool),
-  # assign abundance estitmation approach
-  approach = if_else( # Kraken/Bracken, Sourmash (DNA-to-DNA)
-    str_detect(tool, str_c(c('KB', 'SM'), collapse = '|')), "DNA",
-    if_else( # Metaphlan, mOTUs (DNA-to-marker)
-      str_detect(tool, str_c(c('MPA', 'MOTUS'), collapse = '|')), "marker", 
-      NA_character_))
-  )
+}) %>% list_rbind
 
 # Visualise differences in diversity across tools
 Div_long %>% 
@@ -117,13 +112,14 @@ Div_long %>%
   geom_boxplot() + geom_line(aes(group = Sample), alpha=0.3)+ theme_light() +
   facet_grid(cols = vars(dataset), rows=vars(index), scales = 'free')
 
+
+
+
+
+
+
 ################################################# Not updated below ############
 # Pretty obviously yeah
-Div_long %>% 
-  ggplot(aes(x = tool, y = !!sym(divIDX), fill = tool)) +
-  geom_violin() + theme_light()
-# model <- lmerTest::lmer(Shannon ~ tool + (1|Sample), data = Shannon_long)
-# summary(model)
 
 # Dynamic formula : 
 formula <- reformulate('tool', response = divIDX)
