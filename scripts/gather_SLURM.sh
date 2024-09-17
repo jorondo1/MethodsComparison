@@ -26,7 +26,7 @@ IFS=$'\t' read -r SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2 <<< "$SAM_NUM" # array it up
 export SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2
 export SIG="${OUT_DIR}/../signatures/${SAM_ID}.sig"
 
-mkdir -p $OUT_DIR/signatures
+mkdir -p $OUT_DIR/../signatures
 
 if [[ ! -f $SIG ]]; then
 	echo "Sketch metagenomes"
