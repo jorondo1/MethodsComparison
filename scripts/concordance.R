@@ -64,6 +64,7 @@ ps_list[['Moss']][['SM_gtdb_rs214_rep_MAGs']] <- moss.ps
 ps_list$Moss$MPA_db2022 <- NULL
 ps_list$Moss$MPA_db2023 <- NULL
 
+# Prevalence+Abundance filtering, currently hardcoded in filter_low_prevalence()
 ps_list_filtered <- list()
 ps_list_filtered[['Saliva']] <- meta_parsing('Saliva', psSalivaKB@sam_data, filtering = TRUE)
 ps_list_filtered[['Feces']] <- meta_parsing('Feces', psFecesKB@sam_data, filtering = TRUE)

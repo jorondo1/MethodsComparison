@@ -1,13 +1,38 @@
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/community_functions.R'))
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/rarefy_even_depth2.R'))
 
-# Bland-Altman analysis, compute the mean and difference between 2 tools
-compute_meandiff <- function(div, tool1, tool2) {
-  dplyr::select(div, !!sym(tool1), !!sym(tool2)) %>% 
-    transmute(mean = (!!sym(tool1) + !!sym(tool2))/2,
-              Diff = !!sym(tool1) - !!sym(tool2))
+filter_low_prevalence <- function(ps, minPrev = 0.05, minAbund = 0.001) {
+  # Taxa prevalence
+  prev <- apply(otu_table(ps), 1, function(x) sum(x > 0)) / nsamples(ps)
+  
+  # Convert to relative abundance
+  rel_abund <- apply(otu_table(ps), 2, function(x) x / sum(x))
+  
+  # Keep taxa with prevalence above threshold
+  keepTaxa <- names(prev[prev >= minPrev & apply(rel_abund, 1, max) >= minAbund])
+  
+  # Subset phyloseq object
+  prune_taxa(keepTaxa, ps) %>% return
 }
 
+### Build phyloseq object from MPA output
+assemble_phyloseq <- function(abunTable, sampleData, filtering = FALSE) {
+  
+  # Extract abundance table with Species as identifier
+  abund <- abunTable %>% dplyr::select(where(is.double), Species) %>% 
+    column_to_rownames('Species') 
+  
+  # Extract taxonomy
+  tax <- abunTable %>% dplyr::select(where(is.character)) %>% 
+    mutate(Species2 = Species) %>% column_to_rownames('Species2') %>% as.matrix
+  
+  # Build phyloseq
+  phyloseq(otu_table(abund, taxa_are_rows = TRUE),
+           sample_data(sampleData),
+           tax_table(tax)
+  ) %>% 
+    (if (filtering) filter_low_prevalence else identity)
+}
 
 # Compute sparseness (proportion of 0 in abundance matrix)
 compile_sparseness <- function(ps_list) {
@@ -80,4 +105,12 @@ estimate_diversity <- function(ps, index = 'Shannon') {
     div <- apply(x, 1, function(x) sum(x != 0))
   }
   return(div)
+}
+
+
+# Bland-Altman analysis, compute the mean and difference between 2 tools
+compute_meandiff <- function(div, tool1, tool2) {
+  dplyr::select(div, !!sym(tool1), !!sym(tool2)) %>% 
+    transmute(mean = (!!sym(tool1) + !!sym(tool2))/2,
+              Diff = !!sym(tool1) - !!sym(tool2))
 }
