@@ -36,9 +36,9 @@ else
 	echo "Metagenome sketches found. Skipping..."
 fi
 
-if [[ ! -f ${OUT_DIR}/${SAM_ID}_${SM_DB}_gather.csv ]]; then
+if [[ ! -f ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv ]]; then
 	echo "Gather against index database"
-	$sourmash gather $SIG $ILAFORES/ref_dbs/sourmash_db/${SM_DB}*k31.zip -o ${OUT_DIR}/${SAM_ID}_${SM_DB}_gather.csv
+	$sourmash gather $SIG $ILAFORES/ref_dbs/sourmash_db/${SM_DB}*k31.zip -o ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv
 else
 	echo "Gather output found. Skipping..."
 fi
