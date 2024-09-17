@@ -15,9 +15,10 @@ export sourmash="singularity exec --writable-tmpfs -e -B ${ANCHOR}/home:${ANCHOR
 module load StdEnv/2020 apptainer/1.1.5
 
 # Parse options
-export OUT_DIR=${PWD}/"${1}"/Sourmash
 export SAM_LIST="${2}"
-export SM_DB="${3}"
+SM_DB="${3//./}"   # Remove all periods
+export SM_DB="${SM_DB//-/_}"  # Replace all hyphens with underscores
+export OUT_DIR=${PWD}/"${1}"/SM_${SM_DB}
 
 # Parse samples
 export SAM_NUM=$(awk "NR==$SLURM_ARRAY_TASK_ID" ${SAM_LIST})
@@ -45,4 +46,3 @@ fi
 echo "Done ! Elapsed time:"
 end_time=$(date +%s)
 echo $((end_time - start_time))
-

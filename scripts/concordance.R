@@ -31,23 +31,28 @@ salivaMPA2023 <- parse_MPA(
 salivaKB51 <- parse_MPA('Saliva/Bracken51/*/*_bracken/*_bracken_S.MPA.TXT') %>% 
   make_phylo_MPA(psSalivaMPA@sam_data)
 
+#mOTUs
+salivaMOTUS <- parse_MPA(
+  MPA_files = "Saliva/MOTUS/*_profile.txt" , 
+  column_names = c('mOTU', 'Taxonomy', 'NCBI', 'Abundance')) %>% 
+  make_phylo_MPA(psSalivaMPA@sam_data)
+
 # Sourmash
+left_join(parse_SM('Saliva/Sourmash/*_genbank-2022.03_gather.csv'),
+          parse_genbank_lineages('Saliva/Sourmash/genbank-2022.03_lineages.csv'), 
+          by = 'genome') %>% View
+
 salivaSM_GB <- phyloseq(
   otu_table(parse_SM('Saliva/Sourmash/*_genbank-2022.03_gather.csv'), taxa_are_rows = TRUE),
   sample_data = psSalivaMPA@sam_data#,
   #tax_table = ???
-  )
-  
+)
+
 salivaSM_GTDB <- phyloseq(
   otu_table(parse_SM('Saliva/Sourmash/*_gtdb-rs220_gather.csv'), taxa_are_rows = TRUE),
   sample_data = psSalivaMPA@sam_data#,
   #tax_table = ???
 )
-
-salivaMOTUS <- parse_MPA(
-  MPA_files = "Saliva/MOTUS/*_profile.txt" , 
-  column_names = c('mOTU', 'Taxonomy', 'NCBI', 'Abundance')) %>% 
-  make_phylo_MPA(psSalivaMPA@sam_data)
 
 ## Test with more current MPA database
 idx <- c(0,1,2)
@@ -64,8 +69,9 @@ div.fun <- function(ps) {
 }
 
 # iterate list on all datasets defined in objectsToImport
-div_rare <- list()
-for (ds in c('salivaKB51', 'salivaMPA2022', 'salivaMPA2023', 'salivaSM_GB', 'salivaSM_GTDB', 'salivaMOTUS')){
+dataset_list <- c('salivaKB51', 'salivaMPA2022', 'salivaMPA2023', 'salivaSM_GB', 'salivaSM_GTDB', 'salivaMOTUS')
+div_rare <- list() # initiate list for rarefied diversity compilation
+for (ds in dataset_list){
   message(c('rarefying ', ds))
   div_rare[[ds]] <- div.fun(get(ds)) 
 }
@@ -92,7 +98,7 @@ Div_long <- map(names(div_rare), function(lvl1) { #iterate over dataset names
   }) %>% list_rbind # bind all datasets 
   
 # Extract tool name and biome name from dataset name
-patterns <- str_c(c('psSaliva', 'psFeces'), collapse='|')
+patterns <- str_c(c('saliva'), collapse='|')
 Div_long %<>% mutate(
   tool = str_remove(dataset, patterns),
   biome = str_remove(str_remove(dataset, 'ps'), tool),
@@ -100,7 +106,7 @@ Div_long %<>% mutate(
   approach = if_else( # Kraken/Bracken, Sourmash (DNA-to-DNA)
     str_detect(tool, str_c(c('KB', 'SM'), collapse = '|')), "DNA",
     if_else( # Metaphlan, mOTUs (DNA-to-marker)
-      str_detect(tool, str_c(c('MPA', 'mOTU'), collapse = '|')), "marker", 
+      str_detect(tool, str_c(c('MPA', 'MOTUS'), collapse = '|')), "marker", 
       NA_character_))
   )
 

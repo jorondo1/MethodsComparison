@@ -108,9 +108,9 @@ sbatch --mem=60G --array=1-"$NUM_Saliva" $MC/scripts/gather_SLURM.sh "Saliva" $S
 sbatch --mem=80G --array=1-"$NUM_Feces" $MC/scripts/gather_SLURM.sh "Feces" $FECES_TSV "genbank-2022.03"
 sbatch --mem=80G --array=1-"$NUM_Moss" $MC/scripts/gather_SLURM.sh "Moss" $MOSS_TSV "genbank-2022.03"
 
-sbatch --mem=31G --array=1-"$NUM_Saliva" $MC/scripts/gather_SLURM.sh "Saliva" $SALIVA_TSV "gtdb-rs220"
-sbatch --mem=31G --array=1-"$NUM_Feces" $MC/scripts/gather_SLURM.sh "Feces" $FECES_TSV "gtdb-rs220"
-sbatch --mem=31G --array=1-"$NUM_Moss" $MC/scripts/gather_SLURM.sh "Moss" $MOSS_TSV "gtdb-rs220"
+sbatch --mem=31G --array=1-"$NUM_Saliva" $MC/scripts/gather_SLURM.sh "Saliva" $SALIVA_TSV "gtdb-rs214-rep"
+sbatch --mem=31G --array=1-"$NUM_Feces" $MC/scripts/gather_SLURM.sh "Feces" $FECES_TSV "gtdb-rs214-rep"
+sbatch --mem=31G --array=1-"$NUM_Moss" $MC/scripts/gather_SLURM.sh "Moss" $MOSS_TSV "gtdb-rs214-rep"
 
 # Check completion status
 for SM_db in genbank-2022.03 gtdb-rs220; do
@@ -122,14 +122,13 @@ done
 done
 
 # Extract the lineage subset 
-for db in "gtdb-rs220" "genbank-2022.03"; do
-for i in $DATASETS; do 
-grep -f <(cat $i/Sourmash/*${db}_gather.csv | \
-	cut -d, -f10 | tail -n+2 | awk '{print $1}' | sed 's/"//' | sort -u) \
-	$ILAFORES/ref_dbs/sourmash_db/${db}*.lineages.csv > $i/Sourmash/${db}_lineages.csv
-done
-done
+for i in $DATASETS; do
+cat $i/Sourmash/*genbank-2022.03_gather.csv | cut -d, -f10 | tail -n+2 | awk '{print $1}' | sed 's/"//' | sort -u | \
+	grep -Fhf - $ILAFORES/ref_dbs/sourmash_db/genbank-2022.03-*.lineages.csv > $i/Sourmash/genbank-2022.03_lineages.csv
 
+cat $i/Sourmash/*gtdb-rs220_gather.csv | cut -d, -f10 | tail -n+2 | awk '{print $1}' | sed 's/"//' | sort -u | \
+	grep -Fhf - $ILAFORES/ref_dbs/sourmash_db/bac120_taxonomy_r220.tsv > $i/Sourmash/gtdb-rs220_lineages.csv
+done
 
 
 ## surplus taxa in sourmash rs220 index
