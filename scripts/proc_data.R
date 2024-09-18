@@ -2,8 +2,6 @@ library(pacman)
 p_load(phyloseq, tidyverse, magrittr, doParallel)
 
 # functions
-source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/community_functions.R'))
-source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/rarefy_even_depth2.R'))
 source('scripts/myFunctions.R')
 
 # Import External data

@@ -117,7 +117,7 @@ sbatch --mem=80G --array=1-"$NUM_Feces" $MC/scripts/gather_SLURM.sh "Feces" $FEC
 sbatch --mem=80G --array=1-"$NUM_Moss" $MC/scripts/gather_SLURM.sh "Moss" $MOSS_TSV "gtdb-rs214-full"
 
 # Check completion status
-for SM_db in gtdb_rs214_rep gtdb_rs214; do
+for SM_db in gtdb_rs214_rep gtdb_rs214_full; do
 for i in $DATASETS; do
 	eval exp=\$NUM_$i
 	num=$(ls $i/SM_${SM_db}/*${SM_db}_gather.csv | wc -l)
@@ -127,7 +127,7 @@ done
 
 # Extract the lineage subset 
 for i in $DATASETS; do
-for j in SM_gtdb_rs214 SM_gtdb_rs214_rep; do
+for j in SM_gtdb_rs214_full SM_gtdb_rs214_rep; do
 	db=$(echo "$j" | cut -d'_' -f2)
 	ver=$(echo "$j" | cut -d'_' -f3)
 cat $i/$j/*_gather.csv | cut -d, -f10 | tail -n+2 | awk '{print $1}' | sed 's/"//' | sort -u | \

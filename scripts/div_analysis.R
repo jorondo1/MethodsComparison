@@ -78,106 +78,181 @@ lapply(div_rare, function(sublist) {
     })})
 }) 
 
+###########################################
+### Concordance Correlation Coefficient ####
+###########################################
 
+# Add tool category (DNA-to-DNA or DNA-to-Marker)
+Div <- Div_long_filt %>%
+  mutate(across(where(is.factor), as.character)) %>% 
+  mutate(type = case_when(
+    str_starts(database, '^KB|^SM') ~ 'DNA',
+    str_starts(database, '^MPA|^MOTUS') ~ 'marker'
+  ))
 
-
-
-################################################# Not updated below ############
-# Pretty obviously yeah
-
-# Dynamic formula : 
-formula <- reformulate('tool', response = divIDX)
-leveneTest(formula, data = Div_long) # same variance
-kruskal.test(formula, data = Div_long) # different distributions
-
-#### Coefficient of variation ; testing whether they are different across categories
-# Coefficient of variation for each sample: 
-apply(Div, 2, function(x) (sd(x)/mean(x))) # Are they really different ?
-# Using Feltz and Miller 1996 implemented in : 
-# https://cran.r-project.org/web/packages/cvequality/vignettes/how_to_test_CVs.html
-mslr_test(1e5, Div_long[[divIDX]], Div_long$tool) # Same variation coefficient
-
-#############################
-### Bland & Altman Analysis ###
-#############################
-
-BA_analysis <- compute_meandiff(Div, 'KB', 'SM')
-(test.norm <- shapiro.test(BA_analysis$Diff) %$% p.value)
-
-# If differences are not normal, log transform diversity counts :
-if(test.norm <0.05) {
-  BA_analysis <- Div %>% 
-    mutate(across(everything(), log)) %>% 
-    compute_meandiff('KB', 'SM')
-  shapiro.test(BA_analysis$Diff) %$% p.value
+# 
+# Function to apply cccvc and return results in a tibble
+filter_cccvc <- function(df) { # run cccvc on filtered data: 
+  ccc_out <- cccvc(df, ry = 'value', rind = 'Sample', rmet = 'database')  
+  # compile
+  tibble(CCC = ccc_out$ccc[1],      # CCC 
+        LL_CI_95 = ccc_out$ccc[2], # lower limit CI
+        UL_CI_95 = ccc_out$ccc[3], # upper limit CI
+        SE_CCC = ccc_out$ccc[4])   # standard error
 }
 
-# global statistics of means and differences:
-mean_diff <- mean(BA_analysis$Diff)
-s <- sd(BA_analysis$Diff)
-upLimit = mean_diff + 1.96*s
-loLimit = mean_diff - 1.96*s
-n = length(BA_analysis$Diff)
-mean_sd = sqrt(s^2/n)
-s_sd = sqrt((3*s^2)/n)
+# Apply across all dataset & index combinations
+ccc.df <- Div %>%
+  dplyr::filter(database %in% c("MPA_db2023", "KB51", "MOTUS", "SM_gtdb_rs214_full")) %>% 
+  group_by(dataset, index) %>%         # group data by dataset and index
+  group_modify(~ filter_cccvc(.x)) %>% # apply filter_cccvc to each group
+  ungroup                              # remove grouping structure
 
-# proportion of differences outside limits
-mean(BA_analysis$Diff < loLimit | BA_analysis$Diff > upLimit) 
+ggplot(ccc.df, aes(x = factor(index), y = CCC, color = index)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = LL_CI_95, ymax = UL_CI_95), width = 0.2) +  # Confidence interval
+  facet_wrap(~ dataset) +  # Facet by dataset
+  labs(x = "Index", y = "CCC", title = "Concordance Correlation Coefficient") +  # Axis and title labels
+  theme_minimal()
 
-# Bland-Altman Plot :
-ggplot(BA_analysis) +
-  theme_light() +
-  annotate(geom = 'rect', xmin = -Inf, xmax = Inf, ymin = upLimit - s_sd, 
-           ymax =  upLimit + s_sd, alpha = 0.2, fill = 'blue') +
-  annotate(geom = 'rect', xmin = -Inf, xmax = Inf, ymin = mean_diff - mean_sd, 
-           ymax = mean_diff + mean_sd, alpha = 0.2, fill = 'red') +
-  annotate(geom = 'rect', xmin = -Inf, xmax = Inf, ymin = loLimit - s_sd, 
-           ymax = loLimit + s_sd, alpha = 0.2, fill = 'blue') +
-  geom_hline(yintercept = mean_diff) +
-  geom_hline(yintercept = upLimit, linetype = 'dashed') +
-  geom_hline(yintercept = loLimit, linetype = 'dashed') +
-  geom_point(aes(x = mean, y = Diff)) +
-  labs(x = "Mean", y = "Difference", title = "Limits of Agreement between Kraken and Sourmash")
 
-#### Trying out something... plot 3-way variation against mean
-sd_mean <- Div %>% rowwise %>% 
-  transmute(div_mean = mean(c_across(everything())),
-            div_sd = sd(c_across(everything()))) 
 
-cor.test(sd_mean$div_mean, sd_mean$div_sd, tool = 'spearman') # no correlation
-plot(div_sd~div_mean, data = sd_mean)
 
-####################################################
-### (Overall) Concordance Correlation Coefficient ###
-# Should we scale the diversities for the CCC test ? Only center?
-####################################################
 
-# epiR tool https://search.r-project.org/CRAN/refmans/epiR/html/epi.occc.html
-Div %>% select(KB, SM) %>% 
-  # rationale for scaling ?
-  mutate(across(everything(), ~scale(.x, scale = FALSE))) %>% 
-  epiR::epi.occc(pairs = TRUE)
 
-# CCCRM tool
-Div_scaled_long <- Div %>% 
-  # Center only, because variances are equal
-  mutate(across(everything(), scale)) %>% 
-  rownames_to_column("Sample") %>% 
-  pivot_longer(values_to = divIDX, 
-               names_to = "tool",
-               cols = all_of(tools)) %>% 
-  mutate(tool = factor(tool, levels = tools)) %>% 
-  left_join(psSalivaKB@sam_data %>% data.frame %>% 
-              dplyr::select(treatDay) %>% 
-              rownames_to_column("Sample"),
-            by = "Sample")
 
-ccc_result <- cccvc(Div_scaled_long %>% filter(tool !="MPA"), ry = divIDX, 
-                    rind = "Sample", rmet = "tool")
-summary(ccc_result)
 
-ccc_result <- cccvc(Div_scaled_long %>% 
-                      filter(tool != 'KB'), 
-                    ry = "Shannon", 
-                    rind = "Sample", rmet = "tool")
-summary(ccc_result)
+
+# # epiR tool https://search.r-project.org/CRAN/refmans/epiR/html/epi.occc.html
+# Div %>% select(KB, SM) %>% 
+#   # rationale for scaling ?
+#   mutate(across(everything(), ~scale(.x, scale = FALSE))) %>% 
+#   epiR::epi.occc(pairs = TRUE)
+# 
+# # CCCRM tool
+# Div_scaled_long <- Div %>% 
+#   # Center only, because variances are equal
+#   mutate(across(everything(), scale)) %>% 
+#   rownames_to_column("Sample") %>% 
+#   pivot_longer(values_to = divIDX, 
+#                names_to = "tool",
+#                cols = all_of(tools)) %>% 
+#   mutate(tool = factor(tool, levels = tools)) %>% 
+#   left_join(psSalivaKB@sam_data %>% data.frame %>% 
+#               dplyr::select(treatDay) %>% 
+#               rownames_to_column("Sample"),
+#             by = "Sample")
+# 
+# ccc_result <- cccvc(Div_scaled_long %>% filter(tool !="MPA"), ry = divIDX, 
+#                     rind = "Sample", rmet = "tool")
+# summary(ccc_result)
+# 
+# ccc_result <- cccvc(Div_scaled_long %>% 
+#                       filter(tool != 'KB'), 
+#                     ry = "Shannon", 
+#                     rind = "Sample", rmet = "tool")
+# summary(ccc_result)
+# 
+# 
+# 
+# 
+# 
+# 
+# ########################## Not updated below ###################################
+# 
+# # Dynamic formula : 
+# formula <- reformulate('tool', response = divIDX)
+# leveneTest(formula, data = Div_long) # same variance
+# kruskal.test(formula, data = Div_long) # different distributions
+# 
+# #### Coefficient of variation ; testing whether they are different across categories
+# # Coefficient of variation for each sample: 
+# apply(Div, 2, function(x) (sd(x)/mean(x))) # Are they really different ?
+# # Using Feltz and Miller 1996 implemented in : 
+# # https://cran.r-project.org/web/packages/cvequality/vignettes/how_to_test_CVs.html
+# mslr_test(1e5, Div_long[[divIDX]], Div_long$tool) # Same variation coefficient
+# 
+# #############################
+# ### Bland & Altman Analysis ###
+# #############################
+# 
+# BA_analysis <- compute_meandiff(Div, 'KB', 'SM')
+# (test.norm <- shapiro.test(BA_analysis$Diff) %$% p.value)
+# 
+# # If differences are not normal, log transform diversity counts :
+# if(test.norm <0.05) {
+#   BA_analysis <- Div %>% 
+#     mutate(across(everything(), log)) %>% 
+#     compute_meandiff('KB', 'SM')
+#   shapiro.test(BA_analysis$Diff) %$% p.value
+# }
+# 
+# # global statistics of means and differences:
+# mean_diff <- mean(BA_analysis$Diff)
+# s <- sd(BA_analysis$Diff)
+# upLimit = mean_diff + 1.96*s
+# loLimit = mean_diff - 1.96*s
+# n = length(BA_analysis$Diff)
+# mean_sd = sqrt(s^2/n)
+# s_sd = sqrt((3*s^2)/n)
+# 
+# # proportion of differences outside limits
+# mean(BA_analysis$Diff < loLimit | BA_analysis$Diff > upLimit) 
+# 
+# # Bland-Altman Plot :
+# ggplot(BA_analysis) +
+#   theme_light() +
+#   annotate(geom = 'rect', xmin = -Inf, xmax = Inf, ymin = upLimit - s_sd, 
+#            ymax =  upLimit + s_sd, alpha = 0.2, fill = 'blue') +
+#   annotate(geom = 'rect', xmin = -Inf, xmax = Inf, ymin = mean_diff - mean_sd, 
+#            ymax = mean_diff + mean_sd, alpha = 0.2, fill = 'red') +
+#   annotate(geom = 'rect', xmin = -Inf, xmax = Inf, ymin = loLimit - s_sd, 
+#            ymax = loLimit + s_sd, alpha = 0.2, fill = 'blue') +
+#   geom_hline(yintercept = mean_diff) +
+#   geom_hline(yintercept = upLimit, linetype = 'dashed') +
+#   geom_hline(yintercept = loLimit, linetype = 'dashed') +
+#   geom_point(aes(x = mean, y = Diff)) +
+#   labs(x = "Mean", y = "Difference", title = "Limits of Agreement between Kraken and Sourmash")
+# 
+# #### Trying out something... plot 3-way variation against mean
+# sd_mean <- Div %>% rowwise %>% 
+#   transmute(div_mean = mean(c_across(everything())),
+#             div_sd = sd(c_across(everything()))) 
+# 
+# cor.test(sd_mean$div_mean, sd_mean$div_sd, tool = 'spearman') # no correlation
+# plot(div_sd~div_mean, data = sd_mean)
+# 
+# ####################################################
+# ### (Overall) Concordance Correlation Coefficient ###
+# # Should we scale the diversities for the CCC test ? Only center?
+# ####################################################
+# 
+# # epiR tool https://search.r-project.org/CRAN/refmans/epiR/html/epi.occc.html
+# Div %>% select(KB, SM) %>% 
+#   # rationale for scaling ?
+#   mutate(across(everything(), ~scale(.x, scale = FALSE))) %>% 
+#   epiR::epi.occc(pairs = TRUE)
+# 
+# # CCCRM tool
+# Div_scaled_long <- Div %>% 
+#   # Center only, because variances are equal
+#   mutate(across(everything(), scale)) %>% 
+#   rownames_to_column("Sample") %>% 
+#   pivot_longer(values_to = divIDX, 
+#                names_to = "tool",
+#                cols = all_of(tools)) %>% 
+#   mutate(tool = factor(tool, levels = tools)) %>% 
+#   left_join(psSalivaKB@sam_data %>% data.frame %>% 
+#               dplyr::select(treatDay) %>% 
+#               rownames_to_column("Sample"),
+#             by = "Sample")
+# 
+# ccc_result <- cccvc(Div_scaled_long %>% filter(tool !="MPA"), ry = divIDX, 
+#                     rind = "Sample", rmet = "tool")
+# summary(ccc_result)
+# 
+# ccc_result <- cccvc(Div_scaled_long %>% 
+#                       filter(tool != 'KB'), 
+#                     ry = "Shannon", 
+#                     rind = "Sample", rmet = "tool")
+# summary(ccc_result)
