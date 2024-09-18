@@ -18,6 +18,8 @@ filter_low_prevalence <- function(ps, minPrev = 0.05, minAbund = 0.001) {
 ### Build phyloseq object from MPA output
 assemble_phyloseq <- function(abunTable, sampleData, filtering = FALSE) {
   
+  abunTable %<>% dplyr::filter(Kingdom == "Bacteria")
+    
   # Extract abundance table with Species as identifier
   abund <- abunTable %>% dplyr::select(where(is.double), Species) %>% 
     column_to_rownames('Species') 

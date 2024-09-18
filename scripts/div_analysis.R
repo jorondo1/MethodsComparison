@@ -5,21 +5,70 @@ source('scripts/myFunctions.R')
 ps.ls <- read_rds('Out/ps.ls.rds')
 ps_filt.ls <- read_rds('Out/ps_filt.ls.rds')
 
+###################
+### Sparseness ###
+###################
+
+# First, have a look at sparseness between filtered and unfiltered
+
 # compute sparseness for all datasets
-sparseness.df <- compile_sparseness(ps.ls)
-sparseness_filtered.df <- compile_sparseness(ps_filt.ls)
-
-# Vizualise :
-bind_rows(sparseness.df, sparseness_filtered.df, .id = 'filtered') %>% 
+bind_rows(
+  compile_sparseness(ps.ls), # id 1
+  compile_sparseness(ps_filt.ls), # id 2
+  .id = 'filtered') %>% # flag id
   mutate(filtered = case_when(filtered ==1 ~ 'no', TRUE ~'yes')) %>% 
-  ggplot(aes(y = sparseness, x = dataset, fill = filtered)) +
-  geom_col(position = 'dodge') + theme_minimal() +
-  facet_grid(cols=vars(database), scales = 'free')
+  ggplot(aes(y = sparseness, x = database, fill = filtered)) +
+  geom_col(position = 'dodge') + #theme_minimal() +
+  facet_grid(dataset ~database, space = 'free', scales = 'free_x') +
+  theme(axis.text.x = element_blank()) + ylim(c(0,1))
 
-# Compute diversity across indices
-div_rare <- lapply(ps_list_rare, function(sublist) {
-  lapply(sublist, div.fun, idx = c(0,1,2))
-})
+ggsave('Out/sparseness_filtering.pdf', bg = 'white', 
+       width = 2400, height = 1600, units = 'px', dpi = 180)
+
+#########################################
+### Hill numbers and Tail diversity ####
+#########################################
+
+# Create long dataframe 
+compile_diversity <- function(ps.ls) {
+  
+  # Compute diversity across indices
+  div_rare.ls <- lapply(ps.ls, function(sublist) {
+    lapply(sublist, div.fun, idx = c(0,1,2))
+  })
+  
+  # Compile into 
+  map(names(div_rare.ls), function(ds) { #iterate over dataset names
+    ds_sublist <- div_rare.ls[[ds]] 
+    map(names(ds_sublist), function(db) { # iterate over databases
+      db_sublist <- ds_sublist[[db]]
+      map(names(db_sublist), function(hill) { # iterate over index types
+        values <- db_sublist[[hill]]
+        tibble( # build dataset
+          Sample = names(values),
+          dataset = ds,
+          database = db,
+          index = hill,
+          value = values
+        ) %>% 
+          mutate(across(where(is.character), as_factor))
+      }) %>% list_rbind # collapse list into single df
+    }) %>% list_rbind  
+  }) %>% list_rbind
+}
+
+Div_long_filt <- compile_diversity(ps_filt_rare.ls)
+Div_long <- compile_diversity(ps_rare.ls)
+
+# Visualise differences in diversity across tools
+Div_long_filt %>% 
+  ggplot(aes(x = database, y = value, fill = database)) +
+  geom_boxplot(outlier.size = 0.5, size = 0.3) + geom_line(aes(group = Sample), alpha=0.3, linewidth = 0.2)+ theme_light() +
+  facet_grid(cols = vars(dataset), rows=vars(index), scales = 'free') +
+  theme(axis.text.x = element_blank())
+
+ggsave('Out/diversity_filt.pdf', bg = 'white', 
+       width = 1900, height = 2400, units = 'px', dpi = 180)
 
 # Check distribution of indices :
 lapply(div_rare, function(sublist) {
@@ -28,32 +77,6 @@ lapply(div_rare, function(sublist) {
       shapiro.test(element)$p.value
     })})
 }) 
-
-# Create long dataframe 
-Div_long <- map(names(div_rare), function(ds) { #iterate over dataset names
-  ds_sublist <- div_rare[[ds]] 
-  map(names(ds_sublist), function(db) { # iterate over databases
-    db_sublist <- ds_sublist[[db]]
-    map(names(db_sublist), function(hill) { # iterate over index types
-      values <- db_sublist[[hill]]
-      tibble( # build dataset
-        Sample = names(values),
-        dataset = ds,
-        database = db,
-        index = hill,
-        value = values
-      )
-    }) %>% list_rbind # collapse list into single df
-  }) %>% list_rbind  
-}) %>% list_rbind
-
-# Visualise differences in diversity across tools
-Div_long %>% 
-  ggplot(aes(x = database, y = value, fill = database)) +
-  geom_boxplot(outlier.size = 0.5, size = 0.3) + geom_line(aes(group = Sample), alpha=0.3)+ theme_light() +
-  facet_grid(cols = vars(dataset), rows=vars(index), scales = 'free')
-
-
 
 
 

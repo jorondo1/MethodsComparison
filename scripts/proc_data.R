@@ -26,8 +26,8 @@ meta_parsing <- function(dsName, samData, filtering = FALSE) {
   }
   
   # Kraken-bracken (using default headers from parse_MPA function)
-  ps[['Bracken51']] <- parse_MPA(
-    MPA_files = paste0(dsName,'/Bracken51/*/*_bracken/*_bracken_S.MPA.TXT')) %>% 
+  ps[['KB51']] <- parse_MPA(
+    MPA_files = paste0(dsName,'/KB51/*/*_bracken/*_bracken_S.MPA.TXT')) %>% 
     assemble_phyloseq(samData, filtering = filtering)
   
     # MOTUS
@@ -44,13 +44,14 @@ meta_parsing <- function(dsName, samData, filtering = FALSE) {
     ) %>% species_glom() %>%
     assemble_phyloseq(samData, filtering = filtering)
   
-  for (db in c(#'SM_gtdb_rs214_full',
+  for (db in c('SM_gtdb_rs214_full',
                'SM_gtdb_rs214_rep')) {
     ps[[db]] <- left_join(
       parse_SM(paste0(dsName,'/', db, '/*_gather.csv')),
       parse_GTDB_lineages(paste0(dsName,'/', db, '/', db, '_lineages.csv')),
       by = 'genome'
-    ) %>% assemble_phyloseq(samData, filtering = filtering)
+    ) %>% species_glom() %>%
+      assemble_phyloseq(samData, filtering = filtering)
   }
   return(ps)
 }
@@ -73,7 +74,6 @@ ps_filt.ls[['Moss']][['SM_gtdb_rs214_rep_MAGs']] <- moss.ps%>% filter_low_preval
 ps_filt.ls$Moss$MPA_db2022 <- NULL
 ps_filt.ls$Moss$MPA_db2023 <- NULL
 ps_filt.ls$Moss$MOTUS <- NULL
-
 
 # Rarefy all datasets
 ps_filt_rare.ls <- lapply(ps_filt.ls, function(sublist) {
