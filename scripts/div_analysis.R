@@ -2,21 +2,22 @@ library(pacman)
 p_load(phyloseq, tidyverse,cccrm, magrittr, cvequality)
 source('scripts/myFunctions.R')
 
-ps.ls <- read_rds('Out/ps.ls.rds')
-ps_filt.ls <- read_rds('Out/ps_filt.ls.rds')
+ps_raw.ls <- read_rds("Out/ps_raw.ls.rds")
+ps_filt.ls <- read_rds("Out/ps_filt.ls.rds")
+ps_species.ls <- read_rds("Out/ps_rare_species.ls.rds")
+ps_genus.ls <- read_rds("Out/ps_rare_genus.ls.rds")
+ps_family.ls <- read_rds("Out/ps_rare_family.ls.rds")
 
 ###################
 ### Sparseness ###
 ###################
 
 # First, have a look at sparseness between filtered and unfiltered
-
 # compute sparseness for all datasets
 bind_rows(
-  compile_sparseness(ps.ls), # id 1
-  compile_sparseness(ps_filt.ls), # id 2
+  Unfiltered = compile_sparseness(ps_raw.ls), # id 1
+  Filtered = compile_sparseness(ps_filt.ls), # id 2
   .id = 'filtered') %>% # flag id
-  mutate(filtered = case_when(filtered ==1 ~ 'no', TRUE ~'yes')) %>% 
   ggplot(aes(y = sparseness, x = database, fill = filtered)) +
   geom_col(position = 'dodge') + #theme_minimal() +
   facet_grid(dataset ~database, space = 'free', scales = 'free_x') +
@@ -57,33 +58,36 @@ compile_diversity <- function(ps.ls) {
   }) %>% list_rbind
 }
 
-Div_long_filt <- compile_diversity(ps_filt_rare.ls)
-Div_long <- compile_diversity(ps_rare.ls)
+Div_long <- bind_rows(Species = compile_diversity(ps_species.ls), 
+          Genus = compile_diversity(ps_genus.ls), 
+          Family = compile_diversity(ps_family.ls),
+          .id = 'Rank')
 
 # Visualise differences in diversity across tools
-Div_long_filt %>% 
+Div_long %>% 
+  filter(Rank != 'Family' & index == 'H_0' & dataset != 'Feces') %>% 
   ggplot(aes(x = database, y = value, fill = database)) +
   geom_boxplot(outlier.size = 0.5, size = 0.3) + geom_line(aes(group = Sample), alpha=0.3, linewidth = 0.2)+ theme_light() +
-  facet_grid(cols = vars(dataset), rows=vars(index), scales = 'free') +
+  facet_grid(cols = vars(dataset), rows=vars(index, Rank), scales = 'free') +
   theme(axis.text.x = element_blank())
 
 ggsave('Out/diversity_filt.pdf', bg = 'white', 
        width = 1900, height = 2400, units = 'px', dpi = 180)
 
 # Check distribution of indices :
-lapply(div_rare, function(sublist) {
-  lapply(sublist, function(subsublist) {
-    lapply(subsublist, function(element) {
-      shapiro.test(element)$p.value
-    })})
-}) 
+# lapply(div_rare, function(sublist) {
+#   lapply(sublist, function(subsublist) {
+#     lapply(subsublist, function(element) {
+#       shapiro.test(element)$p.value
+#     })})
+# }) 
 
 ###########################################
 ### Concordance Correlation Coefficient ####
 ###########################################
 
 # Add tool category (DNA-to-DNA or DNA-to-Marker)
-Div <- Div_long_filt %>%
+Div <- Div_long %>%
   mutate(across(where(is.factor), as.character)) %>% 
   mutate(type = case_when(
     str_starts(database, '^KB|^SM') ~ 'DNA',
@@ -92,7 +96,7 @@ Div <- Div_long_filt %>%
 
 # 
 # Function to apply cccvc and return results in a tibble
-filter_cccvc <- function(df) { # run cccvc on filtered data: 
+cccvc_groups <- function(df) { # run cccvc on filtered data: 
   ccc_out <- cccvc(df, ry = 'value', rind = 'Sample', rmet = 'database')  
   # compile
   tibble(CCC = ccc_out$ccc[1],      # CCC 
@@ -104,24 +108,85 @@ filter_cccvc <- function(df) { # run cccvc on filtered data:
 # Apply across all dataset & index combinations
 ccc.df <- Div %>%
   dplyr::filter(database %in% c("MPA_db2023", "KB51", "MOTUS", "SM_gtdb_rs214_full")) %>% 
-  group_by(dataset, index) %>%         # group data by dataset and index
-  group_modify(~ filter_cccvc(.x)) %>% # apply filter_cccvc to each group
+  group_by(dataset, index, Rank) %>%         # group data by dataset and index
+  group_modify(~ cccvc_groups(.x)) %>% # apply cccvc_groups to each group
   ungroup                              # remove grouping structure
 
-ggplot(ccc.df, aes(x = factor(index), y = CCC, color = index)) +
+ggplot(ccc.df, aes(x = factor(index), y = CCC, color = Rank)) +
+  geom_point(size = 3, position = position_dodge(width = 0.5)) +  # Dodge points
+  geom_errorbar(aes(ymin = LL_CI_95, ymax = UL_CI_95), 
+                width = 0.2, position = position_dodge(width = 0.5)) +  # Dodge error bars
+  facet_wrap(~ dataset) +  # Facet by dataset
+  labs(x = "Index", y = "CCC", title = "Concordance Correlation Coefficient") +  # Axis and title labels
+  theme_minimal() + ylim(c(0,1))
+
+# Positive control
+Div %>%
+  dplyr::filter(database %in% c("SM_gtdb_rs214_full", "SM_genbank_202203") &
+                  Rank == 'Species') %>% 
+  group_by(dataset, index) %>%         # group data by dataset and index
+  group_modify(~ cccvc_groups(.x)) %>% # apply cccvc_groups to each group
+  ungroup %>%                          # remove grouping structure
+
+ggplot(aes(x = factor(index), y = CCC, color = index)) +
   geom_point(size = 3) +
   geom_errorbar(aes(ymin = LL_CI_95, ymax = UL_CI_95), width = 0.2) +  # Confidence interval
   facet_wrap(~ dataset) +  # Facet by dataset
   labs(x = "Index", y = "CCC", title = "Concordance Correlation Coefficient") +  # Axis and title labels
-  theme_minimal()
+  theme_minimal() + ylim(c(0,1))
 
 
+################################
+### CCC across pairs of tools ##
+##################################
 
+Div_saliva <- Div %>% filter(dataset == 'Saliva')
 
+# Function to apply cccvc to a pair of tools, with error handling
+cccvc_pairwise <- function(df, tool_pair) {
+  # Filter the data to keep only the two tools in the pair
+  df_pair <- df %>% filter(database %in% tool_pair)
+  
+  # Try to compute cccvc, and return NA in case of an error
+  tryCatch({
+    # Run cccvc and return results in a tibble
+    ccc_out <- cccvc(df_pair, ry = 'value', rind = 'Sample', rmet = 'database')
+    
+    tibble(
+      tool1 = tool_pair[1],       # Correct tool names
+      tool2 = tool_pair[2], 
+      CCC = ccc_out$ccc[1],       # CCC 
+      LL_CI_95 = ccc_out$ccc[2],  # Lower limit CI
+      UL_CI_95 = ccc_out$ccc[3],  # Upper limit CI
+      SE_CCC = ccc_out$ccc[4]     # Standard error
+    )
+  }, error = function(e) {
+    # If there is an error, return NA values for this pair
+    tibble(
+      tool1 = tool_pair[1],
+      tool2 = tool_pair[2],
+      CCC = NA,           # NA for the CCC
+      LL_CI_95 = NA,      # NA for lower limit CI
+      UL_CI_95 = NA,      # NA for upper limit CI
+      SE_CCC = NA         # NA for standard error
+    )
+  })
+}
 
-
-
-
+# Apply the pairwise CCC calculation for each dataset and index group
+ccc_pairwise_df <- Div_saliva %>%
+  group_by(dataset, index, Rank) %>%
+  group_modify(~ {
+    # Extract the current group
+    current_group <- .x
+    
+    # Create unique tool pairs within the group
+    tool_pairs <- unique(current_group$database) %>% combn(2, simplify = FALSE)
+    
+    # For each pair, apply the cccvc_pairwise function
+    map_dfr(tool_pairs, function(pair) cccvc_pairwise(current_group, pair))
+  }) %>%
+  ungroup()
 
 # # epiR tool https://search.r-project.org/CRAN/refmans/epiR/html/epi.occc.html
 # Div %>% select(KB, SM) %>% 

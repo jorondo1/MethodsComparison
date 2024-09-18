@@ -20,19 +20,19 @@ meta_parsing <- function(dsName, samData, filtering = FALSE) {
     ps[[db]] <- parse_MPA(
       MPA_files = paste0(dsName,'/', db, '/*/*profile.txt'),
       column_names = c('Taxonomy', 'NCBI','Abundance', 'Void')) %>% 
-      assemble_phyloseq(samData, filtering = filtering)
+      assemble_phyloseq(samData, filtering = filtering, taxRank = taxRank)
   }
   
   # Kraken-bracken (using default headers from parse_MPA function)
   ps[['KB51']] <- parse_MPA(
     MPA_files = paste0(dsName,'/KB51/*/*_bracken/*_bracken_S.MPA.TXT')) %>% 
-    assemble_phyloseq(samData, filtering = filtering)
+    assemble_phyloseq(samData, filtering = filtering, taxRank = taxRank)
   
     # MOTUS
   ps[['MOTUS']] <- parse_MPA(
     MPA_files = paste0(dsName,"/MOTUS/*_profile.txt"), 
     column_names = c('mOTU', 'Taxonomy', 'NCBI', 'Abundance')) %>% 
-    assemble_phyloseq(samData, filtering = filtering)
+    assemble_phyloseq(samData, filtering = filtering, taxRank = taxRank)
   
   # Sourmash
   ps[['SM_genbank_202203']] <- left_join(
@@ -40,7 +40,7 @@ meta_parsing <- function(dsName, samData, filtering = FALSE) {
     parse_genbank_lineages(paste0(dsName,'/SM_genbank_202203/genbank-2022.03_lineages.csv')),
     by = 'genome'
     ) %>% species_glom() %>%
-    assemble_phyloseq(samData, filtering = filtering)
+    assemble_phyloseq(samData, filtering = filtering, taxRank = taxRank)
   
   for (db in c('SM_gtdb_rs214_full',
                'SM_gtdb_rs214_rep')) {
@@ -49,11 +49,12 @@ meta_parsing <- function(dsName, samData, filtering = FALSE) {
       parse_GTDB_lineages(paste0(dsName,'/', db, '/', db, '_lineages.csv')),
       by = 'genome'
     ) %>% species_glom() %>%
-      assemble_phyloseq(samData, filtering = filtering)
+      assemble_phyloseq(samData, filtering = filtering, taxRank = taxRank)
   }
   return(ps)
 }
 
+# Full phyloseq objects 
 ps.ls <- list()
 ps.ls[['Saliva']] <- meta_parsing('Saliva', psSalivaKB@sam_data)
 ps.ls[['Feces']] <- meta_parsing('Feces', psFecesKB@sam_data)
@@ -64,25 +65,31 @@ ps.ls$Moss$MPA_db2023 <- NULL
 ps.ls$Moss$MOTUS <- NULL
 
 # Prevalence+Abundance filtering, currently hardcoded in filter_low_prevalence()
-ps_filt.ls <- list()
-ps_filt.ls[['Saliva']] <- meta_parsing('Saliva', psSalivaKB@sam_data, filtering = TRUE)
-ps_filt.ls[['Feces']] <- meta_parsing('Feces', psFecesKB@sam_data, filtering = TRUE)
-ps_filt.ls[['Moss']] <- meta_parsing('Moss', moss.ps@sam_data, filtering = TRUE)
-ps_filt.ls[['Moss']][['SM_gtdb_rs214_rep_MAGs']] <- moss.ps%>% filter_low_prevalence()
-ps_filt.ls$Moss$MPA_db2022 <- NULL
-ps_filt.ls$Moss$MPA_db2023 <- NULL
-ps_filt.ls$Moss$MOTUS <- NULL
+ps_filt.ls <- lapply(ps.ls, function(ds) {
+  lapply(ds, filter_low_prevalence)
+})
 
-# Rarefy all datasets
-ps_filt_rare.ls <- lapply(ps_filt.ls, function(sublist) {
+ps_rare.ls <- lapply(ps_filt.ls, function(sublist) {
   lapply(sublist, rarefy_even_depth2, rngseed = 1234)
 })
 
-ps_rare.ls <- lapply(ps.ls, function(sublist) {
-  lapply(sublist, rarefy_even_depth2, rngseed = 1234)
+# Genus level phyloseq objects, with prevalence filtering
+ps_rare_genus.ls <- lapply(ps_filt.ls, function(ds) {
+  lapply(ds, function(db) {
+    tax_glom(db, taxrank = "Genus") %>% 
+      rarefy_even_depth2(rngseed = 1234)
+    })
 })
 
+ps_rare_family.ls <- lapply(ps_filt.ls, function(ds) {
+  lapply(ds, function(db) {
+    tax_glom(db, taxrank = "Family") %>% 
+      rarefy_even_depth2(rngseed = 1234)
+  })
+})
+
+write_rds(ps.ls, "Out/ps_raw.ls.rds")
 write_rds(ps_filt.ls, "Out/ps_filt.ls.rds")
-write_rds(ps.ls, "Out/ps.ls.rds")
-write_rds(ps_filt_rare.ls, "Out/ps_filt_rare.ls.rds")
-write_rds(ps_rare.ls, "Out/ps_rare.ls.rds")
+write_rds(ps_rare.ls, "Out/ps_rare_species.ls.rds")
+write_rds(ps_rare_genus.ls, "Out/ps_rare_genus.ls.rds")
+write_rds(ps_rare_family.ls, "Out/ps_rare_family.ls.rds")
