@@ -53,12 +53,14 @@ compile_sparseness <- function(ps_list) {
 # compute multiple diversity indices, output in sublists
 div.fun <- function(ps, idx) {
   div_estimate <- list() #initiate list
-  for (i in seq_along(idx)) { # compute every diversity index 
+  for (i in seq_along(idx)) { # compute Hill numbers
     H_q=paste0("H_",i-1) # format H_0, H_1...
     div_estimate[[H_q]] <- estimate_Hill(ps, idx[i])
   }
+  div_estimate[["Tail"]] <- estimate_diversity(ps, index = "Tail")
   return(div_estimate)
 }
+
 # compute Hill numbers
 estimate_Hill <- function(ps, q) {
   x <- ps@otu_table %>% as("matrix")
