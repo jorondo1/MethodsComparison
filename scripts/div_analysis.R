@@ -83,14 +83,6 @@ Div_long %>%
 ggsave('Out/diversity_filt.pdf', bg = 'white', 
        width = 1900, height = 2400, units = 'px', dpi = 180)
 
-# Check distribution of indices :
-# lapply(div_rare, function(sublist) {
-#   lapply(sublist, function(subsublist) {
-#     lapply(subsublist, function(element) {
-#       shapiro.test(element)$p.value
-#     })})
-# }) 
-
 ###########################################
 ### Concordance Correlation Coefficient ####
 ###########################################
@@ -102,81 +94,6 @@ Div <- Div_long %>%
     str_starts(database, '^KB|^SM') ~ 'DNA',
     str_starts(database, '^MPA|^MOTUS') ~ 'marker'
   ))
-
-# 
-# Function to apply cccvc and return results in a tibble
-cccvc_groups <- function(df) { # run cccvc on filtered data: 
-  ccc_out <- cccvc(df, ry = 'value', rind = 'Sample', rmet = 'database')  
-  # compile
-  tibble(CCC = ccc_out$ccc[1],      # CCC 
-        LL_CI_95 = ccc_out$ccc[2], # lower limit CI
-        UL_CI_95 = ccc_out$ccc[3], # upper limit CI
-        SE_CCC = ccc_out$ccc[4])   # standard error
-}
-
-# Apply across all dataset & index combinations
-ccc.df <- Div %>%
-  dplyr::filter(database %in% c("MPA_db2023", "KB51", "MOTUS", "SM_gtdb_rs214_full")) %>% 
-  group_by(dataset, index, Rank) %>%         # group data by dataset and index
-  group_modify(~ cccvc_groups(.x)) %>% # apply cccvc_groups to each group
-  ungroup                              # remove grouping structure
-
-ggplot(ccc.df, aes(x = factor(index), y = CCC, color = Rank)) +
-  geom_point(size = 3, position = position_dodge(width = 0.5)) +  # Dodge points
-  geom_errorbar(aes(ymin = LL_CI_95, ymax = UL_CI_95), 
-                width = 0.2, position = position_dodge(width = 0.5)) +  # Dodge error bars
-  facet_wrap(~ dataset) +  # Facet by dataset
-  labs(x = "Index", y = "CCC", title = "Concordance Correlation Coefficient") +  # Axis and title labels
-  theme_minimal() + ylim(c(0,1))
-
-# Positive control
-Div %>%
-  dplyr::filter(database %in% c("SM_gtdb_rs214_full", "SM_genbank_202203") &
-                  Rank == 'Species') %>% 
-  group_by(dataset, index) %>%         # group data by dataset and index
-  group_modify(~ cccvc_groups(.x)) %>% # apply cccvc_groups to each group
-  ungroup %>%                          # remove grouping structure
-
-ggplot(aes(x = factor(index), y = CCC, color = index)) +
-  geom_point(size = 3) +
-  geom_errorbar(aes(ymin = LL_CI_95, ymax = UL_CI_95), width = 0.2) +  # Confidence interval
-  facet_wrap(~ dataset) +  # Facet by dataset
-  labs(x = "Index", y = "CCC", title = "Concordance Correlation Coefficient") +  # Axis and title labels
-  theme_minimal() + ylim(c(0,1))
-
-
-################################
-### CCC across pairs of tools ##
-##################################
-
-Div_saliva <- Div %>% filter(dataset == 'Saliva')
-
-# Function to apply cccvc to a pair of tools, with error handling
-cccvc_compile <- function(df, tool_pair) {
-  # Filter the data to keep only the two tools in the pair
-  df_pair <- df %>% filter(database %in% tool_pair)
-  
-  # Try to compute cccvc, and return NA in case of an error
-  tryCatch({
-    # Run cccvc and return results in a tibble
-    ccc_out <- cccvc(df_pair, ry = 'value', rind = 'Sample', rmet = 'database')
-    
-    tibble(
-      tool1 = c(tool_pair[1], tool_pair[2]),
-      tool2 = c(tool_pair[2], tool_pair[1]),
-      CCC = c(ccc_out$ccc[1], ccc_out$ccc[1]),       # CCC 
-      LL_CI_95 = c(ccc_out$ccc[2], ccc_out$ccc[2]),  # Lower limit CI
-      UL_CI_95 = c(ccc_out$ccc[3], ccc_out$ccc[3]),  # Upper limit CI
-      SE_CCC = c(ccc_out$ccc[4], ccc_out$ccc[4])     # Standard error
-
-    )
-  }, error = function(e) {
-    tibble( # If error, don't store any values except tool names
-      tool1 = tool_pair[1],
-      tool2 = tool_pair[2]
-    )
-  })
-}
 
 # Apply the pairwise CCC calculation for each dataset and index group
 ccc_pairwise_df <- Div %>%
@@ -192,6 +109,11 @@ ccc_pairwise_df <- Div %>%
   mutate(CCC = case_when(tool1 == tool2 ~ NA,
                          TRUE ~ CCC) )
 
+##################
+##### HEATMAP ###
+################
+
+# Plot a heatmap for a given combination of dataset and index
 plot_heatmaps <- function(df, dataset, index) {
   filtered <- df %>% 
     dplyr::filter(
@@ -209,10 +131,8 @@ plot_heatmaps <- function(df, dataset, index) {
       axis.title = element_blank()) 
 }
 
-##################
-##### HEATMAP ###
-################
-
+# Make a heatmap grid for a given taxonomic rank by iterating over 
+# each dataset & index combination 
 heatmap_grid <- function(df, Rank) {
   ccc <- df %>% filter(Rank == !!Rank)
   

@@ -52,18 +52,11 @@ compile_sparseness <- function(ps_list) {
   }) %>% list_rbind
 }
 
-# compute multiple diversity indices, output in sublists
-div.fun <- function(ps, idx) {
-  div_estimate <- list() #initiate list
-  for (i in seq_along(idx)) { # compute Hill numbers
-    H_q=paste0("H_",i-1) # format H_0, H_1...
-    div_estimate[[H_q]] <- estimate_Hill(ps, idx[i])
-  }
-  div_estimate[["Tail"]] <- estimate_diversity(ps, index = "Tail")
-  return(div_estimate)
-}
+################
+### DIVERSITY ###
+################
 
-# compute Hill numbers
+# Hill numbers
 estimate_Hill <- function(ps, q) {
   x <- ps@otu_table %>% as("matrix")
   if (taxa_are_rows(ps)) { 
@@ -111,6 +104,47 @@ estimate_diversity <- function(ps, index = 'Shannon') {
   return(div)
 }
 
+# compute multiple diversity indices, output in sublists
+div.fun <- function(ps, idx) {
+  div_estimate <- list() #initiate list
+  for (i in seq_along(idx)) { # compute Hill numbers
+    H_q=paste0("H_",i-1) # format H_0, H_1...
+    div_estimate[[H_q]] <- estimate_Hill(ps, idx[i])
+  }
+  div_estimate[["Tail"]] <- estimate_diversity(ps, index = "Tail")
+  return(div_estimate)
+}
+
+################
+### METRICS ###
+################
+
+# Function to apply cccvc to a pair of tools, with error handling
+cccvc_compile <- function(df, tool_pair) {
+  # Filter the data to keep only the two tools in the pair
+  df_pair <- df %>% filter(database %in% tool_pair)
+  
+  # Try to compute cccvc, and return NA in case of an error
+  tryCatch({
+    # Run cccvc and return results in a tibble
+    ccc_out <- cccvc(df_pair, ry = 'value', rind = 'Sample', rmet = 'database')
+    
+    tibble(
+      tool1 = c(tool_pair[1], tool_pair[2]),
+      tool2 = c(tool_pair[2], tool_pair[1]),
+      CCC = c(ccc_out$ccc[1], ccc_out$ccc[1]),       # CCC 
+      LL_CI_95 = c(ccc_out$ccc[2], ccc_out$ccc[2]),  # Lower limit CI
+      UL_CI_95 = c(ccc_out$ccc[3], ccc_out$ccc[3]),  # Upper limit CI
+      SE_CCC = c(ccc_out$ccc[4], ccc_out$ccc[4])     # Standard error
+      
+    )
+  }, error = function(e) {
+    tibble( # If error, don't store any values except tool names
+      tool1 = tool_pair[1],
+      tool2 = tool_pair[2]
+    )
+  })
+}
 
 # Bland-Altman analysis, compute the mean and difference between 2 tools
 compute_meandiff <- function(div, tool1, tool2) {
