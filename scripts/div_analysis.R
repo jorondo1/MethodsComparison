@@ -1,5 +1,13 @@
 library(pacman)
-p_load(phyloseq, tidyverse,cccrm, magrittr, cvequality)
+p_load(magrittr, tidyverse, purrr, # syntax
+       cccrm, cvequality, phyloseq, # specific
+       patchwork, grid, ggh4x) # plotting
+
+# Looking at the disagreement between community composition estimation tools
+# when estimating various diversity indices from the resulting abundance
+# matrices. This is a high-level exploratory analysis with the aim to 
+# find DISagreement, as identical diversity does not prove identical compositions. 
+
 source('scripts/myFunctions.R')
 
 ps_raw.ls <- read_rds("Out/ps_raw.ls.rds")
@@ -65,10 +73,11 @@ Div_long <- bind_rows(Species = compile_diversity(ps_species.ls),
 
 # Visualise differences in diversity across tools
 Div_long %>% 
-  filter(Rank != 'Family' & index == 'H_0' & dataset != 'Feces') %>% 
+ # filter(Rank != 'Family' & index == 'H_0' & dataset != 'Feces') %>% 
   ggplot(aes(x = database, y = value, fill = database)) +
   geom_boxplot(outlier.size = 0.5, size = 0.3) + geom_line(aes(group = Sample), alpha=0.3, linewidth = 0.2)+ theme_light() +
-  facet_grid(cols = vars(dataset), rows=vars(index, Rank), scales = 'free') +
+  #facet_grid(cols = vars(dataset), rows=vars(index, Rank), scales = 'free') +
+  facet_nested(cols = vars(dataset), rows=vars(index, Rank), scales = 'free') +
   theme(axis.text.x = element_blank())
 
 ggsave('Out/diversity_filt.pdf', bg = 'white', 
@@ -143,7 +152,7 @@ ggplot(aes(x = factor(index), y = CCC, color = index)) +
 Div_saliva <- Div %>% filter(dataset == 'Saliva')
 
 # Function to apply cccvc to a pair of tools, with error handling
-cccvc_pairwise <- function(df, tool_pair) {
+cccvc_compile <- function(df, tool_pair) {
   # Filter the data to keep only the two tools in the pair
   df_pair <- df %>% filter(database %in% tool_pair)
   
@@ -153,40 +162,115 @@ cccvc_pairwise <- function(df, tool_pair) {
     ccc_out <- cccvc(df_pair, ry = 'value', rind = 'Sample', rmet = 'database')
     
     tibble(
-      tool1 = tool_pair[1],       # Correct tool names
-      tool2 = tool_pair[2], 
-      CCC = ccc_out$ccc[1],       # CCC 
-      LL_CI_95 = ccc_out$ccc[2],  # Lower limit CI
-      UL_CI_95 = ccc_out$ccc[3],  # Upper limit CI
-      SE_CCC = ccc_out$ccc[4]     # Standard error
+      tool1 = c(tool_pair[1], tool_pair[2]),
+      tool2 = c(tool_pair[2], tool_pair[1]),
+      CCC = c(ccc_out$ccc[1], ccc_out$ccc[1]),       # CCC 
+      LL_CI_95 = c(ccc_out$ccc[2], ccc_out$ccc[2]),  # Lower limit CI
+      UL_CI_95 = c(ccc_out$ccc[3], ccc_out$ccc[3]),  # Upper limit CI
+      SE_CCC = c(ccc_out$ccc[4], ccc_out$ccc[4])     # Standard error
+
     )
   }, error = function(e) {
-    # If there is an error, return NA values for this pair
-    tibble(
+    tibble( # If error, don't store any values except tool names
       tool1 = tool_pair[1],
-      tool2 = tool_pair[2],
-      CCC = NA,           # NA for the CCC
-      LL_CI_95 = NA,      # NA for lower limit CI
-      UL_CI_95 = NA,      # NA for upper limit CI
-      SE_CCC = NA         # NA for standard error
+      tool2 = tool_pair[2]
     )
   })
 }
 
 # Apply the pairwise CCC calculation for each dataset and index group
-ccc_pairwise_df <- Div_saliva %>%
+ccc_pairwise_df <- Div %>%
   group_by(dataset, index, Rank) %>%
   group_modify(~ {
-    # Extract the current group
-    current_group <- .x
-    
     # Create unique tool pairs within the group
-    tool_pairs <- unique(current_group$database) %>% combn(2, simplify = FALSE)
-    
-    # For each pair, apply the cccvc_pairwise function
-    map_dfr(tool_pairs, function(pair) cccvc_pairwise(current_group, pair))
+    tools <- unique(.x$database)
+    tool_pairs <- c(combn(tools, 2, simplify = FALSE), lapply(tools, function(x) c(x, x)))
+    # For each instance of that pair, apply the cccvc_compile function
+    map_dfr(tool_pairs, function(pair) cccvc_compile(.x, pair))
   }) %>%
-  ungroup()
+  ungroup() %>% 
+  mutate(CCC = case_when(tool1 == tool2 ~ NA,
+                         TRUE ~ CCC) )
+
+plot_heatmaps <- function(df, dataset, index) {
+  filtered <- df %>% 
+    dplyr::filter(
+      dataset == !!dataset, 
+      index == !!index #& Rank == !!Rank
+    ) 
+  ggplot(filtered, aes(tool1, tool2, fill = CCC)) +
+    geom_tile(color = 'white') +
+    scale_fill_gradient(low = 'deeppink', high = 'navyblue', 
+                        na.value = 'white', name = 'CCC',
+                        limits = c(0,1)) +
+    theme_minimal() + 
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      axis.title = element_blank()) 
+}
+
+##################
+##### HEATMAP ###
+################
+
+heatmap_grid <- function(df, Rank) {
+  ccc <- df %>% filter(Rank == !!Rank)
+  
+  combinations <- ccc %>% distinct(dataset,index)
+  
+  plots <- list()
+  # Generate plots with or without y axis 
+  for (i in seq_along(combinations$dataset)) {
+    dataset <- combinations$dataset[i]
+    index <- combinations$index[i]
+    
+    # Create the plot
+    p <- plot_heatmaps(ccc, dataset, index)
+    
+    # Determine if the plot is the first in its row
+    if (i %% 4 != 1) {
+      # Remove the y-axis if it's not the first plot in its row
+      p <- p + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
+    } else {
+      p <- p + guides(fill = "none")
+    }
+    
+    # Add the plot to the list
+    plots[[i]] <- p
+  }
+  
+  # Create row labels
+  row_labels <- lapply(unique(combinations$dataset), function(label) {
+    grid::textGrob(label, rot = 90, gp = gpar(fontsize = 14, fontface = "bold"))
+  })
+  
+  # Create column labels
+  col_labels <- lapply(unique(combinations$index), function(label) {
+    grid::textGrob(label, gp = gpar(fontsize = 14, fontface = "bold"))
+  })
+  
+  # Combine the plots with empty slots for labels
+  wrap_plots(
+    plot_spacer(), col_labels[[1]], col_labels[[2]], col_labels[[3]], col_labels[[4]],
+    row_labels[[1]], plots[[1]], plots[[2]], plots[[3]], plots[[4]],
+    row_labels[[2]], plots[[5]], plots[[6]], plots[[7]], plots[[8]],
+    row_labels[[3]], plots[[9]], plots[[10]], plots[[11]], plots[[12]],
+    ncol = 5, nrow = 4,
+    heights = c(0.2, 1, 1, 1), # Adjust height of the top row for column labels
+    widths = c(0.2, 1, 1, 1, 1) # Adjust width of the first column for row labels
+  ) + 
+    plot_layout(guides = 'collect') & 
+    theme(legend.position = "right")
+}
+
+heatmap_grid(ccc_pairwise_df, 'Species') 
+ggsave('Out/ccc_Species.pdf', bg = 'white', width = 2400, height = 1600, units = 'px', dpi = 180)
+
+heatmap_grid(ccc_pairwise_df, 'Genus')
+ggsave('Out/ccc_Genus.pdf', bg = 'white', width = 2400, height = 1600, units = 'px', dpi = 180)
+
+heatmap_grid(ccc_pairwise_df, 'Family')
+ggsave('Out/ccc_Family.pdf', bg = 'white', width = 2400, height = 1600, units = 'px', dpi = 180)
 
 # # epiR tool https://search.r-project.org/CRAN/refmans/epiR/html/epi.occc.html
 # Div %>% select(KB, SM) %>% 
