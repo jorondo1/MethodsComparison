@@ -118,8 +118,9 @@ plot_heatmaps <- function(df, dataset, index) {
   filtered <- df %>% 
     dplyr::filter(
       dataset == !!dataset, 
-      index == !!index #& Rank == !!Rank
+      index == !!index 
     ) 
+  # Plot
   ggplot(filtered, aes(tool1, tool2, fill = CCC)) +
     geom_tile(color = 'white') +
     scale_fill_gradient(low = 'deeppink', high = 'navyblue', 
@@ -128,8 +129,9 @@ plot_heatmaps <- function(df, dataset, index) {
     theme_minimal() + 
     theme(
       axis.text.x = element_text(angle = 45, hjust = 1),
-      axis.title = element_blank()) 
-}
+      axis.title = element_blank()
+    )
+  }
 
 # Make a heatmap grid for a given taxonomic rank by iterating over 
 # each dataset & index combination 
@@ -139,7 +141,7 @@ heatmap_grid <- function(df, Rank) {
   combinations <- ccc %>% distinct(dataset,index)
   
   plots <- list()
-  # Generate plots with or without y axis 
+  # Generate & compile plots
   for (i in seq_along(combinations$dataset)) {
     dataset <- combinations$dataset[i]
     index <- combinations$index[i]
@@ -147,15 +149,13 @@ heatmap_grid <- function(df, Rank) {
     # Create the plot
     p <- plot_heatmaps(ccc, dataset, index)
     
-    # Determine if the plot is the first in its row
+    # Is plot first in row? 
     if (i %% 4 != 1) {
-      # Remove the y-axis if it's not the first plot in its row
+      # Remove the y-axis if not
       p <- p + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
     } else {
-      p <- p + guides(fill = "none")
+        p <- p + guides(fill = "none")
     }
-    
-    # Add the plot to the list
     plots[[i]] <- p
   }
   
