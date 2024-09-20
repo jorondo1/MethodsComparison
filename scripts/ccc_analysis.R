@@ -71,6 +71,8 @@ Div_long <- bind_rows(Species = compile_diversity(ps_species.ls),
           Family = compile_diversity(ps_family.ls),
           .id = 'Rank')
 
+write_rds(Div_long, 'Out/Diversity_long.rds')
+
 # Visualise differences in diversity across tools
 Div_long %>% 
  # filter(Rank != 'Family' & index == 'H_0' & dataset != 'Feces') %>% 
