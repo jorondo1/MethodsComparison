@@ -18,7 +18,12 @@ filter_low_prevalence <- function(ps, minPrev = 0.05, minAbund = 0.001) {
 ### Build phyloseq object from MPA output
 assemble_phyloseq <- function(abunTable, sampleData, filtering = FALSE) {
   
-  abunTable %<>% dplyr::filter(Kingdom == "Bacteria")
+  abunTable %<>% dplyr::filter(Kingdom == "Bacteria") %>% 
+    mutate(across(where(is.character), \(x) {
+      str_replace_all(x,'_', ' ') %>%
+        str_replace(.,'Candidatus ', '') %>% 
+        str_replace(.,'Burkholderiaceae A', 'Burkholderiaceae') 
+    }))
     
   # Extract abundance table with Species as identifier
   abund <- abunTable %>% dplyr::select(where(is.double), Species) %>% 
