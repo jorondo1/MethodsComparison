@@ -16,7 +16,8 @@ add_samData <- function(df, ds, Rank, ps_list) {
 }
 
 dataset <- add_samData(
-  Div_long, 'Saliva','Species',ps_species.ls) %>% 
+  Div_long, 'Moss','Species',ps_species.ls
+  ) %>% 
   group_by(database, index) 
 
 dataset %>%
@@ -25,7 +26,7 @@ dataset %>%
 
 # Check consistency of testing diversity difference between male/female
 test_results <- dataset %>% 
-  wilcox_test(value ~ sex) %>% # conservative
+  wilcox_test(value ~ Compartment) %>% # conservative
   add_significance() %>% 
   select(database, index, p.signif) %>%
   mutate(p.signif = factor(p.signif, levels = c('ns','*','**','***', '****'))) # reorder factors
@@ -33,7 +34,7 @@ test_results <- dataset %>%
 # Plot every database x index combination
 test_results %>% # add the p-values to dataset
   left_join(dataset, join_by('database', 'index')) %>% 
-  ggplot(aes(x = sex, y = value, colour = p.signif)) +
+  ggplot(aes(x = Compartment, y = value, colour = p.signif)) +
   scale_color_discrete() +
   geom_boxplot(linewidth = 0.3) + 
   facet_grid(index~database, scales = 'free_y') +
