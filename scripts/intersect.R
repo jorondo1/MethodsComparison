@@ -9,6 +9,7 @@ p_load(magrittr, tidyverse, phyloseq)
 ps_genus.ls <- read_rds("Out/ps_rare_genus.ls.rds") 
 ps_family.ls <- read_rds("Out/ps_rare_family.ls.rds") 
 
+# look at names of taxa part of the exclusion space
 extract_taxnames <- function(ps, ds, db1, db2, taxRank) {
   
    extract_tax <- function(db) {
@@ -31,6 +32,7 @@ extract_taxnames <- function(ps, ds, db1, db2, taxRank) {
 
 extract_taxnames(ps_family.ls,
                  'Saliva', 
-                 'KB51', 'MOTUS', 
+                 'MPA_db2023', 'SM_gtdb_rs214_full', 
                  Family)
+
 

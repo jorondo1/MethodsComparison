@@ -21,17 +21,24 @@ assemble_phyloseq <- function(abunTable, sampleData, filtering = FALSE) {
   abunTable %<>% dplyr::filter(Kingdom == "Bacteria") %>% 
     mutate(across(where(is.character), \(x) {
       str_replace_all(x,'_', ' ') %>%
-        str_replace(.,'Candidatus ', '') %>% 
-        str_replace(.,'Burkholderiaceae A', 'Burkholderiaceae') 
+        str_replace('Candidatus ', '') %>% 
+        str_remove(" [A-Z]$")  #https://gtdb.ecogenomic.org/faq#why-do-some-family-and-higher-rank-names-end-with-an-alphabetic-suffix
     }))
     
+    
   # Extract abundance table with Species as identifier
-  abund <- abunTable %>% dplyr::select(where(is.double), Species) %>% 
+  abund <- abunTable %>% 
+    dplyr::select(where(is.double), Species) %>% 
+    group_by(Species) %>% 
+    summarise(across(where(is.numeric), sum)) %>% 
     column_to_rownames('Species') 
   
   # Extract taxonomy
-  tax <- abunTable %>% dplyr::select(where(is.character)) %>% 
-    mutate(Species2 = Species) %>% column_to_rownames('Species2') %>% as.matrix
+  tax <- abunTable %>% 
+    dplyr::select(where(is.character)) %>% 
+    unique %>% # because of renaming above, some species will be duplicate
+    mutate(Species2 = Species) %>% 
+    column_to_rownames('Species2') %>% as.matrix
   
   # Build phyloseq
   phyloseq(otu_table(abund, taxa_are_rows = TRUE),
