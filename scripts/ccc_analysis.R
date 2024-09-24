@@ -103,7 +103,8 @@ ccc_pairwise_df <- Div %>%
   group_modify(~ {
     # Create unique tool pairs within the group
     tools <- unique(.x$database)
-    tool_pairs <- c(combn(tools, 2, simplify = FALSE), lapply(tools, function(x) c(x, x)))
+    tool_pairs <- c(combn(tools, 2, simplify = FALSE), 
+                    lapply(tools, function(x) c(x, x)))
     # For each instance of that pair, apply the cccvc_compile function
     map_dfr(tool_pairs, function(pair) cccvc_compile(.x, pair))
   }) %>%

@@ -16,7 +16,7 @@ add_samData <- function(df, ds, Rank, ps_list) {
 }
 
 dataset <- add_samData(
-  Div_long, 'Moss','Species',ps_species.ls
+  Div_long, 'Saliva','Species',ps_species.ls
   ) %>% 
   group_by(database, index) 
 
@@ -26,7 +26,7 @@ dataset %>%
 
 # Check consistency of testing diversity difference between male/female
 test_results <- dataset %>% 
-  wilcox_test(value ~ Compartment) %>% # conservative
+  wilcox_test(value ~ sex) %>% # conservative
   add_significance() %>% 
   select(database, index, p.signif) %>%
   mutate(p.signif = factor(p.signif, levels = c('ns','*','**','***', '****'))) # reorder factors
@@ -34,7 +34,7 @@ test_results <- dataset %>%
 # Plot every database x index combination
 test_results %>% # add the p-values to dataset
   left_join(dataset, join_by('database', 'index')) %>% 
-  ggplot(aes(x = Compartment, y = value, colour = p.signif)) +
+  ggplot(aes(x = sex, y = value, colour = p.signif)) +
   scale_color_discrete() +
   geom_boxplot(linewidth = 0.3) + 
   facet_grid(index~database, scales = 'free_y') +
@@ -42,5 +42,5 @@ test_results %>% # add the p-values to dataset
     panel.background = element_rect(fill = "grey95")  # Sets a lighter grey background
   )
 
-ggsave('Out/alpha_moss_section.pdf', bg = 'white', 
+ggsave('Out/alpha_saliva_sex.pdf', bg = 'white', 
        width = 1800, height = 2400, units = 'px', dpi = 240)
