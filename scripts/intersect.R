@@ -2,7 +2,7 @@
 # pairwise Jaccard index on detected species -> similarity matrix
 # First test at genus level
 library(pacman)
-p_load(magrittr, tidyverse, phyloseq)
+p_load(magrittr, tidyverse, phyloseq, rlang)
 
 # 1. Extract taxonomic tables + convert to P/A
 
@@ -33,13 +33,12 @@ extract_taxnames <- function(ps, ds, db1, db2, taxRank) {
 extract_taxnames(ps_family.ls,
                  'Saliva', 
                  'KB51', 'SM_gtdb_rs214_full', 
-                 Family)
+                 Order)
 
 ########################
 # Compute intersect ###
 ######################
-
-# 
+taxRank <- 'Order'
 
 extract_sample_PA <- function(ps_list, taxRank) {
   map(names(ps_list), function(ds){ # first list level: apply to all dataset
@@ -47,6 +46,9 @@ extract_sample_PA <- function(ps_list, taxRank) {
     map(names(ds_sublist), function(db){ 
       
       ps_list[[ds]][[db]] %>% psmelt %>% 
+        group_by(Sample, !!sym(taxRank)) %>% 
+        summarise(Abundance = sum(Abundance), 
+                  .groups = 'drop') %>% 
         mutate(PA = if_else(Abundance == 0, 0, 1)) %>% 
         dplyr::select(Sample, all_of(taxRank), PA) %>% 
         filter(PA == 1) %>% 
@@ -58,8 +60,9 @@ extract_sample_PA <- function(ps_list, taxRank) {
   }) %>% list_rbind
 }
 
-PA <- extract_sample_PA(ps_family.ls, 'Family')
+PA <- extract_sample_PA(ps_family.ls, taxRank)
 
+#########################################################
 # Compute Jaccard by joining tables based on taxa name
 # and return a dataframe for every tool comparison
 compute_jaccard <- function(df, tool_pair, taxRank) {
@@ -69,7 +72,7 @@ compute_jaccard <- function(df, tool_pair, taxRank) {
 
   pa_full <- full_join(pa1, pa2, by = c('Sample', taxRank))
   jaccard <- pa_full %>% 
-    # exclude species absent from both tools for any sample
+    # exclude species absnt from both tools for any sample
     filter(PA.x == 1 | PA.y == 1) %>% 
     # flag common species: 
     mutate(PA.both = ifelse(PA.x == 1 & PA.y == 1, 1, 0)) %>% 
@@ -93,10 +96,23 @@ jaccard_pairwise_df <- PA %>%
     tools <- unique(.x$database)
     tool_pairs <- c(combn(tools, 2, simplify = FALSE))
     # For each instance of that pair, apply the cccvc_compile function
-    map_dfr(tool_pairs, function(pair) compute_jaccard(.x, pair, 'Family'))
+    map_dfr(tool_pairs, function(pair) compute_jaccard(.x, pair, taxRank))
   }) %>%
   ungroup() %>% # NA on same-tool pairs
   mutate(jaccard = case_when(tool1 == tool2 ~ NA,
                          TRUE ~ jaccard))
 
+jaccard_pairwise_df %<>% 
+  mutate(dataset = factor(dataset, levels = c('Saliva', 'Feces', 'Moss'))) %>% 
+  filter(dataset != 'Moss')
 
+jaccard_pairwise_df %>% 
+  ggplot(aes(x = tool1, y = jaccard, fill = tool1)) +
+  geom_violin() +
+  facet_grid(tool2 ~ dataset, scales = 'free_x') +
+  ylim(0,1) +
+  theme(axis.text.x = element_blank(),
+        axis.title.x = element_blank())
+
+# Jaccard may not be best. Could show proportion of database1
+# taxa found by database_[2-n] separately ?
