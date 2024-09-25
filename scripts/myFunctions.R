@@ -128,6 +128,26 @@ div.fun <- function(ps, idx) {
 }
 
 ################
+### Other functions 
+################
+
+# Filtering dataset for a tool pair and 
+# generate a list of taxa found by either tool
+taxa_tool_pairs <- function(df, tool_pair, taxRank) {
+  pa1 <- df %>% dplyr::filter(database == tool_pair[1])
+  pa2 <- df %>% dplyr::filter(database == tool_pair[2])
+  
+  message(paste(tool_pair[1], '&', tool_pair[2]))
+  
+  # return the full set of taxa identified by either tool
+  full_join(pa1, pa2, by = c('Sample', taxRank)) %>% 
+    # exclude species absent from both tools for any sample
+    filter(PA.x == 1 | PA.y == 1) %>% 
+    # flag common species: 
+    mutate(PA.both = PA.x*PA.y)
+}
+
+################
 ### METRICS ###
 ################
 
@@ -164,3 +184,4 @@ compute_meandiff <- function(div, tool1, tool2) {
     transmute(mean = (!!sym(tool1) + !!sym(tool2))/2,
               Diff = !!sym(tool1) - !!sym(tool2))
 }
+
