@@ -160,7 +160,7 @@ apply_ds_toolpairs <- function(df, func, taxRank, ...) {
       tool_pairs <- combn(tools, 2, simplify = FALSE)
       
       # For each instance of that pair, apply the cccvc_compile function
-      map_dfr(tool_pairs, function(pair) func(data_subset, pair, taxRank,...))
+      map_dfr(tool_pairs, function(pair) func(data_subset, pair, taxRank))
     })
 }
 
