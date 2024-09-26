@@ -151,7 +151,7 @@ melt_ps_list_glom <- function(ps_list, taxRank) {
 
 # Applies a function to each possible combination of tools (database) 
 # found in the dataset; passes the pair names to the function
-apply_ds_toolpairs <- function(df, func, taxRank, ...) {
+apply_ds_toolpairs <- function(df, func, taxRank) {
   df %>% group_by(dataset) %>%
     group_modify(~ {
       data_subset <- .x
