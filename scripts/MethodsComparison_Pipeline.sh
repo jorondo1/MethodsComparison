@@ -31,25 +31,25 @@ bracken="bash $ILL_PIPELINES/generateslurm_taxonomic_profile.sample.sh \
 	--slurm_log $MC/logs --slurm_walltime 72:00:00 --slurm_threads 48 --slurm_mem 250G"
 
 # Generate SLURM scripts https://github.com/jflucier/ILL_pipelines/blob/main/generateslurm_taxonomic_profile.sample.sh
-$bracken --sample_tsv $SALIVA_TSV --out $MC/Saliva/KB05
-$bracken --sample_tsv $FECES_TSV --out $MC/Feces/KB05
-$bracken --sample_tsv $MOSS_TSV --out $MC/Moss/KB05
+$bracken --confidence 0.20 --sample_tsv $SALIVA_TSV --out $MC/Saliva/KB20
+$bracken --confidence 0.20 --sample_tsv $FECES_TSV --out $MC/Feces/KB20
+$bracken --confidence 0.20 --sample_tsv $MOSS_TSV --out $MC/Moss/KB20
 
 $bracken --confidence 0.51 --sample_tsv $SALIVA_TSV --out $MC/Saliva/KB51
 $bracken --confidence 0.51 --sample_tsv $FECES_TSV --out $MC/Feces/KB51
 $bracken --confidence 0.51 --sample_tsv $MOSS_TSV --out $MC/Moss/KB51
 
 # Submit
-sbatch --array=1-"$NUM_Saliva" $MC/Saliva/Bracken05/taxonomic_profile.samples.slurm.sh
-sbatch --array=1-"$NUM_Feces" $MC/Feces/Bracken05/taxonomic_profile.samples.slurm.sh
-sbatch --array=1-"$NUM_Moss" $MC/Moss/Bracken05/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_Saliva" $MC/Saliva/KB20/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_Feces" $MC/Feces/KB20/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_Moss" $MC/Moss/KB20/taxonomic_profile.samples.slurm.sh
 
-sbatch --array=1-"$NUM_Saliva" $MC/Saliva/Bracken51/taxonomic_profile.samples.slurm.sh
-sbatch --array=1-"$NUM_Feces" $MC/Feces/Bracken51/taxonomic_profile.samples.slurm.sh
-sbatch --array=1-"$NUM_Moss" $MC/Moss/Bracken51/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_Saliva" $MC/Saliva/KB51/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_Feces" $MC/Feces/KB51/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_Moss" $MC/Moss/KB51/taxonomic_profile.samples.slurm.sh
 
 # Check completion status
-for test in Bracken05 Bracken51; do
+for test in KB20; do
 for i in $DATASETS; do
 	eval exp=\$NUM_$i
 	num=$(ls $i/$test/*/*_bracken/*_bracken_S.MPA.TXT | wc -l)

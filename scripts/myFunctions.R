@@ -131,20 +131,50 @@ div.fun <- function(ps, idx) {
 ### Other functions 
 ################
 
+# Melt ps object list, agglomerate abundances to desired taxRank
+melt_ps_list_glom <- function(ps_list, taxRank) {
+  map(names(ps_list), function(ds){ # first list level: apply to all dataset
+    ds_sublist <- ps_list[[ds]] # extract sublist (ps object)
+    map(names(ds_sublist), function(db){ 
+      # summarize by higher level taxonomy (not always useful, having a pre-summarized phyloseq is better)
+      ps_list[[ds]][[db]] %>% psmelt %>% 
+        group_by(Sample, !!sym(taxRank)) %>% 
+        summarise(Abundance = sum(Abundance), 
+                  .groups = 'drop') %>% 
+        filter(Abundance !=0) %>% 
+        as_tibble %>% 
+        mutate(database = db,
+               dataset = ds)
+    }) %>% list_rbind
+  }) %>% list_rbind
+}
+
+# Applies a function to each possible combination of tools (database) 
+# found in the dataset; passes the pair names to the function
+apply_ds_toolpairs <- function(df, func, taxRank, ...) {
+  df %>% group_by(dataset) %>%
+    group_modify(~ {
+      data_subset <- .x
+      # Create unique tool pairs within the group
+      tools <- unique(data_subset$database)
+      tool_pairs <- combn(tools, 2, simplify = FALSE)
+      
+      # For each instance of that pair, apply the cccvc_compile function
+      map_dfr(tool_pairs, function(pair) func(data_subset, pair, taxRank,...))
+    })
+}
+
 # Filtering dataset for a tool pair and 
 # generate a list of taxa found by either tool
 taxa_tool_pairs <- function(df, tool_pair, taxRank) {
-  pa1 <- df %>% dplyr::filter(database == tool_pair[1])
-  pa2 <- df %>% dplyr::filter(database == tool_pair[2])
-  
+  set.x <- df %>% dplyr::filter(database == tool_pair[1])
+  set.y <- df %>% dplyr::filter(database == tool_pair[2])
   message(paste(tool_pair[1], '&', tool_pair[2]))
   
   # return the full set of taxa identified by either tool
-  full_join(pa1, pa2, by = c('Sample', taxRank)) %>% 
+  full_join(set.x, set.y, by = c('Sample', taxRank)) %>% 
     # exclude species absent from both tools for any sample
-    filter(PA.x == 1 | PA.y == 1) %>% 
-    # flag common species: 
-    mutate(PA.both = PA.x*PA.y)
+    filter(Abundance.x != 0 | Abundance.y != 0) 
 }
 
 ################
@@ -177,6 +207,7 @@ cccvc_compile <- function(df, tool_pair) {
     )
   })
 }
+
 
 # Bland-Altman analysis, compute the mean and difference between 2 tools
 compute_meandiff <- function(div, tool1, tool2) {
