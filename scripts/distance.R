@@ -25,7 +25,7 @@ compile_distances <- function(df, tool_pair, taxRank) {
 
   df %>%
     taxa_tool_pairs(tool_pair, taxRank) %>% # filter ds for tool pair
-    #dplyr::filter(Abundance.x*Abundance.y>0) %>% # subset to only ltaxa detected by both
+    dplyr::filter(Abundance.x*Abundance.y>0) %>% # subset to only ltaxa detected by both
     mutate(across(where(is.numeric), ~ replace_na(., 0))) %>% 
      group_by(Sample) %>% 
     # Compute relative abundances by Sample 
@@ -61,7 +61,6 @@ dist_df %<>%
 
 tool_subset <- c('KB51', 'MOTUS', 'MPA_db2023', 'SM_gtdb_rs214_full')
 
-
 # Ridge plot 
 dist_df %>% 
   filter(dataset %in% c('Feces', 'Saliva') &
@@ -84,33 +83,46 @@ dist_df %>%
 ggsave('Out/distances.pdf', bg = 'white', 
        width = 1600, height = 1600, units = 'px', dpi = 180)
 
+##########################
+## PCA on r.aitchison ####
+##########################
+tool_subset <- c('KB51', 'MOTUS', 'MPA_db2023', 'SM_gtdb_rs214_full', 'SM_genbank_202203')
+# Create one dataframe by sample containing every tool community estimates
+wide_abund.list <- melt_ps_list_glom(ps_family.ls, taxRank) %>% 
+  dplyr::select(Sample, all_of(taxRank), Abundance, dataset, database) %>% 
+  dplyr::filter(dataset == 'Feces' &
+                  database %in% tool_subset) %>% 
+  group_by(Sample) %>%
+  pivot_wider(names_from = database, 
+              values_from = Abundance, 
+              values_fill = list(Abundance = 0)) %>%
+  group_split()
 
-# Violin plot
+# Compute pairwise distances between all tool pairs by sample
+flat_dist <- map(wide_abund.list, compute_pairwise_dist)
+stacked_matrix <- do.call(rbind, flat_dist)
 
-dist_df %>% 
-  filter(dataset == 'Feces' &
-           tool1 %in% tool_subset & # avoid redundance
-           tool2 %in% tool_subset
-         ) %>%
-  pivot_longer(c('robustAitchison', 'bray'), names_to = 'dist') %>% 
-  ggplot(aes(x = tool2, y = value, fill = tool2)) +
-  geom_violin() +
-  facet_grid(dist ~ tool1, scales = 'free') +
-  theme(axis.text.x = element_blank(),
-        axis.title.x = element_blank()) +
-  ggtitle(paste0('Distribution of between-sample pairwise dissimilarity (',taxRank,'-level)'))
+# PCA on stacked matrix
+pca_result <- prcomp(stacked_matrix, scale. = TRUE)  # Scaling to standardize the variance
 
-# Sort the tool names to create a consistent combination
-dist_df_nonredundant <- dist_df %>%
-  rowwise() %>%
-  mutate(tool_combination = paste(sort(c(tool1, tool2)), collapse = ".")) %>%
-  ungroup() %>%
-  # Group by dataset, Sample, and the sorted tool combination
-  group_by(dataset, Sample, tool_combination) %>%
-  # Keep only the first occurrence of each unique combination
-  slice(1) %>%
-  ungroup() %>%
-  select(-tool_combination)
+# Extract PCA scores
+pca_scores <- as.data.frame(pca_result$x)
+prop_contrib <- summary(pca_result) %$% importance %>% .[2,1:2]*100 
+
+#Loadings of each variable to the principal components
+loadings <- as.data.frame(pca_result$rotation) %>% 
+  rownames_to_column('tool_pair') %>% 
+  select(PC1, PC2, tool_pair) %>% 
+  tidyr::separate(tool_pair, into = c("tool1", "tool2"), sep = "_vs_")
+
+# Visualize loadings for the first two components
+ggplot(loadings, aes(x = PC1, y = PC2, colour = tool1, shape = tool2)) +
+  geom_point(size=10) +
+  #geom_text(hjust = 1.1, vjust = 1.1) +
+  labs(title = "Principal component analysis of sample-wise distances between tool pairs",
+       x = paste0('PC1 (',round(prop_contrib[1],0),'%)'),
+       y = paste0('PC2 (',round(prop_contrib[2],0),'%)')) +
+  theme_minimal()
 
 
 # Heatmap by mean within-sample distance with sd added
@@ -123,10 +135,24 @@ dist_df %>%
   geom_tile(color = 'white') +
   geom_text(aes(label = sprintf("%.3f",sd_dist)), color = 'white') +
   scale_fill_gradient(low = 'navyblue', high = 'red', 
-                      na.value = 'white', name = 'distance', limits = c(1,7)) +
+                      na.value = 'white', name = 'distance') +
   theme_minimal() + 
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1),
     axis.title = element_blank()
   )
 
+# Violin plot
+# dist_df %>% 
+#   filter(dataset == 'Feces' &
+#            tool1 %in% tool_subset & # avoid redundance
+#            tool2 %in% tool_subset
+#   ) %>%
+#   pivot_longer(c('robustAitchison', 'bray'), names_to = 'dist') %>% 
+#   ggplot(aes(x = tool2, y = value, fill = tool2)) +
+#   geom_violin() +
+#   facet_grid(dist ~ tool1, scales = 'free') +
+#   theme(axis.text.x = element_blank(),
+#         axis.title.x = element_blank()) +
+#   ggtitle(paste0('Distribution of between-sample pairwise dissimilarity (',taxRank,'-level)'))
+# 

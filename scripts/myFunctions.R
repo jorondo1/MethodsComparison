@@ -208,6 +208,34 @@ cccvc_compile <- function(df, tool_pair) {
   })
 }
 
+# Pairwise distances
+compute_pairwise_dist <- function(sample_df) {
+  # Select only numeric columns (tool abundances) to calculate distances
+  tool_est.mx <- sample_df %>% select(where(is.numeric)) %>% as.matrix 
+  
+  # Compute pairwise distances for each combination of tools
+  dist_vectors <- list()
+  tool_pairs <- combn(ncol(tool_est.mx), 2) # Generate all pairs of columns (tools)
+  for (i in 1:ncol(tool_pairs)) {
+    tool1 <- tool_pairs[1, i]
+    tool2 <- tool_pairs[2, i]
+    
+    # Extract tool pair as matrix
+    tool_pair_matrix <- tool_est.mx[, c(tool1, tool2), drop = FALSE] %>% 
+      .[rowSums(.) != 0, ] %>% t
+    
+    # Compute robust Aitchison distance tools
+    dist_value <- vegdist(tool_pair_matrix, method = "robust.aitchison")
+    
+    # Store distance as vector
+    dist_vectors[[i]] <- setNames(as.vector(dist_value), 
+                                  paste(colnames(tool_est.mx)[tool1], 
+                                        colnames(tool_est.mx)[tool2], 
+                                        sep = "_vs_"))
+  }
+  # Flatten vector list into single vector
+  return(unlist(dist_vectors))
+} 
 
 # Bland-Altman analysis, compute the mean and difference between 2 tools
 compute_meandiff <- function(div, tool1, tool2) {

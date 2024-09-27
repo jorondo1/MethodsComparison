@@ -57,7 +57,7 @@ for i in $DATASETS; do
 done
 done
 
-# Remove taxonomy_nt files from kraken out 
+# Once completely done, remove taxonomy_nt files from kraken out 
 rm */Bracken*/*/*_taxonomy_nt 
 rm */Bracken*/*/*/*.bracken
 rm */Bracken*/*/*/*.kreport
