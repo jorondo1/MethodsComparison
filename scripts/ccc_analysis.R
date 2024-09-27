@@ -80,7 +80,8 @@ Div_long %>%
   geom_boxplot(outlier.size = 0.5, size = 0.3) + geom_line(aes(group = Sample), alpha=0.3, linewidth = 0.2)+ theme_light() +
   #facet_grid(cols = vars(dataset), rows=vars(index, Rank), scales = 'free') +
   facet_nested(cols = vars(dataset), rows=vars(index, Rank), scales = 'free') +
-  theme(axis.text.x = element_blank())
+  theme(axis.text.x = element_blank()) +
+  scale_fill_manual(values = tool_colours)
 
 ggsave('Out/diversity_filt.pdf', bg = 'white', 
        width = 1900, height = 2400, units = 'px', dpi = 180)

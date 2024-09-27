@@ -59,13 +59,14 @@ dist_df <- melt_ps_list_glom(ps_family.ls, taxRank) %>%
 dist_df %<>% 
   mutate(dataset = factor(dataset, levels = c('Saliva', 'Feces', 'Moss'))) 
 
-tool_subset <- c('KB51', 'MOTUS', 'MPA_db2023', 'SM_gtdb_rs214_full')
+tool_subset <- c('KB20', 'MOTUS', 'MPA_db2023', 'SM_gtdb_rs214_full')
 
 # Ridge plot 
 dist_df %>% 
-  filter(dataset %in% c('Feces', 'Saliva') &
-           tool1 %in% tool_subset & 
-           tool2 %in% tool_subset) %>%
+  filter(dataset %in% c('Feces', 'Saliva') 
+           & tool1 %in% tool_subset 
+           & tool2 %in% tool_subset
+         ) %>%
   pivot_longer(c('robustAitchison', 'bray'), names_to = 'dist') %>% 
   # Creating the ridge plot
   ggplot(aes(x = value, y = tool1, fill = tool2)) +
@@ -77,8 +78,7 @@ dist_df %>%
     title = paste0('Distribution of Between-Sample Pairwise Dissimilarity (',taxRank,'-level)'),
     x = "Distance or dissimilarity",
     y = "Tool"
-  ) +
-  scale_fill_manual(values = c("#E69F00", "#56B4E9", "#009E73", "#F0E442"))
+  ) + scale_fill_manual(values = tool_colours)
 
 ggsave('Out/distances.pdf', bg = 'white', 
        width = 1600, height = 1600, units = 'px', dpi = 180)
@@ -86,12 +86,13 @@ ggsave('Out/distances.pdf', bg = 'white',
 ##########################
 ## PCA on r.aitchison ####
 ##########################
-tool_subset <- c('KB51', 'MOTUS', 'MPA_db2023', 'SM_gtdb_rs214_full', 'SM_genbank_202203')
+tool_subset <- c('KB20', 'MOTUS', 'MPA_db2023', 'SM_gtdb_rs214_full', 'SM_genbank_202203')
 # Create one dataframe by sample containing every tool community estimates
 wide_abund.list <- melt_ps_list_glom(ps_family.ls, taxRank) %>% 
   dplyr::select(Sample, all_of(taxRank), Abundance, dataset, database) %>% 
-  dplyr::filter(dataset == 'Feces' &
-                  database %in% tool_subset) %>% 
+  dplyr::filter(dataset == 'Feces'
+                 & database %in% tool_subset
+                ) %>% 
   group_by(Sample) %>%
   pivot_wider(names_from = database, 
               values_from = Abundance, 
@@ -122,7 +123,8 @@ ggplot(loadings, aes(x = PC1, y = PC2, colour = tool1, shape = tool2)) +
   labs(title = "Principal component analysis of sample-wise distances between tool pairs",
        x = paste0('PC1 (',round(prop_contrib[1],0),'%)'),
        y = paste0('PC2 (',round(prop_contrib[2],0),'%)')) +
-  theme_minimal()
+  theme_minimal() +
+  scale_colour_manual(values = tool_colours)
 
 
 # Heatmap by mean within-sample distance with sd added

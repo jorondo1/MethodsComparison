@@ -26,10 +26,10 @@ extract_taxnames <- function(ps, ds, db1, db2, taxRank) {
   setdiff(union_set, intersect_set) %>% sort
 }
 
-extract_taxnames(ps_genus.ls,
+extract_taxnames(ps_species.ls,
                  'Saliva', 
-                 'SM_genbank_202203', 'SM_gtdb_rs214_full', 
-                 Genus)
+                 'KB51', 'KB20', 
+                 Species)
 
 
 #########################################################
@@ -82,13 +82,15 @@ overlap_df %<>%
 
 # plot ! proportion of tool2 (x facet) taxa detected by tool1 (x axis)
 overlap_df %>% 
-  ggplot(aes(x = tool2, y = overlap, fill = tool2)) +
+  ggplot(aes(x = tool2, y = overlap, fill = tool2, colour = tool2)) +
   geom_violin() +
   facet_grid(dataset ~ tool1, scales = 'free_x') +
   ylim(0,1) +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank()) +
-  ggtitle(paste('Proportion of taxa identified by other tools in samples (',taxRank,'-level)'))
+  ggtitle(paste('Proportion of taxa identified by other tools in samples (',taxRank,'-level)')) +
+  scale_fill_manual(values = tool_colours) +
+  scale_colour_manual(values = tool_colours)
 
 ggsave('Out/intersect_overlap.pdf', bg = 'white', 
        width = 2400, height = 1600, units = 'px', dpi = 180)
@@ -138,7 +140,8 @@ jaccard_df %>%
   facet_grid(dataset ~ tool2, scales = 'free_x') +
   ylim(0,1) +
   theme(axis.text.x = element_blank(),
-        axis.title.x = element_blank())
+        axis.title.x = element_blank())+
+  scale_fill_manual(values = tool_colours)
 
 ggsave('Out/intersect_jaccard.pdf', bg = 'white', 
        width = 2400, height = 1600, units = 'px', dpi = 180)

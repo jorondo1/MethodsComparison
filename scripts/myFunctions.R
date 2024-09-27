@@ -1,6 +1,18 @@
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/community_functions.R'))
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/rarefy_even_depth2.R'))
 
+tool_colours <- c(
+  'MPA_db2022' = 'darkgreen',
+  'MPA_db2023' = 'darkolivegreen3',
+  'KB20' = 'indianred',
+  'KB51' = 'red4',
+  'MOTUS' = 'goldenrod',
+  'SM_genbank_202203' = 'royalblue',
+  'SM_gtdb_rs214_full' = 'slateblue',
+  'SM_gtdb_rs214_rep'= 'slateblue4',
+  'SM_gtdb_rs214_rep_MAG'= 'dodgerblue4'
+)
+
 filter_low_prevalence <- function(ps, minPrev = 0.05, minAbund = 0.001) {
   # Taxa prevalence
   prev <- apply(otu_table(ps), 1, function(x) sum(x > 0)) / nsamples(ps)

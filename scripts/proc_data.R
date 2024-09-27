@@ -24,10 +24,11 @@ meta_parsing <- function(dsName, samData) {
   }
   
   # Kraken-bracken (using default headers from parse_MPA function)
-  ps[['KB51']] <- parse_MPA(
-    MPA_files = paste0(dsName,'/KB51/*/*_bracken/*_bracken_S.MPA.TXT')) %>% 
+  for (db in c('KB20', 'KB51')) {
+    ps[[db]] <- parse_MPA(
+    MPA_files = paste0(dsName,'/', db, '/*/*_bracken/*_bracken_S.MPA.TXT')) %>% 
     assemble_phyloseq(samData)
-  
+  }
     # MOTUS
   ps[['MOTUS']] <- parse_MPA(
     MPA_files = paste0(dsName,"/MOTUS/*_profile.txt"), 
