@@ -38,7 +38,7 @@ extract_taxnames(ps_species.ls,
 # also found by another tool #########################
 #####################################################
 
-taxRank <- 'Family'
+taxRank <- 'Genus'
 
 # Compute overlap precision between tool pairs
 # Uses taxa_tool_pairs function
@@ -66,7 +66,7 @@ compute_overlap <- function(df, tool_pair, taxRank) {
 }
 
 # Compute overlap for all !
-overlap_df <- ps_family.ls %>% 
+overlap_df <- ps_genus.ls %>% 
   # Melt entire ps list :
   melt_ps_list_glom(taxRank) %>% 
   # Convert abundances to P/A
@@ -77,22 +77,20 @@ overlap_df <- ps_family.ls %>%
 
 # Reorder factors, subset dataset
 overlap_df %<>% 
-  mutate(dataset = factor(dataset, levels = c('Saliva', 'Feces', 'Moss'))) %>% 
-  filter(dataset != 'Moss')
+  mutate(dataset = factor(dataset, levels = c('Saliva', 'Feces', 'Moss'))) 
 
 # plot ! proportion of tool2 (x facet) taxa detected by tool1 (x axis)
 overlap_df %>% 
-  ggplot(aes(x = tool2, y = overlap, fill = tool2, colour = tool2)) +
-  geom_violin() +
-  facet_grid(dataset ~ tool1, scales = 'free_x') +
-  ylim(0,1) +
-  theme(axis.text.x = element_blank(),
-        axis.title.x = element_blank()) +
-  ggtitle(paste('Proportion of taxa identified by other tools in samples (',taxRank,'-level)')) +
-  scale_fill_manual(values = tool_colours) +
-  scale_colour_manual(values = tool_colours)
+  filter(dataset != 'Moss') %>% 
+  ggplot(aes(x = overlap, y = tool1, fill = tool2, colour = tool2)) +
+  geom_density_ridges(scale = 0.9, alpha = 0.4, 
+                      stat = "binline", boundary = 0, draw_baseline = FALSE
+                      ) + xlim(0,1) +
+  facet_grid(~dataset, scales = 'free') +
+  ggtitle(paste0('Proportion of taxa identified by other tools in samples (',taxRank,'-level)')) +
+  ridge_theme()
 
-ggsave('Out/intersect_overlap.pdf', bg = 'white', 
+ggsave('Out/intersect_overlap_genus.pdf', bg = 'white', 
        width = 2400, height = 1600, units = 'px', dpi = 180)
 
 ################
@@ -119,7 +117,7 @@ compute_jaccard <- function(df, tool_pair, taxRank) {
   )
 }
 
-jaccard_df <- ps_family.ls %>% 
+jaccard_df <- ps_genus.ls %>% 
   # Melt entire ps list :
   melt_ps_list_glom(taxRank) %>% 
   # Convert abundances to P/A
@@ -128,20 +126,20 @@ jaccard_df <- ps_family.ls %>%
   # iterate overlap calculation over all tool pairs :
   apply_ds_toolpairs(compute_jaccard, taxRank) 
 
-# Reorder factors, subset dataset
+# Reorder factors, subset dataset 
 jaccard_df %<>% 
-  mutate(dataset = factor(dataset, levels = c('Saliva', 'Feces', 'Moss'))) %>% 
-  filter(dataset != 'Moss')
+  mutate(dataset = factor(dataset, levels = c('Saliva', 'Feces', 'Moss')))
 
 # plot ! 
 jaccard_df %>% 
-  ggplot(aes(x = tool1, y = jaccard, fill = tool1)) +
-  geom_violin() +
-  facet_grid(dataset ~ tool2, scales = 'free_x') +
-  ylim(0,1) +
-  theme(axis.text.x = element_blank(),
-        axis.title.x = element_blank())+
-  scale_fill_manual(values = tool_colours)
+  filter(dataset != 'Moss') %>% 
+  ggplot(aes(x = jaccard, y = tool1, fill = tool2, colour = tool2)) +
+  geom_density_ridges(scale = 0.9, alpha = 0.4, 
+                      stat = "binline", boundary = 0, draw_baseline = FALSE
+  ) + xlim(0,1)+
+  facet_grid(~dataset, scales = 'free') +
+  ggtitle(paste0('Proportion of taxa union set identified by two tools in sample (',taxRank,'-level)')) +
+  ridge_theme()
 
-ggsave('Out/intersect_jaccard.pdf', bg = 'white', 
+ggsave('Out/intersect_jaccard_genus.pdf', bg = 'white', 
        width = 2400, height = 1600, units = 'px', dpi = 180)

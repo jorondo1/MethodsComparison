@@ -58,11 +58,11 @@ done
 done
 
 # Once completely done, remove taxonomy_nt files from kraken out 
-rm */Bracken*/*/*_taxonomy_nt 
-rm */Bracken*/*/*/*.bracken
-rm */Bracken*/*/*/*.kreport
-rm */Bracken*/*/*bugs_list.MPA.TXT
-rm */Bracken*/*/*_temp.MPA.TXT
+rm */KB*/*/*_taxonomy_nt 
+rm */KB*/*/*/*.bracken
+rm */KB*/*/*/*.kreport
+rm */KB*/*/*bugs_list.MPA.TXT
+rm */KB*/*/*_temp.MPA.TXT
 
 ################
 # MetaPhlAn4 ###

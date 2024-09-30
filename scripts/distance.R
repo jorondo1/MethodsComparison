@@ -29,7 +29,7 @@ compile_distances <- function(df, tool_pair, taxRank) {
     mutate(across(where(is.numeric), ~ replace_na(., 0))) %>% 
      group_by(Sample) %>% 
     # Compute relative abundances by Sample 
-    # note : bray needs this, but raitchison is agnostic to different scales
+    # note : bray needs this, but r.aitchison is scale-agnostic
      mutate(relAb.x = Abundance.x / sum(Abundance.x),
                relAb.y = Abundance.y / sum(Abundance.y),
             .keep = 'unused') %>%
