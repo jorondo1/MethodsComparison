@@ -5,13 +5,13 @@
 #SBATCH -o /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/logs/sourmash-%A_%a.slurm.out
 #SBATCH --time=48:00:00
 #SBATCH -N 1
-#SBATCH -n 1
+#SBATCH -n 24
 #SBATCH -A def-ilafores
 #SBATCH -J sourmash
 start_time=$(date +%s)
 
 # Load motus
-export sourmash="singularity exec --writable-tmpfs -e -B ${ANCHOR}/home:${ANCHOR}/home ${ILAFORES}/programs/ILL_pipelines/containers/sourmash.4.7.0.sif sourmash"
+export sourmash="singularity exec --writable-tmpfs -e -B ${ANCHOR}/home:${ANCHOR}/home ${ILAFORES}/programs/ILL_pipelines/containers/sourmash.4.8.8.sif sourmash"
 module load StdEnv/2020 apptainer/1.1.5
 
 # Parse options
@@ -38,7 +38,9 @@ fi
 
 if [[ ! -f ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv ]]; then
 	echo "Gather against index database"
-	$sourmash gather $SIG $ILAFORES/ref_dbs/sourmash_db/${SM_DB}*k31.zip -o ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv
+	$sourmash scripts fastgather $SIG $ILAFORES/ref_dbs/sourmash_db/${SM_DB}*k31.zip \
+	-o ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv \
+	-c $SLURM_NTASKS
 else
 	echo "Gather output found. Skipping..."
 fi

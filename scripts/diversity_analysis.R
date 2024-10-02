@@ -113,4 +113,6 @@ ggsave('Out/pcoa_saliva_lostSmell.pdf', bg = 'white',
        width = 2800, height = 1600, units = 'px', dpi = 240)
 
 # simple perMANOVA comparison
-
+compile_permanova <- function(ps, ds, db, dist) {
+  
+}
