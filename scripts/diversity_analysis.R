@@ -54,31 +54,46 @@ ggsave('Out/alpha_saliva_lostSmell.pdf', bg = 'white',
 ## Distance-based ##
 #####################
 
-# Visualise PCoA on two axes
-# Create long dataframe 
-compile_pcoa <- function(ps.ls, distances) {
+# Create long dataframe for plotting pcoas
+# all sample_data variables will end up in the df, expect lots of NA
 
-  # Compile into 
-  map(names(ps.ls), function(ds) { #iterate over dataset names
-    ds_sublist <- ps.ls[[ds]] 
+# 1. compute distances for every dataset
+pcoa_genus.ls <- lapply(ps_genus.ls, function(ds) {
+  lapply(ds, function(db) {
+    list(
+      bray = compute_pcoa(db, 'bray'),
+      robust.aitchison = compute_pcoa(db, 'robust.aitchison')
+    )
+  })
+})
+
+# Function to apply a function iteratively to every last object in the list,
+# and pass it the level names as arguments (db, ds, dist) : 
+iterate_distances <- function(pcoa.ls, compile_func) {
+  map(names(pcoa.ls), function(ds) { #iterate over dataset names
+    ds_sublist <- pcoa.ls[[ds]] 
     map(names(ds_sublist), function(db) { # iterate over databases
       ps <- ds_sublist[[db]]
-      pcoa <- list()
-      map(distances, function(dist) { # for each distance in function argument
-        pcoa[[dist]] <- compute_pcoa(ps, dist) # compute pcoa
-        pcoa[[dist]]$metadata %>% 
-          rownames_to_column('Sample') %>% 
-          as_tibble %>% 
-          mutate(dataset = ds,
-                 database = db,
-                 distance = dist) %>% 
-            mutate(across(where(is.character), as_factor))
+      map(names(ps), function(dist) { # iterate over distances
+        compile_func(ps, ds, db, dist)
         }) %>% list_rbind
-      }) %>% list_rbind 
-    }) %>% list_rbind  
+      }) %>% list_rbind
+    }) %>% list_rbind 
 }
 
-pcoa_full <- compile_pcoa(ps_genus.ls, distances = c('bray', 'robust.aitchison'))
+# PCoA compilation function
+compile_pcoa <- function(ps, ds, db, dist) {
+  ps[[dist]]$metadata %>% # generate tibble for this iteration
+    rownames_to_column('Sample') %>% 
+    mutate(dataset = ds,
+           database = db,
+           distance = dist) %>% 
+    mutate(across(where(is.character), as_factor)) %>% 
+    tibble
+}
+
+# 2. Compile!
+pcoa_samdata <- iterate_distances(pcoa_genus.ls, compile_pcoa)
 
 # Ordination plot between compartments :
 plot_ordination_dist <- function(df, ds, dist, var) {
@@ -90,7 +105,6 @@ plot_ordination_dist <- function(df, ds, dist, var) {
     stat_ellipse(level=0.9, geom = "polygon", alpha = 0.18, aes(fill = !!sym(var))) +   
     geom_point(size = 2) + 
     facet_grid(distance ~ database, scale = 'free')+
-    #theme_minimal() +
     theme(plot.title = element_text(size = 18),
           legend.title = element_text(colour="black", size=16, face="bold"),
           legend.text = element_text(colour="black", size = 14), 
@@ -101,12 +115,16 @@ plot_ordination_dist <- function(df, ds, dist, var) {
     guides(fill="none") 
 }
 
+
 p1 <- plot_ordination_dist(pcoa_full, 'Saliva', 'bray', 'lostSmell') 
 p2 <- plot_ordination_dist(pcoa_full, 'Saliva', 'robust.aitchison', 'lostSmell') +
   theme(strip.text.x = element_blank())
 
 p1 / p2 + plot_layout(guides = 'collect') & 
-  theme(legend.position = "right")
+  theme(legend.position = "bottom")
 
 ggsave('Out/pcoa_saliva_lostSmell.pdf', bg = 'white', 
        width = 2800, height = 1600, units = 'px', dpi = 240)
+
+# simple perMANOVA comparison
+
