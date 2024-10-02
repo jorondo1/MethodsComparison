@@ -1,10 +1,16 @@
 library(pacman)
-p_load(magrittr, tidyverse, purrr, furrr, phyloseq, rstatix, foreach, doParallel)
+p_load(magrittr, tidyverse, purrr, furrr, phyloseq, DESeq2, vegan, 
+       rstatix, foreach, doParallel)
 
 Div_long <- read_rds('Out/Diversity_long.rds')
 ps_species.ls <- read_rds("Out/ps_rare_species.ls.rds") 
+ps_genus.ls <- read_rds("Out/ps_rare_genus.ls.rds") 
 
-add_samData <- function(df, ds, Rank, ps_list) {
+##############
+## Alpha div ##
+################
+
+filter_and_add_samData <- function(df, ds, Rank, ps_list) {
   df %<>% filter(dataset == !!ds & Rank == !!Rank)
   
   # Extract sam_data from any phyloseq object of that dataset
@@ -15,7 +21,7 @@ add_samData <- function(df, ds, Rank, ps_list) {
   left_join(df, samData, by = 'Sample')
 }
 
-dataset <- add_samData(
+dataset <- filter_and_add_samData(
   Div_long, 'Saliva','Species',ps_species.ls
   ) %>% 
   group_by(database, index) 
@@ -43,3 +49,59 @@ test_results %>% # add the p-values to dataset
   )
 ggsave('Out/alpha_saliva_lostSmell.pdf', bg = 'white', 
        width = 1800, height = 2400, units = 'px', dpi = 240)
+
+###################
+## Distance-based ##
+#####################
+
+# Visualise PCoA on two axes
+# Create long dataframe 
+compile_pcoa <- function(ps.ls, distances) {
+
+  # Compile into 
+  map(names(ps.ls), function(ds) { #iterate over dataset names
+    ds_sublist <- ps.ls[[ds]] 
+    map(names(ds_sublist), function(db) { # iterate over databases
+      ps <- ds_sublist[[db]]
+      pcoa <- list()
+      map(distances, function(dist) { # for each distance in function argument
+        pcoa[[dist]] <- compute_pcoa(ps, dist) # compute pcoa
+        pcoa[[dist]]$metadata %>% 
+          rownames_to_column('Sample') %>% 
+          as_tibble %>% 
+          mutate(dataset = ds,
+                 database = db,
+                 distance = dist) %>% 
+            mutate(across(where(is.character), as_factor))
+        }) %>% list_rbind
+      }) %>% list_rbind 
+    }) %>% list_rbind  
+}
+
+pcoa_full <- compile_pcoa(ps_genus.ls, distances = c('bray', 'robust.aitchison'))
+
+# Ordination plot between compartments :
+pcoa_full %>% 
+  filter(dataset == 'Saliva'
+         & distance == 'bray'
+         & database %in% tool_subset) %>% 
+  ggplot(aes(x = PCo1, y = PCo2, colour = lostSmell)) + 
+  stat_ellipse(level=0.9, geom = "polygon", alpha = 0.18, aes(fill = lostSmell)) +   
+  geom_point(size = 5) + 
+  facet_grid(distance ~ database, scale = 'free')+
+  #theme_minimal() +
+  theme(plot.title = element_text(size = 18),
+        legend.title = element_text(colour="black", size=16, face="bold"),
+        legend.text = element_text(colour="black", size = 14)) + 
+  guides(fill="none") 
+
+
+
+
+
+
+
+
+
+
+

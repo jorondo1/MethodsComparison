@@ -70,10 +70,10 @@ dist_df %>%
   pivot_longer(c('robustAitchison', 'bray'), names_to = 'dist') %>% 
   # Creating the ridge plot
   ggplot(aes(x = value, y = tool1, fill = tool2)) +
-  geom_density_ridges(scale = 0.9, alpha = 0.5) +
+  geom_density_ridges(scale = 0.9, alpha = 0.5, stat = "binline", boundary = 0, draw_baseline = FALSE) +
   facet_grid(dataset ~ dist, scales = 'free_x') +
   theme_light() + 
-  scale_y_discrete(expand = expansion(mult = c(0.05, 0.35))) +
+  scale_y_discrete(expand = expansion(mult = c(0.05, 0.25))) +
   labs(
     title = paste0('Distribution of Between-Sample Pairwise Dissimilarity (',taxRank,'-level)'),
     x = "Distance or dissimilarity",
@@ -87,10 +87,11 @@ ggsave('Out/distances.pdf', bg = 'white',
 ## PCA on r.aitchison ####
 ##########################
 tool_subset <- c('KB20', 'MOTUS', 'MPA_db2023', 'SM_gtdb_rs214_full', 'SM_genbank_202203')
+
 # Create one dataframe by sample containing every tool community estimates
-wide_abund.list <- melt_ps_list_glom(ps_family.ls, taxRank) %>% 
+wide_abund.list <- melt_ps_list_glom(ps_genus.ls, taxRank) %>% 
   dplyr::select(Sample, all_of(taxRank), Abundance, dataset, database) %>% 
-  dplyr::filter(dataset == 'Feces'
+  dplyr::filter(dataset == 'Saliva'
                  & database %in% tool_subset
                 ) %>% 
   group_by(Sample) %>%
@@ -125,7 +126,6 @@ ggplot(loadings, aes(x = PC1, y = PC2, colour = tool1, shape = tool2)) +
        y = paste0('PC2 (',round(prop_contrib[2],0),'%)')) +
   theme_minimal() +
   scale_colour_manual(values = tool_colours)
-
 
 # Heatmap by mean within-sample distance with sd added
 dist_df %>% 
