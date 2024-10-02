@@ -67,20 +67,6 @@ pcoa_genus.ls <- lapply(ps_genus.ls, function(ds) {
   })
 })
 
-# Function to apply a function iteratively to every last object in the list,
-# and pass it the level names as arguments (db, ds, dist) : 
-iterate_distances <- function(pcoa.ls, compile_func) {
-  map(names(pcoa.ls), function(ds) { #iterate over dataset names
-    ds_sublist <- pcoa.ls[[ds]] 
-    map(names(ds_sublist), function(db) { # iterate over databases
-      ps <- ds_sublist[[db]]
-      map(names(ps), function(dist) { # iterate over distances
-        compile_func(ps, ds, db, dist)
-        }) %>% list_rbind
-      }) %>% list_rbind
-    }) %>% list_rbind 
-}
-
 # PCoA compilation function
 compile_pcoa <- function(ps, ds, db, dist) {
   ps[[dist]]$metadata %>% # generate tibble for this iteration

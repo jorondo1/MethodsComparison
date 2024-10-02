@@ -149,7 +149,7 @@ div.fun <- function(ps, idx) {
 }
 
 ################
-### Other functions 
+### General functions 
 ################
 
 # Melt ps object list, agglomerate abundances to desired taxRank
@@ -196,6 +196,20 @@ taxa_tool_pairs <- function(df, tool_pair, taxRank) {
   full_join(set.x, set.y, by = c('Sample', taxRank)) %>% 
     # exclude species absent from both tools for any sample
     filter(Abundance.x != 0 | Abundance.y != 0) 
+}
+
+# Function to apply a function iteratively to every last object in the list,
+# and pass it the level names as arguments (db, ds, dist) : 
+iterate_distances <- function(pcoa.ls, compile_func) {
+  map(names(pcoa.ls), function(ds) { #iterate over dataset names
+    ds_sublist <- pcoa.ls[[ds]] 
+    map(names(ds_sublist), function(db) { # iterate over databases
+      ps <- ds_sublist[[db]]
+      map(names(ps), function(dist) { # iterate over distances
+        compile_func(ps, ds, db, dist)
+      }) %>% list_rbind
+    }) %>% list_rbind
+  }) %>% list_rbind 
 }
 
 ################
