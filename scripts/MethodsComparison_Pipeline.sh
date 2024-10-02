@@ -9,7 +9,7 @@ export RA_TSV=$MC/Feces_RA/preproc/preprocessed_reads.sample.tsv
 export NUM_Saliva=$(wc $SALIVA_TSV | awk '{print $1}')
 export NUM_Feces=$(wc $FECES_TSV | awk '{print $1}')
 export NUM_Moss=$(wc $MOSS_TSV | awk '{print $1}')
-export NUM_RA=$(wc $RA_TSV | awk '{print $1}')
+export NUM_Feces_RA=$(wc $RA_TSV | awk '{print $1}')
 export DATASETS="Saliva Feces Moss Feces_RA"
 
 ############
@@ -18,12 +18,17 @@ export DATASETS="Saliva Feces Moss Feces_RA"
 sbatch --array=1-"$NUM_Saliva" $MC/scripts/motus_SLURM.sh Saliva $SALIVA_TSV
 sbatch --array=1-"$NUM_Feces" $MC/scripts/motus_SLURM.sh Feces $FECES_TSV
 sbatch --array=1-"$NUM_Moss" $MC/scripts/motus_SLURM.sh Moss $MOSS_TSV
-sbatch --array=1-"$NUM_RA" $MC/scripts/motus_SLURM.sh Feces_RA $RA_TSV
+sbatch --array=1-"$NUM_Feces_RA" $MC/scripts/motus_SLURM.sh Feces_RA $RA_TSV
 
 # Check completion status
 for i in $DATASETS; do
-	eval exp=\$NUM_$i
-	num=$(ls $i/mOTU_abund/*_profile.txt | wc -l)
+	eval exp=\$NUM_$i # find which files have more than 1 line : 
+	num=0
+	for file in "$i/mOTU_abund"/*_profile.txt; do
+	  if [ $(wc -l < "$file") -gt 1 ]; then
+	    num=$((num + 1))
+	  fi
+	done
 	echo "$num mOTUs output for $i found, $exp expected."
 done
 
@@ -48,12 +53,12 @@ $bracken --confidence 0.51 --sample_tsv $RA_TSV --out $MC/Feces_RA/KB51
 sbatch --array=1-"$NUM_Saliva" $MC/Saliva/KB20/taxonomic_profile.samples.slurm.sh
 sbatch --array=1-"$NUM_Feces" $MC/Feces/KB20/taxonomic_profile.samples.slurm.sh
 sbatch --array=1-"$NUM_Moss" $MC/Moss/KB20/taxonomic_profile.samples.slurm.sh
-sbatch --array=1-"$NUM_RA" $MC/Feces_RA/KB20/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_Feces_RA" $MC/Feces_RA/KB20/taxonomic_profile.samples.slurm.sh
 
 sbatch --array=1-"$NUM_Saliva" $MC/Saliva/KB51/taxonomic_profile.samples.slurm.sh
 sbatch --array=1-"$NUM_Feces" $MC/Feces/KB51/taxonomic_profile.samples.slurm.sh
 sbatch --array=1-"$NUM_Moss" $MC/Moss/KB51/taxonomic_profile.samples.slurm.sh
-sbatch --array=1-"$NUM_RA" $MC/Feces_RA/KB51/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_Feces_RA" $MC/Feces_RA/KB51/taxonomic_profile.samples.slurm.sh
 
 # Check completion status
 for test in KB20 KB51; do
@@ -69,7 +74,7 @@ rm */KB*/*/*_taxonomy_nt
 rm */KB*/*/*/*.bracken
 rm */KB*/*/*/*.kreport
 rm */KB*/*/*bugs_list.MPA.TXT
-rm */KB*/*/*_temp.MPA.TXT
+rm */KB*/*/*/*_temp.MPA.TXT
 
 ################
 # MetaPhlAn4 ###
@@ -85,8 +90,8 @@ $metaphlan --sample_tsv $RA_TSV --db $FAST/metaphlan4_db/mpa_vOct22_CHOCOPhlAnSG
 
 sbatch --array=1-"$NUM_Saliva" $MC/Saliva/MPA_db2022/metaphlan.slurm.sh
 sbatch --array=1-"$NUM_Feces" $MC/Feces/MPA_db2022/metaphlan.slurm.sh
-sbatch --array=1-"$NUM_Moss" $MC/Moss/MPA_db2022/metaphlan.slurm.sh
-sbatch --array=1-"$NUM_RA" $MC/Feces_RA/MPA_db2022/metaphlan.slurm.sh
+sbatch --array=1-"$NUM_Moss" $MC/Moss/MPA_db2022/mfetaphlan.slurm.sh
+sbatch --array=1-"$NUM_Feces_RA" $MC/Feces_RA/MPA_db2022/metaphlan.slurm.sh
 
 
 # 2023 database
@@ -98,7 +103,7 @@ $metaphlan --sample_tsv $RA_TSV --db $FAST/metaphlan4_db/mpa_vJun23_CHOCOPhlAnSG
 sbatch --array=1-"$NUM_Saliva" $MC/Saliva/MPA_db2023/metaphlan.slurm.sh
 sbatch --array=1-"$NUM_Feces" $MC/Feces/MPA_db2023/metaphlan.slurm.sh
 sbatch --array=1-"$NUM_Moss" $MC/Moss/MPA_db2023/metaphlan.slurm.sh
-sbatch --array=1-"$NUM_RA" $MC/Feces_RA/MPA_db2023/metaphlan.slurm.sh
+sbatch --array=1-"$NUM_Feces_RA" $MC/Feces_RA/MPA_db2023/metaphlan.slurm.sh
 
 # Check completion status
 for MPA in MPA_db2022 MPA_db2023; do
@@ -118,23 +123,23 @@ rm */MPA_db*/*/*.bowtie2.txt
 sbatch --mem=60G --array=1-"$NUM_Saliva" $MC/scripts/gather_SLURM.sh "Saliva" $SALIVA_TSV "genbank-2022.03"
 sbatch --mem=80G --array=1-"$NUM_Feces" $MC/scripts/gather_SLURM.sh "Feces" $FECES_TSV "genbank-2022.03"
 sbatch --mem=80G --array=1-"$NUM_Moss" $MC/scripts/gather_SLURM.sh "Moss" $MOSS_TSV "genbank-2022.03"
-sbatch --mem=80G --array=1-"$NUM_RA" $MC/scripts/gather_SLURM.sh "Feces_RA" $RA_TSV "genbank-2022.03"
+sbatch --mem=80G --array=1-"$NUM_Feces_RA" $MC/scripts/gather_SLURM.sh "Feces_RA" $RA_TSV "genbank-2022.03"
 
 sbatch --mem=31G --array=1-"$NUM_Saliva" $MC/scripts/gather_SLURM.sh "Saliva" $SALIVA_TSV "gtdb-rs214-rep"
 sbatch --mem=31G --array=1-"$NUM_Feces" $MC/scripts/gather_SLURM.sh "Feces" $FECES_TSV "gtdb-rs214-rep"
 sbatch --mem=31G --array=1-"$NUM_Moss" $MC/scripts/gather_SLURM.sh "Moss" $MOSS_TSV "gtdb-rs214-rep"
-sbatch --mem=31G --array=1-"$NUM_RA" $MC/scripts/gather_SLURM.sh "Feces_RA" $RA_TSV "gtdb-rs214-rep"
+sbatch --mem=31G --array=1-"$NUM_Feces_RA" $MC/scripts/gather_SLURM.sh "Feces_RA" $RA_TSV "gtdb-rs214-rep"
 
 sbatch --mem=80G --array=1-"$NUM_Saliva" $MC/scripts/gather_SLURM.sh "Saliva" $SALIVA_TSV "gtdb-rs214-full"
 sbatch --mem=80G --array=1-"$NUM_Feces" $MC/scripts/gather_SLURM.sh "Feces" $FECES_TSV "gtdb-rs214-full"
 sbatch --mem=80G --array=1-"$NUM_Moss" $MC/scripts/gather_SLURM.sh "Moss" $MOSS_TSV "gtdb-rs214-full"
-sbatch --mem=80G --array=1-"$NUM_RA" $MC/scripts/gather_SLURM.sh "Feces_RA" $RA_TSV "gtdb-rs214-full"
+sbatch --mem=80G --array=1-"$NUM_Feces_RA" $MC/scripts/gather_SLURM.sh "Feces_RA" $RA_TSV "gtdb-rs214-full"
 
 # Check completion status
-for SM_db in gtdb_rs214_rep gtdb_rs214_full; do
+for SM_db in gtdb_rs214_rep gtdb_rs214_full genbank-2022.03; do
 for i in $DATASETS; do
 	eval exp=\$NUM_$i
-	num=$(ls $i/SM_${SM_db}/*${SM_db}_gather.csv | wc -l)
+	num=$(ls $i/SM_*/*${SM_db}_gather.csv | wc -l)
 	echo "$num $SM_db output for $i found, $exp expected."
 done
 done

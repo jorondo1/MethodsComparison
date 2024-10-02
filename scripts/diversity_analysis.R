@@ -1,6 +1,6 @@
 library(pacman)
 p_load(magrittr, tidyverse, purrr, furrr, phyloseq, DESeq2, vegan, 
-       rstatix, foreach, doParallel)
+       rstatix, foreach, doParallel, patchwork)
 
 Div_long <- read_rds('Out/Diversity_long.rds')
 ps_species.ls <- read_rds("Out/ps_rare_species.ls.rds") 
@@ -81,27 +81,32 @@ compile_pcoa <- function(ps.ls, distances) {
 pcoa_full <- compile_pcoa(ps_genus.ls, distances = c('bray', 'robust.aitchison'))
 
 # Ordination plot between compartments :
-pcoa_full %>% 
-  filter(dataset == 'Saliva'
-         & distance == 'bray'
-         & database %in% tool_subset) %>% 
-  ggplot(aes(x = PCo1, y = PCo2, colour = lostSmell)) + 
-  stat_ellipse(level=0.9, geom = "polygon", alpha = 0.18, aes(fill = lostSmell)) +   
-  geom_point(size = 5) + 
-  facet_grid(distance ~ database, scale = 'free')+
-  #theme_minimal() +
-  theme(plot.title = element_text(size = 18),
-        legend.title = element_text(colour="black", size=16, face="bold"),
-        legend.text = element_text(colour="black", size = 14)) + 
-  guides(fill="none") 
+plot_ordination_dist <- function(df, ds, dist, var) {
+  df %>% 
+    filter(dataset == ds
+           & distance == dist
+           & database %in% tool_subset) %>% 
+    ggplot(aes(x = PCo1, y = PCo2, colour = !!sym(var))) + 
+    stat_ellipse(level=0.9, geom = "polygon", alpha = 0.18, aes(fill = !!sym(var))) +   
+    geom_point(size = 2) + 
+    facet_grid(distance ~ database, scale = 'free')+
+    #theme_minimal() +
+    theme(plot.title = element_text(size = 18),
+          legend.title = element_text(colour="black", size=16, face="bold"),
+          legend.text = element_text(colour="black", size = 14), 
+          panel.spacing.x = unit(1, "lines"),
+          axis.title = element_blank(),
+          axis.text = element_blank(), 
+          axis.ticks = element_blank()) + 
+    guides(fill="none") 
+}
 
+p1 <- plot_ordination_dist(pcoa_full, 'Saliva', 'bray', 'lostSmell') 
+p2 <- plot_ordination_dist(pcoa_full, 'Saliva', 'robust.aitchison', 'lostSmell') +
+  theme(strip.text.x = element_blank())
 
+p1 / p2 + plot_layout(guides = 'collect') & 
+  theme(legend.position = "right")
 
-
-
-
-
-
-
-
-
+ggsave('Out/pcoa_saliva_lostSmell.pdf', bg = 'white', 
+       width = 2800, height = 1600, units = 'px', dpi = 240)
