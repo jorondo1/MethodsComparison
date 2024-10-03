@@ -88,7 +88,9 @@ overlap_df %>%
                       ) + xlim(0,1) +
   facet_grid(~dataset, scales = 'free') +
   ggtitle(paste0('Proportion of taxa identified by other tools in samples (',taxRank,'-level)')) +
-  ridge_theme()
+  scale_y_discrete(expand = expansion(mult = c(0.05, 0.15)))+ 
+  plot_theme() 
+
 
 ggsave('Out/intersect_overlap_genus.pdf', bg = 'white', 
        width = 2400, height = 1600, units = 'px', dpi = 180)
@@ -139,7 +141,8 @@ jaccard_df %>%
   ) + xlim(0,1)+
   facet_grid(~dataset, scales = 'free') +
   ggtitle(paste0('Proportion of taxa union set identified by two tools in sample (',taxRank,'-level)')) +
-  ridge_theme()
+  scale_y_discrete(expand = expansion(mult = c(0.05, 0.15)))+ 
+  plot_theme() 
 
 ggsave('Out/intersect_jaccard_genus.pdf', bg = 'white', 
        width = 2400, height = 1600, units = 'px', dpi = 180)

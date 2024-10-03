@@ -4,8 +4,8 @@ source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/rarefy_
 tool_colours <- c(
   'MPA_db2022' = 'darkgreen',
   'MPA_db2023' = 'darkolivegreen3',
-  'KB20' = 'indianred1',
-  'KB51' = 'red4',
+  'KB20' = 'indianred3',
+  'KB51' = 'indianred1',
   'MOTUS' = 'goldenrod',
   'SM_genbank_202203' = 'royalblue',
   'SM_gtdb_rs214_full' = 'slateblue',
@@ -13,10 +13,9 @@ tool_colours <- c(
   'SM_gtdb_rs214_rep_MAG'= 'blue2'
 )
 
-ridge_theme <- function() {
+plot_theme <- function() {
   list(
     theme_minimal(),
-    scale_y_discrete(expand = expansion(mult = c(0.05, 0.15))),
     scale_fill_manual(values = tool_colours),
     scale_colour_manual(values = tool_colours)
   )
