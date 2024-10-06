@@ -192,3 +192,6 @@ bash $ILL_PIPELINES/generateslurm_preprocess.kneaddata.sh \
 	--db $FAST/host_genomes/GRCh38_index/grch38_1kgmaj \
 	--slurm_mem 125G --slurm_threads 24
 # correct script as the shell command needs to be anchored!
+
+# Find missing line numbers
+grep -n -v -f <(ls Feces_RA/SM_genbank_202203/ | sed 's/_.*//' | sort | uniq) Feces_RA/preproc/preprocessed_reads.sample.tsv | awk -F: '{print $1}' | paste -sd,
