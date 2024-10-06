@@ -1,0 +1,8 @@
+sbatch --array=113-168 $MC/scripts/motus_SLURM.sh Feces_RA $RA_TSV
+sbatch --array=113-168 $MC/Feces_RA/KB20/taxonomic_profile.samples.slurm.sh
+sbatch --array=113-168 $MC/Feces_RA/KB51/taxonomic_profile.samples.slurm.sh
+sbatch --array=113-168 $MC/Feces_RA/MPA_db2022/metaphlan.slurm.sh
+sbatch --array=113-168 $MC/Feces_RA/MPA_db2023/metaphlan.slurm.sh
+sbatch --mem=80G --array=113-168 $MC/scripts/gather_SLURM.sh "Feces_RA" $RA_TSV "genbank-2022.03"
+sbatch --mem=31G --array=113-168 $MC/scripts/gather_SLURM.sh "Feces_RA" $RA_TSV "gtdb-rs214-rep"
+sbatch --mem=80G --array=113-168 $MC/scripts/gather_SLURM.sh "Feces_RA" $RA_TSV "gtdb-rs214-full"

@@ -1,0 +1,14 @@
+export MC=$ILAFORES/analysis/MethodsComparison
+export ILL_PIPELINES=$ILAFORES/analysis/MethodsComparison/ILL_pipelines
+cd $MC
+
+export SALIVA_TSV=$PR19/Saliva/preproc/preprocessed_reads.sample.tsv
+export FECES_TSV=$PR19/Feces/preproc/preprocessed_reads.sample.tsv
+export MOSS_TSV=$MOSS/preproc/preprocessed_reads.sample.tsv
+export RA_TSV=$MC/Feces_RA/preproc/preprocessed_reads.sample.tsv
+export NUM_Saliva=$(wc $SALIVA_TSV | awk '{print $1}')
+export NUM_Feces=$(wc $FECES_TSV | awk '{print $1}')
+export NUM_Moss=$(wc $MOSS_TSV | awk '{print $1}')
+export NUM_Feces_RA=$(wc $RA_TSV | awk '{print $1}')
+export DATASETS="Saliva Feces Moss Feces_RA"
+
