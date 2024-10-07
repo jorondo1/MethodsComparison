@@ -55,11 +55,21 @@ meta_parsing <- function(dsName, samData) {
   return(ps)
 }
 
+# Retrieve RA_Gut metadata
+RA_samdata <- read.delim('RA_Gut/raw/metadata.tsv') %>% 
+  select(sra_ftp, sample_alias) %>% 
+  mutate(Sample = str_extract(basename(sra_ftp), "SRR\\d+"),
+         Group = str_extract(sample_alias, "[A-Za-z]+"),   # Extracts the letters part
+         Num_ID = str_extract(sample_alias, "\\d+"),
+         .keep = 'unused') %>% 
+  column_to_rownames('Sample')
+
 # Full phyloseq objects 
 ps.ls <- list()
-ps.ls[['Saliva']] <- meta_parsing('Saliva', psSalivaKB@sam_data)
-ps.ls[['Feces']] <- meta_parsing('Feces', psFecesKB@sam_data)
+ps.ls[['P19_Saliva']] <- meta_parsing('P19_Saliva', psSalivaKB@sam_data)
+ps.ls[['P19_Gut']] <- meta_parsing('P19_Gut', psFecesKB@sam_data)
 ps.ls[['Moss']] <- meta_parsing('Moss', moss.ps@sam_data)
+ps.ls[['RA_Gut']] <- meta_parsing('RA_Gut', RA_samdata)
 ps.ls[['Moss']][['SM_gtdb_rs214_rep_MAGs']] <- moss.ps 
 ps.ls$Moss$MPA_db2022 <- NULL
 ps.ls$Moss$MPA_db2023 <- NULL
