@@ -15,8 +15,30 @@ moss.ps <-readRDS(url('https://github.com/jorondo1/borealMoss/raw/main/data/R_ou
 # with general structure List$Dataset$Database.ps
 meta_parsing <- function(dsName, samData) {
   ps <- list()
+  # Sourmash
+  message(paste('Parsing', 'SM_genbank-2022.03', '...'))
+  ps[['SM_genbank-2022.03']] <- left_join(
+    parse_SM(paste0(dsName,'/SM_genbank-2022.03/*_genbank-2022.03_gather.csv')),
+    parse_genbank_lineages(paste0(dsName,'/SM_genbank-2022.03/SM_genbank-2022.03_lineages.csv')),
+    by = 'genome'
+  ) %>% species_glom() %>%
+    assemble_phyloseq(samData)
+  
+  for (db in c('SM_gtdb_rs214_full',
+               'SM_gtdb_rs214_rep')) {
+    message(paste('Parsing', db, '...'))
+    
+    ps[[db]] <- left_join(
+      parse_SM(paste0(dsName,'/', db, '/*_gather.csv')),
+      parse_GTDB_lineages(paste0(dsName,'/', db, '/', db, '_lineages.csv')),
+      by = 'genome'
+    ) %>% species_glom() %>%
+      assemble_phyloseq(samData)
+  }
+
   # Metaphlan  
   for (db in c('MPA_db2022', 'MPA_db2023')) {
+    message(paste('Parsing', db, '...'))
     ps[[db]] <- parse_MPA(
       MPA_files = paste0(dsName,'/', db, '/*/*profile.txt'),
       column_names = c('Taxonomy', 'NCBI','Abundance', 'Void')) %>% 
@@ -25,33 +47,18 @@ meta_parsing <- function(dsName, samData) {
   
   # Kraken-bracken (using default headers from parse_MPA function)
   for (db in c('KB05','KB20', 'KB51')) {
+    message(paste('Parsing', db, '...'))
     ps[[db]] <- parse_MPA(
     MPA_files = paste0(dsName,'/', db, '/*/*_bracken/*_bracken_S.MPA.TXT')) %>% 
     assemble_phyloseq(samData)
   }
     # MOTUS
+  message(paste('Parsing', 'MOTUS', '...'))
   ps[['MOTUS']] <- parse_MPA(
     MPA_files = paste0(dsName,"/MOTUS/*_profile.txt"), 
     column_names = c('mOTU', 'Taxonomy', 'NCBI', 'Abundance')) %>% 
     assemble_phyloseq(samData)
   
-  # Sourmash
-  ps[['SM_genbank_202203']] <- left_join(
-    parse_SM(paste0(dsName,'/SM_genbank_202203/*_genbank-2022.03_gather.csv')),
-    parse_genbank_lineages(paste0(dsName,'/SM_genbank_202203/genbank-2022.03_lineages.csv')),
-    by = 'genome'
-    ) %>% species_glom() %>%
-    assemble_phyloseq(samData)
-  
-  for (db in c('SM_gtdb_rs214_full',
-               'SM_gtdb_rs214_rep')) {
-    ps[[db]] <- left_join(
-      parse_SM(paste0(dsName,'/', db, '/*_gather.csv')),
-      parse_GTDB_lineages(paste0(dsName,'/', db, '/', db, '_lineages.csv')),
-      by = 'genome'
-    ) %>% species_glom() %>%
-      assemble_phyloseq(samData)
-  }
   return(ps)
 }
 
