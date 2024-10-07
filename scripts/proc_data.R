@@ -72,18 +72,18 @@ RA_samdata <- read.delim('RA_Gut/raw/metadata.tsv') %>%
   column_to_rownames('Sample')
 
 # Full phyloseq objects 
-ps.ls <- list()
-ps.ls[['P19_Saliva']] <- meta_parsing('P19_Saliva', psSalivaKB@sam_data)
-ps.ls[['P19_Gut']] <- meta_parsing('P19_Gut', psFecesKB@sam_data)
-ps.ls[['Moss']] <- meta_parsing('Moss', moss.ps@sam_data)
-ps.ls[['RA_Gut']] <- meta_parsing('RA_Gut', RA_samdata)
-ps.ls[['Moss']][['SM_gtdb_rs214_rep_MAGs']] <- moss.ps 
-ps.ls$Moss$MPA_db2022 <- NULL
-ps.ls$Moss$MPA_db2023 <- NULL
-ps.ls$Moss$MOTUS <- NULL
+ps_raw.ls <- list()
+ps_raw.ls[['P19_Saliva']] <- meta_parsing('P19_Saliva', psSalivaKB@sam_data)
+ps_raw.ls[['P19_Gut']] <- meta_parsing('P19_Gut', psFecesKB@sam_data)
+ps_raw.ls[['Moss']] <- meta_parsing('Moss', moss.ps@sam_data)
+ps_raw.ls[['RA_Gut']] <- meta_parsing('RA_Gut', RA_samdata)
+ps_raw.ls[['Moss']][['SM_gtdb_rs214_rep_MAGs']] <- moss.ps 
+ps_raw.ls$Moss$MPA_db2022 <- NULL
+ps_raw.ls$Moss$MPA_db2023 <- NULL
+ps_raw.ls$Moss$MOTUS <- NULL
 
 # Prevalence+Abundance filtering, currently hardcoded in filter_low_prevalence()
-ps_filt.ls <- lapply(ps.ls, function(ds) {
+ps_filt.ls <- lapply(ps_raw.ls, function(ds) {
   lapply(ds, filter_low_prevalence)
 })
 
@@ -106,7 +106,7 @@ ps_rare_family.ls <- lapply(ps_filt.ls, function(ds) {
   })
 })
 
-write_rds(ps.ls, "Out/ps_raw.ls.rds")
+write_rds(ps_raw.ls, "Out/ps_raw.ls.rds")
 write_rds(ps_filt.ls, "Out/ps_filt.ls.rds")
 write_rds(ps_rare.ls, "Out/ps_rare_species.ls.rds")
 write_rds(ps_rare_genus.ls, "Out/ps_rare_genus.ls.rds")

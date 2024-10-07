@@ -78,7 +78,7 @@ Div_long %>%
   #filter(dataset=='Feces' & index == 'H_1' & Rank == 'Species') %>% 
  # filter(Rank != 'Family' & index == 'H_0' & dataset != 'Feces') %>% 
   ggplot(aes(x = database, y = value, fill = database)) +
-  geom_boxplot(outlier.size = 0.5, size = 0.3) + geom_line(aes(group = Sample), alpha=0.3, linewidth = 0.2)+ theme_light() +
+  geom_boxplot(outlier.size = 0.5, size = 0.3) + geom_line(aes(group = Sample), alpha=0.3, linewidth = 0.1)+ theme_light() +
   #facet_grid(cols = vars(dataset), rows=vars(index, Rank), scales = 'free') +
   facet_nested(cols = vars(dataset), rows=vars(index, Rank), scales = 'free') +
   theme(axis.text.x = element_blank()) +
