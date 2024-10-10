@@ -1,16 +1,18 @@
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/community_functions.R'))
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/rarefy_even_depth2.R'))
 
+my_datasets_factorlevels <- c('P19_Saliva', 'P19_Gut', 'RA_Gut', 'Moss')
 tool_colours <- c(
   'MPA_db2022' = 'darkgreen',
   'MPA_db2023' = 'darkolivegreen3',
+  'KB05' = 'indianred1',
   'KB20' = 'indianred3',
-  'KB51' = 'indianred1',
+  'KB51' = 'orangered4',
   'MOTUS' = 'goldenrod',
-  'SM_genbank_202203' = 'royalblue',
+  'SM_genbank-2022.03' = 'royalblue',
   'SM_gtdb_rs214_full' = 'slateblue',
   'SM_gtdb_rs214_rep'= 'navyblue',
-  'SM_gtdb_rs214_rep_MAG'= 'blue2'
+  'SM_gtdb_rs214_rep_MAGs'= 'blue2'
 )
 
 plot_theme <- function() {

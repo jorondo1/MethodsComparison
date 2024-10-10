@@ -2,7 +2,7 @@
 # Focusing only on taxa in common
 
 library(pacman)
-p_load(magrittr, tidyverse, phyloseq, rlang, vegan, ggridges)
+p_load(magrittr, tidyverse, phyloseq, vegan, ggridges)
 
 ps_genus.ls <- read_rds("Out/ps_rare_genus.ls.rds") 
 ps_family.ls <- read_rds("Out/ps_rare_family.ls.rds") 
@@ -51,36 +51,37 @@ compile_distances <- function(df, tool_pair, taxRank) {
 }
 
 # Compute Bray distances
-taxRank <- 'Order'
+taxRank <- 'Family'
 dist_df <- melt_ps_list_glom(ps_family.ls, taxRank) %>% 
   dplyr::select(Sample, all_of(taxRank), Abundance, dataset, database) %>% 
   apply_ds_toolpairs(compile_distances, taxRank) 
 
 dist_df %<>% 
-  mutate(dataset = factor(dataset, levels = c('Saliva', 'Feces', 'Moss'))) 
+  mutate(dataset = factor(dataset, levels = my_datasets_factorlevels)) 
 
 tool_subset <- c('KB20', 'MOTUS', 'MPA_db2023', 'SM_gtdb_rs214_full')
 
 # Ridge plot 
 dist_df %>% 
-  filter(dataset %in% c('Feces', 'Saliva') 
+  filter(dataset %in% c('RA_Gut', 'P19_Gut', 'P19_Saliva') 
            & tool1 %in% tool_subset 
            & tool2 %in% tool_subset
          ) %>%
   pivot_longer(c('robustAitchison', 'bray'), names_to = 'dist') %>% 
   # Creating the ridge plot
   ggplot(aes(x = value, y = tool1, fill = tool2)) +
-  geom_density_ridges(scale = 0.9, alpha = 0.5, stat = "binline", boundary = 0, draw_baseline = FALSE) +
+  geom_density_ridges(scale = 0.9, alpha = 0.5, 
+                      stat = "binline", boundary = 0, draw_baseline = FALSE) +
   facet_grid(dataset ~ dist, scales = 'free_x') +
   theme_light() + 
-  scale_y_discrete(expand = expansion(mult = c(0.05, 0.25))) +
+  scale_y_discrete(expand = expansion(mult = c(0.05, 0.35))) +
   labs(
     title = paste0('Distribution of Between-Sample Pairwise Dissimilarity (',taxRank,'-level)'),
     x = "Distance or dissimilarity",
     y = "Tool"
   ) + scale_fill_manual(values = tool_colours)
 
-ggsave('Out/distances.pdf', bg = 'white', 
+ggsave(paste0('Out/distances_',taxRank,'.pdf'), bg = 'white', 
        width = 1600, height = 1600, units = 'px', dpi = 180)
 
 ##########################
@@ -91,7 +92,7 @@ tool_subset <- c('KB20', 'MOTUS', 'MPA_db2023', 'SM_gtdb_rs214_full', 'SM_genban
 # Create one dataframe by sample containing every tool community estimates
 wide_abund.list <- melt_ps_list_glom(ps_genus.ls, taxRank) %>% 
   dplyr::select(Sample, all_of(taxRank), Abundance, dataset, database) %>% 
-  dplyr::filter(dataset == 'Saliva'
+  dplyr::filter(dataset == 'RA_Gut'
                  & database %in% tool_subset
                 ) %>% 
   group_by(Sample) %>%
@@ -129,7 +130,7 @@ ggplot(loadings, aes(x = PC1, y = PC2, colour = tool1, shape = tool2)) +
 
 # Heatmap by mean within-sample distance with sd added
 dist_df %>% 
-  filter(dataset == 'Saliva') %>%
+  filter(dataset == 'RA_Gut') %>%
   group_by(tool1, tool2) %>% 
   summarise(mean_dist = mean(robustAitchison),
             sd_dist = sd(robustAitchison), .groups = 'drop') %>% 

@@ -26,10 +26,10 @@ extract_taxnames <- function(ps, ds, db1, db2, taxRank) {
   setdiff(union_set, intersect_set) %>% sort
 }
 
-extract_taxnames(ps_species.ls,
-                 'Saliva', 
-                 'KB51', 'KB20', 
-                 Species)
+extract_taxnames(ps_genus.ls,
+                 'RA_Gut', 
+                 'MPA_db2022', 'MPA_db2023', 
+                 Genus)
 
 
 #########################################################
@@ -77,7 +77,7 @@ overlap_df <- ps_genus.ls %>%
 
 # Reorder factors, subset dataset
 overlap_df %<>% 
-  mutate(dataset = factor(dataset, levels = c('Saliva', 'Feces', 'Moss'))) 
+  mutate(dataset = factor(dataset, levels = my_datasets_factorlevels)) 
 
 # plot ! proportion of tool2 (x facet) taxa detected by tool1 (x axis)
 overlap_df %>% 
@@ -91,8 +91,7 @@ overlap_df %>%
   scale_y_discrete(expand = expansion(mult = c(0.05, 0.15)))+ 
   plot_theme() 
 
-
-ggsave('Out/intersect_overlap_genus.pdf', bg = 'white', 
+ggsave('Out/intersect_overlap_family.pdf', bg = 'white', 
        width = 2400, height = 1600, units = 'px', dpi = 180)
 
 ################
@@ -130,7 +129,7 @@ jaccard_df <- ps_genus.ls %>%
 
 # Reorder factors, subset dataset 
 jaccard_df %<>% 
-  mutate(dataset = factor(dataset, levels = c('Saliva', 'Feces', 'Moss')))
+  mutate(dataset = factor(dataset, levels = my_datasets_factorlevels))
 
 # plot ! 
 jaccard_df %>% 

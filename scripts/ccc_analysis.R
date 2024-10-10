@@ -34,59 +34,6 @@ bind_rows(
 ggsave('Out/sparseness_filtering.pdf', bg = 'white', 
        width = 2400, height = 1600, units = 'px', dpi = 180)
 
-#########################################
-### Hill numbers and Tail diversity ####
-#########################################
-
-# Create long dataframe 
-compile_diversity <- function(ps.ls) {
-  
-  # Compute diversity across indices
-  div_rare.ls <- lapply(ps.ls, function(sublist) {
-    lapply(sublist, div.fun, idx = c(0,1,2))
-  })
-  
-  # Compile into 
-  map(names(div_rare.ls), function(ds) { #iterate over dataset names
-    ds_sublist <- div_rare.ls[[ds]] 
-    map(names(ds_sublist), function(db) { # iterate over databases
-      db_sublist <- ds_sublist[[db]]
-      map(names(db_sublist), function(hill) { # iterate over index types
-        values <- db_sublist[[hill]]
-        tibble( # build dataset
-          Sample = names(values),
-          dataset = ds,
-          database = db,
-          index = hill,
-          value = values
-        ) %>% 
-          mutate(across(where(is.character), as_factor))
-      }) %>% list_rbind # collapse list into single df
-    }) %>% list_rbind  
-  }) %>% list_rbind
-}
-
-Div_long <- bind_rows(Species = compile_diversity(ps_species.ls), 
-          Genus = compile_diversity(ps_genus.ls), 
-          Family = compile_diversity(ps_family.ls),
-          .id = 'Rank')
-
-write_rds(Div_long, 'Out/Diversity_long.rds')
-
-# Visualise differences in diversity across tools
-Div_long %>% 
-  #filter(dataset=='Feces' & index == 'H_1' & Rank == 'Species') %>% 
- # filter(Rank != 'Family' & index == 'H_0' & dataset != 'Feces') %>% 
-  ggplot(aes(x = database, y = value, fill = database)) +
-  geom_boxplot(outlier.size = 0.5, size = 0.3) + geom_line(aes(group = Sample), alpha=0.3, linewidth = 0.1)+ theme_light() +
-  #facet_grid(cols = vars(dataset), rows=vars(index, Rank), scales = 'free') +
-  facet_nested(cols = vars(dataset), rows=vars(index, Rank), scales = 'free') +
-  theme(axis.text.x = element_blank()) +
-  scale_fill_manual(values = tool_colours)
-
-ggsave('Out/diversity_filt.pdf', bg = 'white', 
-       width = 1900, height = 2400, units = 'px', dpi = 180)
-
 ###########################################
 ### Concordance Correlation Coefficient ####
 ###########################################
@@ -171,7 +118,7 @@ heatmap_grid <- function(df, Rank) {
   
   # Create column labels
   col_labels <- lapply(unique(combinations$index), function(label) {
-    grid::textGrob(label, gp = gpar(fontsize = 14, fontface = "bold"))
+    grid::textGrob(label, gp = gpar(fontsize = 12, fontface = "bold"))
   })
   
   # Combine the plots with empty slots for labels
@@ -180,14 +127,14 @@ heatmap_grid <- function(df, Rank) {
     row_labels[[1]], plots[[1]], plots[[2]], plots[[3]], plots[[4]],
     row_labels[[2]], plots[[5]], plots[[6]], plots[[7]], plots[[8]],
     row_labels[[3]], plots[[9]], plots[[10]], plots[[11]], plots[[12]],
-    ncol = 5, nrow = 4,
-    heights = c(0.2, 1, 1, 1), # Adjust height of the top row for column labels
-    widths = c(0.2, 1, 1, 1, 1) # Adjust width of the first column for row labels
+    row_labels[[4]], plots[[13]], plots[[14]], plots[[15]], plots[[16]],
+    ncol = 5, nrow = 5,
+    heights = c(0.2, 1, 1, 1,1), # Adjust height of the top row for column labels
+    widths = c(0.2, 1, 1, 1, 1,1) # Adjust width of the first column for row labels
   ) + 
     plot_layout(guides = 'collect') & 
     theme(legend.position = "right")
 }
-
 heatmap_grid(ccc_pairwise_df, 'Species') 
 ggsave('Out/ccc_Species.pdf', bg = 'white', width = 2400, height = 1600, units = 'px', dpi = 180)
 

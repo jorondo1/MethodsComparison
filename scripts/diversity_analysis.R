@@ -5,11 +5,67 @@ p_load(
   # metrics and stats
   phyloseq, DESeq2, vegan, rstatix,
   # plotting :
-  ggridges, ggbeeswarm2, patchwork)
+  ggridges, ggbeeswarm2, patchwork, grid, ggh4x)
 
-Div_long <- read_rds('Out/Diversity_long.rds')
 ps_species.ls <- read_rds("Out/ps_rare_species.ls.rds") 
 ps_genus.ls <- read_rds("Out/ps_rare_genus.ls.rds") 
+
+#########################################
+### Hill numbers and Tail diversity ####
+#########################################
+
+# Create long dataframe 
+compile_diversity <- function(ps.ls) {
+  
+  # Compute diversity across indices
+  div_rare.ls <- lapply(ps.ls, function(sublist) {
+    lapply(sublist, div.fun, idx = c(0,1,2))
+  })
+  
+  # Compile into 
+  map(names(div_rare.ls), function(ds) { #iterate over dataset names
+    ds_sublist <- div_rare.ls[[ds]] 
+    map(names(ds_sublist), function(db) { # iterate over databases
+      db_sublist <- ds_sublist[[db]]
+      map(names(db_sublist), function(hill) { # iterate over index types
+        values <- db_sublist[[hill]]
+        tibble( # build dataset
+          Sample = names(values),
+          dataset = ds,
+          database = db,
+          index = hill,
+          value = values
+        ) %>% 
+          mutate(across(where(is.character), as_factor))
+      }) %>% list_rbind # collapse list into single df
+    }) %>% list_rbind  
+  }) %>% list_rbind
+}
+
+Div_long <- bind_rows(Species = compile_diversity(ps_species.ls), 
+                      Genus = compile_diversity(ps_genus.ls), 
+                      Family = compile_diversity(ps_family.ls),
+                      .id = 'Rank') %>% 
+  mutate(database = factor(database, levels = names(tool_colours)))
+
+write_rds(Div_long, 'Out/Diversity_long.rds')
+
+# Visualise differences in diversity across tools
+Div_long %>% 
+  filter(#dataset!='Moss' & 
+    database != 'KB05' &
+           Rank != 'Family' & index != 'Tail') %>% 
+  # filter(Rank != 'Family' & index == 'H_0' & dataset != 'Feces') %>% 
+  ggplot(aes(x = database, y = value, fill = database)) +
+  geom_violin(outlier.size = 0.5, size = 0.3) + 
+  #geom_line(aes(group = Sample), alpha=0.3, linewidth = 0.1)+ theme_light() +
+  facet_nested(cols = vars(dataset), rows=vars(index, Rank), scales = 'free') +
+  theme(axis.text.x = element_blank()) +
+  scale_fill_manual(values = tool_colours)
+
+ggsave('Out/diversity_filt.pdf', bg = 'white', 
+       width = 1900, height = 2400, units = 'px', dpi = 180)
+
 
 ##############
 ## Alpha div ##
@@ -26,34 +82,40 @@ filter_and_add_samData <- function(df, ds, Rank, ps_list) {
   left_join(df, samData, by = 'Sample')
 }
 
-dataset <- filter_and_add_samData(
-  Div_long, 'Saliva','Species',ps_species.ls
-  ) %>% 
-  group_by(database, index) 
-
-dataset %>%
-  shapiro_test(value) %>%
-  filter(p<0.05)
-
-# Check consistency of testing diversity difference between male/female
-test_results <- dataset %>% 
-  wilcox_test(value ~ lostSmell) %>% # conservative
-  add_significance() %>% 
-  select(database, index, p.signif) %>%
-  mutate(p.signif = factor(p.signif, levels = c('ns','*','**','***', '****'))) # reorder factors
-
-# Plot every database x index combination
-test_results %>% # add the p-values to dataset
-  left_join(dataset, join_by('database', 'index')) %>% 
-  ggplot(aes(x = lostSmell, y = value, colour = p.signif)) +
-  scale_color_discrete() +
-  geom_boxplot(linewidth = 0.3) + 
-  facet_grid(index~database, scales = 'free_y') +
-  theme(
-    panel.background = element_rect(fill = "grey95")  # Sets a lighter grey background
-  )
-ggsave('Out/alpha_saliva_lostSmell.pdf', bg = 'white', 
+plot_alpha_group <- function(ps.ls, ds, taxRank, Group) {
+  dataset <- filter_and_add_samData(
+    Div_long, ds, taxRank, ps.ls
+    ) %>% 
+    group_by(database, index) 
+  
+  dataset %>%
+    shapiro_test(value) %>%
+    filter(p<0.05)
+  
+  # Check consistency of testing diversity difference between male/female
+  test_results <- dataset %>% 
+    wilcox_test(as.formula(paste("value ~", Group))) %>% # conservative
+    add_significance() %>% 
+    select(database, index, p.signif) %>%
+    mutate(p.signif = factor(p.signif, levels = c('ns','*','**','***', '****'))) # reorder factors
+  
+  # Plot every database x index combination
+  p <- test_results %>% # add the p-values to dataset
+    left_join(dataset, join_by('database', 'index')) %>% 
+    ggplot(aes(x = !!sym(Group), y = value, colour = p.signif)) +
+    scale_color_discrete() +
+    geom_boxplot(linewidth = 0.3) + 
+    facet_grid(index~database, scales = 'free_y') +
+    theme(
+      panel.background = element_rect(fill = "grey95")  # Sets a lighter grey background
+    )
+  
+  ggsave(paste0('Out/alpha_',ds,'_',Group,'.pdf'), bg = 'white', plot = p,
        width = 1800, height = 2400, units = 'px', dpi = 240)
+  
+  return(p)
+}
+plot_alpha_group(ps_species.ls, ds = 'P19_Gut', 'Species', Group = 'group')
 
 #############
 ## PCoA ######
@@ -98,7 +160,8 @@ plot_ordination_dist <- function(df, ds, dist, var) {
   df %>% 
     filter(dataset == ds
            & distance == dist
-           & database %in% tool_subset) %>% 
+           #& database %in% tool_subset
+           ) %>% 
     ggplot(aes(x = PCo1, y = PCo2, colour = !!sym(var))) + 
     stat_ellipse(level=0.9, geom = "polygon", alpha = 0.18, aes(fill = !!sym(var))) +   
     geom_point(size = 2) + 
@@ -113,15 +176,19 @@ plot_ordination_dist <- function(df, ds, dist, var) {
     guides(fill="none") 
 }
 
-p1 <- plot_ordination_dist(pcoa_samdata, 'Saliva', 'Bray-Curtis', 'lostSmell') 
-p2 <- plot_ordination_dist(pcoa_samdata, 'Saliva', 'Robust Aitchison', 'lostSmell') +
-  theme(strip.text.x = element_blank())
-
-p1 / p2 + plot_layout(guides = 'collect') & 
-  theme(legend.position = "bottom")
-
-ggsave('Out/pcoa_saliva_lostSmell.pdf', bg = 'white', 
-       width = 2800, height = 1600, units = 'px', dpi = 240)
+plot_beta_group <- function(pcoa_df, ds, Group) {
+  p1 <- plot_ordination_dist(pcoa_df, ds, 'Bray-Curtis', Group) 
+  p2 <- plot_ordination_dist(pcoa_df, ds, 'Robust Aitchison', Group) +
+    theme(strip.text.x = element_blank())
+  
+  p <- p1 / p2 + plot_layout(guides = 'collect') & 
+    theme(legend.position = "bottom")
+  
+  ggsave(paste0('Out/beta_',ds,'_',Group,'.pdf'), bg = 'white', plot = p,
+         width = 3000, height = 1400, units = 'px', dpi = 240)
+  return(p)
+}
+plot_beta_group(pcoa_samdata, 'P19_Saliva', 'sex')
 
 ##################
 ### perMANOVA #####
@@ -141,7 +208,7 @@ iterate_permanova <- function(pcoa.ls, ds, vars) {
       # permanova
       formula <- as.formula(paste("dist.mx ~", paste(vars, collapse = " + ")))
       res <- adonis2(formula = formula, 
-              permutations = 1000,
+              permutations = 10000,
               data = samData,
               parallel = 8)
       
@@ -160,8 +227,9 @@ iterate_permanova <- function(pcoa.ls, ds, vars) {
   }
 
 permanova_df.ls <- list()
-permanova_df.ls[['Feces']] <- iterate_permanova(pcoa_species.ls, 'Feces', c('group', 'sex', 'diarr', 'vacc', 'age'))
-permanova_df.ls[['Saliva']] <- iterate_permanova(pcoa_species.ls, 'Saliva', c('group', 'sex', 'lostSmell', 'vacc', 'age'))
+permanova_df.ls[['P19_Gut']] <- iterate_permanova(pcoa_species.ls, 'P19_Gut', c('group', 'sex', 'diarr', 'vacc', 'age'))
+permanova_df.ls[['P19_Saliva']] <- iterate_permanova(pcoa_species.ls, 'P19_Saliva', c('group', 'sex', 'lostSmell', 'vacc', 'age'))
+permanova_df.ls[['RA_Gut']] <- iterate_permanova(pcoa_species.ls, 'RA_Gut', 'Group')
 permanova_df.ls[['Moss']] <- iterate_permanova(pcoa_species.ls, 'Moss', c('Compartment', 'Host', 'SoilpH', 'SoilTemp', 'Compartment*Host'))
 
 p_value_lines <- function() {
@@ -170,7 +238,7 @@ p_value_lines <- function() {
   geom_hline(aes(yintercept = log10(0.01), linetype = "p = 0.01"), color = "blue"),
   scale_linetype_manual(name = "", values = c("p = 0.05" = "dashed", "p = 0.01" = "dashed")),
   guides(
-    linetype = guide_legend(order = 1, override.aes = list(color = c("red", "blue"))),
+    linetype = guide_legend(order = 1, override.aes = list(color = c("blue", "red"))),
     colour = guide_legend(order = 2),  # Keep the colour legend
     size = guide_legend(order = 4),    # Keep the size legend
     shape = guide_legend(order = 3)    # Keep the shape legend
@@ -178,14 +246,14 @@ p_value_lines <- function() {
   )
 }
 
-permanova_df.ls[['Saliva']] %>% 
+permanova_df.ls[['P19_Saliva']] %>% 
   ggplot(aes(x = R2, y = log10(p), colour = database, shape = variable)) +
   geom_point(size = 5) + 
   scale_colour_manual(values = tool_colours) +
   p_value_lines() + theme_light() +
   labs(y = expression("log"[10]~"p-value"), x = expression("R"^2)) 
 
-set.seed(1); permanova_df.ls[['Saliva']] %>%
+set.seed(1); permanova_df.ls[['P19_Saliva']] %>%
   ggplot(aes(x = dist, y = log10(p), colour = database)) +
   geom_beeswarm(aes(size = R2, shape = dist), stroke = 1.5, spacing = 4, 
                 method = 'swarm') +  # Use geom_beeswarm to avoid complete overlaps
@@ -200,7 +268,7 @@ set.seed(1); permanova_df.ls[['Saliva']] %>%
   scale_size_continuous(range = c(0.1,10))+
   theme(axis.text.x = element_blank())
 
-ggsave('Out/permanova_saliva_species.pdf', bg = 'white', 
+ggsave('Out/permanova_P19_Saliva_species.pdf', bg = 'white', 
        width = 2800, height = 1600, units = 'px', dpi = 240)
 
 
