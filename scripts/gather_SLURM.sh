@@ -17,9 +17,7 @@ module load StdEnv/2020 apptainer/1.1.5
 # Parse options
 export SAM_LIST="${2}"
 export SM_DB="${3}"
-#DB_NAME="${SM_DB//./}"   # Remove all periods
-#export DB_NAME="${DB_NAME//-/_}"  # Replace all hyphens with underscores
-export OUT_DIR=${PWD}/"${1}"/SM_${DB_NAME}
+export OUT_DIR=${PWD}/"${1}"/SM_${SM_DB}
 
 # Parse samples
 export SAM_NUM=$(awk "NR==$SLURM_ARRAY_TASK_ID" ${SAM_LIST})
