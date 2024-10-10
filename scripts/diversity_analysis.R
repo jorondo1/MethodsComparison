@@ -49,12 +49,12 @@ Div_long <- bind_rows(Species = compile_diversity(ps_species.ls),
   mutate(database = factor(database, levels = names(tool_colours)))
 
 write_rds(Div_long, 'Out/Diversity_long.rds')
-
+# Div_long <- read_rds('Out/Diversity_long.rds')
 # Visualise differences in diversity across tools
 Div_long %>% 
   filter(#dataset!='Moss' & 
     database != 'KB05' &
-           Rank != 'Family' & index != 'Tail') %>% 
+           Rank != 'Family' & dataset != 'Tail') %>% 
   # filter(Rank != 'Family' & index == 'H_0' & dataset != 'Feces') %>% 
   ggplot(aes(x = database, y = value, fill = database)) +
   geom_violin(outlier.size = 0.5, size = 0.3) + 
@@ -230,7 +230,7 @@ permanova_df.ls <- list()
 permanova_df.ls[['P19_Gut']] <- iterate_permanova(pcoa_species.ls, 'P19_Gut', c('group', 'sex', 'diarr', 'vacc', 'age'))
 permanova_df.ls[['P19_Saliva']] <- iterate_permanova(pcoa_species.ls, 'P19_Saliva', c('group', 'sex', 'lostSmell', 'vacc', 'age'))
 permanova_df.ls[['RA_Gut']] <- iterate_permanova(pcoa_species.ls, 'RA_Gut', 'Group')
-permanova_df.ls[['Moss']] <- iterate_permanova(pcoa_species.ls, 'Moss', c('Compartment', 'Host', 'SoilpH', 'SoilTemp', 'Compartment*Host'))
+permanova_df.ls[['Moss']] <- iterate_permanova(pcoa_species.ls, 'Moss', c('Compartment', 'Host', 'Host*Compartment', 'SoilpH', 'SoilTemp', 'Location', 'SoilMoisture', 'LeafLitter', 'LeafLitterSpec','Canopy'))
 
 p_value_lines <- function() {
   list(
@@ -246,14 +246,14 @@ p_value_lines <- function() {
   )
 }
 
-permanova_df.ls[['P19_Saliva']] %>% 
+permanova_df.ls[['Moss']] %>% 
   ggplot(aes(x = R2, y = log10(p), colour = database, shape = variable)) +
   geom_point(size = 5) + 
   scale_colour_manual(values = tool_colours) +
   p_value_lines() + theme_light() +
   labs(y = expression("log"[10]~"p-value"), x = expression("R"^2)) 
 
-set.seed(1); permanova_df.ls[['P19_Saliva']] %>%
+set.seed(1); permanova_df.ls[['Moss']] %>%
   ggplot(aes(x = dist, y = log10(p), colour = database)) +
   geom_beeswarm(aes(size = R2, shape = dist), stroke = 1.5, spacing = 4, 
                 method = 'swarm') +  # Use geom_beeswarm to avoid complete overlaps

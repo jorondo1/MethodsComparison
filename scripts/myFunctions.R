@@ -9,10 +9,10 @@ tool_colours <- c(
   'KB20' = 'indianred3',
   'KB51' = 'orangered4',
   'MOTUS' = 'goldenrod',
-  'SM_genbank-2022.03' = 'royalblue',
-  'SM_gtdb_rs214_full' = 'slateblue',
-  'SM_gtdb_rs214_rep'= 'navyblue',
-  'SM_gtdb_rs214_rep_MAGs'= 'blue2'
+  'SM_genbank-2022.03' = 'purple3',
+  'SM_gtdb_rs214_full' = 'navyblue',
+  'SM_gtdb_rs214_rep'= 'royalblue',
+  'SM_gtdb_rs214_rep_MAGs'= 'skyblue3'
 )
 
 plot_theme <- function() {
