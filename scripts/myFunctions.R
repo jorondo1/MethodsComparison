@@ -1,7 +1,7 @@
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/community_functions.R'))
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/rarefy_even_depth2.R'))
 
-my_datasets_factorlevels <- c('P19_Saliva', 'P19_Gut', 'RA_Gut', 'Moss')
+my_datasets_factorlevels <- c('P19_Saliva', 'P19_Gut', 'RA_Gut', 'Moss', 'NAFLD')
 tool_colours <- c(
   'MPA_db2022' = 'darkgreen',
   'MPA_db2023' = 'darkolivegreen3',
@@ -10,9 +10,9 @@ tool_colours <- c(
   'KB51' = 'orangered4',
   'MOTUS' = 'goldenrod',
   'SM_genbank-2022.03' = 'purple3',
-  'SM_gtdb_rs214_full' = 'navyblue',
-  'SM_gtdb_rs214_rep'= 'royalblue',
-  'SM_gtdb_rs214_rep_MAGs'= 'skyblue3'
+  'SM_gtdb-rs214-full' = 'navyblue',
+  'SM_gtdb-rs214-rep'= 'royalblue',
+  'SM_gtdb-rs214-rep_MAGs'= 'skyblue3'
 )
 
 plot_theme <- function() {
@@ -23,7 +23,7 @@ plot_theme <- function() {
   )
 }
 
-filter_low_prevalence <- function(ps, minPrev = 0.05, minAbund = 0.001) {
+filter_low_prevalence <- function(ps, minPrev = 0.05, minAbund = 0.0001) {
   # Taxa prevalence
   prev <- apply(otu_table(ps), 1, function(x) sum(x > 0)) / nsamples(ps)
   

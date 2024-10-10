@@ -2,8 +2,8 @@ export MC=$ILAFORES/analysis/MethodsComparison
 export ILL_PIPELINES=$ILAFORES/analysis/MethodsComparison/ILL_pipelines
 cd $MC
 
-export SALIVA_TSV=$PR19/P19_Saliva/preproc/preprocessed_reads.sample.tsv
-export FECES_TSV=$PR19/P19_Gut/preproc/preprocessed_reads.sample.tsv
+export SALIVA_TSV=$PR19/Saliva/preproc/preprocessed_reads.sample.tsv
+export FECES_TSV=$PR19/Feces/preproc/preprocessed_reads.sample.tsv
 export MOSS_TSV=$MOSS/preproc/preprocessed_reads.sample.tsv
 export NAFLD_TSV=$MC/NAFLD/preproc/preprocessed_reads.sample.tsv
 export AD_Skin_TSV=$MC/AD_Skin/preproc/preprocessed_reads.sample.tsv
@@ -145,23 +145,23 @@ rm */*/.throttle -r
 sbatch --mem=60G --array=1-"$NUM_P19_Saliva" $MC/scripts/gather_SLURM.sh "P19_Saliva" $SALIVA_TSV "genbank-2022.03"
 sbatch --mem=80G --array=1-"$NUM_P19_Gut" $MC/scripts/gather_SLURM.sh "P19_Gut" $FECES_TSV "genbank-2022.03"
 sbatch --mem=80G --array=1-"$NUM_Moss" $MC/scripts/gather_SLURM.sh "Moss" $MOSS_TSV "genbank-2022.03"
-sbatch --mem=120G --array=1-"$NUM_NAFLD" $MC/scripts/gather_SLURM.sh "NAFLD" $NAFLD_TSV "genbank-2022.03"
-sbatch --mem=120G --array=1-"$NUM_AD_Skin" $MC/scripts/gather_SLURM.sh "AD_Skin" $NAFLD_TSV "genbank-2022.03"
+sbatch --mem=120G --array=1-"$NUM_NAFLD" $MC/scripts/gather_SLURM_fast.sh "NAFLD" $NAFLD_TSV "genbank-2022.03"
+sbatch --mem=120G --array=1-"$NUM_AD_Skin" $MC/scripts/gather_SLURM_fast.sh "AD_Skin" $NAFLD_TSV "genbank-2022.03"
 
 sbatch --mem=31G --array=1-"$NUM_P19_Saliva" $MC/scripts/gather_SLURM.sh "P19_Saliva" $SALIVA_TSV "gtdb-rs214-rep"
 sbatch --mem=31G --array=1-"$NUM_P19_Gut" $MC/scripts/gather_SLURM.sh "P19_Gut" $FECES_TSV "gtdb-rs214-rep"
 sbatch --mem=31G --array=1-"$NUM_Moss" $MC/scripts/gather_SLURM.sh "Moss" $MOSS_TSV "gtdb-rs214-rep"
 sbatch --mem=31G --array=1-"$NUM_NAFLD" $MC/scripts/gather_SLURM.sh "NAFLD" $NAFLD_TSV "gtdb-rs214-rep"
-sbatch --mem=31G --array=1-"$NUM_AD_Skin" $MC/scripts/gather_SLURM.sh "AD_Skin" $AD_Skin_TSV "gtdb-rs214-rep"
+sbatch --mem=31G --array=1-"$NUM_AD_Skin" $MC/scripts/gather_SLURM_fast.sh "AD_Skin" $AD_Skin_TSV "gtdb-rs214-rep"
 
 sbatch --mem=80G --array=1-"$NUM_P19_Saliva" $MC/scripts/gather_SLURM.sh "P19_Saliva" $SALIVA_TSV "gtdb-rs214-full"
 sbatch --mem=80G --array=1-"$NUM_P19_Gut" $MC/scripts/gather_SLURM.sh "P19_Gut" $FECES_TSV "gtdb-rs214-full"
 sbatch --mem=80G --array=1-"$NUM_Moss" $MC/scripts/gather_SLURM.sh "Moss" $MOSS_TSV "gtdb-rs214-full"
 sbatch --mem=31G --array=1-"$NUM_NAFLD" $MC/scripts/gather_SLURM.sh "NAFLD" $NAFLD_TSV "gtdb-rs214-full"
-sbatch --mem=31G --array=1-"$NUM_AD_Skin" $MC/scripts/gather_SLURM.sh "AD_Skin" $AD_Skin_TSV "gtdb-rs214-full"
+sbatch --mem=31G --array=1-"$NUM_AD_Skin" $MC/scripts/gather_SLURM_fast.sh "AD_Skin" $AD_Skin_TSV "gtdb-rs214-full"
 
 # Check completion status
-for SM_db in gtdb_rs214_rep gtdb_rs214_full genbank-2022.03; do
+for SM_db in gtdb-rs214-rep gtdb-rs214-full genbank-2022.03; do
 for i in $DATASETS; do
 	eval exp=\$NUM_$i
 	num=$(ls $i/SM_*/*${SM_db}_gather.csv | wc -l)
@@ -171,8 +171,8 @@ done
 
 # Extract the lineage subset 
 for i in $DATASETS; do
-for j in SM_gtdb_rs214_full SM_gtdb_rs214_rep SM_genbank-2022.03; do
-	db=$(echo "$j" | cut -d'_' -f2)
+for j in SM_gtdb-rs214-full SM_gtdb-rs214-rep SM_genbank-2022.03; do
+	db=$(echo "$j" | cut -d'_' -f2 | cut -d'-' -f1,2)
 	ver=$(echo "$j" | cut -d'_' -f3)
 cat $i/$j/*_gather.csv | cut -d, -f10 | tail -n+2 | awk '{print $1}' | sed 's/"//' | sort -u | \
 	grep -Fhf - $ILAFORES/ref_dbs/sourmash_db/${db}*${ver}*.lineages.csv > $i/$j/${j}_lineages.csv
