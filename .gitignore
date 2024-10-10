@@ -1,10 +1,10 @@
 tmp/
 bak/
 *.bak
-preproc/
 .throttle/
 doc/
 logs/
+*.log
 archive/
 *.fa
 *.fastq
@@ -23,3 +23,6 @@ ILL_pipelines/
 *.bracken
 */Bracken*/*/*/*_temp.MPA.TXT
 */Bracken*/*/*_taxonomy_nt
+*.fastqc*html
+*.fastqc.zip
+*fastqc/
