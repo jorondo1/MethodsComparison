@@ -37,7 +37,7 @@ fi
 if [[ ! -f ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv ]]; then
 	echo "Gather against index database"
 	$sourmash scripts fastgather $SIG $ILAFORES/ref_dbs/sourmash_db/${SM_DB}*k31.zip \
-	-o ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv \
+	-o ${OUT_DIR}/${SAM_ID}_${SM_DB}_gather.csv \
 	-c $SLURM_NTASKS
 else
 	echo "Gather output found. Skipping..."
