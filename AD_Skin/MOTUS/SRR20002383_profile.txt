@@ -1,0 +1,9 @@
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/AD_Skin/preproc/SRR20002383/SRR20002383_paired_1.fastq -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/AD_Skin/preproc/SRR20002383/SRR20002383_paired_2.fastq -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/AD_Skin/preproc/SRR20002383/SRR20002383_unmatched_1.fastq -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/AD_Skin/preproc/SRR20002383/SRR20002383_unmatched_2.fastq -n SRR20002383 -t 24 -c -p -k mOTU -q
+#mOTU	consensus_taxonomy	NCBI_tax_id	SRR20002383
+ref_mOTU_v31_00201	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Pseudomonas|s__Pseudomonas aeruginosa	2|1224|1236|72274|135621|286|287	2
+ref_mOTU_v31_00214	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Pseudomonas|s__Pseudomonas stutzeri [Pseudomonadales bacterium RIFCSPHIGHO2_01_FULL_64_12/Pseudomonas stutzeri]	2|1224|1236|72274|135621|286|316	1
+ref_mOTU_v31_01653	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Enterobacterales|f__Erwiniaceae|g__Pantoea|s__Pantoea wallisii	2|1224|1236|91347|1903409|53335|1076551	3
+ref_mOTU_v31_08937	k__Bacteria|p__Chlorobi|c__Chlorobi class incertae sedis|o__Chlorobi order incertae sedis|f__Chlorobi fam. incertae sedis|g__Chlorobi gen. incertae sedis|s__Chlorobi bacterium NICIL-2	2|1090|NA|NA|NA|NA|1662223	1
+ref_mOTU_v31_11414	k__Bacteria|p__Deinococcus-Thermus|c__Deinococci|o__Thermales|f__Thermaceae|g__Meiothermus|s__Meiothermus silvanus	2|1297|188787|68933|188786|65551|52022	3
+unassigned	unassigned	NA	1
