@@ -16,7 +16,7 @@
 echo "loading env"
 module load StdEnv/2020 apptainer/1.1.5
 
-export __sample_line=$(cat /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/AD_Skin/raw/samples_to_process.tsv | awk "NR==$SLURM_ARRAY_TASK_ID")
+export __sample_line=$(cat /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/NAFLD/raw/samples_to_process.tsv | awk "NR==$SLURM_ARRAY_TASK_ID")
 export __sample=$(echo -e "$__sample_line" | cut -f1)
 export __fastq_file1=$(echo -e "$__sample_line" | cut -f2)
 export __fastq_file2=$(echo -e "$__sample_line" | cut -f3)
