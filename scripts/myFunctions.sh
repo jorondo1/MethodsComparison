@@ -11,7 +11,8 @@ check_output() {
 
 	for db in $DATABASES; do
 		for ds in $DATASETS; do
-			TSV="${ds}_TSV"
+			TSV_name="${ds}_TSV"
+			TSV="${!TSV_NAME}"
 			eval exp=\$NUM_$ds
 			found=$(find $ds/$db -type f -name "*$filename_suffix" -exec basename {} \; | sed "s/${filename_suffix}//")
 			num=$(echo $found | wc -w)

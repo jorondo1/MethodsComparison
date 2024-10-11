@@ -22,7 +22,7 @@ sbatch --array=1-"$NUM_P19_Saliva" $MC/scripts/motus_SLURM.sh P19_Saliva $SALIVA
 sbatch --array=1-"$NUM_P19_Gut" $MC/scripts/motus_SLURM.sh P19_Gut $FECES_TSV
 sbatch --array=1-"$NUM_Moss" $MC/scripts/motus_SLURM.sh Moss $MOSS_TSV
 sbatch --array=1-"$NUM_NAFLD" $MC/scripts/motus_SLURM.sh NAFLD $NAFLD_TSV
-sbatch --array=1-"$NUM_AD_Skin" $MC/scripts/motus_SLURM.sh NAFLD $AD_Skin_TSV
+sbatch --array=1-"$NUM_AD_Skin" $MC/scripts/motus_SLURM.sh AD_Skin $AD_Skin_TSV
 
 # Check completion status
 for i in $DATASETS; do
@@ -151,13 +151,13 @@ sbatch --mem=120G --array=1-"$NUM_AD_Skin" $MC/scripts/gather_SLURM_fast.sh "AD_
 sbatch --mem=31G --array=1-"$NUM_P19_Saliva" $MC/scripts/gather_SLURM.sh "P19_Saliva" $SALIVA_TSV "gtdb-rs214-rep"
 sbatch --mem=31G --array=1-"$NUM_P19_Gut" $MC/scripts/gather_SLURM.sh "P19_Gut" $FECES_TSV "gtdb-rs214-rep"
 sbatch --mem=31G --array=1-"$NUM_Moss" $MC/scripts/gather_SLURM.sh "Moss" $MOSS_TSV "gtdb-rs214-rep"
-sbatch --mem=31G --array=1-"$NUM_NAFLD" $MC/scripts/gather_SLURM.sh "NAFLD" $NAFLD_TSV "gtdb-rs214-rep"
+sbatch --mem=31G --array=1-"$NUM_NAFLD" $MC/scripts/gather_SLURM_fast.sh "NAFLD" $NAFLD_TSV "gtdb-rs214-rep"
 sbatch --mem=31G --array=1-"$NUM_AD_Skin" $MC/scripts/gather_SLURM_fast.sh "AD_Skin" $AD_Skin_TSV "gtdb-rs214-rep"
 
 sbatch --mem=80G --array=1-"$NUM_P19_Saliva" $MC/scripts/gather_SLURM.sh "P19_Saliva" $SALIVA_TSV "gtdb-rs214-full"
 sbatch --mem=80G --array=1-"$NUM_P19_Gut" $MC/scripts/gather_SLURM.sh "P19_Gut" $FECES_TSV "gtdb-rs214-full"
 sbatch --mem=80G --array=1-"$NUM_Moss" $MC/scripts/gather_SLURM.sh "Moss" $MOSS_TSV "gtdb-rs214-full"
-sbatch --mem=31G --array=1-"$NUM_NAFLD" $MC/scripts/gather_SLURM.sh "NAFLD" $NAFLD_TSV "gtdb-rs214-full"
+sbatch --mem=31G --array=1-"$NUM_NAFLD" $MC/scripts/gather_SLURM_fast.sh "NAFLD" $NAFLD_TSV "gtdb-rs214-full"
 sbatch --mem=31G --array=1-"$NUM_AD_Skin" $MC/scripts/gather_SLURM_fast.sh "AD_Skin" $AD_Skin_TSV "gtdb-rs214-full"
 
 # Check completion status
@@ -190,10 +190,10 @@ grep -v -f <(cut -f1 $ILAFORES/ref_dbs/sourmash_db/bac120_taxonomy_r220.tsv | se
 # generate preprocess file 
 
 #Process fecal samples
-mkdir -p $MC/NAFLD/preproc
+mkdir -p $MC/AD_Skin/preproc
 bash $ILAFORES/programs/ILL_pipelines/generateslurm_preprocess.kneaddata.sh \
-	--sample_tsv $MC/NAFLD/raw/samples_to_process.tsv \
-	--out $MC/NAFLD/preproc \
+	--sample_tsv $MC/AD_Skin/raw/samples_to_process.tsv \
+	--out $MC/AD_Skin/preproc \
 	--trimmomatic_options "SLIDINGWINDOW:4:20 MINLEN:50" \
 	--db $FAST/host_genomes/GRCh38_index/grch38_1kgmaj \
 	--slurm_mem 31G --slurm_threads 24
