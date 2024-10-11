@@ -17,6 +17,7 @@ check_output() {
 
 			found=$(find $ds/*$db -type f -name "*$filename_suffix" -exec basename {} \; | sed "s/${filename_suffix}//")
 			num=$(echo $found | wc -w)
+			echo $found
 			
 			echo "$num $db output for $ds found, $exp expected."
 			if [ "$num" -lt "$exp" ]; then 

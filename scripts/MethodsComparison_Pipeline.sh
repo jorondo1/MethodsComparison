@@ -141,13 +141,15 @@ sbatch --mem=31G --array=1-"$NUM_NAFLD" $MC/scripts/gather_SLURM_fast.sh "NAFLD"
 sbatch --mem=31G --array=1-"$NUM_AD_Skin" $MC/scripts/gather_SLURM_fast.sh "AD_Skin" $AD_Skin_TSV "gtdb-rs214-full"
 
 # Check completion status
-for SM_db in gtdb-rs214-rep gtdb-rs214-full genbank-2022.03; do
+for SM_db in ; do
 for i in $DATASETS; do
 	eval exp=\$NUM_$i
 	num=$(ls $i/SM_*/*${SM_db}_gather.csv | wc -l)
 	echo "$num $SM_db output for $i found, $exp expected."
 done
 done
+
+check_output 'gtdb-rs214-rep gtdb-rs214-full genbank-2022.03' AD_Skin _gather.csv
 
 # Extract the lineage subset 
 for i in $DATASETS; do
