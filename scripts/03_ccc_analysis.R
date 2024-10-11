@@ -37,7 +37,7 @@ ggsave('Out/sparseness_filtering.pdf', bg = 'white',
 ###########################################
 ### Concordance Correlation Coefficient ####
 ###########################################
-
+Div_long <- read_rds('Out/Diversity_long.rds')
 # Add tool category (DNA-to-DNA or DNA-to-Marker)
 Div <- Div_long %>%
   mutate(across(where(is.factor), as.character)) %>% 
@@ -136,13 +136,13 @@ heatmap_grid <- function(df, Rank) {
     theme(legend.position = "right")
 }
 heatmap_grid(ccc_pairwise_df, 'Species') 
-ggsave('Out/ccc_Species.pdf', bg = 'white', width = 2400, height = 1600, units = 'px', dpi = 180)
+ggsave('Out/ccc_Species.pdf', bg = 'white', width = 2400, height = 2000, units = 'px', dpi = 180)
 
 heatmap_grid(ccc_pairwise_df, 'Genus')
-ggsave('Out/ccc_Genus.pdf', bg = 'white', width = 2400, height = 1600, units = 'px', dpi = 180)
+ggsave('Out/ccc_Genus.pdf', bg = 'white', width = 2400, height = 2000, units = 'px', dpi = 180)
 
 heatmap_grid(ccc_pairwise_df, 'Family')
-ggsave('Out/ccc_Family.pdf', bg = 'white', width = 2400, height = 1600, units = 'px', dpi = 180)
+ggsave('Out/ccc_Family.pdf', bg = 'white', width = 2400, height = 2000, units = 'px', dpi = 180)
 
 # # epiR tool https://search.r-project.org/CRAN/refmans/epiR/html/epi.occc.html
 # Div %>% select(KB, SM) %>% 

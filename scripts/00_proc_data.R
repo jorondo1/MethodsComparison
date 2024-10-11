@@ -72,12 +72,21 @@ NAFLD_meta <- read_delim('NAFLD/raw/ENA_report.tsv') %>%
                            TRUE ~ NAFLD)) %>% 
   column_to_rownames('sample_title')
 
+AD_skin_meta <- read_delim('AD_Skin/raw/ENA_report.tsv') %>% 
+  select(run_accession, sample_alias, run_accession) %>% 
+  mutate(sample_alias = str_remove(sample_alias, ' ')) %>% 
+  right_join(read_delim('AD_Skin/raw/metadata.tsv'),
+            join_by(sample_alias == SampleID)) %>% 
+  select(-`Sample Location`) %>% 
+  column_to_rownames('run_accession')
+
 # Full phyloseq objects 
 ps_raw.ls <- list()
 ps_raw.ls[['P19_Saliva']] <- meta_parsing('P19_Saliva', psSalivaKB@sam_data)
 ps_raw.ls[['P19_Gut']] <- meta_parsing('P19_Gut', psFecesKB@sam_data)
 ps_raw.ls[['Moss']] <- meta_parsing('Moss', moss.ps@sam_data)
 ps_raw.ls[['NAFLD']] <- meta_parsing('NAFLD', NAFLD_meta)
+ps_raw.ls[['AD_Skin']] <- meta_parsing('AD_Skin', AD_skin_meta)
 ps_raw.ls[['Moss']][['SM_gtdb-rs214-rep_MAGs']] <- moss.ps 
 ps_raw.ls$Moss$MPA_db2022 <- NULL
 ps_raw.ls$Moss$MPA_db2023 <- NULL

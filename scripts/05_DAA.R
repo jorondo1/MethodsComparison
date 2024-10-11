@@ -5,11 +5,11 @@ ps_genus.ls <- read_rds("Out/ps_rare_genus.ls.rds")
 ps_family.ls <- read_rds("Out/ps_rare_family.ls.rds") 
 
 #   
-samVar <- 'group'
-ancom_species_P19_Gut.ls <- lapply(ps_species.ls$P19_Gut, function(db) {
+samVar <- 'NAFLD'
+ancom_genus_NAFLD.ls <- lapply(ps_genus.ls$NAFLD, function(db) {
     ancombc2(
       data = db, 
-      tax_level= "Species",
+      tax_level= "Genus",
       prv_cut = 0.25, 
       fix_formula = samVar,
       alpha = 0.05,
@@ -17,7 +17,7 @@ ancom_species_P19_Gut.ls <- lapply(ps_species.ls$P19_Gut, function(db) {
       n_cl = 8)
 })
 
-
+write_rds(ancom_species_NAFLD.ls, 'Out/ancom_species_NAFLD.rds')
 write_rds(ancom_genus_RA_Gut.ls, 'Out/ancom_genus_RA_Gut.rds')
 write_rds(ancom_species_RA_Gut.ls, 'Out/ancom_species_RA_Gut.rds')
 write_rds(ancom_genus_moss.ls,'Out/ancom_genus_moss.rds')
@@ -49,7 +49,7 @@ compile_ancom <- function(ls, samVar) {
     }) %>% list_rbind 
 }
 
-compile_ancom(ancom_species_P19_Saliva.ls, 'group') %>%
+compile_ancom(ancom_genus_NAFLD.ls, 'NAFLD') %>%
   ggplot(aes(x = database, y = Taxon, fill = LFC)) +
   geom_tile(color = 'white') +
   scale_fill_gradient2(low = 'darkgoldenrod4', mid = 'white', high = 'darkolivegreen3', 
