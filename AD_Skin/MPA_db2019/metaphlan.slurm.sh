@@ -21,7 +21,7 @@ export __fastq_file2=$(echo -e "$__sample_line" | cut -f3)
 export __fastq_file1_single=$(echo -e "$__sample_line" | cut -f4)
 export __fastq_file2_single=$(echo -e "$__sample_line" | cut -f5)
 
-bash -l /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/ILL_pipelines/scripts/taxonomic_abundance.metaphlan.sh \
+bash -l /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/ILL_pipelines/scripts/taxonomic_abundance.metaphlan3.sh \
 -o /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/AD_Skin/MPA_db2019/ \
 -tmp $SLURM_TMPDIR \
 -t 24 \

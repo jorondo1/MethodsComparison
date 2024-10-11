@@ -1,0 +1,13 @@
+#mpa_v30_CHOCOPhlAn_201901
+#/usr/local/bin/metaphlan --mpa3 -t rel_ab --input_type fastq --add_viruses --unclassified_estimation --offline --tmp_dir /localscratch/ronj2303.5826042.0 --bowtie2db /nfs3_ib/nfs-ip34/fast/def-ilafores/metaphlan3_db -x mpa_v30_CHOCOPhlAn_201901 --bowtie2out /localscratch/ronj2303.5826042.0/SRR20002432.bowtie2.txt --nproc 24 -o /localscratch/ronj2303.5826042.0/SRR20002432_profile.txt /localscratch/ronj2303.5826042.0/all_reads.fastq
+#100742 reads processed
+#SampleID	Metaphlan_Analysis
+#clade_name	NCBI_tax_id	relative_abundance	additional_species
+UNCLASSIFIED	-1	7.42284	
+k__Eukaryota	2759	92.57715793067611	
+k__Eukaryota|p__Ascomycota	2759|4890	92.57715793067611	
+k__Eukaryota|p__Ascomycota|c__Saccharomycetes	2759|4890|4891	92.57715793067611	
+k__Eukaryota|p__Ascomycota|c__Saccharomycetes|o__Saccharomycetales	2759|4890|4891|4892	92.57715793067611	
+k__Eukaryota|p__Ascomycota|c__Saccharomycetes|o__Saccharomycetales|f__Debaryomycetaceae	2759|4890|4891|4892|766764	92.57715793067611	
+k__Eukaryota|p__Ascomycota|c__Saccharomycetes|o__Saccharomycetales|f__Debaryomycetaceae|g__Candida	2759|4890|4891|4892|766764|1535326	92.57715793067611	
+k__Eukaryota|p__Ascomycota|c__Saccharomycetes|o__Saccharomycetales|f__Debaryomycetaceae|g__Candida|s__Candida_albicans	2759|4890|4891|4892|766764|1535326|5476	92.57715793067611	
