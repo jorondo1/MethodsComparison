@@ -1,7 +1,7 @@
 export MC=$ILAFORES/analysis/MethodsComparison
 export ILL_PIPELINES=$ILAFORES/analysis/MethodsComparison/ILL_pipelines
 cd $MC
-
+source scripts/myFunction.sh
 export SALIVA_TSV=$PR19/Saliva/preproc/preprocessed_reads.sample.tsv
 export FECES_TSV=$PR19/Feces/preproc/preprocessed_reads.sample.tsv
 export MOSS_TSV=$MOSS/preproc/preprocessed_reads.sample.tsv
@@ -25,16 +25,8 @@ sbatch --array=1-"$NUM_NAFLD" $MC/scripts/motus_SLURM.sh NAFLD $NAFLD_TSV
 sbatch --array=1-"$NUM_AD_Skin" $MC/scripts/motus_SLURM.sh AD_Skin $AD_Skin_TSV
 
 # Check completion status
-for i in $DATASETS; do
-	eval exp=\$NUM_$i # find which files have more than 1 line : 
-	num=0
-	for file in "$i/MOTUS"/*_profile.txt; do
-	  if [ $(wc -l < "$file") -gt 1 ]; then
-	    num=$((num + 1))
-	  fi
-	done
-	echo "$num mOTUs output for $i found, $exp expected."
-done
+check_output 'MOTUS' AD_Skin _profile.txt
+
 
 ####################
 # Kraken/bracken ###
@@ -79,13 +71,7 @@ sbatch --array=1-"$NUM_NAFLD" $MC/NAFLD/KB51/taxonomic_profile.samples.slurm.sh
 sbatch --array=1-"$NUM_AD_Skin" $MC/AD_Skin/KB51/taxonomic_profile.samples.slurm.sh
 
 # Check completion status
-for test in KB20 KB51; do
-for i in $DATASETS; do
-	eval exp=\$NUM_$i
-	num=$(ls $i/$test/*/*_bracken/*_bracken_S.MPA.TXT | wc -l)
-	echo "$num $test output for $i found, $exp expected."
-done
-done
+check_output 'KB20 KB51' AD_Skin _bracken_S.MPA.TXT
 
 # Once completely done, remove taxonomy_nt files from kraken out 
 rm */KB*/*/*_taxonomy_nt 
@@ -127,13 +113,7 @@ sbatch --array=1-"$NUM_NAFLD" $MC/NAFLD/MPA_db2023/metaphlan.slurm.sh
 sbatch --array=1-"$NUM_AD_Skin" $MC/AD_Skin/MPA_db2023/metaphlan.slurm.sh
 
 # Check completion status
-for MPA in MPA_db2022 MPA_db2023; do
-for i in $DATASETS; do
-	eval exp=\$NUM_$i
-	num=$(ls $i/$MPA/*/*_profile.txt | wc -l)
-	echo "$num $MPA output for $i found, $exp expected."
-done
-done
+check_output 'MPA_db2022 MPA_db2023' AD_Skin _profile.txt
 
 # Remove bowtie indexes
 rm */MPA_db*/*/*.bowtie2.txt

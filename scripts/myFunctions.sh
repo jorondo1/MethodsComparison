@@ -14,7 +14,8 @@ check_output() {
 			TSV_name="${ds}_TSV"
 			TSV="${!TSV_name}"
 			eval exp=\$NUM_$ds
-			found=$(find $ds/$db -type f -name "*$filename_suffix" -exec basename {} \; | sed "s/${filename_suffix}//")
+
+			found=$(find $ds/*$db -type f -name "*$filename_suffix" -exec basename {} \; | sed "s/${filename_suffix}//")
 			num=$(echo $found | wc -w)
 			
 			echo "$num $db output for $ds found, $exp expected."
