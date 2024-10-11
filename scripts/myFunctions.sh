@@ -21,7 +21,7 @@ check_output() {
 			
 			echo "$num $db output for $ds found, $exp expected."
 			if [ "$num" -lt "$exp" ]; then 
-			grep -nv -E "$found" $TSV | cut -d: -f1| paste -s -d,
+			grep -nv -E "${found%_${db}}" $TSV | cut -d: -f1| paste -s -d,
 			fi
 		done
 	done
