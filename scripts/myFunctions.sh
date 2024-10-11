@@ -17,7 +17,7 @@ check_output() {
 			found=$(find $ds/$db -type f -name "*$filename_suffix" -exec basename {} \; | sed "s/${filename_suffix}//")
 			num=$(echo $found | wc -w)
 			
-			echo "$num $test output for $ds found, $exp expected."
+			echo "$num $db output for $ds found, $exp expected."
 			if [ "$num" -lt "$exp" ]; then 
 			grep -nv -E "$found" $TSV | cut -d: -f1| paste -s -d,
 			fi
