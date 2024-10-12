@@ -53,7 +53,7 @@ write_rds(Div_long, 'Out/Diversity_long.rds')
 # Visualise differences in diversity across tools
 Div_long %>% 
   filter(#dataset!='Moss' & 
-    database != 'KB05' &
+    database != 'KB05' & !dataset %in% c('P19_Saliva', 'P19_Gut') &
            Rank != 'Family') %>% 
   # filter(Rank != 'Family' & index == 'H_0' & dataset != 'Feces') %>% 
   ggplot(aes(x = database, y = value, fill = database)) +
@@ -96,9 +96,9 @@ plot_alpha_group <- function(ps.ls, ds, taxRank, Group) {
   
   # Check consistency of testing diversity difference between male/female
   test_results <- dataset %>% 
-    wilcox_test(as.formula(paste("value ~", Group))) %>% # conservative
+    wilcox_test(as.formula(paste("value ~", Group)), p.adjust.method = NULL) %>% # conservative
     add_significance() %>% 
-    select(database, index, p.signif) %>%
+    dplyr::select(database, index, p.signif) %>%
     mutate(p.signif = factor(p.signif, levels = c('ns','*','**','***', '****'))) # reorder factors
   
   # Plot every database x index combination
@@ -155,7 +155,7 @@ compile_pcoa <- function(ps, ds, db, dist) {
 }
 
 # 2. Compile over all datasets and distances to create a single dataframe
-pcoa_samdata <- iterate_distances(pcoa_genus.ls, compile_pcoa)
+pcoa_samdata <- iterate_distances(pcoa_species.ls, compile_pcoa)
 
 # Ordination plot between compartments :
 plot_ordination_dist <- function(df, ds, dist, var) {
@@ -190,7 +190,7 @@ plot_beta_group <- function(pcoa_df, ds, Group) {
          width = 3000, height = 1400, units = 'px', dpi = 240)
   return(p)
 }
-plot_beta_group(pcoa_samdata, 'NAFLD', 'NAFLD')
+plot_beta_group(pcoa_samdata, 'AD_Skin', 'Group')
 
 ##################
 ### perMANOVA #####
@@ -234,6 +234,7 @@ permanova_df.ls[['P19_Gut']] <- iterate_permanova(pcoa_species.ls, 'P19_Gut', c(
 permanova_df.ls[['P19_Saliva']] <- iterate_permanova(pcoa_species.ls, 'P19_Saliva', c('group', 'sex', 'lostSmell', 'vacc', 'age'))
 permanova_df.ls[['NAFLD']] <- iterate_permanova(pcoa_species.ls, 'NAFLD', c('NAFLD', 'BMI'))
 permanova_df.ls[['Moss']] <- iterate_permanova(pcoa_species.ls, 'Moss', c('Compartment', 'Host', 'Host*Compartment', 'SoilpH', 'SoilTemp', 'Location', 'SoilMoisture', 'LeafLitter', 'LeafLitterSpec','Canopy'))
+permanova_df.ls[['AD_Skin']] <- iterate_permanova(pcoa_species.ls, 'AD_Skin', c('Group', 'Gender', 'Ethnicity'))
 
 p_value_lines <- function() {
   list(

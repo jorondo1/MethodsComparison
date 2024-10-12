@@ -15,6 +15,16 @@ moss.ps <-readRDS(url('https://github.com/jorondo1/borealMoss/raw/main/data/R_ou
 # with general structure List$Dataset$Database.ps
 meta_parsing <- function(dsName, samData) {
   ps <- list()
+  
+  # Metaphlan  
+  for (db in c('MPA_db2022', 'MPA_db2023')) {
+    message(paste('Parsing', db, '...'))
+    ps[[db]] <- parse_MPA(
+      MPA_files = paste0(dsName,'/', db, '/*/*_profile.txt'),
+      column_names = c('Taxonomy', 'NCBI','Abundance', 'Void')) %>% 
+      assemble_phyloseq(samData)
+  }
+  
   # Sourmash
   message(paste('Parsing', 'SM_genbank-2022.03', '...'))
   ps[['SM_genbank-2022.03']] <- left_join(
@@ -36,15 +46,6 @@ meta_parsing <- function(dsName, samData) {
       assemble_phyloseq(samData)
   }
 
-  # Metaphlan  
-  for (db in c('MPA_db2022', 'MPA_db2023')) {
-    message(paste('Parsing', db, '...'))
-    ps[[db]] <- parse_MPA(
-      MPA_files = paste0(dsName,'/', db, '/*/*profile.txt'),
-      column_names = c('Taxonomy', 'NCBI','Abundance', 'Void')) %>% 
-      assemble_phyloseq(samData)
-  }
-  
   # Kraken-bracken (using default headers from parse_MPA function)
   for (db in c('KB20', 'KB51')) {
     message(paste('Parsing', db, '...'))
@@ -68,8 +69,9 @@ NAFLD_meta <- read_delim('NAFLD/raw/ENA_report.tsv') %>%
   select(run_accession, sample_title) %>% 
   left_join(read_delim('NAFLD/raw/metadata.tsv'), 
             join_by(sample_title == SampleID)) %>% 
-  mutate(NAFLD = case_when(is.na(NAFLD) ~ 'Positive',
+  mutate(Group = case_when(is.na(NAFLD) ~ 'Positive',
                            TRUE ~ NAFLD)) %>% 
+  mutate(Group = factor(Group, levels = c('Positive', 'Negative'))) %>% 
   column_to_rownames('sample_title')
 
 AD_skin_meta <- read_delim('AD_Skin/raw/ENA_report.tsv') %>% 
@@ -78,6 +80,7 @@ AD_skin_meta <- read_delim('AD_Skin/raw/ENA_report.tsv') %>%
   right_join(read_delim('AD_Skin/raw/metadata.tsv'),
             join_by(sample_alias == SampleID)) %>% 
   select(-`Sample Location`) %>% 
+  mutate(BGA = `Birth Gestational Age (weeks)`, .keep = 'unused') %>% 
   column_to_rownames('run_accession')
 
 # Full phyloseq objects 
@@ -93,23 +96,27 @@ ps_raw.ls$Moss$MPA_db2023 <- NULL
 ps_raw.ls$Moss$MOTUS <- NULL
 
 # Prevalence+Abundance filtering, currently hardcoded in filter_low_prevalence()
-ps_filt.ls <- lapply(ps_raw.ls, function(ds) {
-  lapply(ds, filter_low_prevalence)
-})
+# ps_filt.ls <- lapply(ps_raw.ls, function(ds) {
+#   lapply(ds, filter_low_prevalence)
+# })
 
-ps_rare.ls <- lapply(ps_filt.ls, function(sublist) {
+ps_rare.ls <- lapply(ps_raw.ls, function(sublist) {
   lapply(sublist, rarefy_even_depth2, rngseed = 1234)
 })
+# 
+# ps_rare_nfilt.ls  <- lapply(ps_raw.ls, function(sublist) {
+#   lapply(sublist, rarefy_even_depth2, rngseed = 1234)
+# })
 
 # Genus level phyloseq objects, with prevalence filtering
-ps_rare_genus.ls <- lapply(ps_filt.ls, function(ds) {
+ps_rare_genus.ls <- lapply(ps_raw.ls, function(ds) {
   lapply(ds, function(db) {
     tax_glom(db, taxrank = "Genus") %>% 
       rarefy_even_depth2(rngseed = 1234)
     })
 })
 
-ps_rare_family.ls <- lapply(ps_filt.ls, function(ds) {
+ps_rare_family.ls <- lapply(ps_raw.ls, function(ds) {
   lapply(ds, function(db) {
     tax_glom(db, taxrank = "Family") %>% 
       rarefy_even_depth2(rngseed = 1234)
@@ -117,7 +124,7 @@ ps_rare_family.ls <- lapply(ps_filt.ls, function(ds) {
 })
 
 #write_rds(ps_raw.ls, "Out/ps_raw.ls.rds")
-write_rds(ps_filt.ls, "Out/ps_filt.ls.rds")
+#write_rds(ps_filt.ls, "Out/ps_filt.ls.rds")
 write_rds(ps_rare.ls, "Out/ps_rare_species.ls.rds")
 write_rds(ps_rare_genus.ls, "Out/ps_rare_genus.ls.rds")
 write_rds(ps_rare_family.ls, "Out/ps_rare_family.ls.rds")

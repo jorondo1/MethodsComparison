@@ -3,7 +3,8 @@ source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/rarefy_
 
 my_datasets_factorlevels <- c('P19_Saliva', 'P19_Gut', 'RA_Gut', 'Moss', 'NAFLD')
 tool_colours <- c(
-  'MPA_db2022' = 'darkgreen',
+  'MPA_db2019' = 'green4',
+  'MPA_db2022' = 'green2',
   'MPA_db2023' = 'darkolivegreen3',
   'KB05' = 'indianred1',
   'KB20' = 'indianred3',
@@ -63,11 +64,13 @@ assemble_phyloseq <- function(abunTable, sampleData, filtering = FALSE) {
     column_to_rownames('Species2') %>% as.matrix
   
   # Build phyloseq
-  phyloseq(otu_table(abund, taxa_are_rows = TRUE),
+  ps <- phyloseq(otu_table(abund, taxa_are_rows = TRUE),
            sample_data(sampleData),
            tax_table(tax)
   ) %>% 
     (if (filtering) filter_low_prevalence else identity)
+  
+  prune_samples(sample_sums(ps) > 0, ps) #remove any empty samples 
 }
 
 # Compute sparseness (proportion of 0 in abundance matrix)
@@ -211,6 +214,20 @@ iterate_distances <- function(pcoa.ls, compile_func) {
       }) %>% list_rbind
     }) %>% list_rbind
   }) %>% list_rbind 
+}
+
+# Extract name of lowest available taxRank in a ps object
+
+extract_lowest_rank <- function(ps) {
+  require('phyloseq')
+  require('dplyr')
+  tax_table(ps) %>% 
+    as.data.frame %>% 
+    summarise(across(everything(), ~ !all(is.na(.)))) %>% 
+    pivot_longer(everything()) %>% 
+    filter(value) %>% 
+    slice_tail(n = 1) %>% 
+    pull(name)
 }
 
 ################
