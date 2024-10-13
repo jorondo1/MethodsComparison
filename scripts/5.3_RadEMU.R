@@ -1,7 +1,7 @@
 library(pacman)
 p_load(radEmu, purrr, dplyr, readr)
 source('scripts/myFunctions.R')
-ps.ls <- read_rds('Out/ps.bak/ps_rare_species.ls.rds')
+ps.ls <- read_rds('Out/ps_raw.ls.rds')
 
 run_radEmu <- function(ps, taxRank, ds, samVar, ncores = detectCores()-1 ) {
   require('parallel')
@@ -29,6 +29,7 @@ run_radEmu <- function(ps, taxRank, ds, samVar, ncores = detectCores()-1 ) {
 
 radEmu_scores.ls <- imap(ps.ls, function(taxRankContent, taxRank) {
   cat("Processing taxonomic rank:", taxRank, "...\n")
+  if (taxRank != "Family") return(NULL)
   imap(taxRankContent, function(dsContent, ds) {
     cat("Processing dataset:", ds, "...\n")
     imap(dsContent, function(dbContent, db) {
@@ -38,7 +39,7 @@ radEmu_scores.ls <- imap(ps.ls, function(taxRankContent, taxRank) {
                  taxRank = taxRank,  
                  ds = ds, 
                  samVar = group_vars[[ds]],
-                 ncores = 85)
+                 ncores = 72)
     })
   })
 })

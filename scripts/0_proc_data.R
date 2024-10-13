@@ -67,7 +67,7 @@ meta_parsing <- function(dsName, samData) {
 # Retrieve NAFLD metadata
 NAFLD_meta <- read_delim('NAFLD/raw/ENA_report.tsv') %>% 
   dplyr::filter(library_strategy == 'WGS') %>% 
-  select(run_accession, sample_title) %>% 
+  dplyr::select(run_accession, sample_title) %>% 
   left_join(read_delim('NAFLD/raw/metadata.tsv'), 
             join_by(sample_title == SampleID)) %>% 
   mutate(Group = case_when(is.na(NAFLD) ~ 'Positive',
@@ -76,11 +76,11 @@ NAFLD_meta <- read_delim('NAFLD/raw/ENA_report.tsv') %>%
   column_to_rownames('sample_title')
 
 AD_skin_meta <- read_delim('AD_Skin/raw/ENA_report.tsv') %>% 
-  select(run_accession, sample_alias, run_accession) %>% 
+  dplyr::select(run_accession, sample_alias, run_accession) %>% 
   mutate(sample_alias = str_remove(sample_alias, ' ')) %>% 
   right_join(read_delim('AD_Skin/raw/metadata.tsv'),
             join_by(sample_alias == SampleID)) %>% 
-  select(-`Sample Location`) %>% 
+  dplyr::select(-`Sample Location`) %>% 
   mutate(BGA = `Birth Gestational Age (weeks)`, .keep = 'unused') %>% 
   column_to_rownames('run_accession')
 
@@ -124,6 +124,13 @@ ps_rare_family.ls <- lapply(ps_raw.ls, function(ds) {
   })
 })
 
+ps_full.ls <- list()
+ps_full.ls[['Species']] <- ps_raw.ls
+ps_full.ls[['Genus']] <- lapply(ps_raw.ls, function(ds) {
+  lapply(ds, function(db) {
+    tax_glom2(db, taxrank = "Genus") 
+  })
+})
 write_rds(ps_raw.ls, "Out/ps_raw.ls.rds")
 #write_rds(ps_filt.ls, "Out/ps_filt.ls.rds")
 write_rds(ps_rare.ls, "Out/ps_rare_species.ls.rds")
