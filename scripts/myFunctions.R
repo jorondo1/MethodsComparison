@@ -16,6 +16,12 @@ tool_colours <- c(
   'SM_gtdb-rs214-rep_MAGs'= 'skyblue3'
 )
 
+group_vars <- c(
+  'NAFLD' = 'NAFLD',
+  'AD_Skin' = 'Group',
+  'Moss' = 'Compartment'
+)
+
 plot_theme <- function() {
   list(
     theme_minimal(),
