@@ -1,9 +1,10 @@
 library(pacman)
-p_load(radEmu, purrr, dylpr, readr)
+p_load(radEmu, purrr, dplyr, readr)
 source('scripts/myFunctions.R')
-ps.ls <- read_rds('Out/ps_raw.ls.rds')
+ps.ls <- read_rds('Out/ps.bak/ps_rare_species.ls.rds')
 
 run_radEmu <- function(ps, taxRank, ds, samVar, ncores = detectCores()-1 ) {
+  require('parallel')
   # compute fit:
   ch_fit <- emuFit(formula = as.formula(paste('~', samVar)), 
                    Y = ps, run_score_tests = FALSE) 
@@ -26,21 +27,23 @@ run_radEmu <- function(ps, taxRank, ds, samVar, ncores = detectCores()-1 ) {
   score_res <- mclapply(to_test, emuTest, mc.cores = ncores)
 }
 
-radEmu_scores.ls <- map(names(ps.ls), function(taxRank) {
-  #Process datasets within the "Family" rank
-  map(names(ps.ls[[taxRank]]), function(ds) {
-    map(names(ps.ls[[taxRank]][[ds]]), function(db) {
-      ps <- ps.ls[[taxRank]][[ds]][[db]]
+radEmu_scores.ls <- imap(ps.ls, function(taxRankContent, taxRank) {
+  cat("Processing taxonomic rank:", taxRank, "...\n")
+  imap(taxRankContent, function(dsContent, ds) {
+    cat("Processing dataset:", ds, "...\n")
+    imap(dsContent, function(dbContent, db) {
+      cat("Using database:", db, "...\n")
+      ps <- dbContent
       run_radEmu(ps = ps, 
                  taxRank = taxRank,  
                  ds = ds, 
                  samVar = group_vars[[ds]],
-                 ncores = 72)
+                 ncores = 85)
     })
   })
 })
 
-write_rds(radEmu_scores.ls, 'Out/radEmu_scores_Family_NAFLD.rds')
+write_rds(radEmu_scores.ls, 'Out/radEmu_scores.rds')
 
 names(radEmu_scores.ls) <- names(ps.ls)
 for (taxRank in names(ps.ls)) {
