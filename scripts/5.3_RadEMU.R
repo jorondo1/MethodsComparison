@@ -1,11 +1,9 @@
 library(pacman)
-p_load(radEmu, purrr)
+p_load(radEmu, purrr, dylpr, readr)
 source('scripts/myFunctions.R')
-ps_rare.ls <- read_rds('Out/ps_rare_species.ls.rds')
+ps.ls <- read_rds('Out/ps_raw.ls.rds')
 
 run_radEmu <- function(ps, taxRank, ds, samVar, ncores = detectCores()-1 ) {
-  require('parallel')
-  #ps <- ps.ls[[taxRank]][[ds]][[db]]
   # compute fit:
   ch_fit <- emuFit(formula = as.formula(paste('~', samVar)), 
                    Y = ps, run_score_tests = FALSE) 
@@ -25,29 +23,31 @@ run_radEmu <- function(ps, taxRank, ds, samVar, ncores = detectCores()-1 ) {
                            j = category))
     return(score_res)
   }  # Run in parallel:
-  score_res <- mclapply(to_test, emuTest, mc.cores = ncores )
+  score_res <- mclapply(to_test, emuTest, mc.cores = ncores)
 }
 
-radEmu_scores.ls <- map(names(ps_rare.ls), function(taxRank) {
-  if (taxRank != "Family") {
-    return(NULL)  # DEV
-  }
+radEmu_scores.ls <- map(names(ps.ls), function(taxRank) {
   #Process datasets within the "Family" rank
-  map(names(ps_rare.ls[[taxRank]]), function(ds) {
-    map(names(ps_rare.ls[[taxRank]][[ds]]), function(db) {
-      ps <- ps_rare.ls[[taxRank]][[ds]][[db]]
-      run_radEmu(ps = ps, taxRank = taxRank,  ds = ds, samVar = group_vars[[ds]])
+  map(names(ps.ls[[taxRank]]), function(ds) {
+    map(names(ps.ls[[taxRank]][[ds]]), function(db) {
+      ps <- ps.ls[[taxRank]][[ds]][[db]]
+      run_radEmu(ps = ps, 
+                 taxRank = taxRank,  
+                 ds = ds, 
+                 samVar = group_vars[[ds]],
+                 ncores = 72)
     })
   })
 })
+
 write_rds(radEmu_scores.ls, 'Out/radEmu_scores_Family_NAFLD.rds')
 
-names(radEmu_scores.ls) <- names(ps_rare.ls)
-for (taxRank in names(ps_rare.ls)) {
-  names(radEmu_scores.ls[['Family']]) <- names(ps_rare.ls[[taxRank]])
+names(radEmu_scores.ls) <- names(ps.ls)
+for (taxRank in names(ps.ls)) {
+  names(radEmu_scores.ls[['Family']]) <- names(ps.ls[[taxRank]])
 }
-for (ds in names(ps_rare.ls$Family)) {
-  names(radEmu_scores.ls[['Family']][['NAFLD']]) <- names(ps_rare.ls[['Family']][[ds]])
+for (ds in names(ps.ls$Family)) {
+  names(radEmu_scores.ls[['Family']][['NAFLD']]) <- names(ps.ls[['Family']][[ds]])
 }
 
 compiled_radEmu <- radEmu_scores.ls[['Family']][['NAFLD']] %>%
@@ -71,7 +71,7 @@ compiled_radEmu %>%
   )
 
 # robust_scores <- emuFit(formula = ~ NAFLD, 
-#                         Y = ps_rare.ls$Family$NAFLD$MPA_db2023,
+#                         Y = ps.ls$Family$NAFLD$MPA_db2023,
 #                         fitted_model = ch_fit, refit = FALSE,
 #                         run_score_tests = TRUE)
 
