@@ -131,7 +131,14 @@ ps_full.ls[['Genus']] <- lapply(ps_raw.ls, function(ds) {
     tax_glom2(db, taxrank = "Genus") 
   })
 })
-write_rds(ps_raw.ls, "Out/ps_raw.ls.rds")
+
+ps_full.ls[['Family']] <- lapply(ps_raw.ls, function(ds) {
+  lapply(ds, function(db) {
+    tax_glom2(db, taxrank = "Family") 
+  })
+})
+
+write_rds(ps_full.ls, "Out/ps_full.ls.rds")
 #write_rds(ps_filt.ls, "Out/ps_filt.ls.rds")
 write_rds(ps_rare.ls, "Out/ps_rare_species.ls.rds")
 write_rds(ps_rare_genus.ls, "Out/ps_rare_genus.ls.rds")
