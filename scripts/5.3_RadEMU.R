@@ -1,5 +1,5 @@
 library(pacman)
-p_load(radEmu)
+p_load(radEmu, purrr)
 source('scripts/myFunctions.R')
 ps_rare.ls <- read_rds('Out/ps_rare_species.ls.rds')
 
@@ -40,7 +40,7 @@ radEmu_scores.ls <- map(names(ps_rare.ls), function(taxRank) {
     })
   })
 })
-
+write_rds(radEmu_scores.ls, 'Out/radEmu_scores_Family_NAFLD.rds')
 
 # Parse results (weird ass data structure...)
 map_dfr(score_res, ~ .x$coef %>% filter(pval<0.05)) %>% 

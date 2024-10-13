@@ -1,7 +1,7 @@
 export MC=$ILAFORES/analysis/MethodsComparison
 export ILL_PIPELINES=$ILAFORES/analysis/MethodsComparison/ILL_pipelines
 cd $MC
-source scripts/myFunction.sh
+source scripts/myFunctions.sh
 export SALIVA_TSV=$PR19/Saliva/preproc/preprocessed_reads.sample.tsv
 export FECES_TSV=$PR19/Feces/preproc/preprocessed_reads.sample.tsv
 export MOSS_TSV=$MOSS/preproc/preprocessed_reads.sample.tsv
@@ -112,8 +112,18 @@ sbatch --array=1-"$NUM_Moss" $MC/Moss/MPA_db2023/metaphlan.slurm.sh
 sbatch --array=1-"$NUM_NAFLD" $MC/NAFLD/MPA_db2023/metaphlan.slurm.sh
 sbatch --array=1-"$NUM_AD_Skin" $MC/AD_Skin/MPA_db2023/metaphlan.slurm.sh
 
+$metaphlan --sample_tsv $AD_Skin_TSV --db $FAST/metaphlan3_db/mpa_v30_CHOCOPhlAn_201901 --out $MC/AD_Skin/MPA_db2019
+$metaphlan --sample_tsv $NAFLD_TSV --db $FAST/metaphlan3_db/mpa_v30_CHOCOPhlAn_201901 --out $MC/NAFLD/MPA_db2019
+
+singularity exec -e -B $ILAFORES:$ILAFORES -B $FAST:$FAST $ILAFORES/programs/ILL_pipelines/containers/humann.3.6.sif metaphlan \
+	-t rel_ab --input_type fastq --unclassified_estimation --mpa3 \
+	--bowtie2db $FAST/metaphlan3_db \
+	-x 'mpa_v30_CHOCOPhlAn_201901' \
+	--nproc 72 $MC/AD_Skin/preproc/SRR20002471/SRR20002471_1.fastq.gz $PWD/test_profile.txt 
+	
+
 # Check completion status
-check_output 'MPA_db2022 MPA_db2023' AD_Skin _profile.txt
+check_output 'MPA_db2022 MPA_db2023 MPA_db2019' AD_Skin _profile.txt
 
 # Remove bowtie indexes
 rm */MPA_db*/*/*.bowtie2.txt
@@ -166,8 +176,8 @@ grep -v -f <(cut -f1 $ILAFORES/ref_dbs/sourmash_db/bac120_taxonomy_r220.tsv | se
 #Process fecal samples
 mkdir -p $MC/AD_Skin/preproc
 bash $ILAFORES/programs/ILL_pipelines/generateslurm_preprocess.kneaddata.sh \
-	--sample_tsv $MC/AD_Skin/raw/samples_to_process.tsv \
-	--out $MC/AD_Skin/preproc \
+	--sample_tsv $MC/NAFLD/raw/samples_to_process.tsv \
+	--out $MC/NAFLD/preproc \
 	--trimmomatic_options "SLIDINGWINDOW:4:20 MINLEN:50" \
 	--db $FAST/host_genomes/GRCh38_index/grch38_1kgmaj \
 	--slurm_mem 31G --slurm_threads 24
@@ -181,7 +191,7 @@ while read -r p; do
 SRR=$(echo $p | awk '{print $1}')
 f1=$(find NAFLD/raw -type f -name "${SRR}_1.fastq*" -exec realpath {} \;)
 f2=$(find NAFLD/raw -name "${SRR}_2.fastq*" -exec realpath {} \;)
-SAM=$(echo $p | awk '{print $13}')
+SAM=$(echo $p | awk '{print $14}')
 if [ ! -z "$f1" ]; then 
 	echo -e "$SAM\t$f1\t$f2" >> $MC/NAFLD/raw/samples_to_process.tsv
 fi; done < NAFLD/raw/ENA_report.tsv 
