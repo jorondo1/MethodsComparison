@@ -42,9 +42,24 @@ radEmu_scores.ls <- map(names(ps_rare.ls), function(taxRank) {
 })
 write_rds(radEmu_scores.ls, 'Out/radEmu_scores_Family_NAFLD.rds')
 
+names(radEmu_scores.ls) <- names(ps_rare.ls)
+for (taxRank in names(ps_rare.ls)) {
+  names(radEmu_scores.ls[['Family']]) <- names(ps_rare.ls[[taxRank]])
+}
+for (ds in names(ps_rare.ls$Family)) {
+  names(radEmu_scores.ls[['Family']][['NAFLD']]) <- names(ps_rare.ls[['Family']][[ds]])
+}
+
+compiled_radEmu <- radEmu_scores.ls[['Family']][['NAFLD']] %>%
+  imap_dfr(function(db_content, db_name) {
+    # Iterate over the elements inside each 'db'
+    map_dfr(db_content, ~ .x$coef %>%
+              filter(pval < 0.05) %>%
+              mutate(database = db_name))  # Add the 'db' name as a new column
+  })
+
 # Parse results (weird ass data structure...)
-map_dfr(score_res, ~ .x$coef %>% filter(pval<0.05)) %>% 
-  mutate(database='MPA_db2023') %>% 
+compiled_radEmu %>%
   ggplot(aes(x = database, y = category, fill = estimate)) +
   geom_tile(color = 'white') +
   scale_fill_gradient2(low = 'red', mid = 'white', high = 'darkblue', 
