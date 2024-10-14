@@ -63,7 +63,6 @@ assemble_phyloseq <- function(abunTable, sampleData, filtering = FALSE) {
         str_remove(" [A-Z]$")  #https://gtdb.ecogenomic.org/faq#why-do-some-family-and-higher-rank-names-end-with-an-alphabetic-suffix
     }))
     
-    
   # Extract abundance table with Species as identifier
   abund <- abunTable %>% 
     dplyr::select(where(is.double), Species) %>% 
@@ -252,16 +251,16 @@ extract_lowest_rank <- function(ps) {
 # the lowest-level objects
 compute_3_lvl <- function(ps.ls, func, ...){
   require('furrr')
-  plan(multicore)
+  plan(multisession)
   
   imap(ps.ls, function(taxRank.ls, taxRank) {
     cat("Processing", taxRank, "...\n")
-    if (taxRank != "Family") return(NULL)      # ! DEV !
+    if (taxRank == "Species") return(NULL)      # ! DEV !
     
     imap(taxRank.ls, function(ds.ls, ds) {
       cat("Processing dataset:", ds, "...\n")
       samVar <- group_vars[[ds]]               # Group variable to test 
-      if (ds != "NAFLD") return(NULL)          # ! DEV !
+      #if (ds != "NAFLD") return(NULL)          # ! DEV !
       
       future_imap(ds.ls, function(db.ps, db) { # ! Warning : doesn't work from RStudio! 
         message("Using database:", db, "...\n")

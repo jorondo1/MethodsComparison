@@ -11,3 +11,142 @@ p_load(ALDEx2, purrr, furrr, dplyr, readr)#
 source('scripts/myFunctions.R')
 plan(multicore)
 ps.ls <- read_rds('Out/ps_full.ls.rds')
+results <- imap(ps.ls, function(taxRankContent, taxRank) {#
+  cat("Processing taxonomic rank:", taxRank, "...\n")#
+#  if (taxRank != "Family") return(NULL)#
+  imap(taxRankContent, function(dsContent, ds) {#
+    cat("Processing dataset:", ds, "...\n")#
+  #  if (ds != "NAFLD") return(NULL)#
+    future_imap(dsContent, function(dbContent, db) {#
+      cat("Using database:", db, "...\n")#
+      abund <- dbContent@otu_table %>% as.data.frame#
+      conds <- dbContent@sam_data %>% as.data.frame %>% #
+        pull(Group) %>% as.vector#
+      res <- aldex(reads = abund, #
+            conditions = conds,#
+            mc.samples = 128,#
+            verbose = TRUE)#
+    })#
+  })#
+})
+write_rds(results, 'Out/Aldex_results.rds')
+warnings()
+cimap(ps.ls, function(taxRankContent, taxRank) {#
+  cat("Processing taxonomic rank:", taxRank, "...\n")#
+#  if (taxRank != "Family") return(NULL)#
+  imap(taxRankContent, function(dsContent, ds) {#
+    cat("Processing dataset:", ds, "...\n")#
+  #  if (ds != "NAFLD") return(NULL)#
+    future_imap(dsContent, function(dbContent, db) { ## Warning : doesn't work from RStudio! #
+      cat("Using database:", db, "...\n")#
+      abund <- dbContent@otu_table %>% as.data.frame#
+      conds <- dbContent@sam_data %>% as.data.frame %>% #
+        pull(Group) %>% as.vector#
+      res <- aldex(reads = abund, #
+            conditions = conds,#
+            mc.samples = 128,#
+            verbose = TRUE,#
+            seed = TRUE)#
+    }, .options = furrr_options(seed = T))#
+  })#
+})
+imap(ps.ls, function(taxRankContent, taxRank) {#
+  cat("Processing taxonomic rank:", taxRank, "...\n")#
+#  if (taxRank != "Family") return(NULL)#
+  imap(taxRankContent, function(dsContent, ds) {#
+    cat("Processing dataset:", ds, "...\n")#
+  #  if (ds != "NAFLD") return(NULL)#
+    future_imap(dsContent, function(dbContent, db) { ## Warning : doesn't work from RStudio! #
+      cat("Using database:", db, "...\n")#
+      abund <- dbContent@otu_table %>% as.data.frame#
+      conds <- dbContent@sam_data %>% as.data.frame %>% #
+        pull(Group) %>% as.vector#
+      res <- aldex(reads = abund, #
+            conditions = conds,#
+            mc.samples = 128,#
+            verbose = TRUE,#
+            seed = TRUE)#
+    }, .options = furrr_options(seed = T))#
+  })#
+})
+results <- imap(ps.ls, function(taxRankContent, taxRank) {#
+  cat("Processing taxonomic rank:", taxRank, "...\n")#
+#  if (taxRank != "Family") return(NULL)#
+  imap(taxRankContent, function(dsContent, ds) {#
+    cat("Processing dataset:", ds, "...\n")#
+  #  if (ds != "NAFLD") return(NULL)#
+    future_imap(dsContent, function(dbContent, db) { ## Warning : doesn't work from RStudio! #
+      cat("Using database:", db, "...\n")#
+      abund <- dbContent@otu_table %>% as.data.frame#
+      conds <- dbContent@sam_data %>% as.data.frame %>% #
+        pull(Group) %>% as.vector#
+      res <- aldex(reads = abund, #
+            conditions = conds,#
+            mc.samples = 1024,#
+            verbose = TRUE,#
+            seed = TRUE)#
+    }, .options = furrr_options(seed = T))#
+  })#
+})
+write_rds(results, 'Out/Aldex_results.rds')
+results <- imap(ps.ls, function(taxRankContent, taxRank) {#
+  cat("Processing taxonomic rank:", taxRank, "...\n")#
+#  if (taxRank != "Family") return(NULL)#
+  imap(taxRankContent, function(dsContent, ds) {#
+    cat("Processing dataset:", ds, "...\n")#
+  #  if (ds != "NAFLD") return(NULL)#
+    future_imap(dsContent, function(dbContent, db) { ## Warning : doesn't work from RStudio! #
+      cat("Using database:", db, "...\n")#
+      abund <- dbContent@otu_table %>% as.data.frame#
+      conds <- dbContent@sam_data %>% as.data.frame %>% #
+        pull(Group) %>% as.vector#
+      res <- aldex(reads = abund, #
+            conditions = conds,#
+            mc.samples = 256,#
+            verbose = TRUE,#
+            seed = TRUE)#
+    }, .options = furrr_options(seed = T))#
+  })#
+})
+write_rds(results, 'Out/Aldex_results.rds')
+# the lowest-level objects#
+iterate_3_ps <- function(ps.ls, func, ...){#
+  require('furrr')#
+  imap(ps.ls, function(taxRank.ls, taxRank) {#
+    cat("Processing ", taxRank, "...\n")#
+    #if (taxRank != "Family") return(NULL)      # ! DEV !#
+    imap(taxRank.ls, function(ds.ls, ds) {#
+      cat("Processing dataset:", ds, "...\n")#
+      #if (ds != "NAFLD") return(NULL)          # ! DEV !#
+      future_imap(ds.ls, function(db.ps, db) { ## Warning : doesn't work from RStudio! #
+        cat("Using database:", db, "...\n")#
+        func(db.ps, ...) #
+      }, .options = furrr_options(seed = T))#
+    })#
+  })#
+}
+p_load(ALDEx2, #
+       furrr, # to run imap in parallel#
+       dplyr, readr, purrr) #syntax
+plan(multicore)#
+ps.ls <- read_rds('Out/ps_full.ls.rds')#
+#
+compute_Aldex <- function(ps, samVar){#
+  require('dplyr')#
+  require('ALDEx2')#
+    abund <- ps@otu_table %>% as.data.frame#
+    conds <- ps@sam_data %>% as.data.frame %>% #
+      pull(!!sym(samVar)) %>% as.vector#
+    aldex(reads = abund, #
+          conditions = conds,#
+          mc.samples = 128,#
+          verbose = TRUE)#
+}#
+#
+aldex_test <- iterate_3_ps(ps.ls = ps.ls,#
+             func = compute_Aldex,#
+             samVar = 'Group')
+aldex.test %>% flatten
+aldex_test %>% flatten
+aldex_test %>% flatten %>% bind_rows(.id="source")
+aldex_test %>% flatten %>% bind_rows()

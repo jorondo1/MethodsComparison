@@ -16,11 +16,14 @@ compute_aldex <- function(ps, samVar){
 compile_aldex <- function(results, taxRank, db, ds) {
   results %>% 
     rownames_to_column('Taxon') %>% 
-    dplyr::select(effect, wi.eBH, Taxon) %>% 
     dplyr::filter(wi.eBH<0.05) %>% 
-    mutate(taxRank = taxRank,
+    transmute(Taxon = Taxon, 
+           coef = effect,
+           adj.p = wi.eBH, 
+           taxRank = taxRank,
            database = db,
-           dataset = ds)
+           dataset = ds,
+           DAA_tool = 'Aldex2') %>% as_tibble()
 }
 
 ##############
@@ -32,7 +35,7 @@ compute_ancombc2 <- function(ps, samVar, taxRank) {
  result <- ancombc2(
     data = ps, 
     tax_level= taxRank,
-    prv_cut = 0.25, 
+    prv_cut = 0.10, 
     fix_formula = samVar,
     alpha = 0.05,
     verbose = TRUE,
@@ -46,22 +49,21 @@ compile_ancombc2 <- function(results, taxRank, db, ds) {
   samVar <- results[['samVar']]
   resNames <- names(res)
   sfx <- resNames[str_detect(resNames, paste0("^p_",samVar))] %>% str_remove("^p_")
+  
   res_parsed <- res %>% 
-    dplyr::select(taxon, ends_with(sfx)) %>% 
     dplyr::filter(!!sym(paste0("diff_",sfx)) == 1 &
                     !!sym(paste0("passed_ss_",sfx)) == TRUE &
                     !!sym(paste0("q_",sfx)) < 0.05) %>% 
-    dplyr::arrange(desc(!!sym(paste0("lfc_",sfx))) ) %>%
+#    dplyr::arrange(desc(!!sym(paste0("lfc_",sfx))) ) %>%
     dplyr::mutate(taxon = factor(taxon, levels = unique(taxon))) %>% 
-    transmute(LFC = !!sym(paste0("lfc_",sfx)), 
-              Taxon = sub(".*?:", "", taxon),
-              SE = !!sym(paste0("se_",sfx)),
-              adj_p = !!sym(paste0("q_", sfx))) 
-  
-  res_parsed %>% as_tibble %>% 
-    mutate(taxRank = taxRank,
+    transmute(Taxon = sub(".*?:", "", taxon),
+           coef = !!sym(paste0("lfc_",sfx)), 
+           # SE = !!sym(paste0("se_",sfx)),
+           adj.p = !!sym(paste0("q_", sfx)),
+           taxRank = taxRank,
            database = db,
-           dataset = ds)
+           dataset = ds,
+           DAA_tool = 'ANCOMBC2') %>% tibble()
 }
 
 ############
@@ -77,7 +79,7 @@ compute_radEmu <- function(ps, samVar) {
   ### !DEV! Temporary start**********
   # choose which features have an estimate big enough to have a
   # chance at a significant pval:
-  cutoff <- 2 
+  cutoff <- 2
   to_test <- which(abs(ch_fit$coef$estimate) > cutoff)
   ### !DEV Temporary end**********
   
@@ -102,11 +104,13 @@ compile_radEmu <- function(results, taxRank, db, ds) {
     dplyr::filter(pval < 0.05) %>%
     as_tibble) %>% 
     transmute(
+      Taxon = category,
       coef = estimate,
-      pval = pval,
+      adj.p = pval,
       taxRank = taxRank,
       database = db,
-      dataset = ds)  # Add the 'db' name as a new column
+      dataset = ds,
+      DAA_tool = 'radEmu') %>% tibble()  # Add the 'db' name as a new column
 }
 
 ############
@@ -118,21 +122,23 @@ compute_edgeR <- function(ps, samVar) {
   test <- phyloseq_to_edgeR(ps, samVar)
   et = exactTest(test)
   tt = topTags(et, n=nrow(test$table), 
-               adjust.method="FDR", 
+               adjust.method="fdr", 
                sort.by="PValue",
                p.value = 0.05)
   # Extract results
-  tt@.Data[[1]] %>% tibble
+  tt@.Data[[1]] %>% tibble()
 }
 
 compile_edgeR <- function(results, taxRank, db, ds) {
   results %>% 
-    dplyr::select(!!sym(taxRank), logFC, FDR) %>% 
     dplyr::filter(FDR < 0.001) %>% # keep significant only
-    mutate(database = db, # generic taxa name
-           taxRank = taxRank,
-           dataset = ds,
-           Taxon := !!sym(taxRank), .keep = 'unused') # add database name
+    transmute(Taxon := !!sym(taxRank),
+              coef = logFC,
+              adj.p = FDR,
+              taxRank = taxRank,
+              database = db,
+              dataset = ds,
+              DAA_tool = 'edgeR')
 }
 
 ###############
@@ -166,18 +172,20 @@ compile_Maaslin <- function(res_path) {
     map_dfr(~ {
       split_string <- str_split(.x, "/", simplify = TRUE)
       read_tsv(.x, show_col_types = FALSE) %>%
-        transmute(taxRank = split_string[4],
+        dplyr::filter(qval<0.05) %>% 
+        transmute(Taxon = feature,
+                  coef = coef, 
+                  adj.p = qval,
+                  taxRank = split_string[4],
                   dataset = split_string[5],
                   database = split_string[6],
-                  Taxon = feature,
-                  coef = coef, 
-                  qval = qval)
-    }) %>%  dplyr::filter(qval<0.05) %>% 
+                  DAA_tool = 'MaAsLin2')
+    }) %>% 
     # Maaslin modifies the species names, which is insanely annoying:
     mutate(
       Taxon = str_remove(Taxon, "^\\."),             # 1. Remove leading dot
       Taxon = str_replace(Taxon, "\\.", " "),         # 2. Swap the first dot with a space
       Taxon = str_to_sentence(Taxon),                 # 3. Capitalize the first letter
       Taxon = str_replace_all(Taxon, " sp..", " sp. ")   # 4. Replace '..' with '.'
-    )
+    ) %>% tibble()
 }
