@@ -22,6 +22,15 @@ group_vars <- c(
   'Moss' = 'Compartment'
 )
 
+tool_vars <- tibble(
+  "aldex2" = "wi.eBH",
+  "ancombc" = "adj_p",
+  "rademu" = "pval",
+  "deseq2" = "padj",
+  "edger" = "FDR", 
+  "maaslin2" = "qval"
+)
+
 plot_theme <- function() {
   list(
     theme_minimal(),
@@ -223,16 +232,15 @@ iterate_distances <- function(pcoa.ls, compile_func) {
 }
 
 # Extract name of lowest available taxRank in a ps object
-
 extract_lowest_rank <- function(ps) {
   require('phyloseq')
   require('dplyr')
-  tax_table(ps) %>% 
-    as.data.frame %>% 
-    summarise(across(everything(), ~ !all(is.na(.)))) %>% 
-    pivot_longer(everything()) %>% 
-    filter(value) %>% 
-    slice_tail(n = 1) %>% 
+  tax_table(ps) %>%
+    as.data.frame %>%
+    summarise(across(everything(), ~ !all(is.na(.)))) %>%
+    pivot_longer(everything()) %>%
+    filter(value) %>%
+    slice_tail(n = 1) %>%
     pull(name)
 }
 
@@ -242,20 +250,30 @@ extract_lowest_rank <- function(ps) {
 # 3. tool/database (db)
 # Generates a list with the same hierarchy with what func() returns as 
 # the lowest-level objects
-compute_3_lvl <- function(ps.ls, func){
+compute_3_lvl <- function(ps.ls, func, ...){
   require('furrr')
   plan(multicore)
   
   imap(ps.ls, function(taxRank.ls, taxRank) {
     cat("Processing", taxRank, "...\n")
-    #if (taxRank == "Species") return(NULL)      # ! DEV !
+    if (taxRank != "Family") return(NULL)      # ! DEV !
+    
     imap(taxRank.ls, function(ds.ls, ds) {
       cat("Processing dataset:", ds, "...\n")
       samVar <- group_vars[[ds]]               # Group variable to test 
-      #if (ds != "NAFLD") return(NULL)          # ! DEV !
+      if (ds != "NAFLD") return(NULL)          # ! DEV !
+      
       future_imap(ds.ls, function(db.ps, db) { # ! Warning : doesn't work from RStudio! 
-        cat("Using database:", db, "...\n")
-        func(db.ps, samVar)
+        message("Using database:", db, "...\n")
+        
+        # Collect all available arguments
+        all_args <- list(ps = db.ps, samVar = samVar, 
+                         taxRank = taxRank, ds = ds, db = db)
+        # keep required arguments only
+        func_args <- all_args[names(all_args) %in% names(formals(func))]
+        # Call computing function: 
+        do.call(func, func_args)
+        
       }, .options = furrr_options(seed = T))
     })
   })
