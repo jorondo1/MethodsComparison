@@ -1,3 +1,4 @@
+pval_cutoff <- 0.05
 
 #############
 ### ALDEx2 ###
@@ -16,7 +17,7 @@ compute_aldex <- function(ps, samVar){
 compile_aldex <- function(results, taxRank, db, ds) {
   results %>% 
     rownames_to_column('Taxon') %>% 
-    dplyr::filter(wi.eBH<0.05) %>% 
+    dplyr::filter(wi.eBH<pval_cutoff) %>% 
     transmute(Taxon = Taxon, 
            coef = effect,
            adj.p = wi.eBH, 
@@ -37,7 +38,7 @@ compute_ancombc2 <- function(ps, samVar, taxRank) {
     tax_level= taxRank,
     prv_cut = 0.10, 
     fix_formula = samVar,
-    alpha = 0.05,
+    alpha = pval_cutoff,
     verbose = TRUE,
     n_cl = ncores)
  result[['samVar']] <- samVar # pass the current samVar to help compilation
@@ -53,7 +54,7 @@ compile_ancombc2 <- function(results, taxRank, db, ds) {
   res_parsed <- res %>% 
     dplyr::filter(!!sym(paste0("diff_",sfx)) == 1 &
                     !!sym(paste0("passed_ss_",sfx)) == TRUE &
-                    !!sym(paste0("q_",sfx)) < 0.05) %>% 
+                    !!sym(paste0("q_",sfx)) < pval_cutoff) %>% 
 #    dplyr::arrange(desc(!!sym(paste0("lfc_",sfx))) ) %>%
     dplyr::mutate(taxon = factor(taxon, levels = unique(taxon))) %>% 
     transmute(Taxon = sub(".*?:", "", taxon),
@@ -101,7 +102,7 @@ compute_radEmu <- function(ps, samVar) {
 
 compile_radEmu <- function(results, taxRank, db, ds) {
   map_dfr(results, ~ .x$coef %>%
-    dplyr::filter(pval < 0.05) %>%
+    dplyr::filter(pval < pval_cutoff) %>%
     as_tibble) %>% 
     transmute(
       Taxon = category,
@@ -124,14 +125,14 @@ compute_edgeR <- function(ps, samVar) {
   tt = topTags(et, n=nrow(test$table), 
                adjust.method="fdr", 
                sort.by="PValue",
-               p.value = 0.05)
+               p.value = pval_cutoff)
   # Extract results
   tt@.Data[[1]] %>% tibble()
 }
 
 compile_edgeR <- function(results, taxRank, db, ds) {
   results %>% 
-    dplyr::filter(FDR < 0.001) %>% # keep significant only
+    dplyr::filter(FDR < pval_cutoff) %>% # keep significant only
     transmute(Taxon := !!sym(taxRank),
               coef = logFC,
               adj.p = FDR,
@@ -172,7 +173,7 @@ compile_Maaslin <- function(res_path) {
     map_dfr(~ {
       split_string <- str_split(.x, "/", simplify = TRUE)
       read_tsv(.x, show_col_types = FALSE) %>%
-        dplyr::filter(qval<0.05) %>% 
+        dplyr::filter(qval<pval_cutoff) %>% 
         transmute(Taxon = feature,
                   coef = coef, 
                   adj.p = qval,
@@ -189,3 +190,26 @@ compile_Maaslin <- function(res_path) {
       Taxon = str_replace_all(Taxon, " sp..", " sp. ")   # 4. Replace '..' with '.'
     ) %>% tibble()
 }
+
+###############
+### MaAsLin2 ###
+#################
+compute_DESeq2 <- function(ps, samVar) {
+  ds_formula <- as.formula(paste('~',samVar))
+  dds <- phyloseq_to_deseq2(test, design = ds_formula)
+  dds_res <- DESeq2::DESeq(dds, sfType = 'poscounts')
+  results(dds_res, tidy=T, format='DataFrame') %>% tibble()
+}
+
+compile_DESeq2 <- function(results, taxRank, db, ds) {
+  results %>% 
+    dplyr::filter(log2FoldChange < pval_cutoff) %>% # keep significant only
+    transmute(Taxon = row,
+              coef = log2FoldChange,
+              adj.p = padj,
+              taxRank = taxRank,
+              database = db,
+              dataset = ds,
+              DAA_tool = 'DESeq2')
+}
+

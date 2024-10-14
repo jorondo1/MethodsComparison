@@ -250,8 +250,8 @@ extract_lowest_rank <- function(ps) {
 # Generates a list with the same hierarchy with what func() returns as 
 # the lowest-level objects
 compute_3_lvl <- function(ps.ls, func, ...){
-  require('furrr')
-  plan(multisession)
+  require('furrr') 
+  plan(multicore, workers = 9) # not sure if multicore is better 
   
   imap(ps.ls, function(taxRank.ls, taxRank) {
     cat("Processing", taxRank, "...\n")
@@ -260,7 +260,7 @@ compute_3_lvl <- function(ps.ls, func, ...){
     imap(taxRank.ls, function(ds.ls, ds) {
       cat("Processing dataset:", ds, "...\n")
       samVar <- group_vars[[ds]]               # Group variable to test 
-      #if (ds != "NAFLD") return(NULL)          # ! DEV !
+      if (ds != "NAFLD") return(NULL)          # ! DEV !
       
       future_imap(ds.ls, function(db.ps, db) { # ! Warning : doesn't work from RStudio! 
         message("Using database:", db, "...\n")
