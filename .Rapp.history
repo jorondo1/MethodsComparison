@@ -1,0 +1,13 @@
+cd Repos/MethodsComparison
+ls
+pwd
+wd
+wd()
+ls
+set.wd('~/Repos/MethodsComparison')
+setwd('~/Repos/MethodsComparison')
+library(pacman)#
+p_load(ALDEx2, purrr, furrr, dplyr, readr)#
+source('scripts/myFunctions.R')
+plan(multicore)
+ps.ls <- read_rds('Out/ps_full.ls.rds')
