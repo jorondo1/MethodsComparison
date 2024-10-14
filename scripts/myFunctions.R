@@ -236,6 +236,41 @@ extract_lowest_rank <- function(ps) {
     pull(name)
 }
 
+# Using imap to manage list names in 3-level lists-of-lists
+# 1. taxonomic rank
+# 2. dataset (ds)
+# 3. tool/database (db)
+# Generates a list with the same hierarchy with what func() returns as 
+# the lowest-level objects
+compute_3_lvl <- function(ps.ls, func){
+  require('furrr')
+  plan(multicore)
+  
+  imap(ps.ls, function(taxRank.ls, taxRank) {
+    cat("Processing", taxRank, "...\n")
+    #if (taxRank == "Species") return(NULL)      # ! DEV !
+    imap(taxRank.ls, function(ds.ls, ds) {
+      cat("Processing dataset:", ds, "...\n")
+      samVar <- group_vars[[ds]]               # Group variable to test 
+      #if (ds != "NAFLD") return(NULL)          # ! DEV !
+      future_imap(ds.ls, function(db.ps, db) { # ! Warning : doesn't work from RStudio! 
+        cat("Using database:", db, "...\n")
+        func(db.ps, samVar)
+      }, .options = furrr_options(seed = T))
+    })
+  })
+}
+
+compile_3_lvl <- function(results.ls, func, ...) {
+  imap(results.ls, function(taxRank.ls, taxRank) {
+    imap(taxRank.ls, function(ds.ls, ds) {
+      imap(ds.ls, function(db.ps, db) { 
+        func(db.ps, taxRank, db, ds) 
+      }) %>% list_rbind
+    }) %>% list_rbind
+  }) %>% list_rbind
+}
+
 ################
 ### METRICS ###
 ################
@@ -303,3 +338,6 @@ compute_meandiff <- function(div, tool1, tool2) {
               Diff = !!sym(tool1) - !!sym(tool2))
 }
 
+######################################
+### Differential Abundance Testing ####
+########################################
