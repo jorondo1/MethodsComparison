@@ -30,7 +30,6 @@ compile_aldex <- function(results, taxRank, db, ds) {
 ##############
 ### ANCOMBC ###
 ################
-
 compute_ancombc2 <- function(ps, samVar, taxRank) {
   message(paste('ANCOMBC2 using', ncores, 'cores...'))
  result <- ancombc2(
@@ -70,7 +69,6 @@ compile_ancombc2 <- function(results, taxRank, db, ds) {
 ############
 ### RadEMU ###
 ##############
-
 compute_radEmu <- function(ps, samVar) {
   require('parallel')
   # compute fit:
@@ -96,7 +94,6 @@ compute_radEmu <- function(ps, samVar) {
                            j = category))
     return(score_res)
   }  # Run in parallel:
-  message('Running radEmu...')
   mclapply(to_test, emuTest, mc.cores = ncores)
 }
 
@@ -117,7 +114,6 @@ compile_radEmu <- function(results, taxRank, db, ds) {
 ############
 ### edgeR ###
 ##############
-
 compute_edgeR <- function(ps, samVar) {
   # Compute DAA
   test <- phyloseq_to_edgeR(ps, samVar)
@@ -147,7 +143,6 @@ compile_edgeR <- function(results, taxRank, db, ds) {
 #################
 # This one is a bit different because the Maaslin2 command creates a written
 # output and we will parse from those files. Notice no object need to be created.
-
 compute_Maaslin2 <- function(ps, samVar, taxRank, ds, db) {
   maaslin_path <- paste('Out/DAA/Maaslin2',taxRank, ds, db, sep = '/')
   
@@ -172,7 +167,7 @@ compile_Maaslin <- function(res_path) {
   Sys.glob(res_path) %>% 
     map_dfr(~ {
       split_string <- str_split(.x, "/", simplify = TRUE)
-      read_tsv(.x, show_col_types = FALSE) %>%
+      read_tsv(.x, col_types = 'cccdddddd') %>%
         dplyr::filter(qval<pval_cutoff) %>% 
         transmute(Taxon = feature,
                   coef = coef, 
@@ -191,9 +186,9 @@ compile_Maaslin <- function(res_path) {
     ) %>% tibble()
 }
 
+#############
+### DESeq2 ###
 ###############
-### MaAsLin2 ###
-#################
 compute_DESeq2 <- function(ps, samVar) {
   ds_formula <- as.formula(paste('~',samVar))
   dds <- phyloseq_to_deseq2(test, design = ds_formula)
@@ -203,9 +198,9 @@ compute_DESeq2 <- function(ps, samVar) {
 
 compile_DESeq2 <- function(results, taxRank, db, ds) {
   results %>% 
-    dplyr::filter(log2FoldChange < pval_cutoff) %>% # keep significant only
+    dplyr::filter(padj < pval_cutoff) %>% # keep significant only
     transmute(Taxon = row,
-              coef = log2FoldChange,
+              coef = log2FoldChange/log2(10),
               adj.p = padj,
               taxRank = taxRank,
               database = db,
@@ -216,18 +211,28 @@ compile_DESeq2 <- function(results, taxRank, db, ds) {
 ###############
 ### ZicoSeq ###
 #################
-
 compute_ZicoSeq <- function(ps, samVar) {
+  
   result <- ZicoSeq(
     feature.dat = ps %>% otu_table %>% as.matrix,
     meta.dat = ps %>% sample_data %>% as("data.frame"),
     grp.name = samVar,
+    feature.dat.type = 'count',
     mean.abund.filter = 0.001,
     perm.no = 999,
     outlier.pct = 0.01
-  )
+  ) 
 }
 
 compile_ZicoSeq <- function(results, taxRank, db, ds) {
-  
+  tibble(
+    Taxon = names(test.zicoseq$p.adj.fdr),
+    coef = test.zicoseq$R2[,1],
+    adj.p = test.zicoseq$p.adj.fdr,
+    taxRank = taxRank,
+    database = db,
+    dataset = ds,
+    DAA_tool = 'ZicoSeq'
+  ) %>% 
+    filter(adj.p<0.05)
 }

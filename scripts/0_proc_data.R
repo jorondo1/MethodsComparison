@@ -72,8 +72,9 @@ NAFLD_meta <- read_delim('NAFLD/raw/ENA_report.tsv') %>%
   left_join(read_delim('NAFLD/raw/metadata.tsv'), 
             join_by(sample_title == SampleID)) %>% 
   mutate(Group = case_when(is.na(NAFLD) ~ 'Positive',
-                           TRUE ~ NAFLD)) %>% 
-  mutate(Group = factor(Group, levels = c('Positive', 'Negative'))) %>% 
+                           TRUE ~ NAFLD), .keep = 'unused') %>% 
+  mutate(Group = case_when(Group == 'Negative' ~ 0,
+                           Group == 'Positive' ~ 1)) %>% 
   column_to_rownames('sample_title')
 
 AD_skin_meta <- read_delim('AD_Skin/raw/ENA_report.tsv') %>% 
@@ -82,7 +83,10 @@ AD_skin_meta <- read_delim('AD_Skin/raw/ENA_report.tsv') %>%
   right_join(read_delim('AD_Skin/raw/metadata.tsv'),
             join_by(sample_alias == SampleID)) %>% 
   dplyr::select(-`Sample Location`) %>% 
-  mutate(BGA = `Birth Gestational Age (weeks)`, .keep = 'unused') %>% 
+  mutate(BGA = `Birth Gestational Age (weeks)`, 
+         Group = case_when(Group == 'control' ~ 0,
+                           Group == 'eczema' ~ 1),
+         .keep = 'unused') %>% 
   column_to_rownames('run_accession')
 
 # Full phyloseq objects 
@@ -98,17 +102,13 @@ ps_raw.ls$Moss$MPA_db2023 <- NULL
 ps_raw.ls$Moss$MOTUS <- NULL
 
 # Prevalence+Abundance filtering, currently hardcoded in filter_low_prevalence()
-# ps_filt.ls <- lapply(ps_raw.ls, function(ds) {
-#   lapply(ds, filter_low_prevalence)
-# })
+ps_filt.ls <- lapply(ps_raw.ls, function(ds) {
+  lapply(ds, filter_low_prevalence, minPrev = 0.10, minAbund = 0)
+})
 
 ps_rare.ls <- lapply(ps_raw.ls, function(sublist) {
   lapply(sublist, rarefy_even_depth2, rngseed = 1234)
 })
-# 
-# ps_rare_nfilt.ls  <- lapply(ps_raw.ls, function(sublist) {
-#   lapply(sublist, rarefy_even_depth2, rngseed = 1234)
-# })
 
 # Genus level phyloseq objects, with prevalence filtering
 ps_rare_genus.ls <- lapply(ps_raw.ls, function(ds) {
@@ -126,21 +126,41 @@ ps_rare_family.ls <- lapply(ps_raw.ls, function(ds) {
 })
 
 ps_full.ls <- list()
-ps_full.ls[['Species']] <- ps_raw.ls
-ps_full.ls[['Genus']] <- lapply(ps_raw.ls, function(ds) {
+ps_full.ls[['Species']] <- ps_filt.ls
+ps_full.ls[['Genus']] <- lapply(ps_filt.ls, function(ds) {
   lapply(ds, function(db) {
     tax_glom2(db, taxrank = "Genus") 
   })
 })
 
-ps_full.ls[['Family']] <- lapply(ps_raw.ls, function(ds) {
+ps_full.ls[['Family']] <- lapply(ps_filt.ls, function(ds) {
   lapply(ds, function(db) {
     tax_glom2(db, taxrank = "Family") 
   })
 })
 
+ps_rare.ls <- list()
+ps_rare.ls[['Species']] <- lapply(ps_raw.ls, function(ds) {
+  lapply(ds, function(db) {
+    rarefy_even_depth2(db, rngseed = 1234)
+  })
+})
+
+ps_rare.ls[['Genus']] <- lapply(ps_raw.ls, function(ds) {
+  lapply(ds, function(db) {
+    tax_glom2(db, taxrank = "Family") %>% 
+      rarefy_even_depth2(rngseed = 1234)
+  })
+})
+
+ps_rare.ls[['Family']] <- lapply(ps_raw.ls, function(ds) {
+  lapply(ds, function(db) {
+    tax_glom2(db, taxrank = "Family") %>% 
+      rarefy_even_depth2(rngseed = 1234)
+  })
+})
+
+
 write_rds(ps_full.ls, "Out/ps_full.ls.rds")
 #write_rds(ps_filt.ls, "Out/ps_filt.ls.rds")
-write_rds(ps_rare.ls, "Out/ps_rare_species.ls.rds")
-write_rds(ps_rare_genus.ls, "Out/ps_rare_genus.ls.rds")
-write_rds(ps_rare_family.ls, "Out/ps_rare_family.ls.rds")
+write_rds(ps_rare.ls, "Out/ps_rare.ls.rds")

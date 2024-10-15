@@ -17,7 +17,7 @@ tool_colours <- c(
 )
 
 group_vars <- c(
-  'NAFLD' = 'NAFLD',
+  'NAFLD' = 'Group',
   'AD_Skin' = 'Group',
   'Moss' = 'Compartment'
 )
@@ -261,7 +261,7 @@ compute_3_lvl <- function(ps.ls, func, ...){
     imap(taxRank.ls, function(ds.ls, ds) {
       cat("Processing dataset:", ds, "...\n")
       samVar <- group_vars[[ds]]               # Group variable to test 
-      if (ds != "NAFLD") return(NULL)          # ! DEV !
+      #if (ds != "NAFLD") return(NULL)          # ! DEV !
       
       future_imap(ds.ls, function(db.ps, db) { # ! Warning : doesn't work from RStudio! 
         message("Using database:", db, "...\n")
