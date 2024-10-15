@@ -106,25 +106,6 @@ ps_filt.ls <- lapply(ps_raw.ls, function(ds) {
   lapply(ds, filter_low_prevalence, minPrev = 0.10, minAbund = 0)
 })
 
-ps_rare.ls <- lapply(ps_raw.ls, function(sublist) {
-  lapply(sublist, rarefy_even_depth2, rngseed = 1234)
-})
-
-# Genus level phyloseq objects, with prevalence filtering
-ps_rare_genus.ls <- lapply(ps_raw.ls, function(ds) {
-  lapply(ds, function(db) {
-    tax_glom2(db, taxrank = "Genus") %>% 
-      rarefy_even_depth2(rngseed = 1234, verbose = TRUE)
-    })
-})
-
-ps_rare_family.ls <- lapply(ps_raw.ls, function(ds) {
-  lapply(ds, function(db) {
-    tax_glom2(db, taxrank = "Family") %>% 
-      rarefy_even_depth2(rngseed = 1234)
-  })
-})
-
 ps_full.ls <- list()
 ps_full.ls[['Species']] <- ps_filt.ls
 ps_full.ls[['Genus']] <- lapply(ps_filt.ls, function(ds) {
@@ -164,3 +145,23 @@ ps_rare.ls[['Family']] <- lapply(ps_raw.ls, function(ds) {
 write_rds(ps_full.ls, "Out/ps_full.ls.rds")
 #write_rds(ps_filt.ls, "Out/ps_filt.ls.rds")
 write_rds(ps_rare.ls, "Out/ps_rare.ls.rds")
+
+
+# ps_rare.ls <- lapply(ps_raw.ls, function(sublist) {
+#   lapply(sublist, rarefy_even_depth2, rngseed = 1234)
+# })
+# 
+# # Genus level phyloseq objects, with prevalence filtering
+# ps_rare_genus.ls <- lapply(ps_raw.ls, function(ds) {
+#   lapply(ds, function(db) {
+#     tax_glom2(db, taxrank = "Genus") %>% 
+#       rarefy_even_depth2(rngseed = 1234, verbose = TRUE)
+#     })
+# })
+# 
+# ps_rare_family.ls <- lapply(ps_raw.ls, function(ds) {
+#   lapply(ds, function(db) {
+#     tax_glom2(db, taxrank = "Family") %>% 
+#       rarefy_even_depth2(rngseed = 1234)
+#   })
+# })
