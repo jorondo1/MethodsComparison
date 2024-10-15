@@ -45,13 +45,16 @@ test_DESeq2 <- compute_3_lvl(ps.ls, func = compute_DESeq2)
 compile_3_lvl(test_DESeq2, func = compile_DESeq2) %>% 
   write_tsv('Out/DAA/DESeq2.tsv')
 
+# ZicoSeq
+test_ZicoSeq <- compute_3_lvl(ps.ls, func = compute_ZicoSeq)
+
 ### Parsing results
 compiled_DAA <- rbind(
   read_tsv('Out/DAA/Maaslin2.tsv'),
   read_tsv('Out/DAA/AncomBC2.tsv'),
   read_tsv('Out/DAA/edgeR.tsv'), # Too many taxa, needs dealing with !
   read_tsv('Out/DAA/DESEq2.tsv'),
-  # read_tsv('Out/DAA/radEmu1.tsv),
+  read_tsv('Out/DAA/radEmu1.tsv'),
   read_tsv('Out/DAA/Aldex2.tsv')
 )
 
@@ -73,7 +76,9 @@ prep_data_for_heatmap <- function(df, count_by, which_values){
 # for each database, showing only taxa found by at least 2 DAA methods.
 sig_taxa_count <- compiled_DAA %>% 
   filter(taxRank == 'Family' & dataset == 'NAFLD') %>%
-  mutate(coef = case_when(coef > 0 ~ 1, coef < 0 ~ -1, TRUE ~0)) %>% 
+  mutate(coef = case_when(coef > 0 ~ 1, 
+                          coef < 0 ~ -1,
+                          TRUE ~0)) %>% 
   group_by(Taxon, database) %>% 
   # count number of significant taxa per group
   summarise(count = n(), coef_score = sum(coef),
@@ -81,7 +86,8 @@ sig_taxa_count <- compiled_DAA %>%
 
 # keep only taxa detected by at least 2 methods
 which_taxa <- sig_taxa_count %>% 
-  dplyr::filter(count>1) %>% pull(Taxon)
+  dplyr::filter(count>1) %>% 
+  pull(Taxon)
 
 # Count DAA tools that identified each taxa in each dataset
 count_DAA <- sig_taxa_count %>% 
@@ -89,46 +95,48 @@ count_DAA <- sig_taxa_count %>%
   prep_data_for_heatmap(count_by = 'Taxon', which_values = 'count') %>% 
   mutate(count = as.factor(as.character(count))) 
 
-color_palette_DAA <- scales::colour_ramp(c("white", "black"))(
-  seq(0, 1, length.out = length(levels(count_DAA$count)))
-  )
+# color_palette_DAA <- scales::colour_ramp(c("white", "black"))(
+#   seq(0, 1, length.out = length(levels(count_DAA$count)))
+#   )
 
 count_DAA %>% 
   ggplot(aes(x = database, y = Taxon)) +
   geom_tile(aes(fill = count), color = 'black', size =0.1) +
   scale_fill_manual(
-    values = brewer.pal(n = length(levels(count_DAA$count)), name="YlOrRd")
+    values = brewer.pal(n = length(levels(count_DAA$count)), name="YlGnBu")
   ) + theme_minimal() +
   labs(fill = 'Number of\nDAA tools',
-       title = 'Taxa found significant by at least 2 DAA tools.') +
+       title = 'Differential abundance agreement on taxon significance.',
+       caption = 'Only taxa found to be differentially abundant by two or more approaches, at least once.') +
   theme(
     panel.grid.major = element_blank(),
     axis.text.x = element_text(angle = 45, hjust = 1),
     axis.title = element_blank()
   )
 
-ggsave('Out/DAA_count_NAFLD_F.pdf', bg = 'white', width = 2400, height = 1600, units = 'px', dpi = 180)
+ggsave('Out/DAA_count_NAFLD_F2.pdf', bg = 'white', width = 2400, height = 1600, units = 'px', dpi = 180)
 
 # PLOT with a coefficient score
 score_DAA <- sig_taxa_count %>% 
   dplyr::filter(Taxon %in% which_taxa) %>% 
   prep_data_for_heatmap(count_by = 'Taxon', which_values = 'coef_score')
 
-
 score_DAA %>% 
   ggplot(aes(x = database, y = Taxon)) +
   geom_tile(aes(fill = coef_score), color = 'black', size =0.1) +
-  scale_fill_gradient2(low = 'blue',
+  scale_fill_gradient2(low = 'darkgreen',
                        mid = 'white', 
-                       high = 'red', 
+                       high = 'darkred', 
                        midpoint = 0) +
-  labs(fill = 'Agreement score\nbetween DAA tools',
+  labs(fill = 'Cumulative Effect Sign Index',
        title = 'Frequency of significance calling for taxa found significant by at least 2 DAA tools overall.') +
   theme_minimal() +
   theme(
     panel.grid.major = element_blank(),
     axis.text.x = element_text(angle = 45, hjust = 1),
-    axis.title = element_blank()
+    axis.title = element_blank(), 
+    legend.position = 'bottom',
+    legend.title.position = 'top'
   )
 
 ggsave('Out/DAA_coef_NAFLD_F.pdf', bg = 'white', width = 2400, height = 1600, units = 'px', dpi = 180)

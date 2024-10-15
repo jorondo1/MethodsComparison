@@ -84,7 +84,8 @@ assemble_phyloseq <- function(abunTable, sampleData, filtering = FALSE) {
   ) %>% 
     (if (filtering) filter_low_prevalence else identity)
   
-  prune_samples(sample_sums(ps) > 0, ps) #remove any empty samples 
+  prune_samples(sample_sums(ps) > 0, ps) %>%  #remove any empty samples 
+    prune_taxa(taxa_sums(.) > 0,.) # remove taxa absent from all (may happen if you end up using not all the samples you parse, e.g. metadata missing so sample dropped in the process)
 }
 
 # Compute sparseness (proportion of 0 in abundance matrix)

@@ -213,3 +213,21 @@ compile_DESeq2 <- function(results, taxRank, db, ds) {
               DAA_tool = 'DESeq2')
 }
 
+###############
+### ZicoSeq ###
+#################
+
+compute_ZicoSeq <- function(ps, samVar) {
+  result <- ZicoSeq(
+    feature.dat = ps %>% otu_table %>% as.matrix,
+    meta.dat = ps %>% sample_data %>% as("data.frame"),
+    grp.name = samVar,
+    mean.abund.filter = 0.001,
+    perm.no = 999,
+    outlier.pct = 0.01
+  )
+}
+
+compile_ZicoSeq <- function(results, taxRank, db, ds) {
+  
+}
