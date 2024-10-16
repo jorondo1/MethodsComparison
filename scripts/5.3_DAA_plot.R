@@ -199,13 +199,16 @@ full_DAA <- rbind(
 full_DAA %>% # Scale coefficients 
   group_by(taxRank, dataset, database, DAA_tool) %>% 
   mutate(coef_scaled = scale(coef)) %>% 
+  mutate(adj.p = case_when( # Restrict pvalues to avoid ultra low 
+    adj.p < 0.001 ~ 0.001, 
+    TRUE ~ adj.p)) %>% 
   # Choose subset (at least taxRank and dataset)
   filter(#!DAA_tool %in% c('edgeR', 'DESeq2') &
-           taxRank == 'Genus' &
+           taxRank == 'Family' &
            dataset == 'NAFLD') %>% 
   ggplot(aes(x = coef_scaled, y = log10(adj.p), colour = database)) +
   geom_point(size = 0.6) +
-  facet_grid(DAA_tool~database, scales = 'free') +
+  facet_grid(database~DAA_tool, scales = 'free') +
   geom_hline(aes(yintercept = log10(0.05), linetype = "p = 0.05"), color = "red", size = 0.5) +
   geom_hline(aes(yintercept = log10(0.01), linetype = "p = 0.01"), color = "blue", size = 0.5) +
   scale_linetype_manual(name = "", values = c("p = 0.05" = "dotted", "p = 0.01" = "dotted")) +
@@ -219,9 +222,10 @@ full_DAA %>% # Scale coefficients
   axis.text.y = element_blank(),
   axis.text.x = element_text(size = 5),
   axis.ticks = element_blank()
-)
+) +
+  labs(title = 'Statistical distribution of model coefficients.', caption = 'p-values lower bound limited to 0.001 to facilitate visual comparison across tools.')
 
-ggsave('Out/DAA_full_NAFLD_G.pdf', bg = 'white', width = 2400, height = 1600, units = 'px', dpi = 180)
+ggsave('Out/DAA_full_NAFLD_F.pdf', bg = 'white', width = 2400, height = 1600, units = 'px', dpi = 180)
 
 
 fig <- plot_ly(

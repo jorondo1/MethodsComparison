@@ -128,9 +128,6 @@ compute_edgeR <- function(ps, samVar) {
 
 compile_edgeR <- function(results, taxRank, db, ds) {
   results %>% 
-    mutate(FDR = case_when( # Restrict pvalues to avoid ultra low 
-      FDR < 0.0001 ~ 0.0001, 
-      TRUE ~ FDR)) %>% 
 #    dplyr::filter(FDR < pval_cutoff) %>% # keep significant only
     transmute(Taxon := !!sym(taxRank),
               coef = logFC,
@@ -204,9 +201,6 @@ compute_DESeq2 <- function(ps, samVar) {
 compile_DESeq2 <- function(results, taxRank, db, ds) {
   results %>% 
     dplyr::filter(!is.na(padj)) %>% # keep significant only
-    mutate(padj = case_when( # Restrict pvalues to avoid ultra low 
-      padj < 0.0001 ~ 0.0001, 
-      TRUE ~ padj)) %>% 
     transmute(Taxon = row,
               coef = log2FoldChange/log2(10),
               adj.p = padj,
