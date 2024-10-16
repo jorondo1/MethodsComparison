@@ -1,5 +1,6 @@
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/community_functions.R'))
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/rarefy_even_depth2.R'))
+source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/phyloseq_to_edgeR.R'))
 
 my_datasets_factorlevels <- c('P19_Saliva', 'P19_Gut', 'RA_Gut', 'Moss', 'NAFLD')
 tool_colours <- c(
@@ -250,18 +251,19 @@ extract_lowest_rank <- function(ps) {
 # 3. tool/database (db)
 # Generates a list with the same hierarchy with what func() returns as 
 # the lowest-level objects
+plan(multicore, workers = 9)
 compute_3_lvl <- function(ps.ls, func, ...){
   require('furrr') 
-  plan(multicore, workers = 9) # not sure if multicore is better 
+   # not sure if multicore is better 
   
   imap(ps.ls, function(taxRank.ls, taxRank) {
     cat("Processing", taxRank, "...\n")
     if (taxRank == "Species") return(NULL)      # ! DEV !
     
     imap(taxRank.ls, function(ds.ls, ds) {
-      cat("Processing dataset:", ds, "...\n")
       samVar <- group_vars[[ds]]               # Group variable to test 
-      #if (ds != "NAFLD") return(NULL)          # ! DEV !
+      if (ds != "NAFLD") return(NULL)          # ! DEV !
+      cat("Processing dataset:", ds, "...\n")
       
       future_imap(ds.ls, function(db.ps, db) { # ! Warning : doesn't work from RStudio! 
         message("Using database:", db, "...\n")

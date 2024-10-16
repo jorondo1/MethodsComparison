@@ -1,5 +1,5 @@
 library(pacman)
-p_load(magrittr, tidyverse, RColorBrewer)
+p_load(magrittr, tidyverse, RColorBrewer, plotly)
 
 source('scripts/myFunctions.R')
 source('scripts/5_DAA_fun.R')
@@ -22,6 +22,7 @@ prep_data_for_heatmap <- function(df, count_by, which_values){
 
 # 1. Look at how many DAA tools have identified a taxon 
 # for each database, showing only taxa found by at least 2 DAA methods.
+byatleast_DAA <- 3
 sig_tax_DAA_count <- compiled_DAA %>% 
   filter(taxRank == 'Family' & dataset == 'NAFLD') %>%
   group_by(Taxon, database) %>% 
@@ -29,7 +30,7 @@ sig_tax_DAA_count <- compiled_DAA %>%
 
 # keep only taxa detected by at least 2 methods
 which_tax_DAA_count <- sig_tax_DAA_count %>% 
-  dplyr::filter(count>1) %>% 
+  dplyr::filter(count>=byatleast_DAA) %>% 
   pull(Taxon)
 
 # Count DAA tools that identified each taxa in each dataset
@@ -60,13 +61,13 @@ ggsave('Out/DAA_count_DAA_NAFLD_F.pdf', bg = 'white', width = 2400, height = 160
 # many database each taxon was found
 
 sig_tax_db_count <- compiled_DAA %>% 
-  filter(taxRank == 'Family' & dataset == 'AD_Skin') %>%
+  filter(taxRank == 'Family' & dataset == 'NAFLD') %>%
   group_by(Taxon, DAA_tool) %>% 
   summarise(count = n(), .groups = 'drop')  # count significant taxa per group
 
 # keep only taxa detected by at least 3 methods (filter out high edgeR+MPA false positive...)
 which_tax_db_count <- sig_tax_db_count %>% 
-  dplyr::filter(count>2) %>% 
+  dplyr::filter(count>=byatleast_DAA) %>% 
   pull(Taxon)
 
 # Count DAA tools that identified each taxa in each dataset
@@ -187,6 +188,15 @@ compiled_DAA %>%
 
 
 
+fig <- plot_ly(
+  data = count_tax_db,
+  x = ~DAA_tool,
+  y = ~Taxon,
+  z = ~database,
+  color = ~count,
+  colors = colorRamp(c("blue", "green", "red")),
+  type = "mesh3d"
+)
 
 
 

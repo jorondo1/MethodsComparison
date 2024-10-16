@@ -5,20 +5,17 @@ remove.packages('ANCOMBC')
 BiocManager::install("ANCOMBC")
 BiocManager::install("ANCOMBC", force=TRUE)
 library('ANCOMBC')
-library('ANCOMBC')
-p_load(magrittr, tidyverse, phyloseq, RColorBrewer,#
-       furrr, purrr, parallel)
-library(pacman)
-p_load(magrittr, tidyverse, phyloseq, RColorBrewer,#
-       furrr, purrr, parallel)
-setwd('~/Repos/MethodsComparison')
-p_load(magrittr, tidyverse, phyloseq, RColorBrewer,#
-       furrr, purrr, parallel
-c
+setwd('~/Repos/MethodsComparison/')
+library(pacman)#
+p_load(magrittr, tidyverse, phyloseq,#
+       furrr, purrr, parallel,#
+       ANCOMBC, ALDEx2, radEmu, edgeR, DESeq2, Maaslin2, GUniFrac)#
+#
 source('scripts/myFunctions.R')#
-source('scripts/5_DAA_fun.R')#
+source('scripts/5.1_DAA_fun.R')#
 #
 ps.ls <- read_rds('Out/ps_full.ls.rds')#
+ps_rare.ls <- read_rds('Out/ps_rare.ls.rds')#
 #
 out_path <- 'Out/DAA'#
 if (!dir.exists(out_path)) {#
@@ -26,8 +23,59 @@ if (!dir.exists(out_path)) {#
 }#
 #
 ncores <- detectCores() -1
-compute_ancombc2
-compute_3_lvl
-test_ancombc2 <- compute_3_lvl(ps.ls, func = compute_ancombc2)#
-compile_3_lvl(test_ancombc2, func = compile_ancombc2) %>% #
-  write_tsv('Out/DAA/AncomBC2.tsv')
+plan(multicore, workers = 9)
+compute_3_lvl <- function(ps.ls, func, ...){#
+  require('furrr') #
+   # not sure if multicore is better #
+  imap(ps.ls, function(taxRank.ls, taxRank) {#
+    cat("Processing", taxRank, "...\n")#
+    if (taxRank == "Species") return(NULL)      # ! DEV !#
+    imap(taxRank.ls, function(ds.ls, ds) {#
+      samVar <- group_vars[[ds]]               # Group variable to test #
+      if (ds != "NAFLD") return(NULL)          # ! DEV !#
+      cat("Processing dataset:", ds, "...\n")#
+      future_imap(ds.ls, function(db.ps, db) { # ! Warning : doesn't work from RStudio! #
+        message("Using database:", db, "...\n")#
+        # Collect all available arguments#
+        all_args <- list(ps = db.ps, samVar = samVar, #
+                         taxRank = taxRank, ds = ds, db = db)#
+        # keep required arguments only#
+        func_args <- all_args[names(all_args) %in% names(formals(func))]#
+        # Call computing function: #
+        do.call(func, func_args)#
+      }, .options = furrr_options(seed = T))#
+    })#
+  })#
+}#
+#
+compile_3_lvl <- function(results.ls, func, ...) {#
+  imap(results.ls, function(taxRank.ls, taxRank) {#
+    imap(taxRank.ls, function(ds.ls, ds) {#
+      imap(ds.ls, function(db.ps, db) { #
+        func(db.ps, taxRank, db, ds) #
+      }) %>% list_rbind#
+    }) %>% list_rbind#
+  }) %>% list_rbind#
+}
+test_edgeR <- compute_3_lvl(ps.ls, func = compute_edgeR)
+source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/community_functions.R'))#
+source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/rarefy_even_depth2.R'))
+test_edgeR <- compute_3_lvl(ps.ls, func = compute_edgeR)
+source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/phyloseq_to_edgeR.R'))
+test_edgeR <- compute_3_lvl(ps.ls, func = compute_edgeR)
+compile_3_lvl(test_edgeR, func = compile_edgeR) %>% #
+  write_tsv('Out/DAA/edgeR.tsv')
+test_DESeq2 <- compute_3_lvl(ps.ls, func = compute_DESeq2)
+compute_DESeq2 <- function(ps, samVar) {#
+  ds_formula <- as.formula(paste('~',samVar))#
+  dds <- phyloseq_to_deseq2(ps, design = ds_formula)#
+  dds_res <- DESeq2::DESeq(dds, sfType = 'poscounts')#
+  results(dds_res, tidy=T, format='DataFrame') %>% tibble()#
+}
+test_DESeq2 <- compute_3_lvl(ps.ls, func = compute_DESeq2)
+compile_3_lvl(test_DESeq2, func = compile_DESeq2) %>% #
+  write_tsv('Out/DAA/DESeq2.tsv')
+capture_Maaslin_stdout
+test_aldex <- compute_3_lvl(ps.ls, func = compute_aldex)
+compile_3_lvl(test_aldex, func = compile_aldex) %>% #
+  write_tsv('Out/DAA/Aldex2.tsv')

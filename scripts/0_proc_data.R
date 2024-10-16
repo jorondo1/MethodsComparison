@@ -6,9 +6,8 @@ source('scripts/myFunctions.R')
 source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/tax_glom2.R')
 
 # Import External data
-objectsToImport <- c("psSalivaKB", "psFecesKB")
-for (i in objectsToImport) {assign(i,readRDS(
-  paste0("/Users/jorondo/Library/CloudStorage/OneDrive-USherbrooke/Projets/PROVID19/objects/",i,".rds")))}
+psSalivaKB <- read_rds('P19_Saliva/psSalivaKB.rds')
+psFecesKB <- read_rds('P19_Gut/psFecesKB.rds')
 moss.ps <-readRDS(url('https://github.com/jorondo1/borealMoss/raw/main/data/R_out/mossMAGs.RDS'))
 
 # Function to call parsing functions for each dataset,
