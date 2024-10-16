@@ -5,8 +5,8 @@ source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/phylose
 my_datasets_factorlevels <- c('P19_Saliva', 'P19_Gut', 'RA_Gut', 'Moss', 'NAFLD')
 tool_colours <- c(
   'MPA_db2019' = 'green4',
-  'MPA_db2022' = 'green2',
-  'MPA_db2023' = 'darkolivegreen3',
+  'MPA_db2022' = 'palegreen3',
+  'MPA_db2023' = 'darkolivegreen',
   'KB05' = 'indianred1',
   'KB20' = 'indianred3',
   'KB51' = 'orangered4',

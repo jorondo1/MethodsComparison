@@ -99,7 +99,7 @@ compute_radEmu <- function(ps, samVar) {
 
 compile_radEmu <- function(results, taxRank, db, ds) {
   map_dfr(results, ~ .x$coef %>%
-#    dplyr::filter(pval < pval_cutoff) %>%
+    dplyr::filter(!is.na(pval)) %>%
     as_tibble) %>% 
     transmute(
       Taxon = category,
@@ -121,13 +121,16 @@ compute_edgeR <- function(ps, samVar) {
   tt = topTags(et, n=nrow(test$table), 
                adjust.method="fdr", 
                sort.by="PValue",
-               p.value = pval_cutoff)
+               p.value = 1)
   # Extract results
   tt@.Data[[1]] %>% tibble()
 }
 
 compile_edgeR <- function(results, taxRank, db, ds) {
   results %>% 
+    mutate(FDR = case_when( # Restrict pvalues to avoid ultra low 
+      FDR < 0.0001 ~ 0.0001, 
+      TRUE ~ FDR)) %>% 
 #    dplyr::filter(FDR < pval_cutoff) %>% # keep significant only
     transmute(Taxon := !!sym(taxRank),
               coef = logFC,
@@ -155,8 +158,10 @@ compute_Maaslin2 <- function(ps, samVar, taxRank, ds, db) {
     input_metadata = ps %>% sample_data %>% data.frame,
     output = maaslin_path,
     fixed_effects = samVar,
+    min_prevalence = 0.1,
     transform = 'AST',
     standardize = FALSE, 
+    max_significance = 1,
     plot_heatmap = F, 
     plot_scatter = F,
     cores = detectCores()-1
@@ -198,7 +203,10 @@ compute_DESeq2 <- function(ps, samVar) {
 
 compile_DESeq2 <- function(results, taxRank, db, ds) {
   results %>% 
-#    dplyr::filter(padj < pval_cutoff) %>% # keep significant only
+    dplyr::filter(!is.na(padj)) %>% # keep significant only
+    mutate(padj = case_when( # Restrict pvalues to avoid ultra low 
+      padj < 0.0001 ~ 0.0001, 
+      TRUE ~ padj)) %>% 
     transmute(Taxon = row,
               coef = log2FoldChange/log2(10),
               adj.p = padj,
@@ -212,23 +220,28 @@ compile_DESeq2 <- function(results, taxRank, db, ds) {
 ### ZicoSeq ###
 #################
 compute_ZicoSeq <- function(ps, samVar) {
+  metadata <- ps %>% sample_data %>% 
+    as("data.frame") %>% 
+    mutate(Group = as.numeric(Group))
   
   result <- ZicoSeq(
     feature.dat = ps %>% otu_table %>% as.matrix,
-    meta.dat = ps %>% sample_data %>% as("data.frame"),
+    meta.dat = metadata,
     grp.name = samVar,
     feature.dat.type = 'count',
     mean.abund.filter = 0.001,
     perm.no = 999,
+    prev.filter = 0.1,
     outlier.pct = 0.01
   ) 
 }
 
 compile_ZicoSeq <- function(results, taxRank, db, ds) {
+  coef_matrix <- results$coef.list[[1]]
   tibble(
-    Taxon = names(test.zicoseq$p.adj.fdr),
-    coef = test.zicoseq$R2[,1],
-    adj.p = test.zicoseq$p.adj.fdr,
+    Taxon = colnames(coef_matrix),
+    coef = coef_matrix[2, ],
+    adj.p = results$p.adj.fdr,
     taxRank = taxRank,
     database = db,
     dataset = ds,

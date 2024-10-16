@@ -4,7 +4,7 @@ p_load(magrittr, tidyverse, RColorBrewer, plotly)
 source('scripts/myFunctions.R')
 source('scripts/5_DAA_fun.R')
 
-compiled_DAA <- read_tsv('Out/DAA/Compiled_DAA.tsv')
+compiled_DAA <- read_tsv('Out/DAA/Compiled_DAA_05.tsv')
 
 # First a quick data manipulation function:
 prep_data_for_heatmap <- function(df, count_by, which_values){
@@ -181,11 +181,47 @@ count_DB %>%
 
 
 compiled_DAA %>% 
-  filter(!DAA_tool %in% c('edgeR')) %>% 
+  filter(!DAA_tool %in% c('edgeR', 'DESeq2')) %>% 
   ggplot(aes(x = coef, y = log10(adj.p), colour = DAA_tool)) + 
   geom_point(size = 3) +
   theme_minimal() 
 
+full_DAA <- rbind(
+  read_tsv('Out/DAA/Maaslin2.tsv'),
+  read_tsv('Out/DAA/AncomBC2.tsv'),
+  read_tsv('Out/DAA/edgeR.tsv'), # Too many taxa, needs dealing with !
+  read_tsv('Out/DAA/DESEq2.tsv'),
+  read_tsv('Out/DAA/radEmu.tsv'),
+  read_tsv('Out/DAA/Aldex2.tsv'),
+  read_tsv('Out/DAA/ZicoSeq.tsv')
+)
+
+full_DAA %>% # Scale coefficients 
+  group_by(taxRank, dataset, database, DAA_tool) %>% 
+  mutate(coef_scaled = scale(coef)) %>% 
+  # Choose subset (at least taxRank and dataset)
+  filter(#!DAA_tool %in% c('edgeR', 'DESeq2') &
+           taxRank == 'Genus' &
+           dataset == 'NAFLD') %>% 
+  ggplot(aes(x = coef_scaled, y = log10(adj.p), colour = database)) +
+  geom_point(size = 0.6) +
+  facet_grid(DAA_tool~database, scales = 'free') +
+  geom_hline(aes(yintercept = log10(0.05), linetype = "p = 0.05"), color = "red", size = 0.5) +
+  geom_hline(aes(yintercept = log10(0.01), linetype = "p = 0.01"), color = "blue", size = 0.5) +
+  scale_linetype_manual(name = "", values = c("p = 0.05" = "dotted", "p = 0.01" = "dotted")) +
+  scale_colour_manual(values = tool_colours) +
+  guides(
+    linetype = guide_legend(order = 1, override.aes = list(color = c("blue", "red"))),
+    colour = guide_legend(order = 2),  # Keep the colour legend
+    size = guide_legend(order = 4),    # Keep the size legend
+    shape = guide_legend(order = 3)    # Keep the shape legend
+) + theme(
+  axis.text.y = element_blank(),
+  axis.text.x = element_text(size = 5),
+  axis.ticks = element_blank()
+)
+
+ggsave('Out/DAA_full_NAFLD_G.pdf', bg = 'white', width = 2400, height = 1600, units = 'px', dpi = 180)
 
 
 fig <- plot_ly(

@@ -72,8 +72,8 @@ NAFLD_meta <- read_delim('NAFLD/raw/ENA_report.tsv') %>%
             join_by(sample_title == SampleID)) %>% 
   mutate(Group = case_when(is.na(NAFLD) ~ 'Positive',
                            TRUE ~ NAFLD), .keep = 'unused') %>% 
-  mutate(Group = case_when(Group == 'Negative' ~ 0,
-                           Group == 'Positive' ~ 1)) %>% 
+  mutate(Group = as.factor(case_when(Group == 'Negative' ~ 0,
+                            Group == 'Positive' ~ 1))) %>% 
   column_to_rownames('sample_title')
 
 AD_skin_meta <- read_delim('AD_Skin/raw/ENA_report.tsv') %>% 
@@ -128,7 +128,7 @@ ps_rare.ls[['Species']] <- lapply(ps_raw.ls, function(ds) {
 
 ps_rare.ls[['Genus']] <- lapply(ps_raw.ls, function(ds) {
   lapply(ds, function(db) {
-    tax_glom2(db, taxrank = "Family") %>% 
+    tax_glom2(db, taxrank = "Genus") %>% 
       rarefy_even_depth2(rngseed = 1234)
   })
 })
