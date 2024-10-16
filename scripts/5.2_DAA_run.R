@@ -60,5 +60,5 @@ rbind(
   read_tsv('Out/DAA/radEmu.tsv'),
   read_tsv('Out/DAA/Aldex2.tsv'),
   read_tsv('Out/DAA/ZicoSeq.tsv')
-) %>% 
-  write_tsv('Out/DAA/Compiled_DAA.tsv')
+) %>% dplyr::filter(adj.p < 0.05) %>% 
+  write_tsv('Out/DAA/Compiled_DAA_05.tsv')
