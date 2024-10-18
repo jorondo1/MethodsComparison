@@ -83,7 +83,7 @@ assemble_phyloseq <- function(abunTable, sampleData, filtering = FALSE) {
   abund <- abunTable %>% 
     dplyr::select(where(is.double), Species) %>% 
     group_by(Species) %>% 
-    summarise(across(where(is.numeric), sum)) %>% 
+    dplyr::summarise(across(where(is.numeric), sum)) %>% 
     column_to_rownames('Species') 
   
   # Extract taxonomy
@@ -253,8 +253,8 @@ extract_lowest_rank <- function(ps) {
   require('dplyr')
   tax_table(ps) %>%
     as.data.frame %>%
-    summarise(across(everything(), ~ !all(is.na(.)))) %>%
-    pivot_longer(everything()) %>%
+    dplyr::summarise(across(everything(), ~ !all(is.na(.)))) %>%
+    tidyr::pivot_longer(everything()) %>%
     filter(value) %>%
     slice_tail(n = 1) %>%
     pull(name)
