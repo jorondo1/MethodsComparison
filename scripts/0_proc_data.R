@@ -1,5 +1,5 @@
 library(pacman)
-p_load(phyloseq, tidyverse, magrittr, doParallel)
+p_load(phyloseq, tidyverse, magrittr, doParallel, furrr)
 
 # functions
 source('scripts/myFunctions.R')
@@ -17,7 +17,7 @@ meta_parsing <- function(dsName, samData) {
   ps <- list()
   
   # Metaphlan  
-  for (db in c('MPA_db2022', 'MPA_db2023')) {
+  for (db in c('MPA_db2019','MPA_db2022', 'MPA_db2023')) {
     message(paste('Parsing', db, '...'))
     ps[[db]] <- parse_MPA(
       MPA_files = paste0(dsName,'/', db, '/*/*_profile.txt'),
@@ -93,12 +93,12 @@ ps_raw.ls <- list()
 ps_raw.ls[['P19_Saliva']] <- meta_parsing('P19_Saliva', psSalivaKB@sam_data)
 ps_raw.ls[['P19_Gut']] <- meta_parsing('P19_Gut', psFecesKB@sam_data)
 ps_raw.ls[['Moss']] <- meta_parsing('Moss', moss.ps@sam_data)
-ps_raw.ls[['NAFLD']] <- meta_parsing('NAFLD', NAFLD_meta)
-ps_raw.ls[['AD_Skin']] <- meta_parsing('AD_Skin', AD_skin_meta)
 ps_raw.ls[['Moss']][['SM_gtdb-rs214-rep_MAGs']] <- moss.ps 
 ps_raw.ls$Moss$MPA_db2022 <- NULL
 ps_raw.ls$Moss$MPA_db2023 <- NULL
 ps_raw.ls$Moss$MOTUS <- NULL
+ps_raw.ls[['NAFLD']] <- meta_parsing('NAFLD', NAFLD_meta)
+ps_raw.ls[['AD_Skin']] <- meta_parsing('AD_Skin', AD_skin_meta)
 
 # Prevalence+Abundance filtering, currently hardcoded in filter_low_prevalence()
 ps_filt.ls <- lapply(ps_raw.ls, function(ds) {

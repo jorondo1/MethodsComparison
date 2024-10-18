@@ -51,7 +51,7 @@ Div_long <- bind_rows(Species = compile_diversity(ps_rare.ls$Species),
                       .id = 'Rank') %>% 
   mutate(database = factor(database, levels = names(tool_colours)))
 
-write_rds(Div_long, 'Out/Diversity_long.rds')
+write_rds(Div_long, 'Out/Diversity_long_2.rds')
 
 # Div_long <- read_rds('Out/Diversity_long.rds')
 # Visualise differences in diversity across tools
@@ -80,7 +80,7 @@ filter_and_add_samData <- function(df, ds, Rank, ps_list) {
   df %<>% filter(dataset == !!ds & Rank == !!Rank)
   
   # Extract sam_data from any phyloseq object of that dataset
-  samData <- ps_list[[ds]][[1]]@sam_data %>% 
+  samData <- ps_list[[Rank]][[ds]][[1]]@sam_data %>% 
     as('data.frame') %>% 
     rownames_to_column('Sample')
   
@@ -120,7 +120,7 @@ plot_alpha_group <- function(ps.ls, ds, taxRank, Group) {
   
   return(p)
 }
-plot_alpha_group(ps_species.ls, ds = 'NAFLD', 'Species', Group = 'NAFLD')
+plot_alpha_group(ps_rare.ls, ds = 'P19_Saliva', 'Species', Group = 'NAFLD')
 
 #############
 ## PCoA ######
