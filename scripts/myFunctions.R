@@ -1,4 +1,3 @@
-source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/community_functions.R'))
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/rarefy_even_depth2.R'))
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/phyloseq_to_edgeR.R'))
 
