@@ -122,21 +122,21 @@ ps_full.ls[['Family']] <- lapply(ps_filt.ls, function(ds) {
 ps_rare.ls <- list()
 ps_rare.ls[['Species']] <- lapply(ps_raw.ls, function(ds) {
   lapply(ds, function(db) {
-    rarefy_even_depth2(db, rngseed = 1234)
+    rarefy_even_depth2(db, rngseed = 1234, verbose = TRUE, ncores = 80)
   })
 })
 
 ps_rare.ls[['Genus']] <- lapply(ps_raw.ls, function(ds) {
   lapply(ds, function(db) {
     tax_glom2(db, taxrank = "Genus") %>% 
-      rarefy_even_depth2(rngseed = 1234)
+      rarefy_even_depth2(rngseed = 1234, verbose = TRUE, ncores = 80)
   })
 })
 
 ps_rare.ls[['Family']] <- lapply(ps_raw.ls, function(ds) {
   lapply(ds, function(db) {
     tax_glom2(db, taxrank = "Family") %>% 
-      rarefy_even_depth2(rngseed = 1234)
+      rarefy_even_depth2(rngseed = 1234, verbose = TRUE, ncores = 80)
   })
 })
 

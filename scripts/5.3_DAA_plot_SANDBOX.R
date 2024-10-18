@@ -1,5 +1,5 @@
 library(pacman)
-p_load(magrittr, tidyverse, RColorBrewer, plotly)
+p_load(magrittr, tidyverse, RColorBrewer, plotly, ggbeeswarm2, ggridges)
 
 source('scripts/myFunctions.R')
 source('scripts/5_DAA_fun.R')
@@ -125,10 +125,6 @@ score_DAA %>%
   scale_fill_manual(
     values = brewer.pal(n = length(levels(score_DAA$coef_score)), name="PiYG")
   ) +
-  # scale_fill_gradient2(low = 'darkgreen',
-  #                      mid = 'white', 
-  #                      high = 'darkred', 
-  #                      midpoint = 0) +
   labs(fill = 'Cumulative Effect Sign Index',
        title = 'Frequency of significance calling for taxa found significant by at least 2 DAA tools overall.') +
   theme_minimal() +
@@ -146,7 +142,8 @@ ggsave('Out/DAA_coef_NAFLD_F.pdf', bg = 'white', width = 2400, height = 1600, un
 # 2. For each database/DAA combination, how many taxa were found as sig?
 # Restricted to taxa found by at least 2 DAA Tools overall.
 taxa_found_multiple <- compiled_DAA %>% 
-  dplyr::filter(dataset == 'NAFLD' & taxRank == 'Family') %>% 
+  dplyr::filter(dataset == 'NAFLD' & taxRank == 'Family' &
+                  !DAA_tool %in% c('DESeq2', 'edgeR')) %>% 
   group_by(database, Taxon) %>% 
   summarise(count = n(), .groups = 'drop') %>% 
   dplyr::filter(count>1) %>% 
@@ -179,7 +176,7 @@ count_DB %>%
     axis.title = element_blank()
   )
 
-
+######### BASED ON FULL DATASETS
 compiled_DAA %>% 
   filter(!DAA_tool %in% c('edgeR', 'DESeq2')) %>% 
   ggplot(aes(x = coef, y = log10(adj.p), colour = DAA_tool)) + 
@@ -196,18 +193,22 @@ full_DAA <- rbind(
   read_tsv('Out/DAA/ZicoSeq.tsv')
 )
 
-full_DAA %>% # Scale coefficients 
+full_DAA_subset <- full_DAA %>% # Scale coefficients 
+  filter(#!DAA_tool %in% c('edgeR', 'DESeq2') &
+    taxRank == 'Family' &
+      dataset == 'NAFLD') %>% 
   group_by(taxRank, dataset, database, DAA_tool) %>% 
-  mutate(coef_scaled = scale(coef)) %>% 
+  mutate(coef_scaled = scale(coef)) %>% ungroup %>% 
+  dplyr::select(-taxRank, -dataset)
+
+full_DAA_subset %>% 
   mutate(adj.p = case_when( # Restrict pvalues to avoid ultra low 
     adj.p < 0.001 ~ 0.001, 
     TRUE ~ adj.p)) %>% 
   # Choose subset (at least taxRank and dataset)
-  filter(#!DAA_tool %in% c('edgeR', 'DESeq2') &
-           taxRank == 'Family' &
-           dataset == 'NAFLD') %>% 
+ 
   ggplot(aes(x = coef_scaled, y = log10(adj.p), colour = database)) +
-  geom_point(size = 0.6) +
+  geom_point(size = 1) +
   facet_grid(database~DAA_tool, scales = 'free') +
   geom_hline(aes(yintercept = log10(0.05), linetype = "p = 0.05"), color = "red", size = 0.5) +
   geom_hline(aes(yintercept = log10(0.01), linetype = "p = 0.01"), color = "blue", size = 0.5) +
@@ -227,16 +228,66 @@ full_DAA %>% # Scale coefficients
 
 ggsave('Out/DAA_full_NAFLD_F.pdf', bg = 'white', width = 2400, height = 1600, units = 'px', dpi = 180)
 
+### #Proportion of significant taxa per DAA tool across databases
+### Based on taxa found in all databases
 
-fig <- plot_ly(
-  data = count_tax_db,
-  x = ~DAA_tool,
-  y = ~Taxon,
-  z = ~database,
-  color = ~count,
-  colors = colorRamp(c("blue", "green", "red")),
-  type = "mesh3d"
-)
+full_DAA_subset %>% 
+  group_by(database, DAA_tool) %>% 
+  summarise(prop_sig = mean(adj.p < 0.05), .groups = 'drop') %>% 
+  ggplot(aes(x = prop_sig, y = DAA_tool)) +
+  scale_colour_manual(values = tool_colours) +
+  geom_beeswarm(aes(colour = database), 
+                stroke = 2, size = 10, shape = 1, method = 'swarm', cex = 2) +
+  theme_minimal() +
+  labs(x = 'Proportion of families significantly differentially abundant')
+
+##### ACROSS COMMON DATABASE TAXA
+#### Number of database from which each tool identifies the top taxa as significant
+num_DAA_tools <- full_DAA$database %>% unique %>% length
+common_taxa <- full_DAA_subset %>% 
+  group_by(Taxon, DAA_tool) %>% 
+  summarise(n = n(), .groups = 'drop') %>% 
+  filter(n == 9) %>% 
+  group_by(Taxon) %>% 
+  summarise(n = n()) %>% pull(Taxon)
+
+top_families <- full_DAA_subset %>% 
+  filter(Taxon %in% common_taxa) %>% 
+  dplyr::filter(adj.p <0.05) %>% 
+  group_by(Taxon) %>% 
+  summarise(n = n(), .groups = 'drop') %>% 
+  arrange(desc(n)) %>% head(n = 10) %>% pull(Taxon)
+
+n_db_sig <- full_DAA_subset %>% 
+  dplyr::filter(Taxon %in% top_families &
+                  adj.p<0.05) %>% 
+  group_by(Taxon, DAA_tool) %>% 
+  summarise(n = n(), med_coef = abs(median(coef)),
+            .groups = 'drop') 
+# PLOT
+n_db_sig %>% 
+  ggplot(aes(x = n, y = Taxon, colour = DAA_tool)) +
+  geom_beeswarm(size=5, stroke = 1.5, shape = 2, method = 'swarm', cex = 1) +
+  scale_x_continuous(limits = c(0,num_DAA_tools),
+                     breaks = seq(0,num_DAA_tools, by = 1)) +
+  scale_colour_brewer(palette = 'Paired') +
+  labs(x = 'Number of databases where taxa was found significant') + theme_minimal()
+
+full_DAA_subset %>% 
+  dplyr::filter(adj.p<0.05 & Taxon %in% common_taxa) %>% 
+  group_by(Taxon, DAA_tool) %>% 
+  summarise(n = n(), .groups = 'drop') %>% 
+  # dplyr::filter(Taxon %in% top_families &
+  #                 adj.p<0.05) %>% 
+  ggplot(aes(x = n, y = Taxon, fill = DAA_tool)) +
+  geom_density_ridges(scale = 0.9, alpha = 0.4, 
+                      stat = "binline", 
+                      boundary = 0, draw_baseline = FALSE) +
+  scale_x_continuous(limits = c(0,num_DAA_tools),
+                     breaks = seq(0,num_DAA_tools, by = 1))
+  
+                      
+
 
 
 

@@ -5,10 +5,13 @@ p_load(
   # metrics and stats
   phyloseq, DESeq2, vegan, rstatix,
   # plotting :
-  ggridges, ggbeeswarm2, patchwork, grid, ggh4x)
+  ggbeeswarm2, patchwork, grid, ggh4x)
 
-ps_species.ls <- read_rds("Out/ps_rare_species.ls.rds") 
-ps_genus.ls <- read_rds("Out/ps_rare_genus.ls.rds") 
+#ps_species.ls <- read_rds("Out/ps_rare_species.ls.rds") 
+#ps_genus.ls <- read_rds("Out/ps_rare_genus.ls.rds") 
+
+ps.ls <- read_rds('Out/ps_full.ls.rds')
+ps_rare.ls <- read_rds('Out/ps_rare.ls.rds')
 
 #########################################
 ### Hill numbers and Tail diversity ####
@@ -42,17 +45,18 @@ compile_diversity <- function(ps.ls) {
   }) %>% list_rbind
 }
 
-Div_long <- bind_rows(Species = compile_diversity(ps_species.ls), 
-                      Genus = compile_diversity(ps_genus.ls), 
-                      Family = compile_diversity(ps_family.ls),
+Div_long <- bind_rows(Species = compile_diversity(ps_rare.ls$Species), 
+                      Genus = compile_diversity(ps_rare.ls$Genus), 
+                      Family = compile_diversity(ps_rare.ls$Family),
                       .id = 'Rank') %>% 
   mutate(database = factor(database, levels = names(tool_colours)))
 
 write_rds(Div_long, 'Out/Diversity_long.rds')
+
 # Div_long <- read_rds('Out/Diversity_long.rds')
 # Visualise differences in diversity across tools
 Div_long %>% 
-  filter(#dataset!='Moss' & 
+  filter(dataset!='AD_Skin' & 
     database != 'KB05' & !dataset %in% c('P19_Saliva', 'P19_Gut') &
            Rank != 'Family') %>% 
   # filter(Rank != 'Family' & index == 'H_0' & dataset != 'Feces') %>% 
@@ -67,7 +71,6 @@ Div_long %>%
 
 ggsave('Out/diversity_filt.pdf', bg = 'white', 
        width = 2400, height = 2400, units = 'px', dpi = 180)
-
 
 ##############
 ## Alpha div ##
@@ -162,7 +165,7 @@ plot_ordination_dist <- function(df, ds, dist, var) {
   df %>% 
     filter(dataset == ds
            & distance == dist
-           #& database %in% tool_subset
+           & database %in% tool_subset
            ) %>% 
     ggplot(aes(x = PCo1, y = PCo2, colour = !!sym(var))) + 
     stat_ellipse(level=0.9, geom = "polygon", alpha = 0.18, aes(fill = !!sym(var))) +   

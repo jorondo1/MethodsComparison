@@ -32,6 +32,21 @@ tool_vars <- tibble(
   "maaslin2" = "qval"
 )
 
+CCE_names <- c(
+  'MPA_db2019' = 'MetaPhlAn3 (2019)',
+  'MPA_db2022' = 'Metaphlan4 (2022)',
+  'MPA_db2023' = 'Metaphlan4 (2022)',
+  'KB05' = 'Kraken (5% conf.) + Bracken',
+  'KB20' = 'Kraken (20% conf.) + Bracken',
+  'KB51' = 'Kraken (51% conf.) + Bracken',
+  'MOTUS' = 'mOTUs',
+  'SM_genbank-2022.03' = 'Sourmash (Genbank)',
+  'SM_gtdb-rs214-full' = 'Sourmash (GTDB)',
+  'SM_gtdb-rs214-rep'= 'Sourmash (GTDB rep.)',
+  'SM_gtdb-rs214-rep_MAGs'= 'Sourmash (GTDB rep. + Novel MAGs)'
+)
+
+
 plot_theme <- function() {
   list(
     theme_minimal(),
