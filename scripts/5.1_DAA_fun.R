@@ -231,9 +231,10 @@ compile_radEmu <- function(results, taxRank, db, ds) {
 ### ZicoSeq ###
 #################
 compute_ZicoSeq <- function(ps, samVar) {
+  require('rlang')
   metadata <- ps %>% sample_data %>% 
-    as("data.frame") %>% 
-    mutate(Group = as.numeric(Group))
+    as("data.frame") %>% as_tibble %>% # convert group var to binary
+    mutate(across({{ samVar }}, ~ as.numeric(fct_drop(as.factor(.))) - 1)). 
   
   result <- ZicoSeq(
     feature.dat = ps %>% otu_table %>% as.matrix,
