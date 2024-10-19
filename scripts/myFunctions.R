@@ -138,7 +138,7 @@ filter_and_add_samData <- function(df, ds, Rank, ps_list) {
     as('data.frame') %>% 
     rownames_to_column('Sample')
   
-  left_join(df, samData, by = 'Sample')
+  inner_join(df, samData, by = 'Sample') 
 }
 
 # Hill numbers
