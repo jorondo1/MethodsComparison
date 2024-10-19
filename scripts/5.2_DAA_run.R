@@ -9,6 +9,9 @@ source('scripts/5.1_DAA_fun.R')
 ps.ls <- read_rds('Out/ps_full.ls.rds')
 ps_rare.ls <- read_rds('Out/ps_rare.ls.rds')
 
+ps.ls <- map(ps.ls, ~ .x["Moss"])
+ps_rare.ls <- map(ps_rare.ls, ~ .x["Moss"])
+
 out_path <- 'Out/DAA_Moss'
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
