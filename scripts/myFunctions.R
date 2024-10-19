@@ -34,7 +34,7 @@ tool_vars <- tibble(
 CCE_names <- c(
   'MPA_db2019' = 'MetaPhlAn3 (2019)',
   'MPA_db2022' = 'Metaphlan4 (2022)',
-  'MPA_db2023' = 'Metaphlan4 (2022)',
+  'MPA_db2023' = 'Metaphlan4 (2023)',
   'KB05' = 'Kraken (5% conf.) + Bracken',
   'KB20' = 'Kraken (20% conf.) + Bracken',
   'KB51' = 'Kraken (51% conf.) + Bracken',
@@ -43,6 +43,12 @@ CCE_names <- c(
   'SM_gtdb-rs214-full' = 'Sourmash (GTDB)',
   'SM_gtdb-rs214-rep'= 'Sourmash (GTDB rep.)',
   'SM_gtdb-rs214-rep_MAGs'= 'Sourmash (GTDB rep. + Novel MAGs)'
+)
+
+Hill_numbers <- c(
+  'H_0' = 'Richness',
+  'H_1' = 'Shannon',
+  'H_2' = 'Simpson'
 )
 
 
@@ -122,6 +128,18 @@ compile_sparseness <- function(ps_list) {
 ################
 ### DIVERSITY ###
 ################
+
+# Add sample data to a dataframe from phyloseq objeoct
+filter_and_add_samData <- function(df, ds, Rank, ps_list) {
+  df %<>% filter(dataset == !!ds & Rank == !!Rank)
+  
+  # Extract sam_data from any phyloseq object of that dataset
+  samData <- ps_list[[Rank]][[ds]][[1]]@sam_data %>% 
+    as('data.frame') %>% 
+    rownames_to_column('Sample')
+  
+  left_join(df, samData, by = 'Sample')
+}
 
 # Hill numbers
 estimate_Hill <- function(ps, q) {

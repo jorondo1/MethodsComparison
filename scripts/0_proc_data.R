@@ -17,7 +17,7 @@ meta_parsing <- function(dsName, samData) {
   ps <- list()
   
   # Metaphlan  
-  for (db in c('MPA_db2019','MPA_db2022', 'MPA_db2023')) {
+  for (db in c('MPA_db2022', 'MPA_db2023')) {
     message(paste('Parsing', db, '...'))
     ps[[db]] <- parse_MPA(
       MPA_files = paste0(dsName,'/', db, '/*/*_profile.txt'),
@@ -122,21 +122,21 @@ ps_full.ls[['Family']] <- lapply(ps_filt.ls, function(ds) {
 ps_rare.ls <- list()
 ps_rare.ls[['Species']] <- lapply(ps_raw.ls, function(ds) {
   lapply(ds, function(db) {
-    rarefy_even_depth2(db, rngseed = 1234, verbose = TRUE, ncores = 80)
+    rarefy_even_depth2(db, rngseed = 1234, verbose = TRUE, ncores = 60)
   })
 })
 
 ps_rare.ls[['Genus']] <- lapply(ps_raw.ls, function(ds) {
   lapply(ds, function(db) {
     tax_glom2(db, taxrank = "Genus") %>% 
-      rarefy_even_depth2(rngseed = 1234, verbose = TRUE, ncores = 80)
+      rarefy_even_depth2(rngseed = 1234, verbose = TRUE, ncores = 60)
   })
 })
 
 ps_rare.ls[['Family']] <- lapply(ps_raw.ls, function(ds) {
   lapply(ds, function(db) {
     tax_glom2(db, taxrank = "Family") %>% 
-      rarefy_even_depth2(rngseed = 1234, verbose = TRUE, ncores = 80)
+      rarefy_even_depth2(rngseed = 1234, verbose = TRUE, ncores = 60)
   })
 })
 

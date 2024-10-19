@@ -38,10 +38,16 @@ upset(wide_DAA %>% as.data.frame,
 ### Taxon PA plot by DAA/db combination
 ######################
 
+# tool_names <- subset_toolpairs %>% arrange(desc(DAA_tool)) %$% DAA_tool %>% unique
+tool_names <- c("radEmu", 'MaAsLin2', 'Aldex2', 'ANCOMBC2', 'DESeq2', 'edgeR')
+#db_names <- subset_toolpairs %>%  arrange(desc(database)) %$% database %>% unique
+db_names <- c("KB20", "SM_gtdb-rs214-rep", "SM_genbank-2022.03", 
+              "MPA_db2023", "MPA_db2019" ,"MOTUS" )    
+
 # Filter out some tools to alleviate the plot
 subset_toolpairs <- subset_DAA_05 %>% 
-  filter(!DAA_tool %in% c('edgeR','ZicoSeq') &
-           !database %in% c('MPA_db2022','KB51'))
+  filter(DAA_tool %in% tool_names &
+           database %in% db_names)
 
 # Top taxa presence across combinations
 top_taxa <- subset_toolpairs %>% 
@@ -51,43 +57,41 @@ top_taxa <- subset_toolpairs %>%
   arrange(desc(n)) %>%
   head(n = 20) %>% pull(Taxon)
 
-# Extract tool names
-tool_names <- subset_toolpairs %>% arrange(desc(DAA_tool)) %$% DAA_tool %>% unique
-db_names <- subset_toolpairs %>% arrange(desc(database)) %$% database %>% unique
-
 # Data for the bottom matrix, two lines per pair string
 tool_pairs <- expand_grid(tool_names, db_names) %>% 
-  mutate(pair = paste(db_names, tool_names, sep= '_')) %>% 
+  mutate(pair = paste(tool_names, db_names, sep= '_')) %>% 
   pivot_longer(cols = c('db_names', 'tool_names'), values_to = 'y') %>% 
   mutate(y = factor(y, levels = c(db_names, tool_names))) 
 
 # Data for top plot matrix, 
 tax_tool_pairs <- subset_toolpairs %>% 
   filter(Taxon %in% top_taxa) %>% 
-  mutate(pair = paste(database, DAA_tool, sep= '_')) %>% 
+  mutate(pair = paste(DAA_tool, database, sep= '_')) %>% 
   # Coefficients sign
   dplyr::select(Taxon, pair, coef) %>% 
   mutate(coef = factor(case_when(coef>0 ~ 1, coef<0 ~ -1)))
 
-# List all combinations
-comb_count <- tax_tool_pairs %>%
-  dplyr::count(pair, sort = TRUE) %>% 
-  pull(pair)
-
 # Factor levels : taxa sorted by overall count
 tax_count <- tax_tool_pairs %>% 
   dplyr::count(Taxon) %>% 
-  arrange(desc(Taxon)) %>% 
+  arrange(desc(n)) %>% 
   pull(Taxon) 
+
+# List all combinations
+# comb_count <- tax_tool_pairs %>%
+#   dplyr::count(pair, sort = TRUE) %>% 
+#   pull(pair)
+
+comb_factor <- tool_pairs %$% pair %>% unique %>% rev
 
 # Refactor top matrix
 tax_tool_pairs %<>% 
-  mutate(#pair = factor(pair, levels = comb_count),
+  mutate(pair = factor(pair, levels = comb_factor),
          Taxon = factor(Taxon, levels = tax_count))
 
 # Refactor tool pairs
 tool_pairs %<>%
-#  mutate(pair = factor(pair, levels = comb_count)) %>% 
+  mutate(pair = factor(pair, levels = comb_factor)) %>% 
   filter(pair %in% tax_tool_pairs$pair) %>% 
   # Rename labels
   mutate(y = recode(y, !!!CCE_names))

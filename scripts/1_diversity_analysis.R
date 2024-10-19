@@ -51,7 +51,7 @@ Div_long <- bind_rows(Species = compile_diversity(ps_rare.ls$Species),
                       .id = 'Rank') %>% 
   mutate(database = factor(database, levels = names(tool_colours)))
 
-write_rds(Div_long, 'Out/Diversity_long_2.rds')
+write_rds(Div_long, 'Out/Diversity_long_full.rds')
 
 # Div_long <- read_rds('Out/Diversity_long.rds')
 # Visualise differences in diversity across tools
@@ -76,27 +76,12 @@ ggsave('Out/diversity_filt.pdf', bg = 'white',
 ## Alpha div ##
 ################
 
-filter_and_add_samData <- function(df, ds, Rank, ps_list) {
-  df %<>% filter(dataset == !!ds & Rank == !!Rank)
-  
-  # Extract sam_data from any phyloseq object of that dataset
-  samData <- ps_list[[Rank]][[ds]][[1]]@sam_data %>% 
-    as('data.frame') %>% 
-    rownames_to_column('Sample')
-  
-  left_join(df, samData, by = 'Sample')
-}
-
 plot_alpha_group <- function(ps.ls, ds, taxRank, Group) {
   dataset <- filter_and_add_samData(
     Div_long, ds, taxRank, ps.ls
     ) %>% 
     group_by(database, index) 
-  
-  dataset %>%
-    shapiro_test(value) %>%
-    filter(p<0.05)
-  
+
   # Check consistency of testing diversity difference between male/female
   test_results <- dataset %>% 
     wilcox_test(as.formula(paste("value ~", Group)), p.adjust.method = NULL) %>% # conservative
@@ -120,7 +105,7 @@ plot_alpha_group <- function(ps.ls, ds, taxRank, Group) {
   
   return(p)
 }
-plot_alpha_group(ps_rare.ls, ds = 'P19_Saliva', 'Species', Group = 'NAFLD')
+plot_alpha_group(ps_rare.ls, ds = 'P19_Saliva', 'Species', Group = 'lostSmell')
 
 #############
 ## PCoA ######
@@ -142,8 +127,8 @@ compute_pcoa_wrap <- function(ps) {
     })
   }
 
-pcoa_genus.ls <- compute_pcoa_wrap(ps_genus.ls)
-pcoa_species.ls <- compute_pcoa_wrap(ps_species.ls)
+pcoa_genus.ls <- compute_pcoa_wrap(ps_rare.ls$Species)
+pcoa_species.ls <- compute_pcoa_wrap(ps_rare.ls$Species)
 
 # PCoA compilation function
 # extracts the sample_data tibble, adds dataset, database and distance names.
@@ -153,7 +138,7 @@ compile_pcoa <- function(ps, ds, db, dist) {
     mutate(dataset = ds,
            database = db,
            distance = dist) %>% 
-    mutate(across(where(is.character), as_factor)) %>% 
+    mutate(across(where(is.factor), as.numeric)) %>% 
     tibble
 }
 
@@ -163,10 +148,11 @@ pcoa_samdata <- iterate_distances(pcoa_species.ls, compile_pcoa)
 # Ordination plot between compartments :
 plot_ordination_dist <- function(df, ds, dist, var) {
   df %>% 
-    filter(dataset == ds
+    dplyr::filter(dataset == ds
            & distance == dist
-           & database %in% tool_subset
+#           & database %in% tool_subset
            ) %>% 
+    mutate(!!sym(var) := as.factor(!!sym(var))) %>% 
     ggplot(aes(x = PCo1, y = PCo2, colour = !!sym(var))) + 
     stat_ellipse(level=0.9, geom = "polygon", alpha = 0.18, aes(fill = !!sym(var))) +   
     geom_point(size = 2) + 
@@ -193,7 +179,7 @@ plot_beta_group <- function(pcoa_df, ds, Group) {
          width = 3000, height = 1400, units = 'px', dpi = 240)
   return(p)
 }
-plot_beta_group(pcoa_samdata, 'AD_Skin', 'Group')
+plot_beta_group(pcoa_samdata, 'NAFLD', 'Group')
 
 ##################
 ### perMANOVA #####
@@ -213,8 +199,9 @@ iterate_permanova <- function(pcoa.ls, ds, vars) {
       # permanova
       formula <- as.formula(paste("dist.mx ~", paste(vars, collapse = " + ")))
       res <- adonis2(formula = formula, 
-              permutations = 10000,
+              permutations = 1000,
               data = samData,
+              by = 'margin',
               na.action = na.exclude,
               parallel = 8)
       
@@ -233,11 +220,13 @@ iterate_permanova <- function(pcoa.ls, ds, vars) {
   }
 
 permanova_df.ls <- list()
-permanova_df.ls[['P19_Gut']] <- iterate_permanova(pcoa_species.ls, 'P19_Gut', c('group', 'sex', 'diarr', 'vacc', 'age'))
-permanova_df.ls[['P19_Saliva']] <- iterate_permanova(pcoa_species.ls, 'P19_Saliva', c('group', 'sex', 'lostSmell', 'vacc', 'age'))
-permanova_df.ls[['NAFLD']] <- iterate_permanova(pcoa_species.ls, 'NAFLD', c('NAFLD', 'BMI'))
-permanova_df.ls[['Moss']] <- iterate_permanova(pcoa_species.ls, 'Moss', c('Compartment', 'Host', 'Host*Compartment', 'SoilpH', 'SoilTemp', 'Location', 'SoilMoisture', 'LeafLitter', 'LeafLitterSpec','Canopy'))
+permanova_df.ls[['P19_Gut']] <- iterate_permanova(pcoa_species.ls, 'P19_Gut', c('sex', 'group', 'age'))
+permanova_df.ls[['P19_Saliva']] <- iterate_permanova(pcoa_species.ls, 'P19_Saliva', c('sex', 'BMI', 'group', 'age'))
+permanova_df.ls[['NAFLD']] <- iterate_permanova(pcoa_species.ls, 'NAFLD', c('Group', 'BMI'))
+permanova_df.ls[['Moss']] <- iterate_permanova(pcoa_species.ls, 'Moss', c('Compartment', 'Host', 'SoilpH', 'SoilTemp'))
 permanova_df.ls[['AD_Skin']] <- iterate_permanova(pcoa_species.ls, 'AD_Skin', c('Group', 'Gender', 'Ethnicity'))
+
+write_rds(permanova_df.ls, 'Out/permanova_full.rds')
 
 p_value_lines <- function() {
   list(
@@ -253,14 +242,14 @@ p_value_lines <- function() {
   )
 }
 
-permanova_df.ls[['NAFLD']] %>% 
+permanova_df.ls$P19_Gut %>% 
   ggplot(aes(x = R2, y = log10(p), colour = database, shape = variable)) +
   geom_point(size = 5) + 
   scale_colour_manual(values = tool_colours) +
   p_value_lines() + theme_light() +
   labs(y = expression("log"[10]~"p-value"), x = expression("R"^2)) 
 
-set.seed(1); permanova_df.ls[['NAFLD']] %>%
+permanova_df.ls$P19_Gut %>%
   ggplot(aes(x = dist, y = log10(p), colour = database)) +
   geom_beeswarm(aes(size = R2, shape = dist), stroke = 1.5, spacing = 4, 
                 method = 'swarm') +  # Use geom_beeswarm to avoid complete overlaps
