@@ -66,49 +66,43 @@ compile_ancombc2 <- function(results, taxRank, db, ds) {
            DAA_tool = 'ANCOMBC2') %>% tibble()
 }
 
-############
-### RadEMU ###
 ##############
+### Corncob ###
+################
 compute_radEmu <- function(ps, samVar) {
-  require('parallel')
-  # compute fit:
-  formula_string <- as.formula(paste('~', samVar))
-  ch_fit <- emuFit(formula = formula_string, 
-                   Y = ps, run_score_tests = FALSE) 
-  ### !DEV! Temporary start**********
-  # choose which features have an estimate big enough to have a
-  # chance at a significant pval:
-  cutoff <- 2
-  to_test <- which(abs(ch_fit$coef$estimate) > cutoff)
-  ### !DEV Temporary end**********
+  my_formula <- as.formula(paste('~', samVar))
   
-  # Test function for parallelization
-  emuTest <- function(category) {
-    score_res <- emuFit(
-      formula = formula_string,
-      Y = ps,
-      fitted_model = ch_fit,
-      refit = FALSE,
-      run_score_tests = TRUE,
-      test_kj = data.frame(k = 2, # which cat to test: which("NAFLDNegative" == ch_fit$B %>% rownames) 
-                           j = category))
-    return(score_res)
-  }  # Run in parallel:
-  mclapply(to_test, emuTest, mc.cores = ncores)
+corncob::differentialTest(formula= my_formula,
+                          formula_null = ~ 1,
+                          phi.formula = 1,
+                          phi.formula_null = 1,
+                          test="Wald", 
+                          data=ps,
+                          boot=F,
+                          fdr_cutoff = 0.05)
 }
 
-compile_radEmu <- function(results, taxRank, db, ds) {
-  map_dfr(results, ~ .x$coef %>%
-    dplyr::filter(!is.na(pval)) %>%
-    as_tibble) %>% 
-    transmute(
-      Taxon = category,
-      coef = estimate,
-      adj.p = pval,
-      taxRank = taxRank,
-      database = db,
-      dataset = ds,
-      DAA_tool = 'radEmu') %>% tibble()  # Add the 'db' name as a new column
+
+#############
+### DESeq2 ###
+###############
+compute_DESeq2 <- function(ps, samVar) {
+  ds_formula <- as.formula(paste('~',samVar))
+  dds <- phyloseq_to_deseq2(ps, design = ds_formula)
+  dds_res <- DESeq2::DESeq(dds, sfType = 'poscounts')
+  results(dds_res, tidy=T, format='DataFrame') %>% tibble()
+}
+
+compile_DESeq2 <- function(results, taxRank, db, ds) {
+  results %>% 
+    dplyr::filter(!is.na(padj)) %>% # keep significant only
+    transmute(Taxon = row,
+              coef = log2FoldChange/log2(10),
+              adj.p = padj,
+              taxRank = taxRank,
+              database = db,
+              dataset = ds,
+              DAA_tool = 'DESeq2')
 }
 
 ############
@@ -143,8 +137,8 @@ compile_edgeR <- function(results, taxRank, db, ds) {
 #################
 # This one is a bit different because the Maaslin2 command creates a written
 # output and we will parse from those files. Notice no object need to be created.
-compute_Maaslin2 <- function(ps, samVar, taxRank, ds, db) {
-  maaslin_path <- paste('Out/DAA/Maaslin2',taxRank, ds, db, sep = '/')
+compute_Maaslin2 <- function(ps, samVar, taxRank, ds, db, out_path) {
+  maaslin_path <- paste(out_path, '/Maaslin2',taxRank, ds, db, sep = '/')
   
   if (!dir.exists(maaslin_path)) {
     dir.create(maaslin_path, recursive = TRUE)
@@ -188,26 +182,49 @@ compile_Maaslin <- function(res_path) {
     ) %>% tibble()
 }
 
-#############
-### DESeq2 ###
-###############
-compute_DESeq2 <- function(ps, samVar) {
-  ds_formula <- as.formula(paste('~',samVar))
-  dds <- phyloseq_to_deseq2(ps, design = ds_formula)
-  dds_res <- DESeq2::DESeq(dds, sfType = 'poscounts')
-  results(dds_res, tidy=T, format='DataFrame') %>% tibble()
+############
+### RadEMU ###
+##############
+compute_radEmu <- function(ps, samVar) {
+  require('parallel')
+  # compute fit:
+  my_formula <- as.formula(paste('~', samVar))
+  ch_fit <- emuFit(formula = my_formula, 
+                   Y = ps, run_score_tests = FALSE) 
+  ### !DEV! Temporary start**********
+  # choose which features have an estimate big enough to have a
+  # chance at a significant pval:
+  cutoff <- 2
+  to_test <- which(abs(ch_fit$coef$estimate) > cutoff)
+  ### !DEV Temporary end**********
+  
+  # Test function for parallelization
+  emuTest <- function(category) {
+    score_res <- emuFit(
+      formula = my_formula,
+      Y = ps,
+      fitted_model = ch_fit,
+      refit = FALSE,
+      run_score_tests = TRUE,
+      test_kj = data.frame(k = 2, # which cat to test: which("NAFLDNegative" == ch_fit$B %>% rownames) 
+                           j = category))
+    return(score_res)
+  }  # Run in parallel:
+  mclapply(to_test, emuTest, mc.cores = ncores)
 }
 
-compile_DESeq2 <- function(results, taxRank, db, ds) {
-  results %>% 
-    dplyr::filter(!is.na(padj)) %>% # keep significant only
-    transmute(Taxon = row,
-              coef = log2FoldChange/log2(10),
-              adj.p = padj,
-              taxRank = taxRank,
-              database = db,
-              dataset = ds,
-              DAA_tool = 'DESeq2')
+compile_radEmu <- function(results, taxRank, db, ds) {
+  map_dfr(results, ~ .x$coef %>%
+            dplyr::filter(!is.na(pval)) %>%
+            as_tibble) %>% 
+    transmute(
+      Taxon = category,
+      coef = estimate,
+      adj.p = pval,
+      taxRank = taxRank,
+      database = db,
+      dataset = ds,
+      DAA_tool = 'radEmu') %>% tibble()  # Add the 'db' name as a new column
 }
 
 ###############

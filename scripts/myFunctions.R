@@ -290,11 +290,11 @@ compute_3_lvl <- function(ps.ls, func, ...){
   
   imap(ps.ls, function(taxRank.ls, taxRank) {
     cat("Processing", taxRank, "...\n")
-    if (taxRank == "Species") return(NULL)      # ! DEV !
+    if (taxRank != "Species") return(NULL)      # ! DEV !
     
     imap(taxRank.ls, function(ds.ls, ds) {
       samVar <- group_vars[[ds]]               # Group variable to test 
-      if (ds != "NAFLD") return(NULL)          # ! DEV !
+     # if (ds != "NAFLD") return(NULL)          # ! DEV !
       cat("Processing dataset:", ds, "...\n")
       
       future_imap(ds.ls, function(db.ps, db) { # ! Warning : doesn't work from RStudio! 
@@ -302,7 +302,7 @@ compute_3_lvl <- function(ps.ls, func, ...){
         
         # Collect all available arguments
         all_args <- list(ps = db.ps, samVar = samVar, 
-                         taxRank = taxRank, ds = ds, db = db)
+                         taxRank = taxRank, ds = ds, db = db, out_path = out_path)
         # keep required arguments only
         func_args <- all_args[names(all_args) %in% names(formals(func))]
         # Call computing function: 

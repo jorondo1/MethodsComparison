@@ -22,7 +22,7 @@ ncores <- detectCores() -1
 # Aldex2
 test_aldex <- compute_3_lvl(ps.ls, func = compute_aldex)
 compile_3_lvl(test_aldex, func = compile_aldex) %>% 
-  write_tsv(paste0(out_path,'/Aldex2.tsv'))
+  write_tsv(paste0(out_path,'/Aldex2.tsv')) 
 
 # ANCOM-BC2
 test_ancombc2 <- compute_3_lvl(ps.ls, func = compute_ancombc2)
@@ -35,7 +35,7 @@ compile_3_lvl(test_radEmu, func = compile_radEmu) %>%
   write_tsv(paste0(out_path,'/radEmu.tsv'))
 
 # MaAsLin2 ### RAREFIED !!
-capture_Maaslin_stdout <- compute_3_lvl(ps_rare.ls, compute_Maaslin2)
+capture_Maaslin_stdout <- compute_3_lvl(ps_rare.ls, compute_Maaslin2, out_path = out_path)
 compile_Maaslin(res_path = paste0(out_path,'/Maaslin2/*/*/*/significant_results.tsv')) %>%
   write_tsv(paste0(out_path,'/Maaslin2.tsv'))
 
