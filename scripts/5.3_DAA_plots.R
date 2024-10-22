@@ -6,46 +6,28 @@ source('scripts/myFunctions.R')
 source('scripts/5_DAA_fun.R')
 
 # Full data
-DAA <- rbind(
-  read_tsv('Out/DAA/Maaslin2.tsv'),
-  read_tsv('Out/DAA/AncomBC2.tsv'),
-  read_tsv('Out/DAA/edgeR.tsv'), # Too many taxa, needs dealing with !
-  read_tsv('Out/DAA/DESEq2.tsv'),
-  read_tsv('Out/DAA/radEmu.tsv'),
-  read_tsv('Out/DAA/Aldex2.tsv'),
-  read_tsv('Out/DAA/ZicoSeq.tsv')
-)
+DAA_files <- 'Out/DAA*/*.tsv'
+DAA <- Sys.glob(DAA_files) %>% map(read_tsv) %>% list_rbind
 
 # NAFLD subset of significant taxa
-subset_DAA_05 <- DAA %>% 
+subset_DAA_05_NAFLD_F <- DAA %>% 
    filter(taxRank == 'Family' &
       dataset == 'NAFLD' &
       adj.p <0.05) 
-
-### Wide matrix for upset plot 
-wide_DAA <- subset_DAA_05 %>% 
-  dplyr::select(Taxon, DAA_tool) %>% 
-  distinct() %>% 
-  mutate(present = 1) %>% 
-  pivot_wider(names_from = DAA_tool, values_from = present, values_fill = 0) 
-
-# Simple upset plot 
-upset(wide_DAA %>% as.data.frame, 
-      sets = names(wide_DAA)[-1],
-      order.by = "freq")
 
 ######################
 ### Taxon PA plot by DAA/db combination
 ######################
 
 # tool_names <- subset_toolpairs %>% arrange(desc(DAA_tool)) %$% DAA_tool %>% unique
-tool_names <- c("radEmu", 'MaAsLin2', 'Aldex2', 'ANCOMBC2', 'DESeq2', 'edgeR')
+tool_names <- c(#"radEmu", 
+                'corncob','MaAsLin2', 'Aldex2', 'ANCOMBC2', 'DESeq2', 'edgeR')
 #db_names <- subset_toolpairs %>%  arrange(desc(database)) %$% database %>% unique
 db_names <- c("KB20", "SM_gtdb-rs214-rep", "SM_genbank-2022.03", 
               "MPA_db2023", "MPA_db2019" ,"MOTUS" )    
 
 # Filter out some tools to alleviate the plot
-subset_toolpairs <- subset_DAA_05 %>% 
+subset_toolpairs <- subset_DAA_05_NAFLD_F %>% 
   filter(DAA_tool %in% tool_names &
            database %in% db_names)
 
@@ -90,17 +72,18 @@ tax_tool_pairs %<>%
          Taxon = factor(Taxon, levels = tax_count))
 
 # Refactor tool pairs
+CCE_names_noreturn <- gsub("\n", " ", CCE_names)
 tool_pairs %<>%
   mutate(pair = factor(pair, levels = comb_factor)) %>% 
   filter(pair %in% tax_tool_pairs$pair) %>% 
   # Rename labels
-  mutate(y = recode(y, !!!CCE_names))
+  mutate(y = recode(y, !!!CCE_names_noreturn))
 
 # Plot !
 top_plot <- tax_tool_pairs %>% 
   ggplot(aes(x = pair, y = Taxon)) +
   geom_point(aes(colour = coef), size = 3) +
-  scale_colour_manual(values = c('#9E0142', "#5E4FA2"),
+  scale_colour_manual(values = c('red3', "blue3"),
                       labels = c('Negative', 'Positive')) +
   theme_minimal() +
   labs(colour = 'Taxon association')
@@ -111,7 +94,7 @@ bottom_plot <- tool_pairs %>%
              color = "black", linewidth = 0.2, linetype = 'solid') +
   geom_line(aes(group = pair)) +
   geom_point(aes(colour = name), size = 3) +
-  scale_colour_manual(values = c('#FDAE61', '#66C2A5'), 
+  scale_colour_manual(values = c('orange2', 'purple2'), 
                       labels = c('Community composition estimation', 
                                  'Differential abundance'))+
   labs(colour = 'Tool type') +
@@ -126,12 +109,89 @@ bottom_plot <- tool_pairs %>%
         legend.position = "bottom",
         legend.title.position = 'top') 
 
-ggsave('Out/Story.pdf', bg = 'white', width = 2000, height = 1600, units = 'px', dpi = 180)
+ggsave('Out/CSHL_poster/DAA_Story.pdf', bg = 'white', width = 2000, height = 1600, units = 'px', dpi = 180)
 
+#################
+## Clustering ####
+###################
+
+# Add unique tool-set variable
+subset_DAA_05_NAFLD_F %<>% 
+  dplyr::mutate(present = 1,
+                tool_set = paste0(DAA_tool, '__', database)) 
+
+
+# Some contradictions exist (taxa as DAA with different signs) so 
+# we remove those taxa when they exist (will underestimate dissimilarity)
+subset_no_contradiction <- subset_DAA_05_NAFLD_F %>% 
+  group_by(Taxon) %>% 
+  filter(!(any(coef > 0) & any(coef < 0))) %>% 
+  ungroup()
+  
+  
+# PA matrix
+PA <- subset_no_contradiction %>% 
+  filter(DAA_tool %in% tool_names ) %>% 
+  dplyr::select(Taxon, tool_set, present) %>% 
+  pivot_wider(names_from = tool_set, values_from = present, values_fill = 0) %>% 
+  column_to_rownames('Taxon') %>% t 
+ ###### Subset to taxa common across db ??
+
+# Bray-curtis on PA = Sørenson dice (more weight to common)
+dist <- PA %>% vegdist(method = 'bray')
+pcoa_res <- capscale(dist~1, distance = 'bray')
+
+eig <- (round(pcoa_res$CA$eig[1:3]/sum(pcoa_res$CA$eig),3)*100) %>% paste0('%')
+message(paste("First 3 PCo :",eig[1], ',', eig[2], ',', eig[3]))
+
+# create output list
+tool_sets_meta <- subset_no_contradiction %>% 
+  dplyr::select(tool_set, DAA_tool, database) %>% 
+  distinct %>% 
+  inner_join(scores(pcoa_res)$sites[,1:2] %>% 
+              as.data.frame %>% 
+              rownames_to_column('tool_set'),
+            by = 'tool_set') %>% 
+  left_join(CCE_metadata, by = 'database') %>% 
+  left_join(DAA_metadata, by = 'DAA_tool') %>% 
+  mutate(DAA_tool = factor(DAA_tool, levels = names(tool_vars)),
+         database = factor(database, levels = names(tool_colours)))
+
+approach_text <- tibble(
+  CCE_approach = c('DNA-to-Marker', 'DNA-to-DNA'),
+  X = c(0, -1),
+  Y = c(1.2, -1.2)
+)
+
+tool_sets_meta %>% 
+  ggplot(aes(x = MDS1, y = MDS2)) +
+   # stat_ellipse(level=0.85, geom = "polygon", alpha = 0.1, 
+   #              aes(colour = CCE_approach), fill = NA) + 
+  ggbeeswarm2::geom_beeswarm(aes(colour = database, shape = DAA_tool), 
+                size = 3, stroke = 1.5, method = 'swarm2', spacing = 1.5) +
+  scale_shape_manual(values = setNames(DAA_metadata$plot_shape, DAA_metadata$DAA_tool)) +
+  scale_colour_manual(values = tool_colours, labels = CCE_names) +
+  theme_minimal() +
+  # geom_text(data = approach_text, aes(x = X, y = Y, label = CCE_approach), 
+  #           color = "black", size = 5, fontface = "bold") +
+  labs(x = paste0('PCo1 (', eig[1],')'), 
+       y = paste0('PCo1 (', eig[2],')'))
+
+ggsave('Out/CSHL_poster/pcoa_tool_sets.pdf', bg = 'white', width = 2400, height = 2000, units = 'px', dpi = 180)
+
+# Permanova?
+adonis2(formula = dist ~ taxonomy + CCE_approach + Taxon_bias + Compositional, 
+        permutations = 999,
+        data = tool_sets_meta,
+        by = 'margin',
+      #  na.action = na.exclude,
+        parallel = 8)
+
+  
 # Long DF with every possible tool combination for each taxon
 # 
 # # P/A matrix for datadases 
-# wide_db <- subset_DAA_05 %>% 
+# wide_db <- subset_DAA_05_NAFLD_F %>% 
 #   dplyr::select(Taxon, database) %>% 
 #   distinct() %>% 
 #   mutate(present = 1) %>% 

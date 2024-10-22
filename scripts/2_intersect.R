@@ -1,10 +1,10 @@
 # intersect in taxonomy (overlap) and
 # pairwise Jaccard index on detected species -> similarity matrix
 library(pacman)
-p_load(magrittr, tidyverse, phyloseq)
+p_load(magrittr, tidyverse, phyloseq, ggridges)
 
-ps_genus.ls <- read_rds("Out/ps_rare_genus.ls.rds") 
-ps_family.ls <- read_rds("Out/ps_rare_family.ls.rds") 
+ps_genus.ls <- read_rds("Out/ps_full.ls.rds")$Genus 
+ps_family.ls <- read_rds("Out/ps_full.ls.rds")$Family
 
 ##############
 # Intersect ###
@@ -86,7 +86,7 @@ overlap_df %>%
   geom_density_ridges(scale = 0.9, alpha = 0.4, 
                       stat = "binline", boundary = 0, draw_baseline = FALSE
                       ) + xlim(0,1) +
- # facet_grid(~dataset, scales = 'free') +
+  facet_grid(~dataset, scales = 'free') +
   ggtitle(paste0('Proportion of taxa identified by other tools in samples (',taxRank,'-level)')) +
   scale_y_discrete(expand = expansion(mult = c(0.05, 0.15)))+ 
   plot_theme() 
@@ -100,16 +100,16 @@ ggsave('Out/overlap_NAFLD_genus.pdf', bg = 'white',
 
 # Jaccard may not be best. Could show proportion of database1
 # taxa found by database_[2-n] separately ?
-
+taxRank <- 'Family'
 ### compute jaccard on a single tool-pair subset df
 compute_jaccard <- function(df, tool_pair, taxRank) {
   pa_full <- df %>% 
     taxa_tool_pairs(tool_pair, taxRank) %>% 
     group_by(Sample) %>% # count common species:
-    summarise(PA.xy = sum(Abundance.x*Abundance.y, na.rm = TRUE),
+    dplyr::summarise(PA.xy = sum(Abundance.x*Abundance.y, na.rm = TRUE),
               n_tax = n()) %>% 
     # compute jaccard into tibble: 
-    mutate(jaccard = PA.xy/n_tax, .keep = 'unused')
+    dplyr::mutate(jaccard = PA.xy/n_tax, .keep = 'unused')
   
   # duplicate values to have symmetry (each tool needs to be in position 1 for the plot)
   bind_rows(
@@ -118,30 +118,46 @@ compute_jaccard <- function(df, tool_pair, taxRank) {
   )
 }
 
-jaccard_df <- ps_genus.ls %>% 
+jaccard_df <- ps_family.ls %>% 
   # Melt entire ps list :
   melt_ps_list_glom(taxRank) %>% 
   # Convert abundances to P/A
-  mutate(Abundance = if_else(Abundance == 0, 0, 1)) %>% 
+  dplyr::mutate(Abundance = if_else(Abundance == 0, 0, 1)) %>% 
   dplyr::select(Sample, all_of(taxRank), Abundance, dataset, database) %>% 
   # iterate overlap calculation over all tool pairs :
   apply_ds_toolpairs(compute_jaccard, taxRank) 
 
 # Reorder factors, subset dataset 
 jaccard_df %<>% 
-  mutate(dataset = factor(dataset, levels = my_datasets_factorlevels))
+  mutate(dataset = factor(dataset, levels = my_datasets_factorlevels),
+         tool1 = recode(tool1, !!!CCE_names)) %>% 
+  mutate(tool1 = factor(tool1, levels = rev(CCE_names)),
+         tool2 = factor(tool2, levels = names(tool_colours)))
 
 # plot ! 
 jaccard_df %>% 
-  filter(dataset != 'Moss') %>% 
+  filter(dataset == 'P19_Saliva') %>% 
+  dplyr::mutate(across(where(is.character), as.factor)) %>% 
   ggplot(aes(x = jaccard, y = tool1, fill = tool2, colour = tool2)) +
   geom_density_ridges(scale = 0.9, alpha = 0.4, 
                       stat = "binline", boundary = 0, draw_baseline = FALSE
-  ) + xlim(0,1)+
+  ) +   xlim(0,1) + 
   #facet_grid(~dataset, scales = 'free') +
   ggtitle(paste0('Proportion of taxa union set identified by two tools in sample (',taxRank,'-level)')) +
   scale_y_discrete(expand = expansion(mult = c(0.05, 0.15)))+ 
-  plot_theme() 
+  theme_minimal() +
+  labs(fill = '', colour = '') +
+  scale_fill_manual(values = tool_colours, labels = CCE_names) +
+  scale_colour_manual(values = tool_colours, labels = CCE_names) +
+  theme(
+    legend.key.height = unit(1.83, 'cm'),
+    legend.key.width = unit(0.8, 'cm'),
+   # plot.margin = margin(r = 10, t = 10, b = 10, l = 10),
+    legend.position = c(0.12, 0.535),
+    axis.title.y = element_blank(),
+    axis.text.y = element_blank()
+  )
 
-ggsave('Out/intersect_jaccard_genus.pdf', bg = 'white', 
-       width = 2400, height = 1600, units = 'px', dpi = 180)
+
+ggsave('Out/CSHL_poster/intersect_jaccard_family.pdf', bg = 'white', 
+       width = 1800, height = 1789.41176471, units = 'px', dpi = 262.5)

@@ -15,17 +15,7 @@ moss.ps <-readRDS(url('https://github.com/jorondo1/borealMoss/raw/main/data/R_ou
 # with general structure List$Dataset$Database.ps
 meta_parsing <- function(dsName, samData) {
   ps <- list()
-  
-  # Metaphlan  
-  for (db in c('MPA_db2022', 'MPA_db2023')) {
-    message(paste('Parsing', db, '...'))
-    ps[[db]] <- parse_MPA(
-      MPA_files = paste0(dsName,'/', db, '/*/*_profile.txt'),
-      column_names = c('Taxonomy', 'NCBI','Abundance', 'Void'),
-      convert_to_counts = TRUE) %>% 
-      assemble_phyloseq(samData)
-  }
-  
+
   # Sourmash
   message(paste('Parsing', 'SM_genbank-2022.03', '...'))
   ps[['SM_genbank-2022.03']] <- left_join(
@@ -47,14 +37,24 @@ meta_parsing <- function(dsName, samData) {
       assemble_phyloseq(samData)
   }
 
+  
+  # Metaphlan  
+  for (db in c('MPA_db2022', 'MPA_db2023')) {
+    message(paste('Parsing', db, '...'))
+    ps[[db]] <- parse_MPA(
+      MPA_files = paste0(dsName,'/', db, '/*/*_profile.txt'),
+      column_names = c('Taxonomy', 'NCBI','Abundance', 'Void'),
+      convert_to_counts = TRUE) %>% 
+      assemble_phyloseq(samData)
+  }
   # Kraken-bracken (using default headers from parse_MPA function)
-  for (db in c('KB20', 'KB51')) {
+  for (db in c('KB05','KB20', 'KB51')) {
     message(paste('Parsing', db, '...'))
     ps[[db]] <- parse_MPA(
     MPA_files = paste0(dsName,'/', db, '/*/*_bracken/*_bracken_S.MPA.TXT')) %>% 
     assemble_phyloseq(samData)
   }
-    # MOTUS
+  # MOTUS
   message(paste('Parsing', 'MOTUS', '...'))
   ps[['MOTUS']] <- parse_MPA(
     MPA_files = paste0(dsName,"/MOTUS/*_profile.txt"), 

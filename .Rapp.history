@@ -17,28 +17,30 @@ source('scripts/5.1_DAA_fun.R')#
 ps.ls <- read_rds('Out/ps_full.ls.rds')#
 ps_rare.ls <- read_rds('Out/ps_rare.ls.rds')#
 #
-out_path <- 'Out/DAA'#
+ps.ls <- map(ps.ls, ~ .x["Moss"])#
+ps_rare.ls <- map(ps_rare.ls, ~ .x["Moss"])#
+#
+out_path <- 'Out/DAA_Moss'#
 if (!dir.exists(out_path)) {#
   dir.create(out_path, recursive = TRUE)#
 }#
 #
 ncores <- detectCores() -1
-plan(multicore, workers = 9)
 compute_3_lvl <- function(ps.ls, func, ...){#
   require('furrr') #
    # not sure if multicore is better #
   imap(ps.ls, function(taxRank.ls, taxRank) {#
     cat("Processing", taxRank, "...\n")#
-    if (taxRank == "Species") return(NULL)      # ! DEV !#
+    if (taxRank != "Species") return(NULL)      # ! DEV !#
     imap(taxRank.ls, function(ds.ls, ds) {#
       samVar <- group_vars[[ds]]               # Group variable to test #
-      if (ds != "NAFLD") return(NULL)          # ! DEV !#
+     # if (ds != "NAFLD") return(NULL)          # ! DEV !#
       cat("Processing dataset:", ds, "...\n")#
       future_imap(ds.ls, function(db.ps, db) { # ! Warning : doesn't work from RStudio! #
         message("Using database:", db, "...\n")#
         # Collect all available arguments#
         all_args <- list(ps = db.ps, samVar = samVar, #
-                         taxRank = taxRank, ds = ds, db = db)#
+                         taxRank = taxRank, ds = ds, db = db, out_path = out_path)#
         # keep required arguments only#
         func_args <- all_args[names(all_args) %in% names(formals(func))]#
         # Call computing function: #
@@ -46,36 +48,409 @@ compute_3_lvl <- function(ps.ls, func, ...){#
       }, .options = furrr_options(seed = T))#
     })#
   })#
-}#
-#
-compile_3_lvl <- function(results.ls, func, ...) {#
-  imap(results.ls, function(taxRank.ls, taxRank) {#
+}
+test_ZicoSeq <- compute_3_lvl(ps_rare.ls, func = compute_ZicoSeq)
+compute_ZicoSeq <- function(ps, samVar) {#
+  metadata <- ps %>% sample_data %>% #
+    as("data.frame") %>%  # convert to binary#
+    {{ samVar }} := as.numeric(as.factor({{ samVar }})) - 1#
+  result <- ZicoSeq(#
+    feature.dat = ps %>% otu_table %>% as.matrix,#
+    meta.dat = metadata,#
+    grp.name = samVar,#
+    feature.dat.type = 'count',#
+    mean.abund.filter = 0.001,#
+    perm.no = 999,#
+    prev.filter = 0.1,#
+    outlier.pct = 0.01#
+  ) #
+}
+test_ZicoSeq <- compute_3_lvl(ps_rare.ls, func = compute_ZicoSeq)
+compute_ZicoSeq <- function(ps, samVar) {#
+  require#
+  metadata <- ps %>% sample_data %>% #
+    as("data.frame") %>%  # convert to binary#
+    !!rlang::ensym(samVar) := as.numeric(as.factor(!!rlang::ensym(samVar))) - 1#
+  result <- ZicoSeq(#
+    feature.dat = ps %>% otu_table %>% as.matrix,#
+    meta.dat = metadata,#
+    grp.name = samVar,#
+    feature.dat.type = 'count',#
+    mean.abund.filter = 0.001,#
+    perm.no = 999,#
+    prev.filter = 0.1,#
+    outlier.pct = 0.01#
+  ) #
+}
+test_ZicoSeq <- compute_3_lvl(ps_rare.ls, func = compute_ZicoSeq)
+dplyr::mutate
+rlang
+rlang::
+require('rlang')
+rlang
+compute_ZicoSeq <- function(ps, samVar) {#
+  require('rlang')#
+  metadata <- ps %>% sample_data %>% #
+    as("data.frame") %>%  # convert to binary#
+    !!rlang::ensym(samVar) := as.numeric(as.factor(!!rlang::ensym(samVar))) - 1#
+  result <- ZicoSeq(#
+    feature.dat = ps %>% otu_table %>% as.matrix,#
+    meta.dat = metadata,#
+    grp.name = samVar,#
+    feature.dat.type = 'count',#
+    mean.abund.filter = 0.001,#
+    perm.no = 999,#
+    prev.filter = 0.1,#
+    outlier.pct = 0.01#
+  ) #
+}
+test_ZicoSeq <- compute_3_lvl(ps_rare.ls, func = compute_ZicoSeq)
+compute_ZicoSeq <- function(ps, samVar) {#
+  require('rlang')#
+  metadata <- ps %>% sample_data %>% #
+    as("data.frame") %>%  # convert to binary#
+    mutate({{ samVar }} := as.numeric(as.factor({{ samVar }})) - 1)#
+  result <- ZicoSeq(#
+    feature.dat = ps %>% otu_table %>% as.matrix,#
+    meta.dat = metadata,#
+    grp.name = samVar,#
+    feature.dat.type = 'count',#
+    mean.abund.filter = 0.001,#
+    perm.no = 999,#
+    prev.filter = 0.1,#
+    outlier.pct = 0.01#
+  ) #
+}
+test_ZicoSeq <- compute_3_lvl(ps_rare.ls, func = compute_ZicoSeq)
+compute_ZicoSeq <- function(ps, samVar) {#
+  require('rlang')#
+  metadata <- ps %>% sample_data %>% #
+    as("data.frame") %>% as_tibble %>% #
+    mutate(across({{ samVar }}, ~ as.numeric(fct_drop(as.factor(.))) - 1))#
+  # convert to binary#
+  result <- ZicoSeq(#
+    feature.dat = ps %>% otu_table %>% as.matrix,#
+    meta.dat = metadata,#
+    grp.name = samVar,#
+    feature.dat.type = 'count',#
+    mean.abund.filter = 0.001,#
+    perm.no = 999,#
+    prev.filter = 0.1,#
+    outlier.pct = 0.01#
+  ) #
+}
+test_ZicoSeq <- compute_3_lvl(ps_rare.ls, func = compute_ZicoSeq)
+compile_3_lvl(test_ZicoSeq, func = compile_ZicoSeq) %>% #
+   write_tsv(paste0(out_path,'/ZicoSeq.tsv'))
+compute_radEmu <- function(ps, samVar) {#
+  my_formula <- as.formula(paste('~', samVar))#
+  corncob::differentialTest(formula= my_formula,#
+                            formula_null = ~1,#
+                            phi.formula = ~1,#
+                            phi.formula_null = ~1,#
+                            test="Wald", #
+                            data=ps,#
+                            boot=F,#
+                            fdr_cutoff = 0.05)#
+  }#
+compile_DESeq2 <- function(results, taxRank, db, ds) {#
+  tibble(#
+    Taxon = names(results$p_fdr),#
+    adj.p = results$p_fdr,#
+    taxRank = taxRank,#
+    database = db, #
+    dataset = ds,#
+    DAA_tool = 'corncob'#
+  ) %>% filter(!is.na(adj.p))#
+  }
+compute_corncob <- function(ps, samVar) {#
+  my_formula <- as.formula(paste('~', samVar))#
+  corncob::differentialTest(formula= my_formula,#
+                            formula_null = ~1,#
+                            phi.formula = ~1,#
+                            phi.formula_null = ~1,#
+                            test="Wald", #
+                            data=ps,#
+                            boot=F,#
+                            fdr_cutoff = 0.05)#
+  }#
+compile_corncob <- function(results, taxRank, db, ds) {#
+  tibble(#
+    Taxon = names(results$p_fdr),#
+    adj.p = results$p_fdr,#
+    taxRank = taxRank,#
+    database = db, #
+    dataset = ds,#
+    DAA_tool = 'corncob'#
+  ) %>% filter(!is.na(adj.p))#
+  }
+test_corncob <- compute_3_lvl(ps.ls, func = compute_corncob)
+compile_3_lvl(test_corncob, func = compile_corncob) %>% #
+  write_tsv(paste0(out_path, '/corncob.tsv'))
+compile_corncob <- function(results, taxRank, db, ds) {#
+  require('purrr')#
+  # Extract coefficients#
+  coef <- results$all_models %>% #
+    purrr::map(~ .x[!is.na(.x)]) %>% #
+    compact %>% #
+    purrr::map_dfr( \(x) #
+                stats::coef(x) %>% #
+                  data.frame %>% #
+                  rownames_to_column('id') %>% #
+                  dplyr::filter(!str_detect(id, '\\(') & #
+                                  str_detect(id, 'mu\\.')) %>% #
+                  dplyr::select(Estimate))#
+  tibble(#
+    Taxon = names(results$p_fdr),#
+    coef = coef,#
+    adj.p = results$p_fdr,#
+    taxRank = taxRank,#
+    database = db, #
+    dataset = ds,#
+    DAA_tool = 'corncob'#
+  ) %>% filter(!is.na(adj.p))#
+  }
+compile_3_lvl(test_corncob, func = compile_corncob)
+compile_3_lvl(test_corncob, func = compile_corncob) %>% #
+  write_tsv(paste0(out_path, '/corncob.tsv'))
+compile_3_lvl(test_corncob, func = compile_corncob) %>% #
+  write_tsv(paste0(out_path, '/corncob.tsv'))
+compile_3_lvl(test_corncob, func = compile_corncob)compile_corncob <- function(results, taxRank, db, ds) {#
+  require('purrr'); require('magrittr')#
+  # Extract coefficients#
+  coef <- results$all_models %>% #
+    purrr::map(~ .x[!is.na(.x)]) %>% #
+    compact %>% #
+    purrr::map_dfr( \(x) #
+                stats::coef(x) %>% #
+                  data.frame %>% #
+                  rownames_to_column('id') %>% #
+                  dplyr::filter(!str_detect(id, '\\(') & #
+                                  str_detect(id, 'mu\\.')) %>% #
+                  dplyr::select(Estimate)) %$% Estimate#
+  tibble(#
+    Taxon = names(results$p_fdr),#
+    coef = coef,#
+    adj.p = results$p_fdr,#
+    taxRank = taxRank,#
+    database = db, #
+    dataset = ds,#
+    DAA_tool = 'corncob'#
+  ) %>% filter(!is.na(adj.p))#
+  }
+compile_corncob <- function(results, taxRank, db, ds) {#
+  require('purrr'); require('magrittr')#
+  # Extract coefficients#
+  coef <- results$all_models %>% #
+    purrr::map(~ .x[!is.na(.x)]) %>% #
+    compact %>% #
+    purrr::map_dfr( \(x) #
+                stats::coef(x) %>% #
+                  data.frame %>% #
+                  rownames_to_column('id') %>% #
+                  dplyr::filter(!str_detect(id, '\\(') & #
+                                  str_detect(id, 'mu\\.')) %>% #
+                  dplyr::select(Estimate)) %$% Estimate#
+  tibble(#
+    Taxon = names(results$p_fdr),#
+    coef = coef,#
+    adj.p = results$p_fdr,#
+    taxRank = taxRank,#
+    database = db, #
+    dataset = ds,#
+    DAA_tool = 'corncob'#
+  ) %>% filter(!is.na(adj.p))#
+  }
+compile_3_lvl(test_corncob, func = compile_corncob) %>% #
+  write_tsv(paste0(out_path, '/corncob.tsv'))
+compile_3_lvl(test_corncob, func = compile_corncob)
+compute_corncob <- function(ps, samVar) {#
+  my_formula <- as.formula(paste('~', samVar))#
+  corncob::differentialTest(formula= my_formula,#
+                            formula_null = ~1,#
+                            phi.formula = ~1,#
+                            phi.formula_null = ~1,#
+                            test="Wald", #
+                            data=ps,#
+                            boot=F,#
+                            fdr_cutoff = 0.01)#
+  }
+test_corncob <- compute_3_lvl(ps.ls, func = compute_corncob)
+compile_3_lvl(test_corncob, func = compile_corncob)
+compile_3_lvl(test_corncob, func = compile_corncob) %>% #
+  write_tsv(paste0(out_path, '/corncob2.tsv'))
+compute_corncob <- function(ps, samVar) {#
+  my_formula <- as.formula(paste('~', samVar))#
+  corncob::differentialTest(formula= my_formula,#
+                            formula_null = ~1,#
+                            phi.formula = ~1,#
+                            phi.formula_null = ~1,#
+                            test="Wald", #
+                            data=ps,#
+                            boot=F,#
+                            fdr_cutoff = 0.01,#
+                            robust = TRUE)#
+  }
+test_corncob <- compute_3_lvl(ps.ls, func = compute_corncob)
+compile_3_lvl(test_corncob, func = compile_corncob)
+compile_3_lvl(test_corncob, func = compile_corncob) %>% #
+  write_tsv(paste0(out_path, '/corncob.tsv'))
+compute_corncob <- function(ps, samVar) {#
+  my_formula <- as.formula(paste('~', samVar))#
+  corncob::differentialTest(formula= my_formula,#
+                            formula_null = ~1,#
+                            phi.formula = ~1,#
+                            phi.formula_null = ~1,#
+                            test="Wald", #
+                            data=ps,#
+                            boot=F,#
+                            fdr_cutoff = 0.01,#
+                            robust = TRUE)#
+  }
+compile_3_lvl(test_corncob, func = compile_corncob)
+compile_3_lvl(test_corncob, func = compile_corncob) %>% #
+  write_tsv(paste0(out_path, '/corncob.tsv'))
+compute_corncob <- function(ps, samVar) {#
+  my_formula <- as.formula(paste('~', samVar))#
+  corncob::differentialTest(formula= my_formula,#
+                            formula_null = ~1,#
+                            phi.formula = ~1,#
+                            phi.formula_null = ~1,#
+                            test="Wald", #
+                            data=ps,#
+                            boot=F,#
+                            fdr_cutoff = 0.01,#
+                            robust = TRUE)#
+  }
+compute_corncob <- function(ps, samVar) {#
+  my_formula <- as.formula(paste('~', samVar))#
+  corncob::differentialTest(formula= my_formula,#
+                            formula_null = ~1,#
+                            phi.formula = ~1,#
+                            phi.formula_null = ~1,#
+                            test="Wald", #
+                            data=ps,#
+                            boot=F,#
+                            fdr='BH',#
+                            fdr_cutoff = 0.01,#
+                            robust = TRUE)#
+  }
+test_corncob <- compute_3_lvl(ps.ls, func = compute_corncob)
+compile_3_lvl(test_corncob, func = compile_corncob) %>% #
+  write_tsv(paste0(out_path, '/corncob2.tsv'))
+compute_corncob <- function(ps, samVar) {#
+  my_formula <- as.formula(paste('~', samVar))#
+  corncob::differentialTest(formula= my_formula,#
+                            formula_null = ~1,#
+                            phi.formula = ~1,#
+                            phi.formula_null = ~1,#
+                            test="Wald", #
+                            data=ps,#
+                            boot=T,#
+                            fdr='BH',#
+                            fdr_cutoff = 0.01,#
+                            robust = TRUE)#
+  }
+test_corncob <- compute_3_lvl(ps.ls, func = compute_corncob)
+compute_corncob <- function(ps, samVar) {#
+  my_formula <- as.formula(paste('~', samVar))#
+  corncob::differentialTest(formula= my_formula,#
+                            formula_null = ~1,#
+                            phi.formula = ~1,#
+                            phi.formula_null = ~1,#
+                            test="Wald", #
+                            data=ps,#
+                            boot=T,#
+                            fdr='BH',#
+                            fdr_cutoff = 0.01,#
+                            robust = TRUE)#
+  }
+compute_corncob <- function(ps, samVar) {#
+  my_formula <- as.formula(paste('~', samVar))#
+  corncob::differentialTest(formula= my_formula,#
+                            formula_null = ~1,#
+                            phi.formula = ~1,#
+                            phi.formula_null = ~1,#
+                            test="Wald", #
+                            data=ps,#
+                            boot=T,#
+                            B=100,#
+                            fdr='BH',#
+                            fdr_cutoff = 0.01,#
+                            robust = TRUE)#
+}
+plan(multicore, workers = 6)
+test_corncob <- compute_3_lvl(ps.ls, func = compute_corncob)
+plan(multicore, workers = 6)
+test_corncob <- compute_3_lvl(ps.ls, func = compute_corncob)
+test_corncob
+compile_3_lvl(test_corncob, func = compile_corncob)
+compile_3_lvl(test_corncob, func = compile_corncob) %>% #
+  write_tsv(paste0(out_path, '/corncob2.tsv'))
+test_corncob <- compute_3_lvl(ps.ls, func = compute_corncob)compute_corncob <- function(ps, samVar) {#
+  my_formula <- as.formula(paste('~', samVar))#
+  corncob::differentialTest(formula= my_formula,#
+                            formula_null = ~1,#
+                            phi.formula = ~1,#
+                            phi.formula_null = ~1,#
+                            test="Wald", #
+                            data=ps,#
+                            fdr='BH',#
+                            fdr_cutoff = 0.01,#
+                            robust = TRUE)#
+}
+compute_corncob <- function(ps, samVar) {#
+  my_formula <- as.formula(paste('~', samVar))#
+  corncob::differentialTest(formula= my_formula,#
+                            formula_null = ~1,#
+                            phi.formula = ~1,#
+                            phi.formula_null = ~1,#
+                            test="Wald", #
+                            data=ps,#
+                            fdr='BH',#
+                            fdr_cutoff = 0.01,#
+                            robust = TRUE)#
+}
+test_corncob <- compute_3_lvl(ps.ls, func = compute_corncob)
+compile_3_lvl(test_corncob, func = compile_corncob) %>% #
+  write_tsv(paste0(out_path, '/corncob.tsv'))
+compute_3_lvl <- function(ps.ls, func, ...){#
+  require('furrr') #
+   # not sure if multicore is better #
+  imap(ps.ls, function(taxRank.ls, taxRank) {#
+    cat("Processing", taxRank, "...\n")#
+   # if (taxRank != "Species") return(NULL)      # ! DEV !#
     imap(taxRank.ls, function(ds.ls, ds) {#
-      imap(ds.ls, function(db.ps, db) { #
-        func(db.ps, taxRank, db, ds) #
-      }) %>% list_rbind#
-    }) %>% list_rbind#
-  }) %>% list_rbind#
+      samVar <- group_vars[[ds]]               # Group variable to test #
+     # if (ds != "NAFLD") return(NULL)          # ! DEV !#
+      cat("Processing dataset:", ds, "...\n")#
+      future_imap(ds.ls, function(db.ps, db) { # ! Warning : doesn't work from RStudio! #
+        message("Using database:", db, "...\n")#
+        # Collect all available arguments#
+        all_args <- list(ps = db.ps, samVar = samVar, #
+                         taxRank = taxRank, ds = ds, db = db, out_path = out_path)#
+        # keep required arguments only#
+        func_args <- all_args[names(all_args) %in% names(formals(func))]#
+        # Call computing function: #
+        do.call(func, func_args)#
+      }, .options = furrr_options(seed = T))#
+    })#
+  })#
 }
-test_edgeR <- compute_3_lvl(ps.ls, func = compute_edgeR)
-source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/community_functions.R'))#
-source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/rarefy_even_depth2.R'))
-test_edgeR <- compute_3_lvl(ps.ls, func = compute_edgeR)
-source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/phyloseq_to_edgeR.R'))
-test_edgeR <- compute_3_lvl(ps.ls, func = compute_edgeR)
-compile_3_lvl(test_edgeR, func = compile_edgeR) %>% #
-  write_tsv('Out/DAA/edgeR.tsv')
-test_DESeq2 <- compute_3_lvl(ps.ls, func = compute_DESeq2)
-compute_DESeq2 <- function(ps, samVar) {#
-  ds_formula <- as.formula(paste('~',samVar))#
-  dds <- phyloseq_to_deseq2(ps, design = ds_formula)#
-  dds_res <- DESeq2::DESeq(dds, sfType = 'poscounts')#
-  results(dds_res, tidy=T, format='DataFrame') %>% tibble()#
-}
-test_DESeq2 <- compute_3_lvl(ps.ls, func = compute_DESeq2)
-compile_3_lvl(test_DESeq2, func = compile_DESeq2) %>% #
-  write_tsv('Out/DAA/DESeq2.tsv')
-capture_Maaslin_stdout
-test_aldex <- compute_3_lvl(ps.ls, func = compute_aldex)
-compile_3_lvl(test_aldex, func = compile_aldex) %>% #
-  write_tsv('Out/DAA/Aldex2.tsv')
+test_corncob <- compute_3_lvl(ps.ls, func = compute_corncob)
+ps.ls$Species$NAFLD
+ps.ls <- read_rds('Out/ps_full.ls.rds')#
+ps_rare.ls <- read_rds('Out/ps_rare.ls.rds')
+test_corncob <- compute_3_lvl(ps.ls, func = compute_corncob)
+ps.ls <- map(ps.ls, ~ .x["NAFLD"])
+corncob_moss <- compile_3_lvl(test_corncob, func = compile_corncob)
+test_corncob <- compute_3_lvl(ps.ls, func = compute_corncob)
+corncob_nafld <- compile_3_lvl(test_corncob, func = compile_corncob)
+corncob_nafld
+compile_3_lvl(test_corncob, func = compile_corncob) %>% #
+  write_tsv(paste0(out_path, '/corncob.tsv'))
+write_tsv(out_path)
+write_tsv(corncob_moss,paste0(out_path, '/corncob.tsv'))
+out_path <- 'Out/DAA_NAFLD'
+compile_3_lvl(test_corncob, func = compile_corncob) %>% #
+  write_tsv(paste0(out_path, '/corncob.tsv'))

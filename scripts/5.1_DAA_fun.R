@@ -34,10 +34,9 @@ compute_ancombc2 <- function(ps, samVar, taxRank) {
   message(paste('ANCOMBC2 using', ncores, 'cores...'))
  result <- ancombc2(
     data = ps, 
-    tax_level= taxRank,
+#    tax_level= taxRank,  # DON'T. Since our ps objects have the lowest taxrank as taxa names, we want ANCOM to use that for the output
     prv_cut = 0.10, 
     fix_formula = samVar,
-    alpha = pval_cutoff,
     verbose = TRUE,
     n_cl = ncores)
  result[['samVar']] <- samVar # pass the current samVar to help compilation
@@ -45,20 +44,14 @@ compute_ancombc2 <- function(ps, samVar, taxRank) {
 }
 
 compile_ancombc2 <- function(results, taxRank, db, ds) {
-  res <- results$res
-  samVar <- results[['samVar']]
-  resNames <- names(res)
-  sfx <- resNames[str_detect(resNames, paste0("^p_",samVar))] %>% str_remove("^p_")
+  resNames <- names(results$res)
+  sfx <- resNames[str_detect(resNames, # Extract variable suffix (chosen ref group value)
+                             paste0("^p_",results[['samVar']]))] %>% str_remove("^p_")
   
-  res_parsed <- res %>% 
-    dplyr::filter(#!!sym(paste0("diff_",sfx)) == 1 &
-                    #!!sym(paste0("q_",sfx)) < pval_cutoff &
-                    !!sym(paste0("passed_ss_",sfx)) == TRUE) %>% 
-#    dplyr::arrange(desc(!!sym(paste0("lfc_",sfx))) ) %>%
-    dplyr::mutate(taxon = factor(taxon, levels = unique(taxon))) %>% 
+  res_parsed <- results$res %>% 
+    dplyr::filter(!!sym(paste0("passed_ss_",sfx)) == TRUE) %>%  # Passed pseudocount sensitivity analysis
     transmute(Taxon = sub(".*?:", "", taxon),
-           coef = !!sym(paste0("lfc_",sfx)), 
-           # SE = !!sym(paste0("se_",sfx)),
+           coef = !!sym(paste0("lfc_",sfx)),
            adj.p = !!sym(paste0("q_", sfx)),
            taxRank = taxRank,
            database = db,
@@ -69,19 +62,44 @@ compile_ancombc2 <- function(results, taxRank, db, ds) {
 ##############
 ### Corncob ###
 ################
-compute_radEmu <- function(ps, samVar) {
+compute_corncob <- function(ps, samVar) {
   my_formula <- as.formula(paste('~', samVar))
   
-corncob::differentialTest(formula= my_formula,
-                          formula_null = ~ 1,
-                          phi.formula = 1,
-                          phi.formula_null = 1,
-                          test="Wald", 
-                          data=ps,
-                          boot=F,
-                          fdr_cutoff = 0.05)
+  corncob::differentialTest(formula= my_formula,
+                            formula_null = ~1,
+                            phi.formula = ~1,
+                            phi.formula_null = ~1,
+                            test="Wald", 
+                            data=ps,
+                            fdr='BH',
+                            fdr_cutoff = 0.01,
+                            robust = TRUE)
 }
 
+compile_corncob <- function(results, taxRank, db, ds) {
+  require('purrr'); require('magrittr')
+  # Extract coefficients
+  coef <- results$all_models %>% 
+    purrr::map(~ .x[!is.na(.x)]) %>% 
+    compact %>% 
+    purrr::map_dfr( \(x) 
+                stats::coef(x) %>% 
+                  data.frame %>% 
+                  rownames_to_column('id') %>% 
+                  dplyr::filter(!str_detect(id, '\\(') & 
+                                  str_detect(id, 'mu\\.')) %>% 
+                  dplyr::select(Estimate)) %$% Estimate
+  
+  tibble(
+    Taxon = names(results$p_fdr),
+    coef = coef,
+    adj.p = results$p_fdr,
+    taxRank = taxRank,
+    database = db, 
+    dataset = ds,
+    DAA_tool = 'corncob'
+  ) %>% filter(!is.na(adj.p))
+  }
 
 #############
 ### DESeq2 ###

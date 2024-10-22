@@ -1,15 +1,15 @@
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/rarefy_even_depth2.R'))
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/phyloseq_to_edgeR.R'))
 
-my_datasets_factorlevels <- c('P19_Saliva', 'P19_Gut', 'RA_Gut', 'Moss', 'NAFLD')
+my_datasets_factorlevels <- c('P19_Saliva', 'P19_Gut', 'RA_Gut', 'AD_Skin', 'Moss', 'NAFLD')
 tool_colours <- c(
+  'MOTUS' = 'goldenrod',
   'MPA_db2019' = 'green4',
   'MPA_db2022' = 'palegreen3',
   'MPA_db2023' = 'darkolivegreen',
   'KB05' = 'indianred1',
   'KB20' = 'indianred3',
   'KB51' = 'orangered4',
-  'MOTUS' = 'goldenrod',
   'SM_genbank-2022.03' = 'purple3',
   'SM_gtdb-rs214-full' = 'navyblue',
   'SM_gtdb-rs214-rep'= 'royalblue',
@@ -22,33 +22,60 @@ group_vars <- c(
   'Moss' = 'Compartment'
 )
 
-tool_vars <- tibble(
-  "aldex2" = "wi.eBH",
-  "ancombc" = "adj_p",
-  "rademu" = "pval",
-  "deseq2" = "padj",
-  "edger" = "FDR", 
-  "maaslin2" = "qval"
-)
-
 CCE_names <- c(
+  'MOTUS' = 'mOTUs',
   'MPA_db2019' = 'MetaPhlAn3 (2019)',
   'MPA_db2022' = 'Metaphlan4 (2022)',
   'MPA_db2023' = 'Metaphlan4 (2023)',
-  'KB05' = 'Kraken (5% conf.) + Bracken',
-  'KB20' = 'Kraken (20% conf.) + Bracken',
-  'KB51' = 'Kraken (51% conf.) + Bracken',
-  'MOTUS' = 'mOTUs',
+  'KB05' = 'Kraken (5% conf.)\n+ Bracken',
+  'KB20' = 'Kraken (20% conf.)\n+ Bracken',
+  'KB51' = 'Kraken (51% conf.)\n+ Bracken',
   'SM_genbank-2022.03' = 'Sourmash (Genbank)',
   'SM_gtdb-rs214-full' = 'Sourmash (GTDB)',
   'SM_gtdb-rs214-rep'= 'Sourmash (GTDB rep.)',
-  'SM_gtdb-rs214-rep_MAGs'= 'Sourmash (GTDB rep. + Novel MAGs)'
+  'SM_gtdb-rs214-rep_MAGs'= 'Sourmash (GTDB rep.\n+ Novel MAGs)'
 )
 
 Hill_numbers <- c(
   'H_0' = 'Richness',
   'H_1' = 'Shannon',
   'H_2' = 'Simpson'
+)
+
+CCE_metadata <- tibble(
+  database = c("MOTUS","MPA_db2019","MPA_db2022","MPA_db2023",
+               "KB05","KB20","KB51",
+               "SM_genbank-2022.03", "SM_gtdb-rs214-full","SM_gtdb-rs214-rep","SM_gtdb-rs214-rep_MAGs"),
+  plot_colour = c("goldenrod","green4","palegreen3","darkolivegreen",
+                  "indianred1","indianred3", "orangered4", 
+                  "purple3", "navyblue", "royalblue", "skyblue3"),
+  tool = c('MOTUS', 'MPA','MPA','MPA',
+           'KB','KB','KB','SM','SM','SM','SM'),
+  CCE_approach = c('DNA-to-Marker','DNA-to-Marker','DNA-to-Marker','DNA-to-Marker',
+               'DNA-to-DNA','DNA-to-DNA','DNA-to-DNA','DNA-to-DNA','DNA-to-DNA','DNA-to-DNA','DNA-to-DNA'),
+  taxonomy = c('NCBI','NCBI','NCBI','NCBI','NCBI','NCBI','NCBI','NCBI','GTDB','GTDB','GTDB'),
+  
+)
+
+
+tool_vars <- tibble(
+  "Aldex2" = "wi.eBH",
+  "ANCOMBC2" = "adj_p",
+  "radEmu" = "pval",
+  "corncob" = "p_fdr",
+  "DESeq2" = "padj",
+  "edgeR" = "FDR", 
+  "MaAsLin2" = "qval"
+)
+
+DAA_metadata <- tibble(
+  DAA_tool = names(tool_vars),
+  Compositional = c(TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE),
+  Distribution = c('DM', 'LL', 'LL', 'BB', 'NB', 'NB', 'N'),
+  Transformation = c('CLR', 'LT', 'LT', 'NONE', 'NONE', 'NONE', 'AST'),
+  Taxon_bias = c(FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE),
+  Target_ = c('RA', 'AA','AA','RA','RA','RA','RA'), # Absolute or relative abundance
+  plot_shape = c(15, 19, 17, 18, 4, 3, 6)
 )
 
 
@@ -212,9 +239,9 @@ melt_ps_list_glom <- function(ps_list, taxRank) {
       # summarize by higher level taxonomy (not always useful, having a pre-summarized phyloseq is better)
       ps_list[[ds]][[db]] %>% psmelt %>% 
         group_by(Sample, !!sym(taxRank)) %>% 
-        summarise(Abundance = sum(Abundance), 
+        dplyr::summarise(Abundance = sum(Abundance), 
                   .groups = 'drop') %>% 
-        filter(Abundance !=0) %>% 
+        dplyr::filter(Abundance !=0) %>% 
         as_tibble %>% 
         mutate(database = db,
                dataset = ds)
@@ -290,7 +317,7 @@ compute_3_lvl <- function(ps.ls, func, ...){
   
   imap(ps.ls, function(taxRank.ls, taxRank) {
     cat("Processing", taxRank, "...\n")
-    if (taxRank != "Species") return(NULL)      # ! DEV !
+   # if (taxRank != "Species") return(NULL)      # ! DEV !
     
     imap(taxRank.ls, function(ds.ls, ds) {
       samVar <- group_vars[[ds]]               # Group variable to test 
