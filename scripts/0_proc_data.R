@@ -39,7 +39,7 @@ meta_parsing <- function(dsName, samData) {
 
   
   # Metaphlan  
-  for (db in c('MPA_db2022', 'MPA_db2023')) {
+  for (db in c('MPA_db2019','MPA_db2022', 'MPA_db2023')) {
     message(paste('Parsing', db, '...'))
     ps[[db]] <- parse_MPA(
       MPA_files = paste0(dsName,'/', db, '/*/*_profile.txt'),
@@ -48,7 +48,7 @@ meta_parsing <- function(dsName, samData) {
       assemble_phyloseq(samData)
   }
   # Kraken-bracken (using default headers from parse_MPA function)
-  for (db in c('KB05','KB20', 'KB51')) {
+  for (db in c('KB20', 'KB51')) {
     message(paste('Parsing', db, '...'))
     ps[[db]] <- parse_MPA(
     MPA_files = paste0(dsName,'/', db, '/*/*_bracken/*_bracken_S.MPA.TXT')) %>% 

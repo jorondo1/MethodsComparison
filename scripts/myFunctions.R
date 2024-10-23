@@ -38,8 +38,8 @@ CCE_names <- c(
 
 Hill_numbers <- c(
   'H_0' = 'Richness',
-  'H_1' = 'Shannon',
-  'H_2' = 'Simpson'
+  'H_1' = 'Shannon (Hill order 1)',
+  'H_2' = 'Simpson (Hill order 2)'
 )
 
 CCE_metadata <- tibble(
@@ -151,6 +151,7 @@ compile_sparseness <- function(ps_list) {
     }) %>% list_rbind
   }) %>% list_rbind
 }
+
 
 ################
 ### DIVERSITY ###

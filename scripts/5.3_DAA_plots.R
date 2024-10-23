@@ -1,6 +1,6 @@
 library(pacman)
 p_load(magrittr, tidyverse, 
-       RColorBrewer, ggbeeswarm2, UpSetR, patchwork)
+       RColorBrewer, ggbeeswarm2, UpSetR, patchwork, cowplot)
 
 source('scripts/myFunctions.R')
 source('scripts/5_DAA_fun.R')
@@ -15,9 +15,9 @@ subset_DAA_05_NAFLD_F <- DAA %>%
       dataset == 'NAFLD' &
       adj.p <0.05) 
 
-######################
-### Taxon PA plot by DAA/db combination
-######################
+#############################################
+### Taxon PA plot by DAA/db combination ######
+###############################################
 
 # tool_names <- subset_toolpairs %>% arrange(desc(DAA_tool)) %$% DAA_tool %>% unique
 tool_names <- c(#"radEmu", 
@@ -31,6 +31,7 @@ subset_toolpairs <- subset_DAA_05_NAFLD_F %>%
   filter(DAA_tool %in% tool_names &
            database %in% db_names)
 
+### 1. CREATE PLOT DATASETS AND DEFINE FACTOR LEVELS ###
 # Top taxa presence across combinations
 top_taxa <- subset_toolpairs %>% 
   group_by(Taxon) %>% 
@@ -45,43 +46,69 @@ tool_pairs <- expand_grid(tool_names, db_names) %>%
   pivot_longer(cols = c('db_names', 'tool_names'), values_to = 'y') %>% 
   mutate(y = factor(y, levels = c(db_names, tool_names))) 
 
-# Data for top plot matrix, 
+# Tool pair factors in order
+comb_factor <- tool_pairs %$% pair %>% unique %>% rev %>% droplevels
+
+# Data for top plot matrix
 tax_tool_pairs <- subset_toolpairs %>% 
   filter(Taxon %in% top_taxa) %>% 
   mutate(pair = paste(DAA_tool, database, sep= '_')) %>% 
-  # Coefficients sign
-  dplyr::select(Taxon, pair, coef) %>% 
+  dplyr::select(Taxon, pair, coef) %>%  # Convert coefficients to signs: 
   mutate(coef = factor(case_when(coef>0 ~ 1, coef<0 ~ -1)))
 
-# Factor levels : taxa sorted by overall count
-tax_count <- tax_tool_pairs %>% 
-  dplyr::count(Taxon) %>% 
-  arrange(desc(n)) %>% 
-  pull(Taxon) 
-
-# List all combinations
-# comb_count <- tax_tool_pairs %>%
-#   dplyr::count(pair, sort = TRUE) %>% 
-#   pull(pair)
-
-comb_factor <- tool_pairs %$% pair %>% unique %>% rev
+# Factor levels : taxa sorted by overall agreement score
+tax_levels <- tax_tool_pairs %>% 
+  group_by(Taxon) %>% 
+  dplyr::summarise(score = abs(sum(as.numeric(as.character(coef))))) %>%
+  arrange(desc(score)) %>% 
+  pull(Taxon)
 
 # Refactor top matrix
 tax_tool_pairs %<>% 
   mutate(pair = factor(pair, levels = comb_factor),
-         Taxon = factor(Taxon, levels = tax_count))
+         Taxon = factor(Taxon, levels = tax_levels))
 
 # Refactor tool pairs
-CCE_names_noreturn <- gsub("\n", " ", CCE_names)
+CCE_names_noreturn <- gsub("\n", " ", CCE_names) # remove returns from full tool names 
 tool_pairs %<>%
   mutate(pair = factor(pair, levels = comb_factor)) %>% 
-  filter(pair %in% tax_tool_pairs$pair) %>% 
+  dplyr::filter(pair %in% tax_tool_pairs$pair) %>% 
   # Rename labels
   mutate(y = recode(y, !!!CCE_names_noreturn))
 
-# Plot !
+# Top taxa count characteristics
+
+# Taxon prevalence
+
+
+
+
+### 2. PLOT ###
+# Create striped background (vertical) from a set of unique factors (associated to the plot's x axis)
+striped_background <- function(pairs) {
+  # In case some levels don't have values for the plot :
+  n_lvl_pairs_x <- pairs %>% droplevels %>% levels %>% length
+  
+  # Create df for striped bacground
+  x_axis_grep_alt <- data.frame(
+    xmin = seq(0.5, n_lvl_pairs_x - 0.5, by = 1),
+    xmax = seq(1.5, n_lvl_pairs_x + 0.5, by = 1),
+    fill = rep(c("gray90", "white"), length.out = n_lvl_pairs_x)  # Alternate colors
+  )
+  
+  # return a list of ggplot arguments for the background
+  list(
+  geom_rect(data = x_axis_grep_alt, 
+            aes(xmin = xmin, xmax = xmax, ymin = -Inf, ymax = Inf, fill = fill), 
+            inherit.aes = FALSE,
+            alpha = 0.5),
+    scale_fill_identity()
+  )
+}
+
 top_plot <- tax_tool_pairs %>% 
   ggplot(aes(x = pair, y = Taxon)) +
+  striped_background(tool_pairs$pair) + # ensure the colours are interpreted for the background
   geom_point(aes(colour = coef), size = 3) +
   scale_colour_manual(values = c('red3', "blue3"),
                       labels = c('Negative', 'Positive')) +
@@ -90,7 +117,8 @@ top_plot <- tax_tool_pairs %>%
 
 bottom_plot <- tool_pairs %>% 
   ggplot(aes(x = pair, y = y)) +
-  geom_hline(yintercept = match("radEmu", levels(tool_pairs$y)) - 0.5, 
+  striped_background(tool_pairs$pair) +
+  geom_hline(yintercept = match("corncob", levels(tool_pairs$y)) - 0.5, 
              color = "black", linewidth = 0.2, linetype = 'solid') +
   geom_line(aes(group = pair)) +
   geom_point(aes(colour = name), size = 3) +
@@ -102,9 +130,10 @@ bottom_plot <- tool_pairs %>%
 
 (top_plot / bottom_plot) +
   plot_layout(guides = "collect",
-              heights = c(length(tax_count),
+              heights = c(length(tax_levels),
                           length(c(tool_names, db_names)))) &
-  theme(axis.title = element_blank(),
+  theme(panel.grid = element_blank(),
+        axis.title = element_blank(),
         axis.text.x = element_blank(),
         legend.position = "bottom",
         legend.title.position = 'top') 
@@ -119,7 +148,6 @@ ggsave('Out/CSHL_poster/DAA_Story.pdf', bg = 'white', width = 2000, height = 160
 subset_DAA_05_NAFLD_F %<>% 
   dplyr::mutate(present = 1,
                 tool_set = paste0(DAA_tool, '__', database)) 
-
 
 # Some contradictions exist (taxa as DAA with different signs) so 
 # we remove those taxa when they exist (will underestimate dissimilarity)
@@ -165,19 +193,39 @@ approach_text <- tibble(
 
 tool_sets_meta %>% 
   ggplot(aes(x = MDS1, y = MDS2)) +
-   # stat_ellipse(level=0.85, geom = "polygon", alpha = 0.1, 
-   #              aes(colour = CCE_approach), fill = NA) + 
+   # stat_ellipse(level=0.7, geom = "polygon", alpha = 0.1, aes(colour = CCE_approach), fill = NA) + 
   ggbeeswarm2::geom_beeswarm(aes(colour = database, shape = DAA_tool), 
                 size = 3, stroke = 1.5, method = 'swarm2', spacing = 1.5) +
   scale_shape_manual(values = setNames(DAA_metadata$plot_shape, DAA_metadata$DAA_tool)) +
   scale_colour_manual(values = tool_colours, labels = CCE_names) +
   theme_minimal() +
-  # geom_text(data = approach_text, aes(x = X, y = Y, label = CCE_approach), 
-  #           color = "black", size = 5, fontface = "bold") +
+  # geom_text(data = approach_text, aes(x = X, y = Y, label = CCE_approach), color = "black", size = 5, fontface = "bold") +
   labs(x = paste0('PCo1 (', eig[1],')'), 
-       y = paste0('PCo1 (', eig[2],')'))
+       y = paste0('PCo2 (', eig[2],')'),
+       shape = 'DAA tool', colour = 'Composition\nestimation tool') +
+  guides(
+    shape = guide_legend(order = 2),  # Put shape legend first
+    colour = guide_legend(order = 1)    # Put fill legend second
+  ) +
+  theme(
+    legend.position = c(-0.5, 0.9),                # Position the color legend outside to the left
+    legend.justification = c("left", "top"),         # Top-align the color legend
+    legend.box = "horizontal",                       # Ensure legends are horizontally aligned
+    
+    # Move shape legend inside the plot and overlap the plot, top-aligned with the color legend
+    legend.box.margin = margin(t = 0, r = 0, b = 0, l = 10),
+    legend.spacing.x = unit(1.5, "cm"),              # Adjust spacing between the two legends
+    
+    # Adjust the plot margins to make space for the left-side color legend
+    plot.margin = margin(t = 5, r = 5, b = 5, l = 150),
+    
+    # Customize the background of the legends (optional)
+    legend.background = element_rect(fill = "white", color = "black", size = 0.5)
+    
+  )
 
-ggsave('Out/CSHL_poster/pcoa_tool_sets.pdf', bg = 'white', width = 2400, height = 2000, units = 'px', dpi = 180)
+ggsave('Out/CSHL_poster/pcoa_tool_sets.pdf', bg = 'white', plot = cluster.plot,
+       width = 2600, height = 2000, units = 'px', dpi = 260)
 
 # Permanova?
 adonis2(formula = dist ~ taxonomy + CCE_approach + Taxon_bias + Compositional, 

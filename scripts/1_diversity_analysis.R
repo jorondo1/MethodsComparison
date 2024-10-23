@@ -55,6 +55,25 @@ write_rds(Div_long, 'Out/Diversity_long_full.rds')
 
 # Div_long <- read_rds('Out/Diversity_long.rds')
 # Visualise differences in diversity across tools
+
+Div_long %>% 
+  filter(dataset=='NAFLD' & 
+           index == 'H_1' &
+           database %in% c('KB20', 'MOTUS','SM_genbank-2022.03', 'MPA_db2023') &
+           Rank == 'Species') %>% 
+  mutate(database = factor(database, levels = c('KB20', 'MOTUS','MPA_db2023', 'SM_genbank-2022.03'))) %>% 
+  ggplot(aes(x = database, y = value, colour = database)) +
+  geom_line(aes(group = Sample), alpha=0.3, linewidth = 0.1, colour = 'black') + 
+  geom_point(size = 2) + 
+  theme_light() + 
+  theme(axis.text.x = element_blank(),
+        panel.grid = element_blank()) +
+  scale_colour_manual(values = tool_colours, labels = CCE_names)  +
+  labs(y = 'Diversité', x = '', colour = "Méthode d'estimation\nde la composition")
+
+ggsave('Out/diversity_filt_BFT708.pdf', bg = 'white', 
+       width = 2300, height = 1300, units = 'px', dpi = 180)
+
 Div_long %>% 
   filter(dataset!='AD_Skin' & 
     database != 'KB05' & !dataset %in% c('P19_Saliva', 'P19_Gut') &

@@ -23,7 +23,7 @@ dataset <- filter_and_add_samData(
   group_by(database, index) 
 
 Group = 'sex'
-Databases = c('MPA_db2022','MPA_db2023','MOTUS','KB20','KB51',"SM_gtdb-rs214-rep")
+Databases = c('MPA_db2022','MPA_db2023','MOTUS','KB20',"SM_gtdb-rs214-rep")
 
 # Check consistency of testing diversity difference between male/female
 test_results <- dataset %>% 
@@ -52,17 +52,20 @@ test_results %>% # add the p-values to dataset
   theme_light() +
   theme(
     axis.ticks.y = element_blank(),
-    legend.position = 'bottom',
-    legend.text.position = 'bottom',
-    legend.title.position = 'top',
-    legend.title = element_text(hjust = 0.5),
+    legend.position = c(0.097,0.9),
+    legend.background = element_rect(fill = "white", color = "black", size = 0.5),
+    legend.title = element_text(hjust = 0.5, size= 10),
+    legend.text = element_text(size = 8),
     strip.text = element_text(color = "black")
     ) +
+  guides(
+    colour = guide_legend(title.position = "top", title.hjust = 0.5, direction = "horizontal")
+  ) +
   scale_colour_manual(values = c('red3', 'blue3', 'green3')) +
-  labs(y = 'Effective species (Hill numbers)', x = '', colour = 'Wilcoxon')
+  labs(y = 'Species equivalent', x = '', colour = 'Wilcoxon')
 
 ggsave('Out/CSHL_poster/alpha_P19_Saliva_sex.pdf', bg = 'white',
-       width = 2500, height = 1800, units = 'px', dpi = 260)
+       width = 2500, height = 1400, units = 'px', dpi = 230)
 
 ####################
 ### BETA Diversity ##
@@ -72,34 +75,33 @@ perm <- read_rds('Out/permanova_full.rds')
 perm$P19_Gut%>%
   filter(dist == 'Bray-Curtis') %>% 
 #  mutate(database = recode(database, !!!CCE_names)) %>% 
-  ggplot(aes(x = dist, y = log10(p), colour = database)) +
-  geom_beeswarm(aes(size = R2), stroke = 1.5, spacing = 8, shape = 1, 
+  ggplot(aes(y = dist, x = log10(p), colour = database)) +
+  geom_beeswarm(stroke = 1.5, spacing = 8, shape = 1, size = 4,
                 method = 'swarm') +  # Use geom_beeswarm to avoid complete overlaps
-  facet_grid(. ~ variable, scales = 'free_x') +
-  labs(y = expression("log"[10]~"p-value"), 
+  facet_grid(variable ~ ., scales = 'free_x') +
+  labs(x = expression("log"[10]~"p-value"), 
        colour = 'Tool/database', 
        size = expression("R"^2), 
        shape = 'Distance metric',
-       x = '') +
+       y = '') +
   theme_light() + 
   scale_size_continuous(range = c(0.1,10)) +
   scale_colour_manual(values = tool_colours, labels = CCE_names) +
-  theme(axis.text.x = element_blank()) +
-
-  geom_hline(aes(yintercept = log10(0.01), linetype = "p = 0.01"), color = "blue") +
-  geom_hline(aes(yintercept = log10(0.05), linetype = "p = 0.05"), color = "red") +
-    scale_linetype_manual(name = "", values = c("p = 0.01" = "dashed", "p = 0.05" = "dashed")) +
-    guides(
-      linetype = guide_legend(order = 1, override.aes = list(color = c("blue", "red"))),
-      colour = guide_legend(order = 2),  # Keep the colour legend
-      size = guide_legend(order = 4),    # Keep the size legend
-      shape = guide_legend(order = 3)    # Keep the shape legend
-    )
-
-
-ggsave('Out/permanova_P19_Gut_species.pdf', bg = 'white', width = 2200, height = 1400, units = 'px', dpi = 180)
+  theme(axis.text.y = element_blank(),
+        strip.text = element_text(color = "black")) +
+  geom_vline(aes(xintercept = log10(0.01), linetype = "p = 0.01"), color = "blue") +
+  geom_vline(aes(xintercept = log10(0.05), linetype = "p = 0.05"), color = "red") +
+  scale_linetype_manual(name = "", values = c("p = 0.01" = "dashed", "p = 0.05" = "dashed")) +
+  guides(
+    linetype = guide_legend(order = 1, override.aes = list(color = c("blue", "red"))),
+    colour = guide_legend(order = 2),  # Keep the colour legend
+    size = guide_legend(order = 4),    # Keep the size legend
+    shape = guide_legend(order = 3)    # Keep the shape legend
+  )
 
 
+ggsave('Out/CSHL_poster/permanova_P19_Gut_species.pdf', bg = 'white', 
+       width = 2500, height = 1000, units = 'px', dpi = 230)
 
 ################
 ### Mosses ######
@@ -116,7 +118,7 @@ Div_long_filt <- Div_long %>%
   filter(dataset %in% c('Moss') & 
            index == 'H_1' &
            Rank == 'Species' &
-           !database %in% c('KB51')) 
+           !database %in% c('KB05','KB51')) 
 
 # set.seed(38); most_variable <- Div_long_filt %>% 
 #   dplyr::select(index, Rank, dataset, Sample) %>%
@@ -136,21 +138,58 @@ most_variable <- Div_long_filt %>%
 Div_long_filt %>% 
   left_join(most_variable, by='Sample') %>% 
   mutate(alpha = coalesce(alpha, 0.2),
-         linewidth = coalesce(linewidth, 0.3)) %>% 
+         linewidth = coalesce(linewidth, 0.2)) %>% 
   ggplot(aes(x = database, y = index_div)) +
-  geom_violin(size = 0.3, alpha = 0.3, aes(fill = database), colour = NA) + 
+  geom_violin(size = 0.3, alpha = 0.5, aes(fill = database), colour = NA) + 
   geom_line(aes(group = Sample, alpha=alpha, linewidth = linewidth)) + 
   theme_light() + 
   scale_linewidth_identity() +
   scale_alpha_identity() +
   theme(axis.text.x = element_blank(),
-        panel.grid = element_blank()) +
+        axis.line.x.bottom = element_blank(),
+        axis.ticks.x.bottom = element_blank(),
+        panel.border = element_blank(),
+        axis.line.y.left = element_line(colour = 'gray'),
+        panel.grid = element_blank(),
+        legend.position = c(0.1, 0.14),
+        legend.background = element_rect(fill = "white", color = "black", size = 0.5),
+        legend.key.height = unit(0.8, 'cm'),
+        legend.key.width = unit(0.8, 'cm')
+  ) +
   scale_fill_manual(values = tool_colours,
                     labels = CCE_names) +
   labs(y = 'Shannon index', x = '', fill = 'Composition estimation')
 
-ggsave('Out/CSHL_poster/Moss_div_MAGs.pdf', bg = 'white', width = 1800, height = 1200, units = 'px', dpi = 180)
+ggsave('Out/CSHL_poster/Moss_div_MAGs.pdf', bg = 'white', width = 1400, height = 1200, units = 'px', dpi = 180)
 
+moss_meta <- ps.ls$Species$Moss$KB05 %>% 
+  sample_data %>% 
+  data.frame %>% 
+  rownames_to_column('Sample') %>% tibble %>% 
+  dplyr::mutate(across(where(is.character), as.factor))
+
+alpha_test.df <- Div_long %>% 
+  left_join(moss_meta, by = 'Sample') %>% 
+  mutate(CoMoss = case_when(is.na(CoMoss) ~ 'none', TRUE ~ CoMoss)) %>% 
+  dplyr::filter(index == 'H_1' & 
+                #  !is.na(CoMoss) &
+                  dataset == 'Moss' & 
+                  Rank == 'Species' &
+                  database %in% c('SM_gtdb-rs214-rep', 'SM_gtdb-rs214-rep_MAGs'))
+ 
+
+alpha_test.df %>% 
+  group_by(database) %>% 
+  kruskal_test(value ~ Host)
+
+alpha_test.df %>% 
+ggplot(aes(x = Host, y = index_div, colour = Host)) +
+  geom_boxplot() +
+  facet_grid(.~database) +
+  theme_minimal()+
+  theme(
+    axis.text.x = element_blank()
+  )
 
 ###########
 #### DAA ###
