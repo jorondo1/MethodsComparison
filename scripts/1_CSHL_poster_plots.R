@@ -5,7 +5,7 @@ p_load(
   # metrics and stats
   phyloseq, DESeq2, vegan, rstatix,
   # plotting :
-  ggbeeswarm2, patchwork, grid, ggh4x, ggthemes, ComplexHeatmap, UpSetR)
+  ggbeeswarm2, patchwork, grid, ggh4x, ggthemes, ComplexHeatmap, UpSetR, ggh4x)
 
 ps.ls <- read_rds('Out/ps_full.ls.rds')
 ps_rare.ls <- read_rds('Out/ps_rare.ls.rds')
@@ -13,7 +13,7 @@ ps_rare.ls <- read_rds('Out/ps_rare.ls.rds')
 #####################
 ### ALPHA Diversity ##
 #######################
-
+Div_long <- read_rds('Out/Diversity_long_full.rds')
 dataset <- filter_and_add_samData(
   df = Div_long, 
   ds = 'P19_Saliva', 
@@ -45,7 +45,7 @@ test_results <- dataset %>%
 
 # Plot every database x index combination
 test_results %>% # add the p-values to dataset
-  ggplot(aes(x = !!sym(Group), y = value, colour = p.signif)) +
+  ggplot(aes(x = !!sym(Group), y = value, fill = p.signif)) +
   scale_color_discrete() +
   geom_boxplot(linewidth = 0.3, outliers = FALSE) + 
   facet_grid(index~database, scales = 'free_y') +
@@ -59,13 +59,13 @@ test_results %>% # add the p-values to dataset
     strip.text = element_text(color = "black")
     ) +
   guides(
-    colour = guide_legend(title.position = "top", title.hjust = 0.5, direction = "horizontal")
+    fill = guide_legend(title.position = "top", title.hjust = 0.5, direction = "horizontal")
   ) +
-  scale_colour_manual(values = c('red3', 'blue3', 'green3')) +
+  scale_fill_brewer(palette = 'Set1') +
   labs(y = 'Species equivalent', x = '', colour = 'Wilcoxon')
 
 ggsave('Out/CSHL_poster/alpha_P19_Saliva_sex.pdf', bg = 'white',
-       width = 2500, height = 1400, units = 'px', dpi = 230)
+       width = 2500, height = 1300, units = 'px', dpi = 230)
 
 ####################
 ### BETA Diversity ##
@@ -101,7 +101,7 @@ perm$P19_Gut%>%
 
 
 ggsave('Out/CSHL_poster/permanova_P19_Gut_species.pdf', bg = 'white', 
-       width = 2500, height = 1000, units = 'px', dpi = 230)
+       width = 2200, height = 1000, units = 'px', dpi = 230)
 
 ################
 ### Mosses ######
@@ -118,7 +118,7 @@ Div_long_filt <- Div_long %>%
   filter(dataset %in% c('Moss') & 
            index == 'H_1' &
            Rank == 'Species' &
-           !database %in% c('KB05','KB51')) 
+           !database %in% c('KB05','KB20','KB51')) 
 
 # set.seed(38); most_variable <- Div_long_filt %>% 
 #   dplyr::select(index, Rank, dataset, Sample) %>%
@@ -151,16 +151,18 @@ Div_long_filt %>%
         panel.border = element_blank(),
         axis.line.y.left = element_line(colour = 'gray'),
         panel.grid = element_blank(),
-        legend.position = c(0.1, 0.14),
-        legend.background = element_rect(fill = "white", color = "black", size = 0.5),
+        legend.position = 'bottom',
         legend.key.height = unit(0.8, 'cm'),
-        legend.key.width = unit(0.8, 'cm')
-  ) +
-  scale_fill_manual(values = tool_colours,
-                    labels = CCE_names) +
-  labs(y = 'Shannon index', x = '', fill = 'Composition estimation')
+        legend.key.width = unit(0.8, 'cm'),
+        legend.title.position = 'top',
+        legend.title = element_text(hjust = 0)
+  ) +  guides(fill = guide_legend(nrow = 1)) +
 
-ggsave('Out/CSHL_poster/Moss_div_MAGs.pdf', bg = 'white', width = 1400, height = 1200, units = 'px', dpi = 180)
+  scale_fill_manual(values = tool_colours,
+                    labels = gsub("\n", "", CCE_names)) +
+  labs(y = 'Shannon index', x = '', fill = 'Community Composition Reference Database')
+
+ggsave('Out/CSHL_poster/Moss_div_MAGs.pdf', bg = 'white', width = 2400, height = 2400, units = 'px', dpi = 260)
 
 moss_meta <- ps.ls$Species$Moss$KB05 %>% 
   sample_data %>% 
@@ -183,13 +185,35 @@ alpha_test.df %>%
   kruskal_test(value ~ Host)
 
 alpha_test.df %>% 
-ggplot(aes(x = Host, y = index_div, colour = Host)) +
+ggplot(aes(x = Host, y = index_div, fill = Host)) +
   geom_boxplot() +
-  facet_grid(.~database) +
-  theme_minimal()+
+  theme_light()+
+  facet_wrap2(database~., 
+              ncol=1, 
+              labeller = as_labeller(gsub("\n", '',CCE_names)),
+              strip = strip_themed(
+                background_x = list(
+                  element_rect(fill = adjustcolor( "royalblue", alpha.f = 0.5),
+                               colour = adjustcolor( "royalblue", alpha.f = 0.5)),  # Color for facet 1
+                  element_rect(fill = adjustcolor("skyblue", alpha.f = 0.5),
+                               colour = adjustcolor( "royalblue", alpha.f = 0.5))  # Color for facet 2
+    )
+  )) +
+  scale_fill_brewer(palette = 'Accent') +
   theme(
-    axis.text.x = element_blank()
-  )
+    axis.text.x = element_blank(),
+    strip.background = element_blank(),
+    strip.text = element_text(color = "black"),
+    legend.position = 'bottom',
+    legend.title.position = 'top',
+    legend.title = element_text(hjust = 0.5),
+    axis.title.x = element_blank()
+  ) +
+  guides(fill = guide_legend(nrow = 2)) +
+  labs(y = 'Shannon diversity', fill = 'Host moss species')
+
+ggsave('Out/CSHL_poster/Moss_div_Host.pdf', bg = 'white', 
+       width = 1000, height = 2200, units = 'px', dpi = 280)
 
 ###########
 #### DAA ###
@@ -221,7 +245,9 @@ upset_by_db <- function(ds, db) {
 Moss_Species_sig <- DAA %>% 
   filter(taxRank == 'Species' &
            dataset == 'Moss' &
-           DAA_tool %in% c('ANCOMBC2', 'Aldex2', 'ZicoSeq', 'corncob', 'radEmu') &
+           DAA_tool %in% c('ANCOMBC2', 'Aldex2', 'ZicoSeq', 
+                          'corncob', 
+                           'radEmu') &
            adj.p <0.05) 
 
 upset_by_db(Moss_Species_sig, 'SM_gtdb-rs214-rep')

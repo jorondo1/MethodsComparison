@@ -1,5 +1,33 @@
 pval_cutoff <- 0.05
 ncores <- 7
+
+# Prevalence filtering a phyloseq object
+ps_prevalence_filt <- function(ps, threshold) {
+  require(phyloseq)
+  require(magrittr)
+  require(dplyr)
+  
+  counts.tab <- otu_table(ps)
+  
+  # Number of samples required to meet threshold
+  numSam <- ceiling(threshold * phyloseq::nsamples(ps))
+  
+  ## Transpose OTU table (species should be arranged by rows)
+  if(taxa_are_rows(ps) == FALSE){
+    counts.tab <- t(counts.tab)
+  }
+  
+  # Compute taxa prevalence
+  keep_taxa <- rowSums(counts.tab != 0) %>% 
+    data.frame(count = .) %>% 
+    rownames_to_column('taxa') %>% View
+    filter(count >= numSam) %$% taxa
+  
+  res <- phyloseq::prune_taxa(keep_taxa, ps)
+  return(res)
+}
+
+
 #############
 ### ALDEx2 ###
 ###############
@@ -113,7 +141,7 @@ compute_DESeq2 <- function(ps, samVar) {
 
 compile_DESeq2 <- function(results, taxRank, db, ds) {
   results %>% 
-    dplyr::filter(!is.na(padj)) %>% # keep significant only
+    # dplyr::filter(!is.na(padj)) %>% # keep significant only
     transmute(Taxon = row,
               coef = log2FoldChange/log2(10),
               adj.p = padj,
@@ -127,6 +155,8 @@ compile_DESeq2 <- function(results, taxRank, db, ds) {
 ### edgeR ###
 ##############
 compute_edgeR <- function(ps, samVar) {
+  require('edgeR')
+  
   # Compute DAA
   test <- phyloseq_to_edgeR(ps, samVar)
   et = exactTest(test)
@@ -156,6 +186,8 @@ compile_edgeR <- function(results, taxRank, db, ds) {
 # This one is a bit different because the Maaslin2 command creates a written
 # output and we will parse from those files. Notice no object need to be created.
 compute_Maaslin2 <- function(ps, samVar, taxRank, ds, db, out_path) {
+  require('Maaslin2')
+  
   maaslin_path <- paste(out_path, '/Maaslin2',taxRank, ds, db, sep = '/')
   
   if (!dir.exists(maaslin_path)) {
@@ -205,6 +237,8 @@ compile_Maaslin <- function(res_path) {
 ##############
 compute_radEmu <- function(ps, samVar) {
   require('parallel')
+  require('radEmu')
+  
   # compute fit:
   my_formula <- as.formula(paste('~', samVar))
   ch_fit <- emuFit(formula = my_formula, 
@@ -212,7 +246,7 @@ compute_radEmu <- function(ps, samVar) {
   ### !DEV! Temporary start**********
   # choose which features have an estimate big enough to have a
   # chance at a significant pval:
-  cutoff <- 2
+  cutoff <- 0
   to_test <- which(abs(ch_fit$coef$estimate) > cutoff)
   ### !DEV Temporary end**********
   
@@ -250,19 +284,20 @@ compile_radEmu <- function(results, taxRank, db, ds) {
 #################
 compute_ZicoSeq <- function(ps, samVar) {
   require('rlang')
+  require('GUniFrac')
+  
   metadata <- ps %>% sample_data %>% 
     as("data.frame") %>% as_tibble %>% # convert group var to binary
-    mutate(across({{ samVar }}, ~ as.numeric(fct_drop(as.factor(.))) - 1)). 
+    mutate(across({{ samVar }}, ~ as.numeric(fct_drop(as.factor(.))) - 1))
   
   result <- ZicoSeq(
     feature.dat = ps %>% otu_table %>% as.matrix,
     meta.dat = metadata,
     grp.name = samVar,
     feature.dat.type = 'count',
-    mean.abund.filter = 0.001,
-    perm.no = 999,
-    prev.filter = 0.1,
-    outlier.pct = 0.01
+    #mean.abund.filter = 0.001,
+    #prev.filter = 0.1,
+    perm.no = 999
   ) 
 }
 

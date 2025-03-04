@@ -44,16 +44,16 @@ top_taxa <- subset_toolpairs %>%
 tool_pairs <- expand_grid(tool_names, db_names) %>% 
   mutate(pair = paste(tool_names, db_names, sep= '_')) %>% 
   pivot_longer(cols = c('db_names', 'tool_names'), values_to = 'y') %>% 
-  mutate(y = factor(y, levels = c(db_names, tool_names))) 
+  mutate(y = factor(y, levels = c(tool_names, db_names))) 
 
 # Tool pair factors in order
-comb_factor <- tool_pairs %$% pair %>% unique %>% rev %>% droplevels
+comb_factor <- tool_pairs %$% pair %>% unique %>% rev# %>% droplevels
 
 # Data for top plot matrix
 tax_tool_pairs <- subset_toolpairs %>% 
   filter(Taxon %in% top_taxa) %>% 
   mutate(pair = paste(DAA_tool, database, sep= '_')) %>% 
-  dplyr::select(Taxon, pair, coef) %>%  # Convert coefficients to signs: 
+  # Convert coefficients to signs: 
   mutate(coef = factor(case_when(coef>0 ~ 1, coef<0 ~ -1)))
 
 # Factor levels : taxa sorted by overall agreement score
@@ -63,11 +63,6 @@ tax_levels <- tax_tool_pairs %>%
   arrange(desc(score)) %>% 
   pull(Taxon)
 
-# Refactor top matrix
-tax_tool_pairs %<>% 
-  mutate(pair = factor(pair, levels = comb_factor),
-         Taxon = factor(Taxon, levels = tax_levels))
-
 # Refactor tool pairs
 CCE_names_noreturn <- gsub("\n", " ", CCE_names) # remove returns from full tool names 
 tool_pairs %<>%
@@ -76,14 +71,47 @@ tool_pairs %<>%
   # Rename labels
   mutate(y = recode(y, !!!CCE_names_noreturn))
 
-# Top taxa count characteristics
+### 2. Difference in mean group relative abundance per (top) taxon
+mean_taxa_ratios_groups <- function(ps) {
+  ps %>% psmelt %>% tibble %>% 
+    group_by(Sample) %>% 
+    dplyr::mutate(relAb = Abundance / sum(Abundance),
+                  Taxon = OTU) %>% 
+    dplyr::select(Sample, Taxon, relAb, Group) %>% 
+    group_by(Group, Taxon) %>% 
+    dplyr::summarise(meanRelAb = mean(relAb),
+                     sdRelAb = sd(relAb),
+                     prev = sum(relAb != 0),
+                     .groups = 'drop') %>% 
+    group_by(Taxon) %>% 
+    
+    # Ratios get tricky with low abundance taxa because quasi absence from a group inflates the ratios drastically (even log)
+    dplyr::summarise(scaled_diff =
+                       (max(meanRelAb[Group == "0"],
+                           meanRelAb[Group == "1"]) -
+                       min(meanRelAb[Group == "0"],
+                           meanRelAb[Group == "1"])) /
+                       max(meanRelAb[Group == "0"],
+                           meanRelAb[Group == "1"])
+                     )
+}
 
-# Taxon prevalence
+abundance_ratios <- ps.ls$Family$NAFLD %>% 
+  imap(function(ps, database) {
+  mean_taxa_ratios_groups(ps) %>% 
+    mutate(# sd_mean_ratio = sdRelAb/meanRelAb,
+      database = database
+           )
+}) %>% list_rbind %>% 
+  dplyr::filter(Taxon %in% tax_levels) 
 
+# Add this to top plot dataframe
+top_plot_data <- tax_tool_pairs %>% 
+  left_join(abundance_ratios, by = c('Taxon', 'database')) %>% 
+  mutate(pair = factor(pair, levels = comb_factor),
+         Taxon = factor(Taxon, levels = tax_levels))
 
-
-
-### 2. PLOT ###
+### 2.. PLOT ###
 # Create striped background (vertical) from a set of unique factors (associated to the plot's x axis)
 striped_background <- function(pairs) {
   # In case some levels don't have values for the plot :
@@ -106,24 +134,26 @@ striped_background <- function(pairs) {
   )
 }
 
-top_plot <- tax_tool_pairs %>% 
+top_plot <- top_plot_data %>% 
   ggplot(aes(x = pair, y = Taxon)) +
   striped_background(tool_pairs$pair) + # ensure the colours are interpreted for the background
-  geom_point(aes(colour = coef), size = 3) +
+  geom_point(aes(colour = coef, size = scaled_diff)) +
   scale_colour_manual(values = c('red3', "blue3"),
                       labels = c('Negative', 'Positive')) +
+  scale_size_continuous(breaks = c(0.5, 0.7, 1), range = c(1,5)) +
   theme_minimal() +
-  labs(colour = 'Taxon association')
+  labs(colour = 'Taxon association', 
+       size = 'Scaled difference in mean\nabundance between groups')
 
 bottom_plot <- tool_pairs %>% 
   ggplot(aes(x = pair, y = y)) +
   striped_background(tool_pairs$pair) +
-  geom_hline(yintercept = match("corncob", levels(tool_pairs$y)) - 0.5, 
-             color = "black", linewidth = 0.2, linetype = 'solid') +
+  geom_hline(yintercept = match("edgeR", levels(tool_pairs$y)) + 0.5, 
+             color = "black", linewidth = 0.2, linetype = 'dotted') +
   geom_line(aes(group = pair)) +
-  geom_point(aes(colour = name), size = 3) +
+  geom_point(aes(colour = name), size = 5, shape = 18) +
   scale_colour_manual(values = c('orange2', 'purple2'), 
-                      labels = c('Community composition estimation', 
+                      labels = c('Community composition', 
                                  'Differential abundance'))+
   labs(colour = 'Tool type') +
   theme_minimal() 
@@ -136,6 +166,7 @@ bottom_plot <- tool_pairs %>%
         axis.title = element_blank(),
         axis.text.x = element_blank(),
         legend.position = "bottom",
+        legend.justification = 'left',
         legend.title.position = 'top') 
 
 ggsave('Out/CSHL_poster/DAA_Story.pdf', bg = 'white', width = 2000, height = 1600, units = 'px', dpi = 180)
@@ -195,10 +226,10 @@ tool_sets_meta %>%
   ggplot(aes(x = MDS1, y = MDS2)) +
    # stat_ellipse(level=0.7, geom = "polygon", alpha = 0.1, aes(colour = CCE_approach), fill = NA) + 
   ggbeeswarm2::geom_beeswarm(aes(colour = database, shape = DAA_tool), 
-                size = 3, stroke = 1.5, method = 'swarm2', spacing = 1.5) +
+                size = 4, stroke = 1.5, method = 'swarm2', spacing = 1.5) +
   scale_shape_manual(values = setNames(DAA_metadata$plot_shape, DAA_metadata$DAA_tool)) +
   scale_colour_manual(values = tool_colours, labels = CCE_names) +
-  theme_minimal() +
+  theme_light() +
   # geom_text(data = approach_text, aes(x = X, y = Y, label = CCE_approach), color = "black", size = 5, fontface = "bold") +
   labs(x = paste0('PCo1 (', eig[1],')'), 
        y = paste0('PCo2 (', eig[2],')'),
@@ -208,34 +239,24 @@ tool_sets_meta %>%
     colour = guide_legend(order = 1)    # Put fill legend second
   ) +
   theme(
-    legend.position = c(-0.5, 0.9),                # Position the color legend outside to the left
-    legend.justification = c("left", "top"),         # Top-align the color legend
-    legend.box = "horizontal",                       # Ensure legends are horizontally aligned
-    
-    # Move shape legend inside the plot and overlap the plot, top-aligned with the color legend
-    legend.box.margin = margin(t = 0, r = 0, b = 0, l = 10),
-    legend.spacing.x = unit(1.5, "cm"),              # Adjust spacing between the two legends
-    
-    # Adjust the plot margins to make space for the left-side color legend
-    plot.margin = margin(t = 5, r = 5, b = 5, l = 150),
-    
-    # Customize the background of the legends (optional)
+    legend.position = c(0.016, 0.72),
+    legend.justification = "left",                # Align the legend to the left
     legend.background = element_rect(fill = "white", color = "black", size = 0.5)
-    
   )
+ 
 
-ggsave('Out/CSHL_poster/pcoa_tool_sets.pdf', bg = 'white', plot = cluster.plot,
-       width = 2600, height = 2000, units = 'px', dpi = 260)
+ggsave('Out/CSHL_poster/pcoa_tool_sets.pdf', bg = 'white',
+       width = 2400, height = 2400, units = 'px', dpi = 260)
 
 # Permanova?
-adonis2(formula = dist ~ taxonomy + CCE_approach + Taxon_bias + Compositional, 
+adonis2(formula = dist ~ taxonomy + CCE_approach + Taxon_bias, 
         permutations = 999,
         data = tool_sets_meta,
         by = 'margin',
       #  na.action = na.exclude,
         parallel = 8)
 
-  
+
 # Long DF with every possible tool combination for each taxon
 # 
 # # P/A matrix for datadases 

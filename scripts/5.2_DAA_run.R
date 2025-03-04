@@ -6,14 +6,15 @@ p_load(magrittr, tidyverse, phyloseq,
 source('scripts/myFunctions.R')
 source('scripts/5.1_DAA_fun.R')
 
-ps.ls <- read_rds('Out/ps_full.ls.rds')
+ps.ls <- read_rds('Out/ps_full.ls.rds') 
 ps_rare.ls <- read_rds('Out/ps_rare.ls.rds')
+
 
 # To work on a subset at whichever list level: 
 # ps.ls <- map(ps.ls, ~ .x["NAFLD"])
 # ps_rare.ls <- map(ps_rare.ls, ~ .x["NAFLD"])
 
-out_path <- 'Out/DAA_NAFLD'
+out_path <- 'Out/DAA_NAFLD_prevfilt'
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }

@@ -4,9 +4,9 @@ source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/phylose
 my_datasets_factorlevels <- c('P19_Saliva', 'P19_Gut', 'RA_Gut', 'AD_Skin', 'Moss', 'NAFLD')
 tool_colours <- c(
   'MOTUS' = 'goldenrod',
-  'MPA_db2019' = 'green4',
-  'MPA_db2022' = 'palegreen3',
-  'MPA_db2023' = 'darkolivegreen',
+  'MPA_db2019' = 'seagreen3',
+  'MPA_db2022' = 'darkolivegreen2',
+  'MPA_db2023' = 'darkolivegreen4',
   'KB05' = 'indianred1',
   'KB20' = 'indianred3',
   'KB51' = 'orangered4',
@@ -167,65 +167,6 @@ filter_and_add_samData <- function(df, ds, Rank, ps_list) {
     rownames_to_column('Sample')
   
   inner_join(df, samData, by = 'Sample') 
-}
-
-# Hill numbers
-estimate_Hill <- function(ps, q) {
-  x <- ps@otu_table %>% as("matrix")
-  if (taxa_are_rows(ps)) { 
-    x <- t(x) 
-  }
-  total <- rowSums(x)
-  x <- sweep(x, 1, total, "/")
-  
-  if (q == 0) {  # Species richness
-    div <- rowSums(x > 0)
-  } else if (q == 1) { # Shannon diversity (exponential of Shannon entropy)
-    div <- exp(-rowSums(x * log(x, base = exp(1)), na.rm = TRUE))
-  } else {  # Hill number formula for q ≠ 0 and q ≠ 1
-    div <- rowSums(x^q)^(1 / (1 - q))
-  }
-  return(div)
-}
-
-# Esitmate diversity (Shannon, Simpson, Tail)
-estimate_diversity <- function(ps, index = 'Shannon') {
-  x <- ps@otu_table %>% as("matrix")
-  if (taxa_are_rows(ps)) { 
-    x <- t(x) 
-  }
-  total <- apply(x, 1, sum)
-  x <- sweep(x, 1, total, "/")
-  
-  if(index == 'Tail') {
-    tail_stat <- function(row) {
-      values <- sort(row, decreasing = TRUE)
-      sqrt(sum(values * ((seq_along(values)-1)^2)))
-    }
-    div <- apply(x, 1, tail_stat)
-  }
-  if(index == 'Shannon') {
-    x <- -x * log(x, exp(1))
-    div <- apply(x, 1, sum, na.rm = TRUE)
-  }
-  if(index == 'Simpson') {
-    div <- 1 - apply((x * x), 1, sum, na.rm = TRUE) 
-  }
-  if(index == 'Richness') {
-    div <- apply(x, 1, function(x) sum(x != 0))
-  }
-  return(div)
-}
-
-# compute multiple diversity indices, output in sublists
-div.fun <- function(ps, idx) {
-  div_estimate <- list() #initiate list
-  for (i in seq_along(idx)) { # compute Hill numbers
-    H_q=paste0("H_",i-1) # format H_0, H_1...
-    div_estimate[[H_q]] <- estimate_Hill(ps, idx[i])
-  }
-  div_estimate[["Tail"]] <- estimate_diversity(ps, index = "Tail")
-  return(div_estimate)
 }
 
 ################

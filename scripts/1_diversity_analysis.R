@@ -7,6 +7,9 @@ p_load(
   # plotting :
   ggbeeswarm2, patchwork, grid, ggh4x)
 
+source("https://github.com/jorondo1/misc_scripts/raw/refs/heads/main/community_functions.R")
+source('scripts/myFunctions.R')
+
 #ps_species.ls <- read_rds("Out/ps_rare_species.ls.rds") 
 #ps_genus.ls <- read_rds("Out/ps_rare_genus.ls.rds") 
 
