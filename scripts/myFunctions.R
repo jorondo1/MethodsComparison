@@ -3,10 +3,10 @@ source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/phylose
 
 my_datasets_factorlevels <- c('P19_Saliva', 'P19_Gut', 'RA_Gut', 'AD_Skin', 'Moss', 'NAFLD')
 tool_colours <- c(
-  'MOTUS' = 'goldenrod',
   'MPA_db2019' = 'seagreen3',
   'MPA_db2022' = 'darkolivegreen2',
   'MPA_db2023' = 'darkolivegreen4',
+  'MOTUS' = 'goldenrod',
   'KB05' = 'indianred1',
   'KB20' = 'indianred3',
   'KB51' = 'orangered4',

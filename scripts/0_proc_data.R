@@ -4,6 +4,7 @@ p_load(phyloseq, tidyverse, magrittr, doParallel, furrr)
 # functions
 source('scripts/myFunctions.R')
 source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/tax_glom2.R')
+source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/community_functions.R')
 
 # Import External data
 psSalivaKB <- read_rds('P19_Saliva/psSalivaKB.rds')
@@ -25,8 +26,10 @@ meta_parsing <- function(dsName, samData) {
   ) %>% species_glom() %>%
     assemble_phyloseq(samData)
   
-  for (db in c('SM_gtdb-rs214-full',
-               'SM_gtdb-rs214-rep')) {
+  SM_gtdb_dirs <- list.dirs(dsName, recursive = FALSE) %>% 
+    .[grep("/SM_gtdb-rs214[^/]*$", .)] %>% basename # rs220 has a different output, unique_intersect_bp column doesn't exist
+  
+  for (db in SM_gtdb_dirs) {
     message(paste('Parsing', db, '...'))
     
     ps[[db]] <- left_join(
@@ -39,7 +42,10 @@ meta_parsing <- function(dsName, samData) {
 
   
   # Metaphlan  
-  for (db in c('MPA_db2019','MPA_db2022', 'MPA_db2023')) {
+  mpadirs <- list.dirs(dsName, recursive = FALSE) %>% 
+    .[grep("/MPA_[^/]*$", .)] %>% basename
+  
+  for (db in mpadirs) {
     message(paste('Parsing', db, '...'))
     ps[[db]] <- parse_MPA(
       MPA_files = paste0(dsName,'/', db, '/*/*_profile.txt'),
@@ -48,7 +54,10 @@ meta_parsing <- function(dsName, samData) {
       assemble_phyloseq(samData)
   }
   # Kraken-bracken (using default headers from parse_MPA function)
-  for (db in c('KB20', 'KB51')) {
+  kbdirs <- list.dirs(dsName, recursive = FALSE) %>% 
+    .[grep("/KB[^/]*$", .)] %>% basename # List all KB dirs
+  
+  for (db in kbdirs) {
     message(paste('Parsing', db, '...'))
     ps[[db]] <- parse_MPA(
     MPA_files = paste0(dsName,'/', db, '/*/*_bracken/*_bracken_S.MPA.TXT')) %>% 
@@ -122,14 +131,13 @@ ps_full.ls[['Family']] <- lapply(ps_filt.ls, function(ds) {
 ps_rare.ls <- list()
 ps_rare.ls[['Species']] <- lapply(ps_raw.ls, function(ds) {
   lapply(ds, function(db) {
-    rarefy_even_depth2(db, rngseed = 1234, verbose = TRUE, ncores = 60)
+    rarefy_even_depth2(db, rngseed = 1234, verbose = TRUE, ncores = 7)
   })
 })
 
-ps_rare.ls[['Genus']] <- lapply(ps_raw.ls, function(ds) {
+ps_rare.ls[['Genus']] <- lapply(ps_rare.ls[['Species']], function(ds) {
   lapply(ds, function(db) {
-    tax_glom2(db, taxrank = "Genus") %>% 
-      rarefy_even_depth2(rngseed = 1234, verbose = TRUE, ncores = 60)
+    tax_glom2(db, taxrank = "Genus")
   })
 })
 

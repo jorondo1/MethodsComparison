@@ -35,50 +35,54 @@ bracken="bash $ILL_PIPELINES/generateslurm_taxonomic_profile.sample.sh \
 	--slurm_log $MC/logs --slurm_walltime 72:00:00 --slurm_threads 48 --slurm_mem 250G"
 
 # Generate SLURM scripts https://github.com/jflucier/ILL_pipelines/blob/main/generateslurm_taxonomic_profile.sample.sh
-$bracken --confidence 0.05 --sample_tsv $SALIVA_TSV --out $MC/P19_Saliva/KB20
-$bracken --confidence 0.05 --sample_tsv $FECES_TSV --out $MC/P19_Gut/KB20
-$bracken --confidence 0.05 --sample_tsv $MOSS_TSV --out $MC/Moss/KB20
-$bracken --confidence 0.05 --sample_tsv $NAFLD_TSV --out $MC/NAFLD/KB05
+$bracken --confidence 0.10 --sample_tsv $SALIVA_TSV --out $MC/P19_Saliva/KB10
+$bracken --confidence 0.10 --sample_tsv $FECES_TSV --out $MC/P19_Gut/KB10
+$bracken --confidence 0.10 --sample_tsv $MOSS_TSV --out $MC/Moss/KB10
+$bracken --confidence 0.10 --sample_tsv $NAFLD_TSV --out $MC/NAFLD/KB10
+$bracken --confidence 0.10 --sample_tsv $AD_Skin_TSV --out $MC/AD_Skin/KB10
 
-$bracken --confidence 0.20 --sample_tsv $SALIVA_TSV --out $MC/P19_Saliva/KB20
-$bracken --confidence 0.20 --sample_tsv $FECES_TSV --out $MC/P19_Gut/KB20
-$bracken --confidence 0.20 --sample_tsv $MOSS_TSV --out $MC/Moss/KB20
-$bracken --confidence 0.20 --sample_tsv $NAFLD_TSV --out $MC/NAFLD/KB20
-$bracken --confidence 0.20 --sample_tsv $AD_Skin_TSV --out $MC/AD_Skin/KB20
+$bracken --confidence 0.45 --sample_tsv $SALIVA_TSV --out $MC/P19_Saliva/KB45
+$bracken --confidence 0.45 --sample_tsv $FECES_TSV --out $MC/P19_Gut/KB45
+$bracken --confidence 0.45 --sample_tsv $MOSS_TSV --out $MC/Moss/KB45
+$bracken --confidence 0.45 --sample_tsv $NAFLD_TSV --out $MC/NAFLD/KB45
+$bracken --confidence 0.45 --sample_tsv $AD_Skin_TSV --out $MC/AD_Skin/KB45
 
-$bracken --confidence 0.51 --sample_tsv $SALIVA_TSV --out $MC/P19_Saliva/KB51
-$bracken --confidence 0.51 --sample_tsv $FECES_TSV --out $MC/P19_Gut/KB51
-$bracken --confidence 0.51 --sample_tsv $MOSS_TSV --out $MC/Moss/KB51
-$bracken --confidence 0.51 --sample_tsv $NAFLD_TSV --out $MC/NAFLD/KB51
-$bracken --confidence 0.51 --sample_tsv $AD_Skin_TSV --out $MC/AD_Skin/KB51
+$bracken --confidence 0.90 --sample_tsv $SALIVA_TSV --out $MC/P19_Saliva/KB90
+$bracken --confidence 0.90 --sample_tsv $FECES_TSV --out $MC/P19_Gut/KB90
+$bracken --confidence 0.90 --sample_tsv $MOSS_TSV --out $MC/Moss/KB90
+$bracken --confidence 0.90 --sample_tsv $NAFLD_TSV --out $MC/NAFLD/KB90
+$bracken --confidence 0.90 --sample_tsv $AD_Skin_TSV --out $MC/AD_Skin/KB90
 
 # Submit
-sbatch --array=1-"$NUM_P19_Saliva" $MC/P19_Saliva/KB05/taxonomic_profile.samples.slurm.sh
-sbatch --array=1-"$NUM_P19_Gut" $MC/P19_Gut/KB05/taxonomic_profile.samples.slurm.sh
-sbatch --array=1-"$NUM_Moss" $MC/Moss/KB05/taxonomic_profile.samples.slurm.sh
-sbatch --array=1-"$NUM_NAFLD" $MC/NAFLD/KB05/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_P19_Saliva" $MC/P19_Saliva/KB10/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_P19_Gut" $MC/P19_Gut/KB10/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_Moss" $MC/Moss/KB10/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_NAFLD" $MC/NAFLD/KB10/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_AD_Skin" $MC/AD_Skin/KB10/taxonomic_profile.samples.slurm.sh
 
-sbatch --array=1-"$NUM_P19_Saliva" $MC/P19_Saliva/KB20/taxonomic_profile.samples.slurm.sh
-sbatch --array=1-"$NUM_P19_Gut" $MC/P19_Gut/KB20/taxonomic_profile.samples.slurm.sh
-sbatch --array=1-"$NUM_Moss" $MC/Moss/KB20/taxonomic_profile.samples.slurm.sh
-sbatch --array=1-"$NUM_NAFLD" $MC/NAFLD/KB20/taxonomic_profile.samples.slurm.sh
-sbatch --array=1-"$NUM_AD_Skin" $MC/AD_Skin/KB20/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_P19_Saliva" $MC/P19_Saliva/KB45/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_P19_Gut" $MC/P19_Gut/KB45/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_Moss" $MC/Moss/KB45/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_NAFLD" $MC/NAFLD/KB45/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_AD_Skin" $MC/AD_Skin/KB45/taxonomic_profile.samples.slurm.sh
 
-sbatch --array=1-"$NUM_P19_Saliva" $MC/P19_Saliva/KB51/taxonomic_profile.samples.slurm.sh
-sbatch --array=1-"$NUM_P19_Gut" $MC/P19_Gut/KB51/taxonomic_profile.samples.slurm.sh
-sbatch --array=1-"$NUM_Moss" $MC/Moss/KB51/taxonomic_profile.samples.slurm.sh
-sbatch --array=1-"$NUM_NAFLD" $MC/NAFLD/KB51/taxonomic_profile.samples.slurm.sh
-sbatch --array=1-"$NUM_AD_Skin" $MC/AD_Skin/KB51/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_P19_Saliva" $MC/P19_Saliva/KB90/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_P19_Gut" $MC/P19_Gut/KB90/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_Moss" $MC/Moss/KB90/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_NAFLD" $MC/NAFLD/KB90/taxonomic_profile.samples.slurm.sh
+sbatch --array=1-"$NUM_AD_Skin" $MC/AD_Skin/KB90/taxonomic_profile.samples.slurm.sh
 
 # Check completion status
-check_output 'KB20 KB51' AD_Skin _bracken_S.MPA.TXT
+check_output 'KB10 KB45 KB90' 'AD_Skin P19_Saliva P19_Gut Moss NAFLD' _bracken_S.MPA.TXT
 
 # Once completely done, remove taxonomy_nt files from kraken out 
-rm */KB*/*/*_taxonomy_nt 
-rm */KB*/*/*/*.bracken
-rm */KB*/*/*/*.kreport
-rm */KB*/*/*bugs_list.MPA.TXT
-rm */KB*/*/*/*_temp.MPA.TXT
+rm */KB*/*/*_taxonomy_nt # heavy
+rm */KB*/*/*/*.bracken # useless format
+rm */KB*/*/*/*.kreport # we want the bracken out, not kraken
+rm */KB*/*/*bugs_list.MPA.TXT # no use
+rm */KB*/*/*/*_temp.MPA.TXT # temp files
+rm */KB*/*/*/*_bracken_[^S].MPA.TXT # Other levels of classification
+rm -r */KB*/*/*_kronagrams # no use
 
 ################
 # MetaPhlAn4 ###
