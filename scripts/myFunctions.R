@@ -7,9 +7,10 @@ tool_colours <- c(
   'MPA_db2022' = 'darkolivegreen2',
   'MPA_db2023' = 'darkolivegreen4',
   'MOTUS' = 'goldenrod',
-  'KB05' = 'indianred1',
-  'KB20' = 'indianred3',
-  'KB51' = 'orangered4',
+  'KB10' = 'indianred1',
+  'KB45' = 'indianred2',
+  'KB51' = 'indianred3',
+  'KB90' = 'orangered4',
   'SM_genbank-2022.03' = 'purple3',
   'SM_gtdb-rs214-full' = 'navyblue',
   'SM_gtdb-rs214-rep'= 'royalblue',
@@ -27,9 +28,10 @@ CCE_names <- c(
   'MPA_db2019' = 'MetaPhlAn3 (2019)',
   'MPA_db2022' = 'Metaphlan4 (2022)',
   'MPA_db2023' = 'Metaphlan4 (2023)',
-  'KB05' = 'Kraken (5% conf.)\n+ Bracken',
-  'KB20' = 'Kraken (20% conf.)\n+ Bracken',
+  'KB10' = 'Kraken (10% conf.)\n+ Bracken',
+  'KB45' = 'Kraken (45% conf.)\n+ Bracken',
   'KB51' = 'Kraken (51% conf.)\n+ Bracken',
+  'KB90' = 'Kraken (90% conf.)\n+ Bracken',
   'SM_genbank-2022.03' = 'Sourmash (Genbank)',
   'SM_gtdb-rs214-full' = 'Sourmash (GTDB)',
   'SM_gtdb-rs214-rep'= 'Sourmash (GTDB rep.)',
@@ -44,16 +46,16 @@ Hill_numbers <- c(
 
 CCE_metadata <- tibble(
   database = c("MOTUS","MPA_db2019","MPA_db2022","MPA_db2023",
-               "KB05","KB20","KB51",
+               "KB10","KB45","KB51","KB90",
                "SM_genbank-2022.03", "SM_gtdb-rs214-full","SM_gtdb-rs214-rep","SM_gtdb-rs214-rep_MAGs"),
   plot_colour = c("goldenrod","green4","palegreen3","darkolivegreen",
-                  "indianred1","indianred3", "orangered4", 
+                  "indianred1","indianred2","indianred3", "orangered4", 
                   "purple3", "navyblue", "royalblue", "skyblue3"),
   tool = c('MOTUS', 'MPA','MPA','MPA',
-           'KB','KB','KB','SM','SM','SM','SM'),
+           'KB','KB','KB','KB','SM','SM','SM','SM'),
   CCE_approach = c('DNA-to-Marker','DNA-to-Marker','DNA-to-Marker','DNA-to-Marker',
-               'DNA-to-DNA','DNA-to-DNA','DNA-to-DNA','DNA-to-DNA','DNA-to-DNA','DNA-to-DNA','DNA-to-DNA'),
-  taxonomy = c('NCBI','NCBI','NCBI','NCBI','NCBI','NCBI','NCBI','NCBI','GTDB','GTDB','GTDB'),
+               'DNA-to-DNA','DNA-to-DNA','DNA-to-DNA','DNA-to-DNA','DNA-to-DNA','DNA-to-DNA','DNA-to-DNA','DNA-to-DNA'),
+  taxonomy = c('NCBI','NCBI','NCBI','NCBI','NCBI','NCBI','NCBI','NCBI','NCBI','GTDB','GTDB','GTDB'),
   
 )
 
@@ -116,7 +118,8 @@ assemble_phyloseq <- function(abunTable, sampleData, filtering = FALSE) {
     dplyr::select(where(is.double), Species) %>% 
     group_by(Species) %>% 
     dplyr::summarise(across(where(is.numeric), sum)) %>% 
-    column_to_rownames('Species') 
+    column_to_rownames('Species') %>% 
+    select(where(~ sum(.) >= 100))
   
   # Extract taxonomy
   tax <- abunTable %>% 
@@ -125,15 +128,25 @@ assemble_phyloseq <- function(abunTable, sampleData, filtering = FALSE) {
     mutate(Species2 = Species) %>% 
     column_to_rownames('Species2') %>% as.matrix
   
-  # Build phyloseq
-  ps <- phyloseq(otu_table(abund, taxa_are_rows = TRUE),
-           sample_data(sampleData),
-           tax_table(tax)
-  ) %>% 
-    (if (filtering) filter_low_prevalence else identity)
+  # Some datasets may end up with very low read counts and lose samples.
+  # We subset the sample dataset, but we add a check if all samples are lost:
+  keep_samples <- sum(rownames(sampleData) %in% colnames(abund))
   
-  prune_samples(sample_sums(ps) > 0, ps) %>%  #remove any empty samples 
-    prune_taxa(taxa_sums(.) > 0,.) # remove taxa absent from all (may happen if you end up using not all the samples you parse, e.g. metadata missing so sample dropped in the process)
+  if (keep_samples==0) {
+    return(NULL)
+    } else {
+    sampleData_subset <- sampleData[keep_samples,]
+    
+    # Build phyloseq
+    ps <- phyloseq(otu_table(abund, taxa_are_rows = TRUE),
+             sample_data(sampleData_subset),
+             tax_table(tax)
+    ) %>% 
+      (if (filtering) filter_low_prevalence else identity)
+    
+    prune_samples(sample_sums(ps) > 0, ps) %>%  #remove any empty samples 
+      prune_taxa(taxa_sums(.) > 0,.) # remove taxa absent from all (may happen if you end up using not all the samples you parse, e.g. metadata missing so sample dropped in the process)
+  }
 }
 
 # Compute sparseness (proportion of 0 in abundance matrix)

@@ -16,7 +16,25 @@ moss.ps <-readRDS(url('https://github.com/jorondo1/borealMoss/raw/main/data/R_ou
 # with general structure List$Dataset$Database.ps
 meta_parsing <- function(dsName, samData) {
   ps <- list()
-
+  
+  # MOTUS
+  message(paste('Parsing', 'MOTUS', '...'))
+  ps[['MOTUS']] <- parse_MPA(
+    MPA_files = paste0(dsName,"/MOTUS/*_profile.txt"), 
+    column_names = c('mOTU', 'Taxonomy', 'NCBI', 'Abundance')) %>% 
+    assemble_phyloseq(samData)
+  
+  # Kraken-bracken (using default headers from parse_MPA function)
+  kbdirs <- list.dirs(dsName, recursive = FALSE) %>% 
+    .[grep("/KB[^/]*$", .)] %>% basename # List all KB dirs
+  
+  for (db in kbdirs) {
+    message(paste('Parsing', db, '...'))
+    ps[[db]] <- parse_MPA(
+      MPA_files = paste0(dsName,'/', db, '/*/*_bracken/*_bracken_S.MPA.TXT')) %>% 
+      assemble_phyloseq(samData)
+  }
+  
   # Sourmash
   message(paste('Parsing', 'SM_genbank-2022.03', '...'))
   ps[['SM_genbank-2022.03']] <- left_join(
@@ -40,7 +58,6 @@ meta_parsing <- function(dsName, samData) {
       assemble_phyloseq(samData)
   }
 
-  
   # Metaphlan  
   mpadirs <- list.dirs(dsName, recursive = FALSE) %>% 
     .[grep("/MPA_[^/]*$", .)] %>% basename
@@ -53,23 +70,7 @@ meta_parsing <- function(dsName, samData) {
       convert_to_counts = TRUE) %>% 
       assemble_phyloseq(samData)
   }
-  # Kraken-bracken (using default headers from parse_MPA function)
-  kbdirs <- list.dirs(dsName, recursive = FALSE) %>% 
-    .[grep("/KB[^/]*$", .)] %>% basename # List all KB dirs
-  
-  for (db in kbdirs) {
-    message(paste('Parsing', db, '...'))
-    ps[[db]] <- parse_MPA(
-    MPA_files = paste0(dsName,'/', db, '/*/*_bracken/*_bracken_S.MPA.TXT')) %>% 
-    assemble_phyloseq(samData)
-  }
-  # MOTUS
-  message(paste('Parsing', 'MOTUS', '...'))
-  ps[['MOTUS']] <- parse_MPA(
-    MPA_files = paste0(dsName,"/MOTUS/*_profile.txt"), 
-    column_names = c('mOTU', 'Taxonomy', 'NCBI', 'Abundance')) %>% 
-    assemble_phyloseq(samData)
-  
+
   return(ps)
 }
 
@@ -105,6 +106,7 @@ ps_raw.ls[['Moss']] <- meta_parsing('Moss', moss.ps@sam_data)
 ps_raw.ls[['Moss']][['SM_gtdb-rs214-rep_MAGs']] <- moss.ps 
 ps_raw.ls$Moss$MPA_db2022 <- NULL
 ps_raw.ls$Moss$MPA_db2023 <- NULL
+ps_raw.ls$Moss$KB90 <- NULL
 ps_raw.ls$Moss$MOTUS <- NULL
 ps_raw.ls[['NAFLD']] <- meta_parsing('NAFLD', NAFLD_meta)
 ps_raw.ls[['AD_Skin']] <- meta_parsing('AD_Skin', AD_skin_meta)
@@ -131,7 +133,8 @@ ps_full.ls[['Family']] <- lapply(ps_filt.ls, function(ds) {
 ps_rare.ls <- list()
 ps_rare.ls[['Species']] <- lapply(ps_raw.ls, function(ds) {
   lapply(ds, function(db) {
-    rarefy_even_depth2(db, rngseed = 1234, verbose = TRUE, ncores = 7)
+    rarefy_even_depth2(db, rngseed = 1234, 
+                       verbose = TRUE, ncores = 7)
   })
 })
 
@@ -141,10 +144,9 @@ ps_rare.ls[['Genus']] <- lapply(ps_rare.ls[['Species']], function(ds) {
   })
 })
 
-ps_rare.ls[['Family']] <- lapply(ps_raw.ls, function(ds) {
+ps_rare.ls[['Family']] <- lapply(ps_rare.ls[['Species']], function(ds) {
   lapply(ds, function(db) {
-    tax_glom2(db, taxrank = "Family") %>% 
-      rarefy_even_depth2(rngseed = 1234, verbose = TRUE, ncores = 60)
+    tax_glom2(db, taxrank = "Family")
   })
 })
 

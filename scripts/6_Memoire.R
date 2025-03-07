@@ -5,9 +5,9 @@ source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/m
 source("scripts/myFunctions.R")
 
 # Work from the species-level table
-ps_rare.ls <- ps_rare.ls$Species
+#ps_rare.ls <- ps_rare.ls$Species
 taxRanks <- c("Phylum", "Class", "Order", "Family", "Genus", "Species")
-which_databases <- c('SM_genbank-2022.03', 'MPA_db2023', 'KB51', 'MOTUS')
+which_databases <- c('SM_genbank-2022.03', 'MPA_db2023', 'KB45','KB90', 'MOTUS')
 ################################
 # Taxonomic assignment table ####
 ##################################
@@ -155,6 +155,7 @@ plot_div_by_approach <- function(df, approach) {
     theme(
       axis.text.x = element_blank()
     ) +
+    scale_y_continuous(limits = c(0, NA)) +
     labs(colour = 'Community Composition\nEstimation Tool &\nReference Database')
 }
 
@@ -179,11 +180,12 @@ plot_div_by_index <- function(df) {
     theme(
       axis.text.x = element_blank()
     ) +
+    scale_y_continuous(limits = c(0, NA)) +
     labs(colour = 'Community Composition\nEstimation Tool &\nReference Database')
 }
 
 alpha_div %>% 
-  filter(Index == 'Simpson' & 
+  filter(Index == 'Richness' & 
            CCE_tool %in% which_databases) %>% 
   plot_div_by_index()
 
