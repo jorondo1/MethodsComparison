@@ -14,7 +14,7 @@ which_databases <- c('SM_genbank-2022.03', 'MPA_db2023', 'KB45','KB90', 'MOTUS')
 # Using tax table only, grouped at each taxrank
 
 tax_assignment <- imap(ps_rare.ls, function(ps_dataset.ls, dataset){
-  imap(ps_dataset.ls, function(ps, CCE_tool){
+  imap(ps_dataset.ls, function(ps, CCE_tool){m
     tax_count <- ps %>% tax_table %>% data.frame %>% tibble
     
     # Iterate over taxRanks
