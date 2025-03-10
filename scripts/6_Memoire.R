@@ -1,11 +1,11 @@
 library(pacman)
-p_load( magrittr, tidyverse, purrr, kableExtra)
+p_load( magrittr, tidyverse, purrr, kableExtra, phyloseq)
 ps_rare.ls <- read_rds('Out/ps_rare.ls.rds')
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/community_functions.R'))
 source("scripts/myFunctions.R")
 
 # Work from the species-level table
-#ps_rare.ls <- ps_rare.ls$Species
+ps_rare.ls <- ps_rare.ls$Species
 taxRanks <- c("Phylum", "Class", "Order", "Family", "Genus", "Species")
 which_databases <- c('SM_genbank-2022.03', 'MPA_db2023', 'KB45','KB90', 'MOTUS')
 ################################

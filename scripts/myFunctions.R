@@ -130,9 +130,9 @@ assemble_phyloseq <- function(abunTable, sampleData, filtering = FALSE) {
   
   # Some datasets may end up with very low read counts and lose samples.
   # We subset the sample dataset, but we add a check if all samples are lost:
-  keep_samples <- sum(rownames(sampleData) %in% colnames(abund))
+  keep_samples <- which(rownames(sampleData) %in% colnames(abund))
   
-  if (keep_samples==0) {
+  if (length(keep_samples)==0) {
     return(NULL)
     } else {
     sampleData_subset <- sampleData[keep_samples,]
