@@ -230,5 +230,7 @@ alpha_div %>%
 # 2.2. perMANOVA 
 # Presented as in poster? 
 
-
+########################################################
+# Taxa discovery rate (rarefaction curves comparison) ###
+##########################################################
 
