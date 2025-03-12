@@ -8,7 +8,7 @@ tool_colours <- c(
   'MPA_db2023' = 'darkolivegreen4',
   'MOTUS' = 'goldenrod',
   'KB10' = 'indianred1',
-  'KB45' = 'indianred2',
+  'KB45' = 'indianred3',
   'KB51' = 'indianred3',
   'KB90' = 'orangered4',
   'SM_genbank-2022.03' = 'purple3',
@@ -135,7 +135,7 @@ assemble_phyloseq <- function(abunTable, sampleData, filtering = FALSE) {
   if (length(keep_samples)==0) {
     return(NULL)
     } else {
-    sampleData_subset <- sampleData[keep_samples,]
+    sampleData_subset <- sampleData[keep_samples,, drop = FALSE] 
     
     # Build phyloseq
     ps <- phyloseq(otu_table(abund, taxa_are_rows = TRUE),
@@ -279,7 +279,8 @@ compute_3_lvl <- function(ps.ls, func, ...){
      # if (ds != "NAFLD") return(NULL)          # ! DEV !
       cat("Processing dataset:", ds, "...\n")
       
-      future_imap(ds.ls, function(db.ps, db) { # ! Warning : doesn't work from RStudio! 
+      # ! Warning : doesn't work from RStudio! 
+      future_imap(ds.ls, function(db.ps, db) { 
         message("Using database:", db, "...\n")
         
         # Collect all available arguments
