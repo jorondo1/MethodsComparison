@@ -8,7 +8,7 @@ wget -nc ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR190/077/SRR19064377/SRR19064377_1
 wget -nc ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR190/047/SRR19064847/SRR19064847_2.fastq.gz
 wget -nc ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR190/062/SRR19064662/SRR19064662_2.fastq.gz
 wget -nc ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR190/044/SRR19064644/SRR19064644_2.fastq.gz
-wget -nc ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR190/095/SRR1m9064395/SRR19064395_1.fastq.gz
+wget -nc ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR190/095/SRR19064395/SRR19064395_1.fastq.gz
 wget -nc ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR190/098/SRR19064898/SRR19064898_2.fastq.gz
 wget -nc ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR190/014/SRR19064814/SRR19064814_2.fastq.gz
 wget -nc ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR190/077/SRR19064677/SRR19064677_2.fastq.gz
@@ -1448,14 +1448,3 @@ wget -nc ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR190/004/SRR19064804/SRR19064804_2
 wget -nc ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR190/085/SRR19064985/SRR19064985_2.fastq.gz
 wget -nc ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR190/030/SRR19064730/SRR19064730_1.fastq.gz
 wget -nc ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR190/082/SRR19064482/SRR19064482_2.fastq.gz
-
-ml mugqic/parallel-fastq-dump/0.6.5/ mugqic/sratoolkit/2.10.5
-while read -r run; do
-    echo "Downloading $run..."
-    if [ ! -f "${run}_1.fastq.gz" ] || [ ! -f "${run}_2.fastq.gz" ]; then
-    prefetch $run
-    parallel-fastq-dump --sra-id ${run}/${run}.sra --threads 4 --split-files --gzip
-    else
-    echo "skipping..."
-    fi
-done < sra_accessions.txt
