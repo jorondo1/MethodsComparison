@@ -1,5 +1,24 @@
 #!/bin/bash
 
+help_message () {
+	echo ""
+	echo "Usage: taxonomic_profile.sample.sh [--kraken_db /path/to/krakendb] [--bracken_readlen int] [--confidence float] [-t thread_nbr] [-m mem_in_G] -fq1 /path/fastq1 -fq2 /path/fastq2 -o /path/to/out"
+	echo "Options:"
+
+	echo ""
+	echo "	-s STR	sample name"
+    echo "	-o STR	path to output dir"
+    echo "	-t	# of threads (default 12)"
+    echo "	--kraken_db	kraken2 database path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517)"
+    echo "	--bracken_readlen	bracken read length option (default 150)"
+    echo "	--confidence	kraken confidence level to reduce false-positive rate (default 0.05)"
+
+    echo ""
+    echo "  -h --help	Display help"
+
+	echo "";
+}
+
 #init
 threads="12"
 sample="false";
@@ -8,7 +27,7 @@ kraken_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/kraken2_dbs/k2_pluspfp_1
 bracken_readlen="150"
 confidence="false"
 
-SHORT_OPTS="ht:m:o:tsv:"
+SHORT_OPTS="h:t:o:tsv:"
 LONG_OPTS='help,kraken_db,bracken_readlen,confidence'
 
 OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
