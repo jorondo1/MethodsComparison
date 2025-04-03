@@ -2,11 +2,10 @@
 
 help_message () {
     echo ""
-    echo "Usage: taxonomic_profile.sample.sh [--kraken_db /path/to/krakendb] [--bracken_readlen int] [--confidence float] [-t thread_nbr] [-m mem_in_G] -fq1 /path/fastq1 -fq2 /path/fastq2 -o /path/to/out"
     echo "Options:"
 
     echo ""
-    echo "    -s STR    sample name"
+    echo "	  -tsv STR  path to tsv with 3 columns: sample_name path_to_fastq1 path_to_fastq2"
     echo "    -o STR    path to output dir"
     echo "    -t    # of threads (default 12)"
     echo "    --kraken_db    kraken2 database path (default /cvmfs/datahub.genap.ca/vhost34/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517)"
@@ -22,7 +21,6 @@ help_message () {
 
 #init
 threads="12"
-sample="false";
 tsv="false";
 kraken_db="$ILAFORES/ref_dbs/kraken2_dbs/k2_standard_20241228"
 bracken_readlen="150"
@@ -46,7 +44,7 @@ while true; do
     case "$1" in
         -h | --help) help_message; exit 0;;
         -t) threads=$2; shift 2;;
-        -o) base_out=$2; shift 2;;
+        -o) out_dir=$2; shift 2;;
         -tsv) tsv=$2; shift 2;;
         --kraken_db) kraken_db=$2; shift 2;;
         --confidence) confidence=$2; shift 2;;
@@ -73,8 +71,8 @@ singularity exec --writable-tmpfs -e \
     -B $ILAFORES:$ILAFORES \
     $ILL_PIPELINES/containers/kraken.2.1.2.sif bash -c "
 while read -r sample fq1 fq2; do
-    outdir=\"${base_out}/\${sample}\"
-    mkdir -p \"\$outdir\"
+    out_dir=\"${out_dir}/\${sample}\"
+    mkdir -p \"\$out_dir\"
 
     kraken2 --memory-mapping \
         --confidence ${confidence} \
@@ -82,18 +80,18 @@ while read -r sample fq1 fq2; do
         --threads ${threads} \
         --db \"${kraken_db}\" \
         --use-names \
-        --output \"\${outdir}/\${sample}_taxonomy_nt\" \
-        --report \"\${outdir}/\${sample}.kreport\" \
+        --output \"\${out_dir}/\${sample}_taxonomy_nt\" \
+        --report \"\${out_dir}/\${sample}.kreport\" \
         \"\${fq1}\" \"\${fq2}\"
 
-    rm \"\${outdir}/\${sample}_taxonomy_nt\"
+    rm \"\${out_dir}/\${sample}_taxonomy_nt\"
 
-    mkdir -p \"\${outdir}/\${sample}_bracken\"
+    mkdir -p \"\${out_dir}/\${sample}_bracken\"
     bracken \
         -d \"${kraken_db}\" \
-        -i \"\${outdir}/\${sample}.kreport\" \
-        -o \"\${outdir}/\${sample}_bracken/\${sample}_S.bracken\" \
-        -w \"\${outdir}/\${sample}_bracken/\${sample}_bracken_S.kreport\" \
+        -i \"\${out_dir}/\${sample}.kreport\" \
+        -o \"\${out_dir}/\${sample}_bracken/\${sample}_S.bracken\" \
+        -w \"\${out_dir}/\${sample}_bracken/\${sample}_bracken_S.kreport\" \
         -r $bracken_readlen 
     
 done < \"$tsv\"
