@@ -23,7 +23,7 @@ help_message () {
 threads="12"
 sample="false";
 tsv="false";
-kraken_db="/cvmfs/datahub.genap.ca/vhost34/def-ilafores/kraken2_dbs/k2_pluspfp_16gb_20210517"
+kraken_db="$ILAFORES/ref_dbs/kraken2_dbs/k2_standard_20241228"
 bracken_readlen="150"
 confidence="false"
 
