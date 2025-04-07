@@ -63,9 +63,7 @@ fi
 mkdir -p "$out_dir"
 
 # Start logging
-exec > >(tee -a "${out_dir}/kraken_wrapper2.log") 2>&1
-
-ml StdEnv/2020 python/3.10.2
+exec > >(tee -a "${out_dir}/kraken_wrapper.log") 2>&1
 
 # Loop by sample
 while IFS=$'\t' read -r sample fq1 fq2 _; do
@@ -81,28 +79,34 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
         continue
     fi
 
+numactl --cpunodebind=0 --membind=0 \
+    singularity exec --writable-tmpfs -e \
+    -B /dev/shm:/dev/shm \
+    -B $ILAFORES:$ILAFORES \
+    $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
+
     # Kraken classify
-     $ILAFORES/programs/kraken2-2.1.2/kraken2 --memory-mapping \
-        --confidence ${confidence} \
-        --paired \
-        --threads "${threads}" \
-        --db "${kraken_db}" \
-        --use-names \
-        --output "${out_dir}/${sample}_taxonomy_nt" \
-        --report "${out_dir}/${sample}.kreport" \
-        "${fq1}" "${fq2}"
+    kraken2 --memory-mapping \\
+        --confidence ${confidence} \\
+        --paired \\
+        --threads \"${threads}\" \\
+        --db \"${kraken_db}\" \\
+        --use-names \\
+        --output \"${out_dir}/${sample}_taxonomy_nt\" \\
+        --report \"${out_dir}/${sample}.kreport\" \\
+        \"${fq1}\" \"${fq2}\"
 
     # Bracken reestimations
-    mkdir -p "${out_dir}/${sample}_bracken"
-    $ILAFORES/programs/Bracken-2.8/bracken \
-        -d "${kraken_db}" \
-        -i "${out_dir}/${sample}.kreport" \
-        -o "${out_dir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT" \
-        -w "${out_dir}/${sample}_bracken/${sample}_bracken_S.kreport" \
+    mkdir -p \"${out_dir}/${sample}_bracken\"
+    bracken \\
+        -d \"${kraken_db}\" \\
+        -i \"${out_dir}/${sample}.kreport\" \\
+        -o \"${out_dir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT\" \\
+        -w \"${out_dir}/${sample}_bracken/${sample}_bracken_S.kreport\" \\
         -r $bracken_readlen
 
-    rm "${out_dir}/${sample}_taxonomy_nt"
-
+    #rm \"${out_dir}/${sample}_taxonomy_nt\"
+"
 iter_end=$(date +%s)
 iter_time=$((iter_end - iter_start))
 echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Completed ${sample} in ${iter_time} seconds"
