@@ -1,6 +1,6 @@
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/rarefy_even_depth2.R'))
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/phyloseq_to_edgeR.R'))
-
+source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/psflashmelt.R'))
 my_datasets_factorlevels <- c('P19_Saliva', 'P19_Gut', 'RA_Gut', 'AD_Skin', 'Moss', 'NAFLD')
 tool_colours <- c(
   'MPA_db2019' = 'seagreen3',
@@ -192,7 +192,7 @@ melt_ps_list_glom <- function(ps_list, taxRank) {
     ds_sublist <- ps_list[[ds]] # extract sublist (ps object)
     map(names(ds_sublist), function(db){ 
       # summarize by higher level taxonomy (not always useful, having a pre-summarized phyloseq is better)
-      ps_list[[ds]][[db]] %>% psmelt %>% 
+      ps_list[[ds]][[db]] %>% psflashmelt %>% 
         group_by(Sample, !!sym(taxRank)) %>% 
         dplyr::summarise(Abundance = sum(Abundance), 
                   .groups = 'drop') %>% 
@@ -265,7 +265,7 @@ extract_lowest_rank <- function(ps) {
 # 3. tool/database (db)
 # Generates a list with the same hierarchy with what func() returns as 
 # the lowest-level objects
-plan(multicore, workers = 9)
+future::plan(multicore, workers = 9)
 compute_3_lvl <- function(ps.ls, func, ...){
   require('furrr') 
    # not sure if multicore is better 
@@ -372,6 +372,7 @@ compute_meandiff <- function(div, tool1, tool2) {
     transmute(mean = (!!sym(tool1) + !!sym(tool2))/2,
               Diff = !!sym(tool1) - !!sym(tool2))
 }
+
 
 ######################################
 ### Differential Abundance Testing ####

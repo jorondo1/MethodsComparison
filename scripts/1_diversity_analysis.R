@@ -149,7 +149,7 @@ compute_pcoa_wrap <- function(ps) {
     })
   }
 
-pcoa_genus.ls <- compute_pcoa_wrap(ps_rare.ls$Species)
+pcoa_genus.ls <- compute_pcoa_wrap(ps_rare.ls$Genus)
 pcoa_species.ls <- compute_pcoa_wrap(ps_rare.ls$Species)
 
 # PCoA compilation function
@@ -221,11 +221,11 @@ iterate_permanova <- function(pcoa.ls, ds, vars) {
       # permanova
       formula <- as.formula(paste("dist.mx ~", paste(vars, collapse = " + ")))
       res <- adonis2(formula = formula, 
-              permutations = 1000,
-              data = samData,
-              by = 'margin',
-              na.action = na.exclude,
-              parallel = 8)
+                     permutations = 1000,
+                     data = samData,
+                     by = 'margin',
+                     na.action = na.exclude,
+                     parallel = 8)
       
       # parse r2 and p for each explanatory variable 
       lapply(seq_along(vars), function(i) {
@@ -236,10 +236,11 @@ iterate_permanova <- function(pcoa.ls, ds, vars) {
           R2 = res$R2[i],   
           p = res$`Pr(>F)`[i]) 
         
-          }) %>% list_rbind
       }) %>% list_rbind
     }) %>% list_rbind
-  }
+  }) %>% list_rbind
+}
+
 
 permanova_df.ls <- list()
 permanova_df.ls[['P19_Gut']] <- iterate_permanova(pcoa_species.ls, 'P19_Gut', c('sex', 'group', 'age'))

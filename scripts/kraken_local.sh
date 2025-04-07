@@ -26,10 +26,10 @@ kraken_db="$ILAFORES/ref_dbs/kraken2_dbs/k2_standard_20241228"
 bracken_readlen="150"
 confidence="0.05"
 
-SHORT_OPTS="h:t:o:tsv:"
-LONG_OPTS='help:,kraken_db:,bracken_readlen:,confidence:'
+SHORT_OPTS="h:t:o:"
+LONG_OPTS='help:,threads:,kraken_db:,bracken_readlen:,confidence:,tsv:'
 
-OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
+OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@") || exit 1
 
 # make sure the params are entered correctly
 if [ $? -ne 0 ];
@@ -70,7 +70,7 @@ if [ ! -f "$tsv" ]; then
 fi
 
 # Copying database to shared memory
-rsync -avr $kraken_db /dev/shm
+#rsync -avr $kraken_db /dev/shm
 
 singularity exec --writable-tmpfs -e \
     -B $ILL_PIPELINES:$ILL_PIPELINES \

@@ -1,5 +1,6 @@
 library(pacman)
-p_load( magrittr, tidyverse, purrr, kableExtra, phyloseq, patchwork, rstatix, parallel, reshape2)
+p_load( magrittr, tidyverse, purrr, kableExtra, phyloseq, patchwork, 
+        rstatix, parallel, reshape2, vegan)
 ps_rare.ls <- read_rds('Out/ps_rare.ls.rds')
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/community_functions.R'))
 source("scripts/myFunctions.R")
@@ -40,13 +41,13 @@ tax_assignment <- imap(ps_rare.ls, function(ps_dataset.ls, dataset){
          CCE_tool = factor(CCE_tool, names(tool_colours)))
 
 # Prepare plot data
-these_databases <- c('SM_genbank-2022.03', 'SM_gtdb-rs214-full', 'MPA_db2023',  'KB45','KB90', 'MOTUS')
+these_databases <- c('SM_genbank-2022.03', 'SM_gtdb-rs214-full', 'MPA_db2023','KB10', 'KB45','KB90', 'MOTUS')
 these_datasets <- c('AD_Skin', 'Moss', 'NAFLD', 'P19_Gut', 'P19_Saliva')
 
 tax_assignment.pdat <- tax_assignment %>% 
   filter(CCE_tool %in% these_databases &
            Dataset %in% these_datasets &
-           Rank %in% c('Species', 'Genus', 'Family', 'Order', 'Phylum'))
+           Rank %in% c('Species', 'Genus', 'Family', 'Order', 'Class', 'Phylum'))
 
 #  /$$$$$$$  /$$        /$$$$$$  /$$$$$$$$         /$$  
 # | $$__  $$| $$       /$$__  $$|__  $$__/       /$$$$  
@@ -57,13 +58,14 @@ tax_assignment.pdat <- tax_assignment %>%
 # | $$      | $$$$$$$$|  $$$$$$/   | $$          /$$$$$$
 # |__/      |________/ \______/    |__/         |______/
 
+# Number of taxa per taxrank
 tax_assignment.pdat %>% 
   ggplot(aes(x = Dataset, y = Num_tax, fill = CCE_tool)) +
   geom_col(position = position_dodge2(preserve = 'single')) + # keep bars the same width
   facet_grid(Rank~., scales = 'free_y') +
   theme(axis.text.x = element_text(angle = 45,  hjust=1)) +
   scale_fill_manual(values = tool_colours, labels = CCE_names) 
-  
+
 # Stats
 tax_assignment.pdat %>% 
   filter(Rank == 'Species') %>% 
@@ -299,6 +301,7 @@ alpha_div_test <- alpha_div %>%
 alpha_div %>% 
   filter(Index == 'Shannon' 
          & CCE_tool %in% these_databases
+         & Dataset %in% these_datasets
          ) %>% 
   left_join(alpha_div_test, by = c('Dataset', 'CCE_tool', 'Index')) %>% 
   ggplot(aes(x = Grouping_var, y = Index_value, colour = p.signif)) +
@@ -336,6 +339,7 @@ compile_pair_distances <- function(dist.mx) {
     pivot_longer(-Sample1, names_to = "Sample2", values_to = "Distance", values_drop_na = TRUE)
 }
 
+# Iterate over all pcoa
 pairwise_distances <- imap(pcoa.ls, function(dist.ls, dist) {
   imap(dist.ls, function(dataset.ls, dataset) {
     imap(dataset.ls, function(database.ls, database) {
@@ -344,9 +348,10 @@ pairwise_distances <- imap(pcoa.ls, function(dist.ls, dist) {
         mutate(Dist = dist, 
                Dataset = dataset,
                CCE_tool = database)
+      
     }) %>% list_rbind
   }) %>% list_rbind
-}) %>% list_rbind %>% 
+}) %>% list_rbind %>% # Add metadata
   left_join(select(CCE_metadata, database, CCE_approach), 
             by = join_by(CCE_tool == database))
 
@@ -359,7 +364,7 @@ pairwise_distances <- imap(pcoa.ls, function(dist.ls, dist) {
 # | $$      | $$$$$$$$|  $$$$$$/   | $$               | $$
 # |__/      |________/ \______/    |__/               |__/
 
-# Either a dotplot
+# Either a simple dot-plot, but we don't keep track of samples:
 pairwise_distances %>% 
   filter(#Dist == 'bray' &
            CCE_tool %in% these_databases &
@@ -377,19 +382,21 @@ pairwise_distances %>%
 ggsave('Out/memoire/change_beta.png', bg = 'white', width = 2000, height = 2000, 
        units = 'px', dpi = 220)
 
+
 pairwise_dist_split <- pairwise_distances %>% 
   filter(CCE_tool %in% c('KB45', 'MOTUS', 'SM_genbank-2022.03', 'MPA_db2023')) %>% 
-  mutate(Pair = paste0(Sample1, '_',Sample2), .keep = 'unused') %>% 
+  mutate(Pair = paste0(Sample1, '_',Sample2), .keep = 'unused') %>% # unique pair id
   group_by(CCE_approach, Dataset, Dist, Pair) %>% 
   select(-CCE_tool) %>% 
   group_split %>% # subset by group (creates a list of tibbles)
   .[sapply(., nrow) == 2] # drop groups that only have one tool
 
+# Function to pivot a single pair wide and compute change ### NEEDS OPTIMIZATION
 pivot_group <- function(group) {
   group %>% 
     mutate(CCE_ID = paste0("CCE_", row_number())) %>% 
     pivot_wider(names_from = CCE_ID, values_from = Distance) %>% 
-    mutate(dist_diff = abs(CCE_1 - CCE_2), .keep = 'unused') 
+    mutate(dist_diff = abs(CCE_1 - CCE_2), .keep = 'unused') # difference in pair dist
 }
 
 pairwise_dist_gap <- pairwise_dist_split %>% 
@@ -397,6 +404,7 @@ pairwise_dist_gap <- pairwise_dist_split %>%
   bind_rows()
 
 pairwise_dist_gap %>% 
+  filter(Dataset %in% these_datasets) %>% 
   ggplot(aes(x = Dataset, y = dist_diff, fill = Dataset)) +
   geom_boxplot() +
   # geom_jitter(size = 0.3,
@@ -461,6 +469,7 @@ pairwise_test_wilcox_custom <- function(
 }
 
 # Iterate the function over every possible pairs
+# using rank biserial correlation 
 exclude_these_tools <- c('KB51', 'MPA_db2022')
 
 results <- grouped_pairs %>% 
@@ -477,10 +486,92 @@ results <- grouped_pairs %>%
 
 ### 2. HYPOTHESIS COMPARISONS
 # 2.1. PCoA comparison
+pcoa.ds<- imap(pcoa.ls, function(pcoa_ds.ls, dist) {
+  imap(pcoa_ds.ls, function(pcoa_db.ls, ds) {
+    imap(pcoa_db.ls, function(pcoa, db) {
+      
+      pcoa$metadata %>%  # create generic grouping var: 
+        rownames_to_column('Sample') %>% 
+        tibble %>% 
+        transmute(Sample = Sample,
+                  Grouping_var = factor(!!sym(grouping_variable[[ds]]), labels = c("Group 1", "Group 2")),
+               Index = dist, 
+               Database = db,
+               Dataset = ds,
+               PCo1 = PCo1,
+               PCo2 = PCo2)
+        
+    }) %>% list_rbind
+  }) %>% list_rbind
+}) %>% list_rbind
+
+pcoa.ds %>% 
+  filter(Index == 'bray' &
+           Dataset %in% these_datasets &
+           Database %in% c(these_databases, 'MPA_db2022')) %>% 
+  ggplot(aes(x = PCo1, y = PCo2)) +
+  geom_point(aes(fill = Grouping_var), 
+             size = 2, shape = 21, colour = 'black', stroke = 0.2) +
+  facet_grid(Dataset ~ Database,
+             scales = 'free') +
+  stat_ellipse(aes(fill = Grouping_var),
+              level=0.95, geom = "polygon", alpha = 0.18) +
+  theme(legend.position = c(0.43,0.7)) +
+  labs(fill = 'Grouping', colour = 'Grouping')
+
 # Procruste comparison of pcoas ?
 
-# 2.2. perMANOVA 
+# 2.2. perMANOVA
+permanova.ds <- imap(pcoa.ls, function(pcoa_ds.ls, dist) {
+  imap(pcoa_ds.ls, function(pcoa_db.ls, ds) {
+    imap(pcoa_db.ls, function(pcoa, db) { # iterate over distances
+      
+      samData <- pcoa$metadata %>% 
+        mutate(Grouping_var = factor(!!sym(grouping_variable[[ds]]), 
+                                     labels = c("Group 1", "Group 2")))
+      
+      # permanova
+      res <- adonis2(formula = pcoa$dist.mx ~ Grouping_var, 
+                     permutations = 999,
+                     data = samData,
+                     na.action = na.exclude,
+                     parallel = 8)
+      
+      # parse r2 and p for each explanatory variable 
+      tibble(
+        Dataset = ds,
+        Database = db,       
+        Index = dist,
+        R2 = res$R2[1],   
+        p = res$`Pr(>F)`[1]
+      )
+      
+    }) %>% list_rbind
+  }) %>% list_rbind
+}) %>% list_rbind
+
 # Presented as in poster? 
+p_value_lines <- function() {
+  list(
+    geom_vline(aes(xintercept = log10(0.05), linetype = "p = 0.05"), 
+               color = "red", linewidth = 0.3),
+    geom_vline(aes(xintercept = log10(0.01), linetype = "p = 0.01"), 
+               color = "blue", linewidth = 0.3),
+    scale_linetype_manual(name = "", 
+                          values = c("p = 0.05" = "dashed", 
+                                     "p = 0.01" = "dashed"))
+  )
+}
+
+permanova.ds %>% 
+  filter(Index == 'bray' & 
+           Database %in% these_databases) %>% 
+  ggplot(aes(y = R2, x = log10(p))) +
+  geom_point(size = 4, colour = 'black', shape = 21, alpha = 0.8,
+             aes(fill = Database)) +
+  facet_grid(Dataset~.)  +
+  p_value_lines() +
+  scale_fill_manual(values = tool_colours, labels = CCE_names)
 
 ########################################################
 # Taxa discovery rate (rarefaction curves comparison) ###
