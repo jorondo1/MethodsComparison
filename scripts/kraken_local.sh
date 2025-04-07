@@ -65,9 +65,6 @@ mkdir -p "$out_dir"
 # Start logging
 exec > >(tee -a "${out_dir}/kraken_wrapper.log") 2>&1
 
-# Copying database to shared memory
-#rsync -avr $kraken_db /dev/shm
-
 while IFS=$'\t' read -r sample fq1 fq2 _; do
     total_start=$(date +%s)
     iter_start=$(date +%s)
@@ -86,7 +83,6 @@ singularity exec --writable-tmpfs -e \
     -B /dev:/dev \
     -B $ILAFORES:$ILAFORES \
     $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
-    echo \"Running with ${threads} threads\"
     # Kraken2 with memory mapping
     
     last_core=\$(( ${threads} - 1 ))
