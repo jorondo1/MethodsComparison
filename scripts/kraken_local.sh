@@ -82,16 +82,16 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
         echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Skipping ${out_subdir}/${sample} - outputs already exist" 
         continue
     fi
-    
+
     # remove anchor if any
     fq1=${fq1#/nfs3_ib/nfs-ip34}
     fq2=${fq2#/nfs3_ib/nfs-ip34}
-    
+
     singularity exec --writable-tmpfs -e \
     -B /dev/shm:/dev/shm \
     -B /fast2/def-ilafores:/fast2/def-ilafores \
     -B $ILAFORES:$ILAFORES \
-    $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif "
+    $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
    
     # Kraken classify
     kraken2 --memory-mapping \\
