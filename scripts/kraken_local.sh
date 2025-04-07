@@ -64,6 +64,7 @@ mkdir -p "$out_dir"
 
 # Start logging
 exec > >(tee -a "${out_dir}/kraken_wrapper.log") 2>&1
+StdEnv/2020 python/3.10.2
 
 # Loop by sample
 while IFS=$'\t' read -r sample fq1 fq2 _; do
@@ -79,18 +80,8 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
         continue
     fi
 
-numactl --cpunodebind=0 --membind=0 \
-    singularity exec --writable-tmpfs -e \
-    -B $ILL_PIPELINES:$ILL_PIPELINES \
-    -B /fast:/fast \
-    -B /dev:/dev \
-    -B $ILAFORES:$ILAFORES \
-    $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
-    # Kraken2 with memory mapping
-    sleep 5
-
-    # Execute Kraken2 with taskset
-    kraken2 --memory-mapping \\
+    # Kraken classify
+     $ILAFORES/programs/kraken2-2.1.2/kraken2 --memory-mapping \\
         --confidence ${confidence} \\
         --paired \\
         --threads \"${threads}\" \\
@@ -100,9 +91,9 @@ numactl --cpunodebind=0 --membind=0 \
         --report \"${out_dir}/${sample}.kreport\" \\
         \"${fq1}\" \"${fq2}\"
 
-    # Bracken processing
+    # Bracken reestimations
     mkdir -p \"${out_dir}/${sample}_bracken\"
-    bracken \\
+    $ILAFORES/programs/Bracken-2.8/bracken \\
         -d \"${kraken_db}\" \\
         -i \"${out_dir}/${sample}.kreport\" \\
         -o \"${out_dir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT\" \\
@@ -110,7 +101,7 @@ numactl --cpunodebind=0 --membind=0 \
         -r $bracken_readlen
 
     #rm \"${out_dir}/${sample}_taxonomy_nt\"
-"
+
 iter_end=$(date +%s)
 iter_time=$((iter_end - iter_start))
 echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Completed ${sample} in ${iter_time} seconds"
