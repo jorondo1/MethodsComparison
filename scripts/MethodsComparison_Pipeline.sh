@@ -91,7 +91,7 @@ sbatch --array=1-"$NUM_PD" $MC/PD/KB90/taxonomic_profile.samples.slurm.sh
 
 ## Run kraken local ip34
 ml apptainer
-bash scripts/kraken_local.sh --tsv $PD_TSV --confidence 0.10 \
+bash scripts/kraken_local.sh --tsv $PD_TSV --confidence 0.10 --output $MC/PD/KB10 \
 	--kraken_db $ILAFORES/ref_dbs/kraken2_dbs/k2_standard_20241228 \
 	--threads 24
 
