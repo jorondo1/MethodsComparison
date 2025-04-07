@@ -82,8 +82,8 @@ singularity exec --writable-tmpfs -e \
     
     out_dir=\"${out_dir}/\${sample}\"
     mkdir -p \"\$out_dir\"
-echo "DEBUG: Checking existence of: ${bracken_file}" >&2
-echo "DEBUG: Directory contents: $(ls -l "${bracken_outdir}" 2>/dev/null)" >&2
+echo \"DEBUG: Checking existence of: ${out_dir}\" >&2
+echo \"DEBUG: Directory contents: $(ls -l \"${out_dir}\" 2>/dev/null)\" >&2
 
     if [[ -f \"${out_dir}/\${sample}_bracken/\${sample}_S.bracken\" ]]; then
         echo \"[ \$(date '+%Y-%m-%d %H:%M:%S') ] Skipping \${sample} - outputs already exist\" >&2
