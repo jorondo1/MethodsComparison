@@ -113,12 +113,8 @@ singularity exec --writable-tmpfs -e \
 
     #rm \"${out_dir}/${sample}_taxonomy_nt\"
 "
-    iter_end=$(date +%s)
-    iter_time=$((iter_end - iter_start))
-    echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Completed ${sample} in ${iter_time} seconds"
+iter_end=$(date +%s)
+iter_time=$((iter_end - iter_start))
+echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Completed ${sample} in ${iter_time} seconds"
     
 done < "$tsv"
-
-total_end=$(date +%s)
-total_time=$((total_end - total_start))
-echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] All samples processed in ${total_time} seconds"
