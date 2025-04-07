@@ -75,11 +75,11 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
     iter_start=$(date +%s)
     echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Starting sample ${sample}..."
     
-    out_dir="${out_dir}/${sample}"
-    mkdir -p "$out_dir"
+    out_subdir="${out_dir}/${sample}"
+    mkdir -p "$out_subdir"
 
-    if [[ -f "${out_dir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT" ]]; then
-        echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Skipping ${out_dir}/${sample} - outputs already exist" 
+    if [[ -f "${out_subdir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT" ]]; then
+        echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Skipping ${out_subdir}/${sample} - outputs already exist" 
         continue
     fi
 
@@ -99,20 +99,18 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
         --threads \"${threads}\" \\
         --db \"${kraken_db}\" \\
         --use-names \\
-        --output \"${out_dir}/${sample}_taxonomy_nt\" \\
-        --report \"${out_dir}/${sample}.kreport\" \\
+        --output /dev/null \\
+        --report \"${out_subdir}/${sample}.kreport\" \\
         \"${fq1}\" \"${fq2}\"
 
     # Bracken reestimations
-    mkdir -p \"${out_dir}/${sample}_bracken\"
+    mkdir -p \"${out_subdir}/${sample}_bracken\"
     bracken \\
         -d \"${kraken_db}\" \\
-        -i \"${out_dir}/${sample}.kreport\" \\
-        -o \"${out_dir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT\" \\
-        -w \"${out_dir}/${sample}_bracken/${sample}_bracken_S.kreport\" \\
+        -i \"${out_subdir}/${sample}.kreport\" \\
+        -o \"${out_subdir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT\" \\
+        -w \"${out_subdir}/${sample}_bracken/${sample}_bracken_S.kreport\" \\
         -r $bracken_readlen
-
-    #rm \"${out_dir}/${sample}_taxonomy_nt\"
 "
 iter_end=$(date +%s)
 iter_time=$((iter_end - iter_start))
