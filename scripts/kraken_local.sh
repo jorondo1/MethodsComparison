@@ -27,7 +27,7 @@ bracken_readlen="150"
 confidence="0.05"
 
 SHORT_OPTS="h:t:o:tsv:"
-LONG_OPTS='help,kraken_db:,bracken_readlen:,confidence:'
+LONG_OPTS='help:,kraken_db:,bracken_readlen:,confidence:'
 
 OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
 
@@ -54,6 +54,9 @@ while true; do
     esac
 done
 
+# Log 
+exec > >(tee -a "${out_dir}/kraken_wrapper.log") 2>&1
+
 # Check required parameters
 if [ "$tsv" = "false" ]; then
     echo "Error: TSV file not provided"
@@ -65,6 +68,9 @@ if [ ! -f "$tsv" ]; then
     echo "Error: TSV file $tsv does not exist"
     exit 1
 fi
+
+# Copying database to shared memory
+rsync -avr $kraken_db /dev/shm
 
 singularity exec --writable-tmpfs -e \
     -B $ILL_PIPELINES:$ILL_PIPELINES \
