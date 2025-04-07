@@ -88,7 +88,11 @@ singularity exec --writable-tmpfs -e \
     -B /fast/def-ilafores:/fast/def-ilafores \
     -B $ILAFORES:$ILAFORES \
     $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
-
+   
+# remove anchors from paths
+    fq1=${fq1#/nfs3_ib/nfs-ip34}
+    fq2=${fq2#/nfs3_ib/nfs-ip34}
+    
     # Kraken classify
     kraken2 --memory-mapping \\
         --confidence ${confidence} \\
