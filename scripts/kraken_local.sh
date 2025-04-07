@@ -74,7 +74,7 @@ singularity exec --writable-tmpfs -e \
     -B $ILAFORES:$ILAFORES \
     $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
     db_basename=\$(basename \"${kraken_db}\")
-    vmtouch -t \"/dev/shm/\${db_basename}\"/*.k2d
+    find \"/dev/shm/\${db_basename}\" -name '*.k2d' -exec ls -la {} \;
     total_start=\$(date +%s)
     
     while IFS=$'\t' read -r sample fq1 fq2 _; do
