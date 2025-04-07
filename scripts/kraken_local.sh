@@ -68,25 +68,24 @@ exec > >(tee -a "${out_dir}/kraken_wrapper.log") 2>&1
 # Copying database to shared memory
 #rsync -avr $kraken_db /dev/shm
 
+while IFS=$'\t' read -r sample fq1 fq2 _; do
+    total_start=$(date +%s)
+    iter_start=$(date +%s)
+    echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Starting sample \${sample}..."
+    
+    out_dir="${out_dir}/${sample}"
+    mkdir -p "$out_dir"
+
+    if [[ -f "${out_dir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT" ]]; then
+        echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Skipping ${sample} - outputs already exist" 
+        continue
+    fi
+
 singularity exec --writable-tmpfs -e \
     -B $ILL_PIPELINES:$ILL_PIPELINES \
     -B /dev:/dev \
     -B $ILAFORES:$ILAFORES \
     $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
-    total_start=\$(date +%s)
-    
-    while IFS=$'\t' read -r sample fq1 fq2 _; do
-    iter_start=\$(date +%s)
-    echo \"[ \$(date '+%Y-%m-%d %H:%M:%S') ] Starting sample \${sample}...\" >&2
-    echo \"Threshold: ${confidence}\"
-    
-    out_dir=\"${out_dir}/\${sample}\"
-    mkdir -p \"\$out_dir\"
-
-    if [[ -f \"\${out_dir}/\${sample}_bracken/\${sample}_bracken_S.MPA.TXT\" ]]; then
-        echo \"[ \$(date '+%Y-%m-%d %H:%M:%S') ] Skipping \${sample} - outputs already exist\" >&2
-        continue
-    fi
     echo \"Running with ${threads} threads\"
     # Kraken2 with memory mapping
     
@@ -99,27 +98,27 @@ singularity exec --writable-tmpfs -e \
         --threads \"${threads}\" \\
         --db \"${kraken_db}\" \\
         --use-names \\
-        --output \"\${out_dir}/\${sample}_taxonomy_nt\" \\
-        --report \"\${out_dir}/\${sample}.kreport\" \\
-        \"\${fq1}\" \"\${fq2}\"
+        --output \"${out_dir}/${sample}_taxonomy_nt\" \\
+        --report \"${out_dir}/${sample}.kreport\" \\
+        \"${fq1}\" \"${fq2}\"
 
     # Bracken processing
-    mkdir -p \"\${out_dir}/\${sample}_bracken\"
+    mkdir -p \"${out_dir}/${sample}_bracken\"
     bracken \\
         -d \"${kraken_db}\" \\
-        -i \"\${out_dir}/\${sample}.kreport\" \\
-        -o \"\${out_dir}/\${sample}_bracken/\${sample}_bracken_S.MPA.TXT\" \\
-        -w \"\${out_dir}/\${sample}_bracken/\${sample}_bracken_S.kreport\" \\
+        -i \"${out_dir}/${sample}.kreport\" \\
+        -o \"${out_dir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT\" \\
+        -w \"${out_dir}/${sample}_bracken/${sample}_bracken_S.kreport\" \\
         -r $bracken_readlen
 
-    #rm \"\${out_dir}/\${sample}_taxonomy_nt\"
-    iter_end=\$(date +%s)
-    iter_time=\$((iter_end - iter_start))
-    echo \"[ \$(date '+%Y-%m-%d %H:%M:%S') ] Completed \${sample} in \${iter_time} seconds\" >&2
-    
-done < \"$tsv\"
-
-total_end=\$(date +%s)
-total_time=\$((total_end - total_start))
-echo \"[ \$(date '+%Y-%m-%d %H:%M:%S') ] All samples processed in \${total_time} seconds\" >&2
+    #rm \"${out_dir}/${sample}_taxonomy_nt\"
 "
+    iter_end=$(date +%s)
+    iter_time=$((iter_end - iter_start))
+    echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Completed ${sample} in ${iter_time} seconds"
+    
+done < "$tsv"
+
+total_end=$(date +%s)
+total_time=$((total_end - total_start))
+echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] All samples processed in ${total_time} seconds"
