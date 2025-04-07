@@ -19,55 +19,52 @@ help_message () {
     echo "";
 }
 
-#init
-threads="12"
-tsv="false";
-kraken_db="$ILAFORES/ref_dbs/kraken2_dbs/k2_standard_20241228"
+# Initialize with empty values (no defaults for required params)
+threads=""
+tsv=""
+kraken_db=""
 bracken_readlen="150"
 confidence="0.05"
-out_dir="false"
+out_dir=""
+
 SHORT_OPTS="h:t:o:"
-LONG_OPTS='help:,threads:,kraken_db:,bracken_readlen:,confidence:,tsv:'
+LONG_OPTS='help:,threads:,output:,kraken_db:,bracken_readlen:,confidence:,tsv:'
 
-OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
+OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@") || { help_message; exit 1; }
 
-# make sure the params are entered correctly
-if [ $? -ne 0 ];
-then
-    help_message;
-    exit 1;
-fi
-
-# loop through input params
 eval set -- "$OPTS"
 while true; do
     case "$1" in
         -h | --help) help_message; exit 0;;
-        -t | --threads) threads=$2; shift 2;;
-        -o) out_dir=$2; shift 2;;
-        --tsv) tsv=$2; shift 2;;
-        --kraken_db) kraken_db=$2; shift 2;;
-        --confidence) confidence=$2; shift 2;;
-        --bracken_readlen) bracken_readlen=$2; shift 2;;
+        -t | --threads) threads="$2"; shift 2;;
+        -o | --output) out_dir="$2"; shift 2;;
+        --tsv) tsv="$2"; shift 2;;
+        --kraken_db) kraken_db="$2"; shift 2;;
+        --confidence) confidence="$2"; shift 2;;
+        --bracken_readlen) bracken_readlen="$2"; shift 2;;
         --) shift; break;;
         *) echo "Invalid option: $1"; help_message; exit 1;;
     esac
 done
 
-# Log 
-exec > >(tee -a "${out_dir}/kraken_wrapper.log") 2>&1
+# Verify all required parameters
+missing=()
+[[ -z "$tsv" ]] && missing+=("--tsv")
+[[ -z "$out_dir" ]] && missing+=("--output")
+[[ -z "$kraken_db" ]] && missing+=("--kraken_db")
 
-# Check required parameters
-if [ "$tsv" = "false" || "$out_dir" = "false" ]; then
-    echo "Error: TSV file not provided"
+if (( ${#missing[@]} > 0 )); then
+    echo "ERROR: Missing required options: ${missing[*]}"
     help_message
     exit 1
 fi
 
-if [ ! -f "$tsv" ]; then
-    echo "Error: TSV file $tsv does not exist"
-    exit 1
-fi
+# Create output directory if needed
+mkdir -p "$out_dir"
+
+# Start logging
+exec > >(tee -a "${out_dir}/kraken_wrapper.log") 2>&1
+
 
 # Copying database to shared memory
 #rsync -avr $kraken_db /dev/shm
@@ -77,6 +74,7 @@ singularity exec --writable-tmpfs -e \
     -B $ILAFORES:$ILAFORES \
     $ILL_PIPELINES/containers/kraken.2.1.2.sif bash -c "
 while read -r sample fq1 fq2; do
+    echo \"Processing sample ${sample}...\"
     out_dir=\"${out_dir}/\${sample}\"
     mkdir -p \"\$out_dir\"
 
