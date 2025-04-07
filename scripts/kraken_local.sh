@@ -71,9 +71,10 @@ find ${kraken_db} -type f -exec cat {} > /dev/null \;
 # Loop by sample
 #while IFS=$'\t' read -r sample fq1 fq2 _; do
 for i in {1..5}; do
-    sample=$(awk "NR==1" $MC/PD/preproc/preprocessed_reads.sample.tsv | cut -f1)
-    fq1=$(awk "NR==1" $MC/PD/preproc/preprocessed_reads.sample.tsv | cut -f2)
-    fq2=$(awk "NR==1" $MC/PD/preproc/preprocessed_reads.sample.tsv | cut -f3)
+    sample=$(awk "NR==2" $PD_TSV | cut -f1)
+    fq1=$(awk "NR==2" $PD_TSV | cut -f2)
+    fq2=$(awk "NR==2" $PD_TSV | cut -f3)
+    
     total_start=$(date +%s)
     iter_start=$(date +%s)
     echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Starting sample ${sample}..."
