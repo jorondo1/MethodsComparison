@@ -43,7 +43,7 @@ eval set -- "$OPTS"
 while true; do
     case "$1" in
         -h | --help) help_message; exit 0;;
-        -t) threads=$2; shift 2;;
+        -t | --threads) threads=$2; shift 2;;
         -o) out_dir=$2; shift 2;;
         --tsv) tsv=$2; shift 2;;
         --kraken_db) kraken_db=$2; shift 2;;
