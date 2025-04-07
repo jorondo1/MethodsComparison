@@ -58,7 +58,7 @@ done
 exec > >(tee -a "${out_dir}/kraken_wrapper.log") 2>&1
 
 # Check required parameters
-if [ "$tsv" = "false" | "$out_dir" = "false" ]; then
+if [ "$tsv" = "false" || "$out_dir" = "false" ]; then
     echo "Error: TSV file not provided"
     help_message
     exit 1
