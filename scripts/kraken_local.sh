@@ -77,7 +77,7 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
     
     out_subdir="${out_dir}/${sample}"
     mkdir -p "$out_subdir"
-
+    echo "DEBUG"
     if [[ -f "${out_subdir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT" ]]; then
         echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Skipping ${out_subdir}/${sample} - outputs already exist" 
         continue
