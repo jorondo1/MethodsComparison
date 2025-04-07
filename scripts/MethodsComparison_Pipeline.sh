@@ -89,10 +89,15 @@ sbatch --array=1-"$NUM_PD" $MC/PD/KB10/taxonomic_profile.samples.slurm.sh
 sbatch --array=1-"$NUM_PD" $MC/PD/KB45/taxonomic_profile.samples.slurm.sh
 sbatch --array=1-"$NUM_PD" $MC/PD/KB90/taxonomic_profile.samples.slurm.sh
 
-## Run kraken local ip34
+## Run kraken local ip34 using /fast2
 ml apptainer
-bash $MC/scripts/kraken_local.sh --tsv $PD_TSV --confidence 0.10 --output $MC/PD/KB10 \
---kraken_db /dev/shm/k2_standard_20241228 --threads 12
+bash $MC/scripts/kraken_local.sh --tsv ${PD_TSV}.fast --confidence 0.10 --output $MC/PD/KB10 \
+--kraken_db /dev/shm/k2_standard_20241228 --threads 24
+
+# Narval:
+#bash $MC/scripts/kraken_local.sh --tsv $PD_TSV --confidence 0.10 --output $MC/PD/KB10 \
+#--kraken_db /scratch/ronj2303/ref_dbs/kraken2_dbs/k2_standard_20241228 --threads 12
+
 
 # Check completion status
 check_output 'KB10 KB45 KB90' 'PD' _bracken_S.MPA.TXT

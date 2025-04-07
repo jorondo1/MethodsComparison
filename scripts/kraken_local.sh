@@ -79,21 +79,19 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
     mkdir -p "$out_dir"
 
     if [[ -f "${out_dir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT" ]]; then
-        echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Skipping ${sample} - outputs already exist" 
+        echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Skipping ${outdir}/${sample} - outputs already exist" 
         continue
     fi
 
     fq1=${fq1#/nfs3_ib/nfs-ip34}
     fq2=${fq2#/nfs3_ib/nfs-ip34}
     
-singularity exec --writable-tmpfs -e \
+    singularity exec --writable-tmpfs -e \
     -B /dev/shm:/dev/shm \
     -B /fast/def-ilafores:/fast/def-ilafores \
     -B $ILAFORES:$ILAFORES \
-    $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
+    $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif "
    
-# remove anchors from paths
-    
     # Kraken classify
     kraken2 --memory-mapping \\
         --confidence ${confidence} \\
@@ -121,3 +119,5 @@ iter_time=$((iter_end - iter_start))
 echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Completed ${sample} in ${iter_time} seconds"
 
 done < "$tsv"
+#
+#for i in {1..10}; do $ILAFORES/programs/kraken2-2.1.2/kraken2 --memory-mapping --paired --threads 12 --db /dev/shm/k2_standard_20241228/ --output /dev/null --report /dev/null /fast/def-ilafores/SRR19064317_paired_1.fastq  /fast/def-ilafores/SRR19064317_paired_2.fastq; done
