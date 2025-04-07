@@ -66,7 +66,7 @@ mkdir -p "$out_dir"
 exec > >(tee -a "${out_dir}/kraken_wrapper.log") 2>&1
 
 # preload db
-find ${kraken_db} -name "*.k2d" -exec dd if={} of=/dev/null bs=1M status=progress \;
+# find ${kraken_db} -type f -exec cat {} > /dev/null \;
 
 # Loop by sample
 #while IFS=$'\t' read -r sample fq1 fq2 _; do
