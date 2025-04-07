@@ -99,6 +99,7 @@ singularity exec --writable-tmpfs -e \
         --threads \"${threads}\" \\
         --db \"${kraken_db}\" \\
         --use-names \\
+        --output \"\${out_dir}/\${sample}_taxonomy_nt\" \\
         --report \"\${out_dir}/\${sample}.kreport\" \\
         \"\${fq1}\" \"\${fq2}\"
 
