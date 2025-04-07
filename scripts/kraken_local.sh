@@ -73,11 +73,15 @@ singularity exec --writable-tmpfs -e \
     -B /dev:/dev \
     -B $ILAFORES:$ILAFORES \
     $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
+total_start=\$(date +%s)
 while IFS=$'\t' read -r sample fq1 fq2 _; do
-    echo \"Processing sample \${sample}...\" >&2
+    iter_start=\$(date +%s)
+    echo \"[ \$(date '+%Y-%m-%d %H:%M:%S') ] Starting sample \${sample}...\" >&2
+    
     out_dir=\"${out_dir}/\${sample}\"
     mkdir -p \"\$out_dir\"
 
+    # Kraken2 with memory mapping
     kraken2 --memory-mapping \
         --confidence ${confidence} \
         --paired \
@@ -88,15 +92,22 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
         --report \"\${out_dir}/\${sample}.kreport\" \
         \"\${fq1}\" \"\${fq2}\"
 
-    rm \"\${out_dir}/\${sample}_taxonomy_nt\"
-
+    # Bracken processing
     mkdir -p \"\${out_dir}/\${sample}_bracken\"
     bracken \
         -d \"${kraken_db}\" \
         -i \"\${out_dir}/\${sample}.kreport\" \
         -o \"\${out_dir}/\${sample}_bracken/\${sample}_S.bracken\" \
         -w \"\${out_dir}/\${sample}_bracken/\${sample}_bracken_S.kreport\" \
-        -r $bracken_readlen 
+        -r $bracken_readlen
+
+    iter_end=\$(date +%s)
+    iter_time=\$((iter_end - iter_start))
+    echo \"[ \$(date '+%Y-%m-%d %H:%M:%S') ] Completed \${sample} in \${iter_time} seconds\" >&2
     
 done < \"$tsv\"
+
+total_end=\$(date +%s)
+total_time=\$((total_end - total_start))
+echo \"[ \$(date '+%Y-%m-%d %H:%M:%S') ] All samples processed in \${total_time} seconds\" >&2
 "
