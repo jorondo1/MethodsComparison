@@ -83,7 +83,7 @@ singularity exec --writable-tmpfs -e \
     out_dir=\"${out_dir}/\${sample}\"
     mkdir -p \"\$out_dir\"
 
-    if [[ -f \"\${out_dir}/\${sample}_bracken/\${sample}_S.bracken\" ]]; then
+    if [[ -f \"\${out_dir}/\${sample}_bracken/\${sample}_bracken_S.MPA.TXT\" ]]; then
         echo \"[ \$(date '+%Y-%m-%d %H:%M:%S') ] Skipping \${sample} - outputs already exist\" >&2
         continue
     fi
@@ -108,10 +108,11 @@ singularity exec --writable-tmpfs -e \
     bracken \\
         -d \"${kraken_db}\" \\
         -i \"\${out_dir}/\${sample}.kreport\" \\
-        -o \"\${out_dir}/\${sample}_bracken/\${sample}_S.bracken\" \\
+        -o \"\${out_dir}/\${sample}_bracken/\${sample}_bracken_S.MPA.TXT\" \\
         -w \"\${out_dir}/\${sample}_bracken/\${sample}_bracken_S.kreport\" \\
         -r $bracken_readlen
 
+    rm \"\${out_dir}/\${sample}_taxonomy_nt\"
     iter_end=\$(date +%s)
     iter_time=\$((iter_end - iter_start))
     echo \"[ \$(date '+%Y-%m-%d %H:%M:%S') ] Completed \${sample} in \${iter_time} seconds\" >&2
