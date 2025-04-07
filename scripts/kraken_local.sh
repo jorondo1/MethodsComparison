@@ -66,7 +66,7 @@ mkdir -p "$out_dir"
 exec > >(tee -a "${out_dir}/kraken_wrapper.log") 2>&1
 
 # preload db
-# find ${kraken_db} -type f -exec cat {} > /dev/null \;
+find ${kraken_db} -name "*.k2d" -exec dd if={} of=/dev/null bs=1M status=progress \;
 
 # Loop by sample
 #while IFS=$'\t' read -r sample fq1 fq2 _; do
@@ -95,7 +95,7 @@ numactl --cpunodebind=0 --membind=0 \
     $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
 
     # Kraken classify
-    kraken2 \\
+    kraken2 --memory-mapping \\
         --confidence ${confidence} \\
         --paired \\
         --threads \"${threads}\" \\
