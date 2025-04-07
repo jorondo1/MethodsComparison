@@ -78,7 +78,8 @@ singularity exec --writable-tmpfs -e \
     while IFS=$'\t' read -r sample fq1 fq2 _; do
     iter_start=\$(date +%s)
     echo \"[ \$(date '+%Y-%m-%d %H:%M:%S') ] Starting sample \${sample}...\" >&2
-    echo \"Threshold: \${confidence}\"
+    echo \"Threshold: ${confidence}\"
+    
     out_dir=\"${out_dir}/\${sample}\"
     mkdir -p \"\$out_dir\"
 
@@ -89,7 +90,7 @@ singularity exec --writable-tmpfs -e \
 
     # Kraken2 with memory mapping
     kraken2 --memory-mapping \
-        --confidence \"${confidence}\" \
+        --confidence ${confidence} \
         --paired \
         --threads \"${threads}\" \
         --db \"${kraken_db}\" \
