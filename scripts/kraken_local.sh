@@ -78,11 +78,11 @@ singularity exec --writable-tmpfs -e \
     while IFS=$'\t' read -r sample fq1 fq2 _; do
     iter_start=\$(date +%s)
     echo \"[ \$(date '+%Y-%m-%d %H:%M:%S') ] Starting sample \${sample}...\" >&2
-    
+    echo \"Threshold: \${confidence}\"
     out_dir=\"${out_dir}/\${sample}\"
     mkdir -p \"\$out_dir\"
 
-    if [[ -f \"${out_dir}/${sample}_bracken/${sample}_S.bracken\" ]]; then
+    if [[ -f \"${out_dir}/\${sample}_bracken/\${sample}_S.bracken\" ]]; then
         echo \"[ \$(date '+%Y-%m-%d %H:%M:%S') ] Skipping \${sample} - outputs already exist\" >&2
         continue
     fi
