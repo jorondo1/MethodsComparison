@@ -65,7 +65,7 @@ mkdir -p "$out_dir"
 # Start logging
 exec > >(tee -a "${out_dir}/kraken_wrapper2.log") 2>&1
 
-StdEnv/2020 python/3.10.2
+ml StdEnv/2020 python/3.10.2
 
 # Loop by sample
 while IFS=$'\t' read -r sample fq1 fq2 _; do
