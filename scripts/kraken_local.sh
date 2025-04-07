@@ -73,19 +73,27 @@ singularity exec --writable-tmpfs -e \
     -B /dev:/dev \
     -B $ILAFORES:$ILAFORES \
     $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
-total_start=\$(date +%s)
-while IFS=$'\t' read -r sample fq1 fq2 _; do
+    db_basename=\$(basename \"${kraken_db}\")
+    vmtouch -t \"/dev/shm/\${db_basename}\"/*.k2d
+    total_start=\$(date +%s)
+    
+    while IFS=$'\t' read -r sample fq1 fq2 _; do
     iter_start=\$(date +%s)
     echo \"[ \$(date '+%Y-%m-%d %H:%M:%S') ] Starting sample \${sample}...\" >&2
     
     out_dir=\"${out_dir}/\${sample}\"
     mkdir -p \"\$out_dir\"
 
+    if [[ -f \"${out_dir}/${sample}_bracken/${sample}_S.bracken\" ]]; then
+        echo \"[ \$(date '+%Y-%m-%d %H:%M:%S') ] Skipping \${sample} - outputs already exist\" >&2
+        continue
+    fi
+
     # Kraken2 with memory mapping
     kraken2 --memory-mapping \
-        --confidence ${confidence} \
+        --confidence \"${confidence}\" \
         --paired \
-        --threads ${threads} \
+        --threads \"${threads}\" \
         --db \"${kraken_db}\" \
         --use-names \
         --output \"\${out_dir}/\${sample}_taxonomy_nt\" \
