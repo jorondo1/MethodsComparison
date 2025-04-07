@@ -82,20 +82,18 @@ singularity exec --writable-tmpfs -e \
     
     out_dir=\"${out_dir}/\${sample}\"
     mkdir -p \"\$out_dir\"
-echo \"DEBUG: Checking existence of: ${out_dir}\" >&2
-echo \"DEBUG: Directory contents: $(ls -l \"${out_dir}\" 2>/dev/null)\" >&2
 
-    if [[ -f \"${out_dir}/\${sample}_bracken/\${sample}_S.bracken\" ]]; then
+    if [[ -f \"\${out_dir}/\${sample}_bracken/\${sample}_S.bracken\" ]]; then
         echo \"[ \$(date '+%Y-%m-%d %H:%M:%S') ] Skipping \${sample} - outputs already exist\" >&2
         continue
     fi
 
     # Kraken2 with memory mapping
-    kraken2 \
+    kraken2 --memory-mapping \
         --confidence ${confidence} \
         --paired \
-        --threads \"${threads}\" \
-        --db \"${kraken_db}\" \
+        --threads ${threads} \
+        --db ${kraken_db} \
         --use-names \
         --output \"\${out_dir}/\${sample}_taxonomy_nt\" \
         --report \"\${out_dir}/\${sample}.kreport\" \
