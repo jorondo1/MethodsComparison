@@ -73,8 +73,6 @@ singularity exec --writable-tmpfs -e \
     -B /dev:/dev \
     -B $ILAFORES:$ILAFORES \
     $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
-    db_basename=\$(basename \"${kraken_db}\")
-    find \"/dev/shm/\${db_basename}\" -name '*.k2d' -exec cat {} > /dev/null \;
     total_start=\$(date +%s)
     
     while IFS=$'\t' read -r sample fq1 fq2 _; do
