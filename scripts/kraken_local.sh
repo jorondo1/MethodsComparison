@@ -66,7 +66,7 @@ mkdir -p "$out_dir"
 exec > >(tee -a "${out_dir}/kraken_wrapper.log") 2>&1
 
 # Copying database to shared memory
-rsync -avr $kraken_db /dev/shm
+#rsync -avr $kraken_db /dev/shm
 
 singularity exec --writable-tmpfs -e \
     -B $ILL_PIPELINES:$ILL_PIPELINES \
