@@ -90,11 +90,12 @@ for i in {1..5}; do
 numactl --cpunodebind=0 --membind=0 \
     singularity exec --writable-tmpfs -e \
     -B /dev/shm:/dev/shm \
+    -B /fast/def-ilafores:/fast/def-ilafores \
     -B $ILAFORES:$ILAFORES \
     $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
 
     # Kraken classify
-    kraken2 --memory-mapping \\
+    kraken2 \\
         --confidence ${confidence} \\
         --paired \\
         --threads \"${threads}\" \\
