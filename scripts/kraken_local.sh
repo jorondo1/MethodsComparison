@@ -25,7 +25,7 @@ tsv="false";
 kraken_db="$ILAFORES/ref_dbs/kraken2_dbs/k2_standard_20241228"
 bracken_readlen="150"
 confidence="0.05"
-
+out_dir="false"
 SHORT_OPTS="h:t:o:"
 LONG_OPTS='help:,threads:,kraken_db:,bracken_readlen:,confidence:,tsv:'
 
@@ -58,7 +58,7 @@ done
 exec > >(tee -a "${out_dir}/kraken_wrapper.log") 2>&1
 
 # Check required parameters
-if [ "$tsv" = "false" ]; then
+if [ "$tsv" = "false" | "$out_dir" = "false" ]; then
     echo "Error: TSV file not provided"
     help_message
     exit 1
