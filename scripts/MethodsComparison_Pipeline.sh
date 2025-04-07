@@ -92,8 +92,7 @@ sbatch --array=1-"$NUM_PD" $MC/PD/KB90/taxonomic_profile.samples.slurm.sh
 ## Run kraken local ip34
 ml apptainer
 bash scripts/kraken_local.sh --tsv $PD_TSV --confidence 0.10 --output $MC/PD/KB10 \
-	--kraken_db /dev/shm/k2_standard_20241228 \
-	--threads 24
+--kraken_db /fast/def-ilafores/k2_standard_20241228 --threads 24
 
 # Check completion status
 check_output 'KB10 KB45 KB90' 'PD' _bracken_S.MPA.TXT

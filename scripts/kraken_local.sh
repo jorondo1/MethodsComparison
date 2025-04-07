@@ -82,14 +82,15 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
 singularity exec --writable-tmpfs -e \
     -B $ILL_PIPELINES:$ILL_PIPELINES \
     -B /fast:/fast \
+    -B /dev:/dev \
     -B $ILAFORES:$ILAFORES \
     $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
     # Kraken2 with memory mapping
-    
+    sleep 5
     last_core=\$(( ${threads} - 1 ))
     
     # Execute Kraken2 with taskset
-    taskset -c 0-\${last_core} kraken2 --memory-mapping \\
+    taskset -c 0-\${last_core} kraken2 \\
         --confidence ${confidence} \\
         --paired \\
         --threads \"${threads}\" \\
