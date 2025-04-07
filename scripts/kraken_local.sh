@@ -71,19 +71,18 @@ exec > >(tee -a "${out_dir}/kraken_wrapper.log") 2>&1
 # Loop by sample
 while IFS=$'\t' read -r sample fq1 fq2 _; do
     
+    if [[ -f "${out_subdir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT" ]]; then
+        echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Skipping ${out_subdir} - outputs already exist" 
+        continue
+    fi
+
     total_start=$(date +%s)
     iter_start=$(date +%s)
     echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Starting sample ${sample}..."
     
     out_subdir="${out_dir}/${sample}"
     mkdir -p "$out_subdir"
-    
-    if [[ -f "${out_subdir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT" ]]; then
-        echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Skipping ${out_subdir}/${sample} - outputs already exist" 
-        continue
-    fi
-
-    # remove anchor if any
+        # remove anchor if any
     fq1=${fq1#/nfs3_ib/nfs-ip34}
     fq2=${fq2#/nfs3_ib/nfs-ip34}
 
