@@ -45,7 +45,7 @@ while true; do
         -h | --help) help_message; exit 0;;
         -t) threads=$2; shift 2;;
         -o) out_dir=$2; shift 2;;
-        -tsv) tsv=$2; shift 2;;
+        --tsv) tsv=$2; shift 2;;
         --kraken_db) kraken_db=$2; shift 2;;
         --confidence) confidence=$2; shift 2;;
         --bracken_readlen) bracken_readlen=$2; shift 2;;
