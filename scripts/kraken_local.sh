@@ -65,6 +65,9 @@ mkdir -p "$out_dir"
 # Start logging
 exec > >(tee -a "${out_dir}/kraken_wrapper.log") 2>&1
 
+# preload db
+find ${kraken_db} -type f -exec cat {} > /dev/null \;
+
 # Loop by sample
 while IFS=$'\t' read -r sample fq1 fq2 _; do
     total_start=$(date +%s)
