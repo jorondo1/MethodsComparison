@@ -69,7 +69,11 @@ exec > >(tee -a "${out_dir}/kraken_wrapper.log") 2>&1
 find ${kraken_db} -type f -exec cat {} > /dev/null \;
 
 # Loop by sample
-while IFS=$'\t' read -r sample fq1 fq2 _; do
+#while IFS=$'\t' read -r sample fq1 fq2 _; do
+for i in {1..5}; do
+    sample=$(awk "NR==1" $MC/PD/preproc/preprocessed_reads.sample.tsv | cut -f1)
+    fq1=$(awk "NR==1" $MC/PD/preproc/preprocessed_reads.sample.tsv | cut -f2)
+    fq2=$(awk "NR==1" $MC/PD/preproc/preprocessed_reads.sample.tsv | cut -f3)
     total_start=$(date +%s)
     iter_start=$(date +%s)
     echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Starting sample ${sample}..."
@@ -113,5 +117,5 @@ numactl --cpunodebind=0 --membind=0 \
 iter_end=$(date +%s)
 iter_time=$((iter_end - iter_start))
 echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Completed ${sample} in ${iter_time} seconds"
-    
-done < "$tsv"
+ done   
+#done < "$tsv"
