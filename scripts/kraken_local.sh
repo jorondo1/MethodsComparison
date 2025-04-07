@@ -65,12 +65,12 @@ mkdir -p "$out_dir"
 # Start logging
 exec > >(tee -a "${out_dir}/kraken_wrapper.log") 2>&1
 
-
 # Copying database to shared memory
-#rsync -avr $kraken_db /dev/shm
+rsync -avr $kraken_db /dev/shm
 
 singularity exec --writable-tmpfs -e \
     -B $ILL_PIPELINES:$ILL_PIPELINES \
+    -B /dev:/dev \
     -B $ILAFORES:$ILAFORES \
     $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
 while read -r sample fq1 fq2 fq3 fq4; do
