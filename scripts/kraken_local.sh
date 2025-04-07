@@ -77,18 +77,19 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
     
     out_subdir="${out_dir}/${sample}"
     mkdir -p "$out_subdir"
-    echo "DEBUG"
+    
     if [[ -f "${out_subdir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT" ]]; then
         echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Skipping ${out_subdir}/${sample} - outputs already exist" 
         continue
     fi
-
+    
+    # remove anchor if any
     fq1=${fq1#/nfs3_ib/nfs-ip34}
     fq2=${fq2#/nfs3_ib/nfs-ip34}
     
     singularity exec --writable-tmpfs -e \
     -B /dev/shm:/dev/shm \
-    -B /fast/def-ilafores:/fast/def-ilafores \
+    -B /fast2/def-ilafores:/fast2/def-ilafores \
     -B $ILAFORES:$ILAFORES \
     $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif "
    
