@@ -93,22 +93,22 @@ singularity exec --writable-tmpfs -e \
     last_core=\$(( ${threads} - 1 ))
     
     # Execute Kraken2 with taskset
-    taskset -c 0-\${last_core} kraken2 --memory-mapping \
-        --confidence ${confidence} \
-        --paired \
-        --threads \"${threads}\" \
-        --db ${kraken_db} \
-        --use-names \
-        --report \"\${out_dir}/\${sample}.kreport\" \
+    taskset -c 0-\${last_core} kraken2 --memory-mapping \\
+        --confidence ${confidence} \\
+        --paired \\
+        --threads \"${threads}\" \\
+        --db \"${kraken_db}\" \\
+        --use-names \\
+        --report \"\${out_dir}/\${sample}.kreport\" \\
         \"\${fq1}\" \"\${fq2}\"
 
     # Bracken processing
     mkdir -p \"\${out_dir}/\${sample}_bracken\"
-    bracken \
-        -d \"${kraken_db}\" \
-        -i \"\${out_dir}/\${sample}.kreport\" \
-        -o \"\${out_dir}/\${sample}_bracken/\${sample}_S.bracken\" \
-        -w \"\${out_dir}/\${sample}_bracken/\${sample}_bracken_S.kreport\" \
+    bracken \\
+        -d \"${kraken_db}\" \\
+        -i \"\${out_dir}/\${sample}.kreport\" \\
+        -o \"\${out_dir}/\${sample}_bracken/\${sample}_S.bracken\" \\
+        -w \"\${out_dir}/\${sample}_bracken/\${sample}_bracken_S.kreport\" \\
         -r $bracken_readlen
 
     iter_end=\$(date +%s)
