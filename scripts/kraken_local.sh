@@ -72,7 +72,7 @@ exec > >(tee -a "${out_dir}/kraken_wrapper.log") 2>&1
 singularity exec --writable-tmpfs -e \
     -B $ILL_PIPELINES:$ILL_PIPELINES \
     -B $ILAFORES:$ILAFORES \
-    $ILAFORES/programs/ILL_pipelines/kraken.2.1.2.sif bash -c "
+    $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
 while read -r sample fq1 fq2; do
     echo \"Processing sample ${sample}...\"
     out_dir=\"${out_dir}/\${sample}\"
