@@ -73,8 +73,8 @@ singularity exec --writable-tmpfs -e \
     -B /dev:/dev \
     -B $ILAFORES:$ILAFORES \
     $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
-while read -r sample fq1 fq2 fq3 fq4; do
-    echo \"Processing sample ${sample}...\"
+while IFS=$'\t' read -r sample fq1 fq2 _; do
+    echo \"Processing sample \${sample}...\" >&2
     out_dir=\"${out_dir}/\${sample}\"
     mkdir -p \"\$out_dir\"
 
