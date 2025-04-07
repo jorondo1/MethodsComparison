@@ -65,10 +65,11 @@ mkdir -p "$out_dir"
 # Start logging
 exec > >(tee -a "${out_dir}/kraken_wrapper.log") 2>&1
 
+# Loop by sample
 while IFS=$'\t' read -r sample fq1 fq2 _; do
     total_start=$(date +%s)
     iter_start=$(date +%s)
-    echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Starting sample \${sample}..."
+    echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Starting sample ${sample}..."
     
     out_dir="${out_dir}/${sample}"
     mkdir -p "$out_dir"
@@ -80,7 +81,7 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
 
 singularity exec --writable-tmpfs -e \
     -B $ILL_PIPELINES:$ILL_PIPELINES \
-    -B /dev:/dev \
+    -B /fast:/fast \
     -B $ILAFORES:$ILAFORES \
     $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
     # Kraken2 with memory mapping
