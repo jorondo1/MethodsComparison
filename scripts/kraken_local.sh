@@ -83,6 +83,9 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
         continue
     fi
 
+    fq1=${fq1#/nfs3_ib/nfs-ip34}
+    fq2=${fq2#/nfs3_ib/nfs-ip34}
+    
 singularity exec --writable-tmpfs -e \
     -B /dev/shm:/dev/shm \
     -B /fast/def-ilafores:/fast/def-ilafores \
@@ -90,8 +93,6 @@ singularity exec --writable-tmpfs -e \
     $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
    
 # remove anchors from paths
-    fq1=${fq1#/nfs3_ib/nfs-ip34}
-    fq2=${fq2#/nfs3_ib/nfs-ip34}
     
     # Kraken classify
     kraken2 --memory-mapping \\
