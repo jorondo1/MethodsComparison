@@ -90,7 +90,7 @@ numactl --cpunodebind=0 --membind=0 \
     sleep 5
 
     # Execute Kraken2 with taskset
-    kraken2 \\
+    kraken2 --memory-mapping \\
         --confidence ${confidence} \\
         --paired \\
         --threads \"${threads}\" \\
