@@ -87,12 +87,13 @@ singularity exec --writable-tmpfs -e \
         echo \"[ \$(date '+%Y-%m-%d %H:%M:%S') ] Skipping \${sample} - outputs already exist\" >&2
         continue
     fi
-
+    echo \"Running with ${threads} threads\"
     # Kraken2 with memory mapping
+    
     kraken2 --memory-mapping \
         --confidence ${confidence} \
         --paired \
-        --threads ${threads} \
+        --threads \"${threads}\" \
         --db ${kraken_db} \
         --use-names \
         --output \"\${out_dir}/\${sample}_taxonomy_nt\" \
