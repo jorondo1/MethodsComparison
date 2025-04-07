@@ -29,7 +29,7 @@ confidence="0.05"
 SHORT_OPTS="h:t:o:"
 LONG_OPTS='help:,threads:,kraken_db:,bracken_readlen:,confidence:,tsv:'
 
-OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@") || exit 1
+OPTS=$(getopt -o $SHORT_OPTS --long $LONG_OPTS -- "$@")
 
 # make sure the params are entered correctly
 if [ $? -ne 0 ];
