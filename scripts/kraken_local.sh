@@ -112,7 +112,7 @@ singularity exec --writable-tmpfs -e \
         -w \"\${out_dir}/\${sample}_bracken/\${sample}_bracken_S.kreport\" \\
         -r $bracken_readlen
 
-    rm \"\${out_dir}/\${sample}_taxonomy_nt\"
+    #rm \"\${out_dir}/\${sample}_taxonomy_nt\"
     iter_end=\$(date +%s)
     iter_time=\$((iter_end - iter_start))
     echo \"[ \$(date '+%Y-%m-%d %H:%M:%S') ] Completed \${sample} in \${iter_time} seconds\" >&2
