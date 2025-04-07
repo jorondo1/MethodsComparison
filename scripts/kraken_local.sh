@@ -83,8 +83,7 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
         continue
     fi
 
-numactl --cpunodebind=0 --membind=0 \
-    singularity exec --writable-tmpfs -e \
+singularity exec --writable-tmpfs -e \
     -B /dev/shm:/dev/shm \
     -B /fast/def-ilafores:/fast/def-ilafores \
     -B $ILAFORES:$ILAFORES \
