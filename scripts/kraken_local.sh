@@ -90,13 +90,15 @@ singularity exec --writable-tmpfs -e \
     echo \"Running with ${threads} threads\"
     # Kraken2 with memory mapping
     
-    kraken2 --memory-mapping \
+    last_core=\$(( ${threads} - 1 ))
+    
+    # Execute Kraken2 with taskset
+    taskset -c 0-\${last_core} kraken2 --memory-mapping \
         --confidence ${confidence} \
         --paired \
         --threads \"${threads}\" \
         --db ${kraken_db} \
         --use-names \
-        --output \"\${out_dir}/\${sample}_taxonomy_nt\" \
         --report \"\${out_dir}/\${sample}.kreport\" \
         \"\${fq1}\" \"\${fq2}\"
 
