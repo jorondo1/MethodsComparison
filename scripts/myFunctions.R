@@ -103,51 +103,6 @@ filter_low_prevalence <- function(ps, minPrev = 0.05, minAbund = 0.0001) {
   prune_taxa(keepTaxa, ps) %>% return
 }
 
-### Build phyloseq object from MPA output
-assemble_phyloseq <- function(abunTable, sampleData, filtering = FALSE) {
-  
-  abunTable %<>% dplyr::filter(Kingdom == "Bacteria") %>% 
-    mutate(across(where(is.character), \(x) {
-      str_replace_all(x,'_', ' ') %>%
-        str_replace('Candidatus ', '') %>% 
-        str_remove(" [A-Z]$")  #https://gtdb.ecogenomic.org/faq#why-do-some-family-and-higher-rank-names-end-with-an-alphabetic-suffix
-    }))
-    
-  # Extract abundance table with Species as identifier
-  abund <- abunTable %>% 
-    dplyr::select(where(is.double), Species) %>% 
-    group_by(Species) %>% 
-    dplyr::summarise(across(where(is.numeric), sum)) %>% 
-    column_to_rownames('Species') %>% 
-    select(where(~ sum(.) >= 100))
-  
-  # Extract taxonomy
-  tax <- abunTable %>% 
-    dplyr::select(where(is.character)) %>% 
-    unique %>% # because of renaming above, some species will be duplicate
-    mutate(Species2 = Species) %>% 
-    column_to_rownames('Species2') %>% as.matrix
-  
-  # Some datasets may end up with very low read counts and lose samples.
-  # We subset the sample dataset, but we add a check if all samples are lost:
-  keep_samples <- which(rownames(sampleData) %in% colnames(abund))
-  
-  if (length(keep_samples)==0) {
-    return(NULL)
-    } else {
-    sampleData_subset <- sampleData[keep_samples,, drop = FALSE] 
-    
-    # Build phyloseq
-    ps <- phyloseq(otu_table(abund, taxa_are_rows = TRUE),
-             sample_data(sampleData_subset),
-             tax_table(tax)
-    ) %>% 
-      (if (filtering) filter_low_prevalence else identity)
-    
-    prune_samples(sample_sums(ps) > 0, ps) %>%  #remove any empty samples 
-      prune_taxa(taxa_sums(.) > 0,.) # remove taxa absent from all (may happen if you end up using not all the samples you parse, e.g. metadata missing so sample dropped in the process)
-  }
-}
 
 # Compute sparseness (proportion of 0 in abundance matrix)
 compile_sparseness <- function(ps_list) {
