@@ -93,7 +93,7 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
     $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
    
     # Kraken classify
-    kraken2 --memory-mapping \\
+    nice -n10 kraken2 --memory-mapping \\
         --confidence ${confidence} \\
         --paired \\
         --threads \"${threads}\" \\
