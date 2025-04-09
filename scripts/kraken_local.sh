@@ -88,9 +88,11 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
     fq2=${fq2#/nfs3_ib/nfs-ip34}
     
     # Be nice during work hours
-    current_hour=$(date +%H)
+    current_hour=$(date +%H | sed 's/^0//')    
     nice_cmd="nice -n10"
-    [[ $current_hour -ge 21 || $current_hour -lt 7 ]] && nice_cmd=""
+    if (( current_hour >= 18 || current_hour < 6 )); then
+        nice_cmd=""
+    fi
 
     singularity exec --writable-tmpfs -e \
     -B /dev/shm:/dev/shm \

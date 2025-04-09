@@ -94,6 +94,9 @@ ml apptainer
 bash $MC/scripts/kraken_local.sh --tsv ${PD_TSV}.fast --confidence 0.10 --output $MC/PD/KB10 \
 --kraken_db /dev/shm/k2_standard_20241228 --threads 24
 
+bash $MC/scripts/kraken_local.sh --tsv ${PD_TSV}.fast --confidence 0.10 --output $MC/PD/KB10 \
+--kraken_db /dev/shm/k2_standard_20241228 --threads 24
+
 # Narval:
 #bash $MC/scripts/kraken_local.sh --tsv $PD_TSV --confidence 0.10 --output $MC/PD/KB10 \
 #--kraken_db /scratch/ronj2303/ref_dbs/kraken2_dbs/k2_standard_20241228 --threads 12
