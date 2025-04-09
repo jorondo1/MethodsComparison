@@ -86,6 +86,11 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
         # remove anchor if any
     fq1=${fq1#/nfs3_ib/nfs-ip34}
     fq2=${fq2#/nfs3_ib/nfs-ip34}
+    
+    # Be nice during work hours
+    current_hour=$(date +%H)
+    nice_cmd="nice -n10"
+    [[ $current_hour -ge 21 || $current_hour -lt 7 ]] && nice_cmd=""
 
     singularity exec --writable-tmpfs -e \
     -B /dev/shm:/dev/shm \
@@ -94,7 +99,7 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
     $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
    
     # Kraken classify
-    nice -n5 kraken2 --memory-mapping \\
+    $nice_cmd kraken2 --memory-mapping \\
         --confidence ${confidence} \\
         --paired \\
         --threads \"${threads}\" \\
