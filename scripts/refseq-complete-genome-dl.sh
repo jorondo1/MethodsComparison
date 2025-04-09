@@ -45,4 +45,4 @@ printf "  See you in a bit :)\n\n"
 xargs -I % -P $ncores curl -L -s -O "${refseq_base_link}/%" < ${refseq_filenames_file}
 
 mv *genomic.fna.gz ${out_dir}
-mv refseq- refseq_genomes/${database}
+mv refseq-* refseq_genomes/${database}
