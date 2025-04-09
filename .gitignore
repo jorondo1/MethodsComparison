@@ -11,6 +11,7 @@ archive/
 *.fa
 *.fastq
 *.fastq.gz
+*.fq.gz
 *.sig
 *.bowtie2.txt
 *.tar.gz
@@ -33,7 +34,7 @@ ILL_pipelines/
 *fastqc*html
 *fastqc.zip
 *fastqc/
-
+reads_mapping.tsv.gz
 
 radEmu_scores*
 Maaslin2/
