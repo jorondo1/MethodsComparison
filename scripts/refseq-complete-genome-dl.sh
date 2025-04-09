@@ -2,8 +2,9 @@
 
 # Contact: Mike Lee (Mike.Lee@nasa.gov; github.com/AstrobioMike)
 
-if [ "$#" != 1 ]; then
+if [ "$#" != 2 ]; then
     printf "\n  Helper script to download all refseq complete genomes as of whatever today is.\n"
+    printf "  Usage: bash script.sh <database> <ncores>"
     printf "  See script for details. There are currently no guardrails or safety nets if a\n"
     printf "  download fails. So check the starting file count vs the total downloaded at end.\n\n"
     printf "  \tUsage:\n\t  bash refseq-complete-genome-dl.sh\n\n"
@@ -13,6 +14,7 @@ if [ "$#" != 1 ]; then
 fi
 
 database="${1}"
+ncores="${2}"
 
 # we can pull through https or ftp
 # protocol="ftp"
@@ -20,11 +22,12 @@ protocol="https"
 
 refseq_base_link="${protocol}://ftp.ncbi.nlm.nih.gov/refseq/release/${database}"
 curr_date_marker=$(date +%d-%B-%Y)
-refseq_html_file="refseq-${curr_date_marker}.html"
+refseq_html_file="refseq-${curr_date_marker}-${database}.html"
 refseq_filenames_file="refseq-${curr_date_marker}-genome-files-${database}.txt"
 genomes_dir="refseq-${curr_date_marker}-${database}-genomes"
 
-mkdir -p ${genomes_dir}
+out_dir=refseq_genomes/${database}/${genomes_dir}
+mkdir -p $out_dir
 
 # downloading html page (using this to get all the files we want to download)
 curl -L -s -o ${refseq_html_file} ${refseq_base_link}
@@ -39,6 +42,6 @@ printf "\n  We are beginning the download of ${num_files} files now...\n"
 printf "  See you in a bit :)\n\n"
 
 # downloading in parallel with xargs (num run in parallel is set with -P option)
-xargs -I % -P 10 curl -L -s -O "${refseq_base_link}/%" < ${refseq_filenames_file}
+xargs -I % -P $ncores curl -L -s -O "${refseq_base_link}/%" < ${refseq_filenames_file}
 
-mv *genomic.fna.gz ${genomes_dir}
+mv *genomic.fna.gz ${out_dir}
