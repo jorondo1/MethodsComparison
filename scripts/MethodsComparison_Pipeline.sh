@@ -116,6 +116,7 @@ rm */KB*/*/*/*_temp.MPA.TXT # temp files
 rm */KB*/*/*/*_bracken_[^S].MPA.TXT # Other levels of classification
 rm -r */KB*/*/*_kronagrams # no use
 rm -r */*/.throttle/
+
 ################
 # MetaPhlAn4 ###
 metaphlan="bash $ILL_PIPELINES/generateslurm_taxonomic_abundance.metaphlan.sh \
