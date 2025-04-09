@@ -13,6 +13,7 @@ archive/
 *.fastq.gz
 *.sig
 *.bowtie2.txt
+*.tar.gz
 
 # R files
 .RData*
@@ -32,7 +33,6 @@ ILL_pipelines/
 *fastqc*html
 *fastqc.zip
 *fastqc/
-*kreport
 
 
 radEmu_scores*
