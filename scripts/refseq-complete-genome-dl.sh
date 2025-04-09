@@ -2,7 +2,7 @@
 
 # Contact: Mike Lee (Mike.Lee@nasa.gov; github.com/AstrobioMike)
 
-if [ "$#" != 0 ]; then
+if [ "$#" != 1 ]; then
     printf "\n  Helper script to download all refseq complete genomes as of whatever today is.\n"
     printf "  See script for details. There are currently no guardrails or safety nets if a\n"
     printf "  download fails. So check the starting file count vs the total downloaded at end.\n\n"
