@@ -94,8 +94,13 @@ ml apptainer
 bash $MC/scripts/kraken_local.sh --tsv ${PD_TSV}.fast --confidence 0.10 --output $MC/PD/KB10 \
 --kraken_db /dev/shm/k2_standard_20241228 --threads 24
 
-bash $MC/scripts/kraken_local.sh --tsv ${PD_TSV}.fast --confidence 0.10 --output $MC/PD/KB10 \
---kraken_db /dev/shm/k2_standard_20241228 --threads 24
+bash $MC/scripts/kraken_local.sh --tsv ${PD_TSV}.fast --confidence 0.90 --output $MC/PD/KB90_GTDB --kraken_db /dev/shm/k2_gtdb_genome_reps_20241109 --threads 12
+
+# Record % sequence classification
+find . -name '*.kreport' ! -name '*bracken*' -exec awk '
+FNR==1 {unclassified=$2; next} 
+FNR==2 {classified=$2; printf "%s\t%.5f\n", FILENAME, (classified/(unclassified+classified))}
+' {} + > kraken_classification_rate.tsv
 
 # Narval:
 #bash $MC/scripts/kraken_local.sh --tsv $PD_TSV --confidence 0.10 --output $MC/PD/KB10 \

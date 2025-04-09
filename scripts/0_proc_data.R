@@ -35,7 +35,7 @@ meta_parsing <- function(dsName, samData) {
       assemble_phyloseq(samData)
   }
   
-  # Sourmash
+  # SOURMASH #####################
   message(paste('Parsing', 'SM_genbank-2022.03', '...'))
   ps[['SM_genbank-2022.03']] <- left_join(
     parse_SM(paste0(dsName,'/SM_genbank-2022.03/*_genbank-2022.03_gather.csv')),
@@ -58,7 +58,7 @@ meta_parsing <- function(dsName, samData) {
       assemble_phyloseq(samData)
   }
 
-  # Metaphlan  
+  # METAPHLAN ######################
   mpadirs <- list.dirs(dsName, recursive = FALSE) %>% 
     .[grep("/MPA_[^/]*$", .)] %>% basename
   
