@@ -9,6 +9,7 @@ export NAFLD_TSV=$MC/NAFLD/preproc/preprocessed_reads.sample.tsv
 export AD_Skin_TSV=$MC/AD_Skin/preproc/preprocessed_reads.sample.tsv
 export PD_TSV=$MC/PD/preproc/preprocessed_reads.sample.tsv
 export BEE_TSV=$MC/Bee/preproc/preprocessed_reads.sample.tsv
+export OLIVE_TSV=$MC/Olive/preproc/preprocessed_reads.sample.tsv
 export NUM_P19_Saliva=$(wc $SALIVA_TSV | awk '{print $1}')
 export NUM_P19_Gut=$(wc $FECES_TSV | awk '{print $1}')
 export NUM_Moss=$(wc $MOSS_TSV | awk '{print $1}')
@@ -16,6 +17,7 @@ export NUM_NAFLD=$(wc $NAFLD_TSV | awk '{print $1}')
 export NUM_AD_Skin=$(wc $AD_Skin_TSV | awk '{print $1}')
 export NUM_PD=$(wc $PD_TSV | awk '{print $1}')
 export NUM_BEE=$(wc $BEE_TSV | awk '{print $1}')
+export NUM_OLIVE=$(wc $OLIVE_TSV | awk '{print $1}')
 export DATASETS="P19_Saliva P19_Gut Moss NAFLD AD_Skin PD"
 
 ######################
@@ -26,6 +28,7 @@ dataset="Olive"
 mkdir -p $MC/$dataset/raw
 
 samples=($(grep WGS $MC/$dataset/raw/filereport_*_tsv.txt | cut -f1  | grep -v 'run'))
+cd /fast2/def-ilafores/Olive/raw
 grep -E "$(IFS="|"; echo "${samples[*]}")" "$MC/$dataset/raw/" | bash
 
 :> $MC/Bee/raw/samples_to_process.tsv
@@ -54,13 +57,15 @@ sbatch --array="$missing_samples" /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/M
 
 ############
 # mOTUs ####
-# Custom SLURM script 
+# Custom SLURM script
 sbatch --array=1-"$NUM_P19_Saliva" $MC/scripts/motus_SLURM.sh P19_Saliva $SALIVA_TSV
 sbatch --array=1-"$NUM_P19_Gut" $MC/scripts/motus_SLURM.sh P19_Gut $FECES_TSV
 sbatch --array=1-"$NUM_Moss" $MC/scripts/motus_SLURM.sh Moss $MOSS_TSV
 sbatch --array=1-"$NUM_NAFLD" $MC/scripts/motus_SLURM.sh NAFLD $NAFLD_TSV
 sbatch --array=1-"$NUM_AD_Skin" $MC/scripts/motus_SLURM.sh AD_Skin $AD_Skin_TSV
 sbatch --array=1-"$NUM_PD" $MC/scripts/motus_SLURM.sh PD $PD_TSV
+sbatch --array=1-"$NUM_BEE" $MC/scripts/motus_SLURM.sh PD $PD_TSV.fast
+sbatch --array=1-"$NUM_OLIVE" $MC/scripts/motus_SLURM.sh PD $PD_TSV
 
 # Check completion status
 check_output 'MOTUS' 'PD' _profile.txt
@@ -98,7 +103,7 @@ k2_local=$MC/scripts/kraken_local.sh
 bash $k2_local --tsv ${PD_TSV}.fast --confidence 0.10 --output $MC/PD/KB10 --kraken_db $k2_std --threads 24
 bash $k2_local --tsv ${PD_TSV}.fast --confidence 0.45 --output $MC/PD/KB45 --kraken_db $k2_std --threads 24
 bash $k2_local --tsv ${PD_TSV}.fast --confidence 0.90 --output $MC/PD/KB90 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${PD_TSV}.fast --confidence 0.10 --output $MC/PD/KB10_GTDB --kraken_db $k2_gtdb --threads 24
+bash $k2_local --tsv ${PD_TSV}.fast --confidence 0.10 --output $MC/PD/KB10_GTDB --kraken_db $k2_gtdb --threads 12
 bash $k2_local --tsv ${PD_TSV}.fast --confidence 0.45 --output $MC/PD/KB45_GTDB --kraken_db $k2_gtdb --threads 24
 bash $k2_local --tsv ${PD_TSV}.fast --confidence 0.90 --output $MC/PD/KB90_GTDB --kraken_db $k2_gtdb --threads 24
 
@@ -149,6 +154,14 @@ bash $k2_local --tsv ${BEE_TSV}.fast --confidence 0.90 --output $MC/Bee/KB90 --k
 bash $k2_local --tsv ${BEE_TSV}.fast --confidence 0.10 --output $MC/Bee/KB10_GTDB --kraken_db $k2_gtdb --threads 16
 bash $k2_local --tsv ${BEE_TSV}.fast --confidence 0.45 --output $MC/Bee/KB45_GTDB --kraken_db $k2_gtdb --threads 16
 bash $k2_local --tsv ${BEE_TSV}.fast --confidence 0.90 --output $MC/Bee/KB90_GTDB --kraken_db $k2_gtdb --threads 16
+
+# Olive
+bash $k2_local --tsv ${OLIVE_TSV}.fast --confidence 0.10 --output $MC/Olive/KB10 --kraken_db $k2_std --threads 24
+bash $k2_local --tsv ${OLIVE_TSV}.fast --confidence 0.45 --output $MC/Olive/KB45 --kraken_db $k2_std --threads 24
+bash $k2_local --tsv ${OLIVE_TSV}.fast --confidence 0.90 --output $MC/Olive/KB90 --kraken_db $k2_std --threads 24
+bash $k2_local --tsv ${OLIVE_TSV}.fast --confidence 0.10 --output $MC/Olive/KB10_GTDB --kraken_db $k2_gtdb --threads 24
+bash $k2_local --tsv ${OLIVE_TSV}.fast --confidence 0.45 --output $MC/Olive/KB45_GTDB --kraken_db $k2_gtdb --threads 24
+bash $k2_local --tsv ${OLIVE_TSV}.fast --confidence 0.90 --output $MC/Olive/KB90_GTDB --kraken_db $k2_gtdb --threads 24
 
 # Record % sequence classification
 cd $MC; find . -name '*.kreport' ! -name '*bracken*' -exec awk '

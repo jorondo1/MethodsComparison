@@ -15,7 +15,7 @@ source /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/activa
 ml mugqic/bwa
 
 export OUT_DIR=${PWD}/"${1}"/MOTUS
-export SAM_LIST="${2}"
+export SAM_LIST=$ANCHOR/"${2}"
 export SAM_NUM=$(awk "NR==$SLURM_ARRAY_TASK_ID" ${SAM_LIST})
 IFS=$'\t' read -r SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2 <<< "$SAM_NUM" # array it up
 export SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2
