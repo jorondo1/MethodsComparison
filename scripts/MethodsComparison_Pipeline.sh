@@ -25,7 +25,9 @@ export DATASETS="P19_Saliva P19_Gut Moss NAFLD AD_Skin PD"
 dataset="Olive"
 mkdir -p $MC/$dataset/raw
 
-samples=($(cut -f1 $MC/$dataset/raw/filereport_*_tsv.txt | grep -v 'run'))
+samples=($(grep WGS $MC/$dataset/raw/filereport_*_tsv.txt | cut -f1  | grep -v 'run'))
+grep -E "$(IFS="|"; echo "${samples[*]}")" "$MC/$dataset/raw/" | bash
+
 :> $MC/Bee/raw/samples_to_process.tsv
 for sample in "${samples[@]}"; do
 	fq1=$(find $ANCHOR/fast2/def-ilafores/Bee/raw -type f -name "${sample}_1.fastq.gz")
