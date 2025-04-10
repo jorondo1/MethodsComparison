@@ -8,28 +8,41 @@ export MOSS_TSV=$MOSS/preproc/preprocessed_reads.sample.tsv
 export NAFLD_TSV=$MC/NAFLD/preproc/preprocessed_reads.sample.tsv
 export AD_Skin_TSV=$MC/AD_Skin/preproc/preprocessed_reads.sample.tsv
 export PD_TSV=$MC/PD/preproc/preprocessed_reads.sample.tsv
+export BEE_TSV=$MC/Bee/preproc/preprocessed_reads.sample.tsv
 export NUM_P19_Saliva=$(wc $SALIVA_TSV | awk '{print $1}')
 export NUM_P19_Gut=$(wc $FECES_TSV | awk '{print $1}')
 export NUM_Moss=$(wc $MOSS_TSV | awk '{print $1}')
 export NUM_NAFLD=$(wc $NAFLD_TSV | awk '{print $1}')
 export NUM_AD_Skin=$(wc $AD_Skin_TSV | awk '{print $1}')
 export NUM_PD=$(wc $PD_TSV | awk '{print $1}')
+export NUM_BEE=$(wc $BEE_TSV | awk '{print $1}')
 export DATASETS="P19_Saliva P19_Gut Moss NAFLD AD_Skin PD"
 
 ######################
 # QC #################
 ######################
 
+dataset="Olive"
+mkdir -p $MC/$dataset/raw
+
+samples=($(cut -f1 $dataset/raw/filereport_*_tsv.txt | grep -v 'run'))
+:> $MC/Bee/raw/samples_to_process.tsv
+for sample in "${samples[@]}"; do
+	fq1=$(find $ANCHOR/fast2/def-ilafores/Bee/raw -type f -name "${sample}_1.fastq.gz")
+	fq2=$(find $ANCHOR/fast2/def-ilafores/Bee/raw -type f -name "${sample}_2.fastq.gz")
+	echo -e "${sample}\t${fq1}\t${fq2}" >> $MC/Bee/raw/samples_to_process.tsv
+done
+
 #Process fecal samples
-dataset="Bee"
-mkdir -p $dataset/preproc
-bash $ILAFORES/programs/ILL_pipelines/generateslurm_preprocess.kneaddata.sh \
-	--sample_tsv $MC/$dataset/raw/samples_to_process.tsv \
-	--out $MC/$dataset/preproc \
+mkdir -p $MC/$dataset/preproc
+bash $ANCHOR/$ILAFORES/programs/ILL_pipelines/generateslurm_preprocess.kneaddata.sh \
+	--sample_tsv $ANCHOR/$MC/$dataset/raw/samples_to_process.tsv \
+	--out $ANCHOR/fast2/def-ilafores/Bee/preproc \
 	--trimmomatic_options "SLIDINGWINDOW:4:20 MINLEN:50" \
 	--db $FAST/host_genomes/GRCh38_index/grch38_1kgmaj \
-	--slurm_mem 120G --slurm_threads 24
+	--slurm_mem 30G --slurm_threads 24
 # correct script as the shell command needs to be anchored!
+mv /fast2/def-ilafores/Bee/preproc/preprocessed_reads.sample.tsv $MC/$dataset/preproc/
 
 # Find arrays of missing samples:
 missing_samples=$(grep -n -v -f <(ls $dataset/preproc/*/*_1.fastq.gz | awk -F'/' '{print $3}') $dataset/raw/samples_to_process.tsv | cut -f1 -d: | tr '\n' ','); echo $missing_samples
@@ -67,7 +80,7 @@ nice -n10 ionice -c2 -n7 rclone copy $dir /fast2/def-ilafores/preproc --transfer
 done
 
 # rearrange tsvs to point to new path
-for tsv in $(find $ILAFORES/analysis/ -name "preprocessed_reads.sample.tsv"); do
+for tsv in $(find $ILAFORES/analysis/ -maxdepth 4 -name "preprocessed_reads.sample.tsv"); do
 	dir=$(dirname $tsv)
 	sed "s|/nfs3_ib/nfs-ip34||g" ${tsv} > ${tsv}.fast
 	sed -i "s|/net/nfs-ip34||g" ${tsv}.fast
@@ -126,6 +139,14 @@ bash $k2_local --tsv ${SALIVA_TSV}.fast --confidence 0.90 --output $MC/P19_Saliv
 bash $k2_local --tsv ${SALIVA_TSV}.fast --confidence 0.10 --output $MC/P19_Saliva/KB10_GTDB --kraken_db $k2_gtdb --threads 24
 bash $k2_local --tsv ${SALIVA_TSV}.fast --confidence 0.45 --output $MC/P19_Saliva/KB45_GTDB --kraken_db $k2_gtdb --threads 24
 bash $k2_local --tsv ${SALIVA_TSV}.fast --confidence 0.90 --output $MC/P19_Saliva/KB90_GTDB --kraken_db $k2_gtdb --threads 24
+
+# Bee
+bash $k2_local --tsv ${BEE_TSV}.fast --confidence 0.10 --output $MC/Bee/KB10 --kraken_db $k2_std --threads 16
+bash $k2_local --tsv ${BEE_TSV}.fast --confidence 0.45 --output $MC/Bee/KB45 --kraken_db $k2_std --threads 16
+bash $k2_local --tsv ${BEE_TSV}.fast --confidence 0.90 --output $MC/Bee/KB90 --kraken_db $k2_std --threads 16
+bash $k2_local --tsv ${BEE_TSV}.fast --confidence 0.10 --output $MC/Bee/KB10_GTDB --kraken_db $k2_gtdb --threads 16
+bash $k2_local --tsv ${BEE_TSV}.fast --confidence 0.45 --output $MC/Bee/KB45_GTDB --kraken_db $k2_gtdb --threads 16
+bash $k2_local --tsv ${BEE_TSV}.fast --confidence 0.90 --output $MC/Bee/KB90_GTDB --kraken_db $k2_gtdb --threads 16
 
 # Record % sequence classification
 cd $MC; find . -name '*.kreport' ! -name '*bracken*' -exec awk '
