@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #SBATCH --mail-type=END,FAIL
-#SBATCH -D /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison
-#SBATCH -o /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/logs/mOTU-%A_%a.slurm.out
+#SBATCH -D /net/nfs-ip34/home/def-ilafores/analysis/MethodsComparison
+#SBATCH -o /net/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/logs/mOTU-%A_%a.slurm.out
 #SBATCH --time=24:00:00
 #SBATCH --mem=31G
 #SBATCH -N 1
@@ -11,7 +11,7 @@
 #SBATCH -J motus
 
 # Load motus
-source /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/activate
+source /net/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/activate
 ml mugqic/bwa
 
 export OUT_DIR=${PWD}/"${1}"/MOTUS
@@ -19,6 +19,12 @@ export SAM_LIST=$ANCHOR/"${2}"
 export SAM_NUM=$(awk "NR==$SLURM_ARRAY_TASK_ID" ${SAM_LIST})
 IFS=$'\t' read -r SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2 <<< "$SAM_NUM" # array it up
 export SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2
+for var in FQ_P1 FQ_P2 FQ_U1 FQ_U2; do
+    if [[ "${!var}" != ${ANCHOR}/* && "${!var}" != /nfs3_ib/* ]]; then
+        declare "$var"="${ANCHOR}/${!var}"
+    fi
+done
+
 echo "processing $SAM_ID files:\
 	$FQ_P1 \
 	$FQ_P2 \

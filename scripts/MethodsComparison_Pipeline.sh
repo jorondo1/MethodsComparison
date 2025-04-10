@@ -64,8 +64,8 @@ sbatch --array=1-"$NUM_Moss" $MC/scripts/motus_SLURM.sh Moss $MOSS_TSV
 sbatch --array=1-"$NUM_NAFLD" $MC/scripts/motus_SLURM.sh NAFLD $NAFLD_TSV
 sbatch --array=1-"$NUM_AD_Skin" $MC/scripts/motus_SLURM.sh AD_Skin $AD_Skin_TSV
 sbatch --array=1-"$NUM_PD" $MC/scripts/motus_SLURM.sh PD $PD_TSV
-sbatch --array=1-"$NUM_BEE" $MC/scripts/motus_SLURM.sh PD $PD_TSV.fast
-sbatch --array=1-"$NUM_OLIVE" $MC/scripts/motus_SLURM.sh PD $PD_TSV
+sbatch --array=1-"$NUM_BEE" $MC/scripts/motus_SLURM.sh BEE $BEE_TSV.fast
+sbatch --array=1-"$NUM_OLIVE" $MC/scripts/motus_SLURM.sh OLIVE $OLIVE_TSV
 
 # Check completion status
 check_output 'MOTUS' 'PD' _profile.txt
