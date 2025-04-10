@@ -1,0 +1,6 @@
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/AD_Skin/preproc/SRR20002454/SRR20002454_paired_1.fastq -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/AD_Skin/preproc/SRR20002454/SRR20002454_paired_2.fastq -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/AD_Skin/preproc/SRR20002454/SRR20002454_unmatched_1.fastq -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/AD_Skin/preproc/SRR20002454/SRR20002454_unmatched_2.fastq -n SRR20002454 -t 24 -c -p -k mOTU -q
+#mOTU	consensus_taxonomy	NCBI_tax_id	SRR20002454
+ref_mOTU_v31_00201	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Pseudomonas|s__Pseudomonas aeruginosa	2|1224|1236|72274|135621|286|287	1
+ref_mOTU_v31_02801	k__Bacteria|p__Firmicutes|c__Bacilli|o__Bacillales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus warneri	2|1239|91061|1385|90964|1279|1292	3
+unassigned	unassigned	NA	4

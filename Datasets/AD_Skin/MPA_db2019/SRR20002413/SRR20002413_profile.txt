@@ -1,0 +1,21 @@
+#mpa_v30_CHOCOPhlAn_201901
+#/usr/local/bin/metaphlan --mpa3 -t rel_ab --input_type fastq --add_viruses --unclassified_estimation --offline --tmp_dir /localscratch/ronj2303.5826010.0 --bowtie2db /nfs3_ib/nfs-ip34/fast/def-ilafores/metaphlan3_db -x mpa_v30_CHOCOPhlAn_201901 --bowtie2out /localscratch/ronj2303.5826010.0/SRR20002413.bowtie2.txt --nproc 24 -o /localscratch/ronj2303.5826010.0/SRR20002413_profile.txt /localscratch/ronj2303.5826010.0/all_reads.fastq
+#55926 reads processed
+#SampleID	Metaphlan_Analysis
+#clade_name	NCBI_tax_id	relative_abundance	additional_species
+UNCLASSIFIED	-1	87.092	
+k__Viruses	10239	12.222798635133518	
+k__Bacteria	2	0.68520456972579	
+k__Viruses|p__Viruses_unclassified	10239|	12.222798635133518	
+k__Bacteria|p__Firmicutes	2|1239	0.68520456972579	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified	10239||	12.222798635133518	
+k__Bacteria|p__Firmicutes|c__Bacilli	2|1239|91061	0.68520456972579	
+k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales	2|1239|91061|186826	0.68520456972579	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified|o__Caudovirales|f__Siphoviridae	10239|||28883|10699	12.222798635133518	
+k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Streptococcaceae	2|1239|91061|186826|1300	0.68520456972579	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified|o__Caudovirales|f__Siphoviridae|g__Siphoviridae_unclassified	10239|||28883|10699|	12.222798635133518	
+k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Streptococcaceae|g__Streptococcus	2|1239|91061|186826|1300|1301	0.68520456972579	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified|o__Caudovirales|f__Siphoviridae|g__Siphoviridae_unclassified|s__Pseudomonas_phage_F10	10239|||28883|10699||347324	4.997121749508722	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified|o__Caudovirales|f__Siphoviridae|g__Siphoviridae_unclassified|s__Pseudomonas_phage_B3	10239|||28883|10699||151599	4.262354319877233	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified|o__Caudovirales|f__Siphoviridae|g__Siphoviridae_unclassified|s__Pseudomonas_phage_phi297	10239|||28883|10699||1129145	2.9633225657475633	
+k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Streptococcaceae|g__Streptococcus|s__Streptococcus_mitis	2|1239|91061|186826|1300|1301|28037	0.68520456972579	k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Streptococcaceae|g__Streptococcus|s__Streptococcus_sp_HMSC063B03,k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Streptococcaceae|g__Streptococcus|s__Streptococcus_sp_UMB0029,k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Streptococcaceae|g__Streptococcus|s__Streptococcus_sp_HMSC073F11,k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Streptococcaceae|g__Streptococcus|s__Streptococcus_sp_KR,k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Streptococcaceae|g__Streptococcus|s__Streptococcus_sp_NM,k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Streptococcaceae|g__Streptococcus|s__Streptococcus_sp_HMSC077D04,k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Streptococcaceae|g__Streptococcus|s__Streptococcus_sp_CCUG_49591,k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Streptococcaceae|g__Streptococcus|s__Streptococcus_sp_NPS_308

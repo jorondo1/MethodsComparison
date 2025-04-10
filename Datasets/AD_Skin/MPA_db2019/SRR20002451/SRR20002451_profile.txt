@@ -1,0 +1,17 @@
+#mpa_v30_CHOCOPhlAn_201901
+#/usr/local/bin/metaphlan --mpa3 -t rel_ab --input_type fastq --add_viruses --unclassified_estimation --offline --tmp_dir /localscratch/ronj2303.5826003.0 --bowtie2db /nfs3_ib/nfs-ip34/fast/def-ilafores/metaphlan3_db -x mpa_v30_CHOCOPhlAn_201901 --bowtie2out /localscratch/ronj2303.5826003.0/SRR20002451.bowtie2.txt --nproc 24 -o /localscratch/ronj2303.5826003.0/SRR20002451_profile.txt /localscratch/ronj2303.5826003.0/all_reads.fastq
+#44391 reads processed
+#SampleID	Metaphlan_Analysis
+#clade_name	NCBI_tax_id	relative_abundance	additional_species
+UNCLASSIFIED	-1	98.60484	
+k__Viruses	10239	1.3951604336443102	
+k__Viruses|p__Viruses_unclassified	10239|	1.3951604336443102	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified	10239||	1.3951604336443102	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified|o__Caudovirales|f__Siphoviridae	10239|||28883|10699	1.2663714998220834	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified|o__Caudovirales|f__Podoviridae	10239|||28883|10744	0.12878893382222667	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified|o__Caudovirales|f__Siphoviridae|g__Siphoviridae_unclassified	10239|||28883|10699|	1.2663714998220834	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified|o__Caudovirales|f__Podoviridae|g__Bpp1virus	10239|||28883|10744|542959	0.12878893382222667	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified|o__Caudovirales|f__Siphoviridae|g__Siphoviridae_unclassified|s__Pseudomonas_phage_phi297	10239|||28883|10699||1129145	0.6249784396280423	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified|o__Caudovirales|f__Siphoviridae|g__Siphoviridae_unclassified|s__Pseudomonas_phage_B3	10239|||28883|10699||151599	0.38381533206563123	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified|o__Caudovirales|f__Siphoviridae|g__Siphoviridae_unclassified|s__Pseudomonas_phage_F10	10239|||28883|10699||347324	0.25757786764445334	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified|o__Caudovirales|f__Podoviridae|g__Bpp1virus|s__Burkholderia_virus_BcepC6B	10239|||28883|10744|542959|279280	0.12878893382222667	

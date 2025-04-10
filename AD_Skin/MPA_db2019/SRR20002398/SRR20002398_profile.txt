@@ -1,6 +1,0 @@
-#mpa_v30_CHOCOPhlAn_201901
-#/usr/local/bin/metaphlan --mpa3 -t rel_ab --input_type fastq --add_viruses --unclassified_estimation --offline --tmp_dir /localscratch/ronj2303.5826071.0 --bowtie2db /nfs3_ib/nfs-ip34/fast/def-ilafores/metaphlan3_db -x mpa_v30_CHOCOPhlAn_201901 --bowtie2out /localscratch/ronj2303.5826071.0/SRR20002398.bowtie2.txt --nproc 24 -o /localscratch/ronj2303.5826071.0/SRR20002398_profile.txt /localscratch/ronj2303.5826071.0/all_reads.fastq
-#21500 reads processed
-#SampleID	Metaphlan_Analysis
-#clade_name	NCBI_tax_id	relative_abundance	additional_species
-UNCLASSIFIED	-1	100.0	

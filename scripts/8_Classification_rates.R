@@ -30,7 +30,8 @@ class_rate %>%
   left_join(Dataset_n_labels, by = 'Dataset') %>% 
   filter(Sample %in% pull(sample_subset, Sample)) %>% 
   ggplot(aes(x = Tool, y = Rate, fill = Database)) +
-  geom_boxplot() +
+  geom_boxplot(width = 0.5, #alpha = 0.7,
+               position = position_dodge(width=0.5)) +
   facet_grid(~Dataset_n) +
   theme_light()
 

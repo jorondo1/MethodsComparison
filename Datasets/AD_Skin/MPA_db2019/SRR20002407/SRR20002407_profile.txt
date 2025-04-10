@@ -1,0 +1,14 @@
+#mpa_v30_CHOCOPhlAn_201901
+#/usr/local/bin/metaphlan --mpa3 -t rel_ab --input_type fastq --add_viruses --unclassified_estimation --offline --tmp_dir /localscratch/ronj2303.5825974.0 --bowtie2db /nfs3_ib/nfs-ip34/fast/def-ilafores/metaphlan3_db -x mpa_v30_CHOCOPhlAn_201901 --bowtie2out /localscratch/ronj2303.5825974.0/SRR20002407.bowtie2.txt --nproc 24 -o /localscratch/ronj2303.5825974.0/SRR20002407_profile.txt /localscratch/ronj2303.5825974.0/all_reads.fastq
+#24572 reads processed
+#SampleID	Metaphlan_Analysis
+#clade_name	NCBI_tax_id	relative_abundance	additional_species
+UNCLASSIFIED	-1	98.80973	
+k__Viruses	10239	1.1902712158829467	
+k__Viruses|p__Viruses_unclassified	10239|	1.1902712158829467	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified	10239||	1.1902712158829467	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified|o__Caudovirales|f__Siphoviridae	10239|||28883|10699	1.1902712158829467	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified|o__Caudovirales|f__Siphoviridae|g__Siphoviridae_unclassified	10239|||28883|10699|	1.1902712158829467	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified|o__Caudovirales|f__Siphoviridae|g__Siphoviridae_unclassified|s__Pseudomonas_phage_phi297	10239|||28883|10699||1129145	0.5810873128888934	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified|o__Caudovirales|f__Siphoviridae|g__Siphoviridae_unclassified|s__Pseudomonas_phage_F10	10239|||28883|10699||347324	0.3384355281138345	
+k__Viruses|p__Viruses_unclassified|c__Viruses_unclassified|o__Caudovirales|f__Siphoviridae|g__Siphoviridae_unclassified|s__Pseudomonas_phage_PAJU2	10239|||28883|10699||504346	0.27074837488021897	

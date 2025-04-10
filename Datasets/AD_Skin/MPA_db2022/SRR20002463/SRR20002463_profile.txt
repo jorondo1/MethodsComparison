@@ -1,0 +1,20 @@
+#mpa_vOct22_CHOCOPhlAnSGB_202212
+#/usr/local/bin/metaphlan -t rel_ab --input_type fastq --add_viruses --unclassified_estimation --offline --tmp_dir /localscratch/ronj2303.5824527.0 --bowtie2db /nfs3_ib/nfs-ip34/fast/def-ilafores/metaphlan4_db -x mpa_vOct22_CHOCOPhlAnSGB_202212 --bowtie2out /localscratch/ronj2303.5824527.0/SRR20002463.bowtie2.txt --nproc 24 -o /localscratch/ronj2303.5824527.0/SRR20002463_profile.txt /localscratch/ronj2303.5824527.0/all_reads.fastq
+#61680 reads processed
+#SampleID	Metaphlan_Analysis
+#clade_name	NCBI_tax_id	relative_abundance	additional_species
+UNCLASSIFIED	-1	64.38384	
+k__Bacteria	2	35.616155274124615	
+k__Bacteria|p__Actinobacteria	2|201174	26.031402687916756	
+k__Bacteria|p__Fusobacteria	2|32066	9.58475258620786	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia	2|201174|1760	26.031402687916756	
+k__Bacteria|p__Fusobacteria|c__Fusobacteriia	2|32066|203490	9.58475258620786	
+k__Bacteria|p__Fusobacteria|c__Fusobacteriia|o__Fusobacteriales	2|32066|203490|203491	9.58475258620786	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Corynebacteriales|f__Corynebacteriaceae	2|201174|1760|85007|1653	26.031402687916756	
+k__Bacteria|p__Fusobacteria|c__Fusobacteriia|o__Fusobacteriales|f__Fusobacteriaceae	2|32066|203490|203491|203492	9.58475258620786	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Corynebacteriales|f__Corynebacteriaceae|g__Corynebacterium	2|201174|1760|85007|1653|1716	26.031402687916756	
+k__Bacteria|p__Fusobacteria|c__Fusobacteriia|o__Fusobacteriales|f__Fusobacteriaceae|g__Fusobacterium	2|32066|203490|203491|203492|848	9.58475258620786	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Corynebacteriales|f__Corynebacteriaceae|g__Corynebacterium|s__Corynebacterium_jeikeium	2|201174|1760|85007|1653|1716|38289	26.031402687916756	
+k__Bacteria|p__Fusobacteria|c__Fusobacteriia|o__Fusobacteriales|f__Fusobacteriaceae|g__Fusobacterium|s__Fusobacterium_nucleatum	2|32066|203490|203491|203492|848|851	9.58475258620786	
+k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Corynebacteriales|f__Corynebacteriaceae|g__Corynebacterium|s__Corynebacterium_jeikeium|t__SGB17045	2|201174|1760|85007|1653|1716|38289|	26.031402687916756	k__Bacteria|p__Actinobacteria|c__Actinomycetia|o__Corynebacteriales|f__Corynebacteriaceae|g__Corynebacterium|s__Corynebacterium_sp_HMSC08A12
+k__Bacteria|p__Fusobacteria|c__Fusobacteriia|o__Fusobacteriales|f__Fusobacteriaceae|g__Fusobacterium|s__Fusobacterium_nucleatum|t__SGB6007	2|32066|203490|203491|203492|848|851|	9.58475258620786	k__Bacteria|p__Fusobacteria|c__Fusobacteriia|o__Fusobacteriales|f__Fusobacteriaceae|g__Fusobacterium|s__Fusobacterium_sp_CM1,k__Bacteria|p__Fusobacteria|c__Fusobacteriia|o__Fusobacteriales|f__Fusobacteriaceae|g__Fusobacterium|s__Fusobacterium_sp_HMSC065F01
