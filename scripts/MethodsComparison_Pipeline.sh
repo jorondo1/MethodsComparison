@@ -58,14 +58,14 @@ sbatch --array="$missing_samples" /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/M
 ############
 # mOTUs ####
 # Custom SLURM script
-sbatch --array=1-"$NUM_P19_Saliva" $MC/scripts/motus_SLURM.sh P19_Saliva $SALIVA_TSV
-sbatch --array=1-"$NUM_P19_Gut" $MC/scripts/motus_SLURM.sh P19_Gut $FECES_TSV
-sbatch --array=1-"$NUM_Moss" $MC/scripts/motus_SLURM.sh Moss $MOSS_TSV
-sbatch --array=1-"$NUM_NAFLD" $MC/scripts/motus_SLURM.sh NAFLD $NAFLD_TSV
-sbatch --array=1-"$NUM_AD_Skin" $MC/scripts/motus_SLURM.sh AD_Skin $AD_Skin_TSV
-sbatch --array=1-"$NUM_PD" $MC/scripts/motus_SLURM.sh PD $PD_TSV
-sbatch --array=1-"$NUM_BEE" $MC/scripts/motus_SLURM.sh BEE $BEE_TSV.fast
-sbatch --array=1-"$NUM_OLIVE" $MC/scripts/motus_SLURM.sh OLIVE $OLIVE_TSV
+sbatch --array=1-"$NUM_P19_Saliva" $MC/scripts/motus_SLURM.sh P19_Saliva $SALIVA_TSV.fast
+sbatch --array=1-"$NUM_P19_Gut" $MC/scripts/motus_SLURM.sh P19_Gut $FECES_TSV.fast
+sbatch --array=1-"$NUM_Moss" $MC/scripts/motus_SLURM.sh Moss $MOSS_TSV.fast
+sbatch --array=1-"$NUM_NAFLD" $MC/scripts/motus_SLURM.sh NAFLD $NAFLD_TSV.fast
+sbatch --array=1-"$NUM_AD_Skin" $MC/scripts/motus_SLURM.sh AD_Skin $AD_Skin_TSV.fast
+sbatch --array=1-"$NUM_PD" $MC/scripts/motus_SLURM.sh PD $PD_TSV.fast
+sbatch --array=1-"$NUM_BEE" $MC/scripts/motus_SLURM.sh Bee $BEE_TSV.fast
+sbatch --array=1-"$NUM_OLIVE" $MC/scripts/motus_SLURM.sh Olive $OLIVE_TSV.fast
 
 # Check completion status
 check_output 'MOTUS' 'PD' _profile.txt
@@ -228,6 +228,11 @@ $metaphlan --sample_tsv $PD_TSV --db $FAST/metaphlan4_db/mpa_vJun23_CHOCOPhlAnSG
 sbatch --array=1-"$NUM_PD" $MC/PD/MPA_db2022/metaphlan.slurm.sh
 sbatch --array=1-"$NUM_PD" $MC/PD/MPA_db2023/metaphlan.slurm.sh
 
+$metaphlan --sample_tsv $BEE_TSV --db $FAST/metaphlan4_db/mpa_vOct22_CHOCOPhlAnSGB_202212 --out $MC/Bee/MPA_db2022
+$metaphlan --sample_tsv $BEE_TSV --db $FAST/metaphlan4_db/mpa_vJun23_CHOCOPhlAnSGB_202307 --out $MC/Bee/MPA_db2023
+sbatch --array=1-"$NUM_BEE" $MC/Bee/MPA_db2022/metaphlan.slurm.sh
+sbatch --array=1-"$NUM_BEE" $MC/Bee/MPA_db2023/metaphlan.slurm.sh
+
 #singularity exec -e -B $ILAFORES:$ILAFORES -B $FAST:$FAST $ILAFORES/programs/ILL_pipelines/containers/humann.3.6.sif metaphlan \
 #	-t rel_ab --input_type fastq --unclassified_estimation --mpa3 \
 #	--bowtie2db $FAST/metaphlan3_db \
@@ -274,6 +279,10 @@ sbatch --mem=80G -n 16 --array=1-"$NUM_AD_Skin" $MC/scripts/gather_SLURM_fast.sh
 sbatch --mem=120G -n 24 --array=1-"$NUM_PD" $MC/scripts/gather_SLURM_fast.sh "PD" $PD_TSV "genbank-2022.03"
 sbatch --mem=31G -n 24 --array=1-"$NUM_PD" $MC/scripts/gather_SLURM_fast.sh "PD" $PD_TSV "gtdb-rs214-rep"
 sbatch --mem=80G -n 16 --array=1-"$NUM_PD" $MC/scripts/gather_SLURM_fast.sh "PD" $PD_TSV "gtdb-rs214-full"
+
+sbatch --mem=120G -n 24 --array=1-"$NUM_BEE" $MC/scripts/gather_SLURM_fast.sh "Bee" $BEE_TSV.fast "genbank-2022.03"
+sbatch --mem=31G -n 24 --array=1-"$NUM_BEE" $MC/scripts/gather_SLURM_fast.sh "Bee" $BEE_TSV.fast "gtdb-rs220-rep"
+sbatch --mem=80G -n 16 --array=1-"$NUM_BEE" $MC/scripts/gather_SLURM_fast.sh "Bee" $BEE_TSV.fast "gtdb-rs214-full"
 
 # Check completion status
 check_output 'gtdb-rs214-rep gtdb-rs214-full genbank-2022.03' 'PD' _gather.csv
