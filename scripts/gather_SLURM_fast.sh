@@ -10,14 +10,16 @@
 #SBATCH -J sourmash
 start_time=$(date +%s)
 
+export ILAFORES=$ANCHOR/$ILAFORES
 # Load sourmash
 export sourmash="singularity exec --writable-tmpfs -e -B ${ANCHOR}/home:${ANCHOR}/home ${ILAFORES}/programs/ILL_pipelines/containers/sourmash.4.8.11.sif sourmash"
 module load StdEnv/2020 apptainer/1.1.5
 
 # Parse options
-export SAM_LIST="${2}"
+export SAM_LIST="${ANCHOR}/${2}"
 export SM_DB="${3}"
 export OUT_DIR=${PWD}/"${1}"/SM_${SM_DB}
+echo "Exporting to $OUT_DIR"
 
 # Parse samples
 export SAM_NUM=$(awk "NR==$SLURM_ARRAY_TASK_ID" ${SAM_LIST})
