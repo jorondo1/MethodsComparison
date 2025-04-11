@@ -12,7 +12,6 @@ start_time=$(date +%s)
 
 export ILAFORES=$ANCHOR/$ILAFORES
 # Load sourmash
-export sourmash="singularity exec --writable-tmpfs -e -B ${ANCHOR}/fast2/def-ilafores:${ANCHOR}/fast2/def-ilafores ${ILAFORES}/programs/ILL_pipelines/containers/sourmash.4.8.11.sif sourmash"
 module load StdEnv/2020 apptainer/1.1.5
 
 # Parse options
@@ -31,7 +30,9 @@ for var in FQ_P1 FQ_P2 FQ_U1 FQ_U2; do
     fi
 done
 
-export SIG="${OUT_DIR}/../signatures/${SAM_ID}.sig"
+export sourmash="singularity exec --writable-tmpfs -e -B ${ANCHOR}/fast2/def-ilafores:${ANCHOR}/fast2/def-ilafores ${ILAFORES}/programs/ILL_pipelines/containers/sourmash.4.8.11.sif sourmash"
+
+export SIG=$(realpath "${OUT_DIR}/../signatures/${SAM_ID}.sig")
 
 mkdir -p $OUT_DIR/../signatures
 
