@@ -1,0 +1,19 @@
+# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
+# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /net/nfs-ip34//fast2/def-ilafores/Bee/preproc/SRR13256647/SRR13256647_paired_1.fastq -r /net/nfs-ip34//fast2/def-ilafores/Bee/preproc/SRR13256647/SRR13256647_paired_2.fastq -s /net/nfs-ip34//fast2/def-ilafores/Bee/preproc/SRR13256647/SRR13256647_unmatched_1.fastq -s /net/nfs-ip34//fast2/def-ilafores/Bee/preproc/SRR13256647/SRR13256647_unmatched_2.fastq -n SRR13256647 -t 24 -c -p -k mOTU -q
+#mOTU	consensus_taxonomy	NCBI_tax_id	SRR13256647
+ref_mOTU_v31_02990	k__Bacteria|p__Proteobacteria|c__Betaproteobacteria|o__Neisseriales|f__Neisseriaceae|g__Snodgrassella|s__Snodgrassella alvi	2|1224|28216|206351|481|1193515|1196083	2
+ref_mOTU_v31_03000	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella apicola	2|1224|1236|1240482|1240483|1193503|1196095	5
+ref_mOTU_v31_03003	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella sp. [Gilliamella sp. N-G2/Gilliamella sp. N-W3]	2|1224|1236|1240482|1240483|1193503|NA	1
+ref_mOTU_v31_03004	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella apis	2|1224|1236|1240482|1240483|1193503|1970738	2
+ref_mOTU_v31_03219	k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus kimbladii	2|1239|91061|186826|33958|1578|1218506	1
+ref_mOTU_v31_04091	k__Bacteria|p__Actinobacteria|c__Actinobacteria|o__Bifidobacteriales|f__Bifidobacteriaceae|g__Bifidobacterium|s__Bifidobacterium coryneforme/indicum	2|201174|1760|85004|31953|1678|NA	1
+ref_mOTU_v31_06179	k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus apis	2|1239|91061|186826|33958|1578|303541	3
+ref_mOTU_v31_07398	k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus melliventris	2|1239|91061|186826|33958|1578|1218507	2
+ref_mOTU_v31_07399	k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus mellis	2|1239|91061|186826|33958|1578|1218508	3
+ref_mOTU_v31_07764	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Frischella|s__Frischella perrara	2|1224|1236|1240482|1240483|1335631|1267021	1
+ext_mOTU_v31_16209	k__Bacteria|p__Proteobacteria|c__Gammaproteobacteria|o__Enterobacterales|f__Yersiniaceae|g__Rahnella|s__Rahnella species incertae sedis	2|1224|1236|91347|1903411|34037|NA	2
+ext_mOTU_v31_16216	k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus species incertae sedis	2|1239|91061|186826|33958|1578|NA	1
+ext_mOTU_v31_16217	k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus species incertae sedis	2|1239|91061|186826|33958|1578|NA	1
+ext_mOTU_v31_16218	k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus species incertae sedis	2|1239|91061|186826|33958|1578|NA	1
+ext_mOTU_v31_16225	k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus species incertae sedis	2|1239|91061|186826|33958|1578|NA	1
+unassigned	unassigned	NA	4
