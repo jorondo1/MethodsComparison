@@ -25,6 +25,12 @@ echo "Exporting to $OUT_DIR"
 export SAM_NUM=$(awk "NR==$SLURM_ARRAY_TASK_ID" ${SAM_LIST})
 IFS=$'\t' read -r SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2 <<< "$SAM_NUM" # array it up
 export SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2
+for var in FQ_P1 FQ_P2 FQ_U1 FQ_U2; do
+    if [[ "${!var}" != ${ANCHOR}/* && "${!var}" != /nfs3_ib/* ]]; then
+        declare "$var"="${ANCHOR}/${!var}"
+    fi
+done
+
 export SIG="${OUT_DIR}/../signatures/${SAM_ID}.sig"
 
 mkdir -p $OUT_DIR/../signatures
