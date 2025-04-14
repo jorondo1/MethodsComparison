@@ -57,7 +57,7 @@ meta_parsing <- function(dsName, samData) {
     ) %>% species_glom() %>%
       assemble_phyloseq(samData)
   }
-
+  
   # METAPHLAN ######################
   mpadirs <- list.dirs(dsName, recursive = FALSE) %>% 
     .[grep("/MPA_[^/]*$", .)] %>% basename
@@ -70,7 +70,7 @@ meta_parsing <- function(dsName, samData) {
       convert_to_counts = TRUE) %>% 
       assemble_phyloseq(samData)
   }
-
+  
   return(ps)
 }
 
@@ -83,14 +83,14 @@ NAFLD_meta <- read_delim('NAFLD/raw/ENA_report.tsv') %>%
   mutate(Group = case_when(is.na(NAFLD) ~ 'Positive',
                            TRUE ~ NAFLD), .keep = 'unused') %>% 
   mutate(Group = as.factor(case_when(Group == 'Negative' ~ 0,
-                            Group == 'Positive' ~ 1))) %>% 
+                                     Group == 'Positive' ~ 1))) %>% 
   column_to_rownames('sample_title')
 
 AD_skin_meta <- read_delim('AD_Skin/raw/ENA_report.tsv') %>% 
   dplyr::select(run_accession, sample_alias, run_accession) %>% 
   mutate(sample_alias = str_remove(sample_alias, ' ')) %>% 
   right_join(read_delim('AD_Skin/raw/metadata.tsv'),
-            join_by(sample_alias == SampleID)) %>% 
+             join_by(sample_alias == SampleID)) %>% 
   dplyr::select(-`Sample Location`) %>% 
   mutate(BGA = `Birth Gestational Age (weeks)`, 
          Group = case_when(Group == 'control' ~ 0,
@@ -107,7 +107,7 @@ RA_meta <- read.delim('RA_Gut/raw/metadata.tsv') %>%
 Bee_meta <- read_delim('Bee/raw/filereport_read_run_PRJNA685398_tsv.txt') %>% 
   select(run_accession, library_name) %>% 
   mutate(Group = as.factor(str_extract_all(library_name, "[A-Za-z]") %>% 
-           sapply(paste, collapse = "")),
+                             sapply(paste, collapse = "")),
          .keep = 'unused') %>% 
   column_to_rownames('run_accession')
 
@@ -183,9 +183,10 @@ ps_rare.ls[['Family']] <- lapply(ps_rare.ls[['Species']], function(ds) {
 })
 
 
-write_rds(ps_full.ls, "Out/ps_full.ls.rds")
+write_rds(ps_full.ls, "Out/ps_full.ls.RDS")
+write_rds(ps_raw.ls, "Out/ps_raw.ls.RDS")
 #write_rds(ps_filt.ls, "Out/ps_filt.ls.rds")
-write_rds(ps_rare.ls, "Out/ps_rare.ls.rds")
+write_rds(ps_rare.ls, "Out/ps_rare.ls.RDS")
 
 
 # ps_rare.ls <- lapply(ps_raw.ls, function(sublist) {
