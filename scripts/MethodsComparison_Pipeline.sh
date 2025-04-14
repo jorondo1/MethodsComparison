@@ -154,7 +154,7 @@ sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "
 check_output 'gtdb-rs214-rep gtdb-rs214-full genbank-2022.03 gtdb-reps-rs220' $DATASET _gather.csv
 
 # Extract Sourmash lineage subset
-for i in P19_Saliva P19_Gut PD AD_Skin RA_Gut Bee Olive NAFLD; do
+for i in P19_Saliva P19_Gut PD AD_Skin Moss RA_Gut Bee Olive NAFLD; do
 for j in SM_gtdb-rs214-full SM_gtdb-rs214-rep SM_genbank-2022.03 SM_gtdb-rs220-rep; do
 	db=$(echo "$j" | cut -d'_' -f2 | cut -d'-' -f1,2)
 	ver=$(echo "$j" | cut -d'_' -f3)
