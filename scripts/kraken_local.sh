@@ -76,6 +76,8 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
     
     if [[ -f "${out_subdir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT" ]]; then
         echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Skipping ${out_subdir} - outputs already exist" 
+        grep "s__" ${out_subdir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT > tmp.TXT
+        mv tmp.TXT "${out_subdir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT"
         continue
     fi
 
@@ -125,7 +127,9 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
     python3 /KrakenTools-1.2/kreport2mpa.py --display-header \\
         -r \"${out_subdir}/${sample}_bracken/${sample}_bracken_S.kreport\" \\
         -o \"${out_subdir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT\"
-"
+        
+    "
+
 iter_end=$(date +%s)
 iter_time=$((iter_end - iter_start))
 echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Completed ${sample} in ${iter_time} seconds"
