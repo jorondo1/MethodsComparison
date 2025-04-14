@@ -104,6 +104,18 @@ RA_meta <- read.delim('RA_Gut/raw/metadata.tsv') %>%
             Group = as.factor(str_extract(sample_alias, "^[A-Za-z]+"))) %>% 
   column_to_rownames('Sample')
 
+Bee_meta <- read_delim('Bee/raw/filereport_read_run_PRJNA685398_tsv.txt') %>% 
+  select(run_accession, library_name) %>% 
+  mutate(Group = as.factor(str_extract_all(library_name, "[A-Za-z]") %>% 
+           sapply(paste, collapse = ""),
+         .keep = 'unused'))
+
+read_delim('Olive/raw/filereport_read_run_PRJNA629675_tsv.txt') %>% 
+  select(run_accession, library_name) %>% 
+  mutate(Group = as.factor(
+    str_extract(library_name, regex(paste(c('Kal', 'FS'), collapse = "|")))),
+    .keep = 'unused')
+
 # Full phyloseq objects 
 ps_raw.ls <- list()
 ps_raw.ls[['P19_Saliva']] <- meta_parsing('P19_Saliva', psSalivaKB@sam_data)
@@ -117,9 +129,9 @@ ps_raw.ls$Moss$MOTUS <- NULL
 ps_raw.ls[['NAFLD']] <- meta_parsing('NAFLD', NAFLD_meta)
 ps_raw.ls[['AD_Skin']] <- meta_parsing('AD_Skin', AD_skin_meta)
 ps_raw.ls[['RA_Gut']] <- meta_parsing('RA_Gut', RA_meta)
-ps_raw.ls[['Bee']] <- meta_parsing('Bee', RA_meta)
-ps_raw.ls[['Olive']] <- meta_parsing('Olive', RA_meta)
-ps_raw.ls[['PD']] <- meta_parsing('PD', RA_meta)
+ps_raw.ls[['Bee']] <- meta_parsing('Bee', Bee_meta)
+ps_raw.ls[['Olive']] <- meta_parsing('Olive', Olive_meta)
+ps_raw.ls[['PD']] <- meta_parsing('PD', PD_meta)
 
 # Prevalence+Abundance filtering, currently hardcoded in filter_low_prevalence()
 ps_filt.ls <- lapply(ps_raw.ls, function(ds) {
