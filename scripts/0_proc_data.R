@@ -110,7 +110,7 @@ Bee_meta <- read_delim('Bee/raw/filereport_read_run_PRJNA685398_tsv.txt') %>%
            sapply(paste, collapse = ""),
          .keep = 'unused'))
 
-read_delim('Olive/raw/filereport_read_run_PRJNA629675_tsv.txt') %>% 
+PD_meta <- read_delim('Olive/raw/filereport_read_run_PRJNA629675_tsv.txt') %>% 
   select(run_accession, library_name) %>% 
   mutate(Group = as.factor(
     str_extract(library_name, regex(paste(c('Kal', 'FS'), collapse = "|")))),
