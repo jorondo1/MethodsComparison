@@ -2,14 +2,14 @@
 
 # Verify output for all datasets
 check_output() {
-	if [ $# -lt 3 ]; then
+	if [ $# -lt 2 ]; then
 	        echo "!!Usage: my_function <'database1 database2 ... databaseN'> <filename_suffix>"
 	        echo "Depends on variables exported by DATASET function."
 	        return 1  # Exit the function with a non-zero status
 	fi
 	
     if [[ -z "$DATASET" || -z "$TSV" ]]; then
-		echo "\$DATASET not set. Run dataset_variables <DATASET> <TSV> to declare variables."
+		echo "\$DATASET or \$TSV Wnot set. Run dataset_variables <DATASET> <TSV> to declare variables."
 		return 1
 	fi
 	
