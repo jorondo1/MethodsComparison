@@ -3,31 +3,34 @@
 # Verify output for all datasets
 check_output() {
 	if [ $# -lt 3 ]; then
-	        echo "!!Usage: my_function <'database1 database2 ... databaseN'> <DATASETS> <filename_suffix>"
+	        echo "!!Usage: my_function <'database1 database2 ... databaseN'> <filename_suffix>"
+	        echo "Depends on variables exported by DATASET function."
 	        return 1  # Exit the function with a non-zero status
 	fi
-	filename_suffix="$3"
-	DATASETS="$2"
+	
+    if [[ -z "${!DATASET+x}" || -z "${!TSV+x}" ]]; then
+		echo "\$DATASET not set. Run dataset <DATASET> <TSV> to declare variables."
+		return 1
+	fi
+	
 	DATABASES="$1"
+	filename_suffix="$2"
 
 	for db in $DATABASES; do
-		for ds in $DATASETS; do
-			TSV_name="${ds}_TSV"
-			TSV="${!TSV_name}"
-			eval exp=\$NUM_$ds
-
-			found=$(find $ds/*$db -type f -name "*$filename_suffix" -exec basename {} \; | sed "s/${filename_suffix}//" | sed "s/_${db}//")
-			num=$(echo $found | wc -w)
-			echo "$num $db output for $ds found, $exp expected."
-			if [ "$num" -lt "$exp" ]; then 
+		
+		found=$(find $DATASET/*$db -type f -name "*$filename_suffix" -exec basename {} \; | sed "s/${filename_suffix}//" | sed "s/_${db}//")
+		
+		num=$(echo $found | wc -w)
+		echo "$num $db output for $DATASET found, $N_SAMPLES expected."
+		
+		if [ "$num" -lt "$exp" ]; then 
 			grep -nv -E "${found}" $TSV | cut -d: -f1| paste -s -d,
-			fi
-		done
+		fi
 	done
 }
 
 # Function to export variable names
-dataset() {
+dataset_variables() {
     declare -g "DATASET"="$1"
     declare -g "TSV"="$2"
     declare -g "N_SAMPLES"=$(wc -l < "$2")
