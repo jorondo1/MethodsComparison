@@ -2,88 +2,83 @@ export MC=$ILAFORES/analysis/MethodsComparison
 export ILL_PIPELINES=$ILAFORES/analysis/MethodsComparison/ILL_pipelines
 cd $MC
 source scripts/myFunctions.sh
-export SALIVA_TSV=$PR19/Saliva/preproc/preprocessed_reads.sample.tsv
-export FECES_TSV=$PR19/Feces/preproc/preprocessed_reads.sample.tsv
-export MOSS_TSV=$MOSS/preproc/preprocessed_reads.sample.tsv
-export NAFLD_TSV=$MC/NAFLD/preproc/preprocessed_reads.sample.tsv
-export AD_Skin_TSV=$MC/AD_Skin/preproc/preprocessed_reads.sample.tsv
-export PD_TSV=$MC/PD/preproc/preprocessed_reads.sample.tsv
-export BEE_TSV=$MC/Bee/preproc/preprocessed_reads.sample.tsv
-export OLIVE_TSV=$MC/Olive/preproc/preprocessed_reads.sample.tsv
-export NUM_P19_Saliva=$(wc $SALIVA_TSV | awk '{print $1}')
-export NUM_P19_Gut=$(wc $FECES_TSV | awk '{print $1}')
-export NUM_Moss=$(wc $MOSS_TSV | awk '{print $1}')
-export NUM_NAFLD=$(wc $NAFLD_TSV | awk '{print $1}')
-export NUM_AD_Skin=$(wc $AD_Skin_TSV | awk '{print $1}')
-export NUM_PD=$(wc $PD_TSV | awk '{print $1}')
-export NUM_BEE=$(wc $BEE_TSV | awk '{print $1}')
-export NUM_OLIVE=$(wc $OLIVE_TSV | awk '{print $1}')
-export DATASETS="P19_Saliva P19_Gut Moss NAFLD AD_Skin PD"
 
+# Function to export variable names
+dataset() {
+    declare -g "TSV"="$2"
+    declare -g "N_SAMPLES"=$(wc -l < "$2")
+    
+    echo "\$DATASET evaluates to $1"
+    echo "\$TSV evaluates to $TSV"
+    echo "\$N_SAMPLES evaluates to $N_SAMPLES"
+}
+
+# Create <dataset>_TSV and NUM_<dataset> variables
+# Choose the one to work with :
+dataset "P19_Saliva" "$PR19/Saliva/preproc/preprocessed_reads.sample.tsv"
+dataset "P19_Gut" "$PR19/Feces/preproc/preprocessed_reads.sample.tsv"
+dataset "Moss" "$MOSS/preproc/preprocessed_reads.sample.tsv"
+dataset "NAFLD" "$MC/NAFLD/preproc/preprocessed_reads.sample.tsv"
+dataset "AD_Skin" "$MC/NAFLD/preproc/preprocessed_reads.sample.tsv"
+dataset "PD" "$MC/PD/preproc/preprocessed_reads.sample.tsv"
+dataset "Bee" "$MC/Bee/preproc/preprocessed_reads.sample.tsv"
+dataset "Olive" "$MC/Olive/preproc/preprocessed_reads.sample.tsv"
+	
 ######################
 # QC #################
 ######################
 
-dataset="Olive"
-mkdir -p $MC/$dataset/raw
+mkdir -p $MC/$DATASET/raw
 
 # Download from ENA tsv file with grep subset
-samples=($(grep "WGS" $MC/$dataset/raw/filereport_*_tsv.txt | cut -f1  | grep -v 'run'))
+samples=($(grep "WGS" $MC/$DATASET/raw/filereport_*_tsv.txt | cut -f1  | grep -v 'run'))
 cd /fast2/def-ilafores/Olive/raw
-grep -E "$(IFS="|"; echo "${samples[*]}")" "$MC/$dataset/raw/" | bash
+grep -E "$(IFS="|"; echo "${samples[*]}")" "$MC/$DATASET/raw/" | bash
 
 # Create TSV
-:> $MC/Bee/raw/samples_to_process.tsv
+:> $MC/$DATASET/raw/samples_to_process.tsv
 for sample in "${samples[@]}"; do
-	fq1=$(find $ANCHOR/fast2/def-ilafores/Bee/raw -type f -name "${sample}_1.fastq.gz")
-	fq2=$(find $ANCHOR/fast2/def-ilafores/Bee/raw -type f -name "${sample}_2.fastq.gz")
-	echo -e "${sample}\t${fq1}\t${fq2}" >> $MC/Bee/raw/samples_to_process.tsv
+	fq1=$(find $ANCHOR/fast2/def-ilafores/$DATASET/raw -type f -name "${sample}_1.fastq.gz")
+	fq2=$(find $ANCHOR/fast2/def-ilafores/$DATASET/raw -type f -name "${sample}_2.fastq.gz")
+	echo -e "${sample}\t${fq1}\t${fq2}" >> $MC/$DATASET/raw/samples_to_process.tsv
 done
 
-#Process fecal samples
-mkdir -p $MC/$dataset/preproc
+#Process samples
+mkdir -p /fast2/def-ilafores/$DATASET/preproc/logs
 bash $ANCHOR/$ILAFORES/programs/ILL_pipelines/generateslurm_preprocess.kneaddata.sh \
-	--sample_tsv $ANCHOR/$MC/$dataset/raw/samples_to_process.tsv \
-	--out $ANCHOR/fast2/def-ilafores/Bee/preproc \
+	--sample_tsv $ANCHOR/$MC/$DATASET/raw/samples_to_process.tsv \
+	--out $ANCHOR/fast2/def-ilafores/$DATASET/preproc \
 	--trimmomatic_options "SLIDINGWINDOW:4:20 MINLEN:50" \
 	--db $FAST/host_genomes/GRCh38_index/grch38_1kgmaj \
 	--slurm_mem 30G --slurm_threads 24
 # correct script as the shell command needs to be anchored!
-mv /fast2/def-ilafores/Bee/preproc/preprocessed_reads.sample.tsv $MC/$dataset/preproc/
+cp -r /fast2/def-ilafores/$DATASET/preproc/* $DATASET/preproc/
 
 # Find arrays of missing samples:
-missing_samples=$(grep -n -v -f <(ls $dataset/preproc/*/*_1.fastq.gz | awk -F'/' '{print $3}') $dataset/raw/samples_to_process.tsv | cut -f1 -d: | tr '\n' ','); echo $missing_samples
+missing_samples=$(grep -n -v -f <(ls $DATASET/preproc/*/*_1.fastq.gz | awk -F'/' '{print $3}') $DATASET/raw/samples_to_process.tsv | cut -f1 -d: | tr '\n' ','); echo $missing_samples
 
-rm -r $dataset/preproc/.throttle
+rm -r $DATASET/preproc/.throttle
 sbatch --array="$missing_samples" /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/PD/preproc/preprocess.kneaddata.slurm.sh
 
 ############
 # mOTUs ####
 # Custom SLURM script
-sbatch --array=1-"$NUM_P19_Saliva" $MC/scripts/motus_SLURM.sh P19_Saliva $SALIVA_TSV.fast
-sbatch --array=1-"$NUM_P19_Gut" $MC/scripts/motus_SLURM.sh P19_Gut $FECES_TSV.fast
-sbatch --array=1-"$NUM_Moss" $MC/scripts/motus_SLURM.sh Moss $MOSS_TSV.fast
-sbatch --array=1-"$NUM_NAFLD" $MC/scripts/motus_SLURM.sh NAFLD $NAFLD_TSV.fast
-sbatch --array=1-"$NUM_AD_Skin" $MC/scripts/motus_SLURM.sh AD_Skin $AD_Skin_TSV.fast
-sbatch --array=1-"$NUM_PD" $MC/scripts/motus_SLURM.sh PD $PD_TSV.fast
-sbatch --array=1-"$NUM_BEE" $MC/scripts/motus_SLURM.sh Bee $BEE_TSV.fast
-sbatch --array=1-"$NUM_OLIVE" $MC/scripts/motus_SLURM.sh Olive $OLIVE_TSV.fast
+sbatch --array=1-"$N_SAMPLES" $MC/scripts/motus_SLURM.sh $DATASET $TSV.fast
 
 # Check completion status
 check_output 'MOTUS' 'PD' _profile.txt
 
 # Rerun missing MOTUS
-dataset="PD"
-rm $dataset/MOTUS/_profile.txt # not sure why that appears
-missing_motus=$(grep -n -v -f <(ls "$dataset/MOTUS/"*_profile.txt | awk -F'/' '{print $3}' | sed 's/_profile\.txt//') "$(eval echo \$${dataset}_TSV)" | cut -f1 -d: | tr '\n' ','); echo "$missing_motus"
-sbatch --array="$missing_motus" $MC/scripts/motus_SLURM.sh $dataset "$(eval echo \$${dataset}_TSV)"
+rm $DATASET/MOTUS/_profile.txt # not sure why that appears
+missing_motus=$(grep -n -v -f <(ls "$DATASET/MOTUS/"*_profile.txt | awk -F'/' '{print $3}' | sed 's/_profile\.txt//') "$(eval echo \$${dataset}_TSV)" | cut -f1 -d: | tr '\n' ','); echo "$missing_motus"
+sbatch --array="$missing_motus" $MC/scripts/motus_SLURM.sh $DATASET "$(eval echo \$${dataset}_TSV)"
 
 ####################
 # Kraken/bracken ###
+# on /fast2/ local #
+####################
 
-## Run kraken local ip34 using /fast2
 # Copy fastqs to /fast2
-
 for dir in $(find $MC -maxdepth 3 -type d -name 'preproc'); do 
 nice -n10 ionice -c2 -n7 rclone copy $dir /fast2/def-ilafores/preproc --transfers 16 --checkers 4 --modify-window 5s --fast-list --no-update-modtime --retries 3 --retries-sleep 30s --low-level-retries 1 -v -L --size-only --exclude "*contam*";
 done
@@ -101,155 +96,55 @@ k2_std=/dev/shm/k2_standard_20241228
 k2_gtdb=/dev/shm/k2_gtdb_genome_reps_20241109
 k2_local=$MC/scripts/kraken_local.sh
 
-# PD
-bash $k2_local --tsv ${PD_TSV}.fast --confidence 0.10 --output $MC/PD/KB10 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${PD_TSV}.fast --confidence 0.45 --output $MC/PD/KB45 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${PD_TSV}.fast --confidence 0.90 --output $MC/PD/KB90 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${PD_TSV}.fast --confidence 0.10 --output $MC/PD/KB10_GTDB --kraken_db $k2_gtdb --threads 12
-bash $k2_local --tsv ${PD_TSV}.fast --confidence 0.45 --output $MC/PD/KB45_GTDB --kraken_db $k2_gtdb --threads 24
-bash $k2_local --tsv ${PD_TSV}.fast --confidence 0.90 --output $MC/PD/KB90_GTDB --kraken_db $k2_gtdb --threads 24
-
-# Moss
-bash $k2_local --tsv ${MOSS_TSV}.fast --confidence 0.10 --output $MC/Moss/KB10 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${MOSS_TSV}.fast --confidence 0.45 --output $MC/Moss/KB45 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${MOSS_TSV}.fast --confidence 0.90 --output $MC/Moss/KB90 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${MOSS_TSV}.fast --confidence 0.10 --output $MC/Moss/KB10_GTDB --kraken_db $k2_gtdb --threads 24
-bash $k2_local --tsv ${MOSS_TSV}.fast --confidence 0.45 --output $MC/Moss/KB45_GTDB --kraken_db $k2_gtdb --threads 24
-bash $k2_local --tsv ${MOSS_TSV}.fast --confidence 0.90 --output $MC/Moss/KB90_GTDB --kraken_db $k2_gtdb --threads 24
-
-# NAFLD
-bash $k2_local --tsv ${NAFLD_TSV}.fast --confidence 0.10 --output $MC/NAFLD/KB10 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${NAFLD_TSV}.fast --confidence 0.45 --output $MC/NAFLD/KB45 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${NAFLD_TSV}.fast --confidence 0.90 --output $MC/NAFLD/KB90 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${NAFLD_TSV}.fast --confidence 0.10 --output $MC/NAFLD/KB10_GTDB --kraken_db $k2_gtdb --threads 24
-bash $k2_local --tsv ${NAFLD_TSV}.fast --confidence 0.45 --output $MC/NAFLD/KB45_GTDB --kraken_db $k2_gtdb --threads 24
-bash $k2_local --tsv ${NAFLD_TSV}.fast --confidence 0.90 --output $MC/NAFLD/KB90_GTDB --kraken_db $k2_gtdb --threads 24
-
-#AD_SKIN
-bash $k2_local --tsv ${AD_Skin_TSV}.fast --confidence 0.10 --output $MC/AD_Skin/KB10 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${AD_Skin_TSV}.fast --confidence 0.45 --output $MC/AD_Skin/KB45 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${AD_Skin_TSV}.fast --confidence 0.90 --output $MC/AD_Skin/KB90 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${AD_Skin_TSV}.fast --confidence 0.10 --output $MC/AD_Skin/KB10_GTDB --kraken_db $k2_gtdb --threads 24
-bash $k2_local --tsv ${AD_Skin_TSV}.fast --confidence 0.45 --output $MC/AD_Skin/KB45_GTDB --kraken_db $k2_gtdb --threads 24
-bash $k2_local --tsv ${AD_Skin_TSV}.fast --confidence 0.90 --output $MC/AD_Skin/KB90_GTDB --kraken_db $k2_gtdb --threads 24
-
-# P19_Feces
-bash $k2_local --tsv ${FECES_TSV}.fast --confidence 0.10 --output $MC/P19_Feces/KB10 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${FECES_TSV}.fast --confidence 0.45 --output $MC/P19_Feces/KB45 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${FECES_TSV}.fast --confidence 0.90 --output $MC/P19_Feces/KB90 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${FECES_TSV}.fast --confidence 0.10 --output $MC/P19_Feces/KB10_GTDB --kraken_db $k2_gtdb --threads 24
-bash $k2_local --tsv ${FECES_TSV}.fast --confidence 0.45 --output $MC/P19_Feces/KB45_GTDB --kraken_db $k2_gtdb --threads 24
-bash $k2_local --tsv ${FECES_TSV}.fast --confidence 0.90 --output $MC/P19_Feces/KB90_GTDB --kraken_db $k2_gtdb --threads 24
-
-# P19_Saliva
-bash $k2_local --tsv ${SALIVA_TSV}.fast --confidence 0.10 --output $MC/P19_Saliva/KB10 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${SALIVA_TSV}.fast --confidence 0.45 --output $MC/P19_Saliva/KB45 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${SALIVA_TSV}.fast --confidence 0.90 --output $MC/P19_Saliva/KB90 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${SALIVA_TSV}.fast --confidence 0.10 --output $MC/P19_Saliva/KB10_GTDB --kraken_db $k2_gtdb --threads 24
-bash $k2_local --tsv ${SALIVA_TSV}.fast --confidence 0.45 --output $MC/P19_Saliva/KB45_GTDB --kraken_db $k2_gtdb --threads 24
-bash $k2_local --tsv ${SALIVA_TSV}.fast --confidence 0.90 --output $MC/P19_Saliva/KB90_GTDB --kraken_db $k2_gtdb --threads 24
-
-# Bee
-bash $k2_local --tsv ${BEE_TSV}.fast --confidence 0.10 --output $MC/Bee/KB10 --kraken_db $k2_std --threads 16
-bash $k2_local --tsv ${BEE_TSV}.fast --confidence 0.45 --output $MC/Bee/KB45 --kraken_db $k2_std --threads 16
-bash $k2_local --tsv ${BEE_TSV}.fast --confidence 0.90 --output $MC/Bee/KB90 --kraken_db $k2_std --threads 16
-bash $k2_local --tsv ${BEE_TSV}.fast --confidence 0.10 --output $MC/Bee/KB10_GTDB --kraken_db $k2_gtdb --threads 16
-bash $k2_local --tsv ${BEE_TSV}.fast --confidence 0.45 --output $MC/Bee/KB45_GTDB --kraken_db $k2_gtdb --threads 16
-bash $k2_local --tsv ${BEE_TSV}.fast --confidence 0.90 --output $MC/Bee/KB90_GTDB --kraken_db $k2_gtdb --threads 16
-
-# Olive
-bash $k2_local --tsv ${OLIVE_TSV}.fast --confidence 0.10 --output $MC/Olive/KB10 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${OLIVE_TSV}.fast --confidence 0.45 --output $MC/Olive/KB45 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${OLIVE_TSV}.fast --confidence 0.90 --output $MC/Olive/KB90 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${OLIVE_TSV}.fast --confidence 0.10 --output $MC/Olive/KB10_GTDB --kraken_db $k2_gtdb --threads 24
-bash $k2_local --tsv ${OLIVE_TSV}.fast --confidence 0.45 --output $MC/Olive/KB45_GTDB --kraken_db $k2_gtdb --threads 24
-bash $k2_local --tsv ${OLIVE_TSV}.fast --confidence 0.90 --output $MC/Olive/KB90_GTDB --kraken_db $k2_gtdb --threads 24
+# RUN KRAKEN ON /fast2/
+bash $k2_local --tsv ${TSV}.fast --confidence 0.10 --output $MC/$DATASET/KB10 --kraken_db $k2_std --threads 24
+bash $k2_local --tsv ${TSV}.fast --confidence 0.45 --output $MC/$DATASET/KB45 --kraken_db $k2_std --threads 24
+bash $k2_local --tsv ${TSV}.fast --confidence 0.90 --output $MC/$DATASET/KB90 --kraken_db $k2_std --threads 24
+bash $k2_local --tsv ${TSV}.fast --confidence 0.10 --output $MC/$DATASET/KB10_GTDB --kraken_db $k2_gtdb --threads 12
+bash $k2_local --tsv ${TSV}.fast --confidence 0.45 --output $MC/$DATASET/KB45_GTDB --kraken_db $k2_gtdb --threads 24
+bash $k2_local --tsv ${TSV}.fast --confidence 0.90 --output $MC/$DATASET/KB90_GTDB --kraken_db $k2_gtdb --threads 24
 
 # Record % sequence classification
-cd $MC; find . -name '*.kreport' ! -name '*bracken*' -exec awk '
+cd "$MC" && find . -name '*.kreport' ! -name '*bracken*' -exec awk '
 FNR==1 {unclassified=$2; next} 
-FNR==2 {classified=$2; printf "%s\t%.5f\n", FILENAME, (classified/(unclassified+classified))}
+FNR==2 {classified=$2; rate=classified/(unclassified+classified); 
+         printf "%s\t%d\t%d\t%.5f\n", FILENAME, classified, unclassified, rate}
 ' {} + > kraken_classification_rate.tsv
 
 # Check completion status
-check_output 'KB10 KB45 KB90' 'PD' _bracken_S.MPA.TXT
+check_output 'KB10 KB45 KB90' $DATASET _bracken_S.MPA.TXT
 
-dataset="PD"
 database="KB90"
-missing_KB=$(grep -n -v -f <(ls $dataset/$database/*/*/*_bracken_S.MPA.TXT | awk -F'/' '{print $3}' | sed 's/_profile\.txt//') $dataset/preproc/preprocessed_reads.sample.tsv | cut -f1 -d: | tr '\n' ','); echo $missing_KB
-sbatch --array="$missing_KB" $MC/$dataset/$database/taxonomic_profile.samples.slurm.sh $dataset "\$${dataset}_TSV"
+missing_KB=$(grep -n -v -f <(ls $DATASET/$database/*/*/*_bracken_S.MPA.TXT | awk -F'/' '{print $3}' | sed 's/_profile\.txt//') $DATASET/preproc/preprocessed_reads.sample.tsv | cut -f1 -d: | tr '\n' ','); echo $missing_KB
+sbatch --array="$missing_KB" $MC/$DATASET/$database/taxonomic_profile.samples.slurm.sh $DATASET "\$${dataset}_TSV"
 
-# Once completely done, remove taxonomy_nt files from kraken out 
-rm */KB*/*/*_taxonomy_nt # heavy
-rm */KB*/*/*/*.bracken # useless format
-rm */KB*/*/*/*.kreport # we want the bracken out, not kraken
-rm */KB*/*/*bugs_list.MPA.TXT # no use
-rm */KB*/*/*/*_temp.MPA.TXT # temp files
-rm */KB*/*/*/*_bracken_[^S].MPA.TXT # Other levels of classification
-rm -r */KB*/*/*_kronagrams # no use
-rm -r */*/.throttle/
+# Once completely done, remove heavy files from kraken out 
+rm */KB*/*/*_taxonomy_nt */KB*/*/*/*.bracken */KB*/*/*/*.kreport */KB*/*/*bugs_list.MPA.TXT */KB*/*/*/*_temp.MPA.TXT */KB*/*/*/*_bracken_[^S].MPA.TXT -r */KB*/*/*_kronagrams -r */*/.throttle/
 
 ################
 # MetaPhlAn4 ###
-metaphlan="bash $ILL_PIPELINES/generateslurm_taxonomic_abundance.metaphlan.sh \
-	--slurm_log $MC/logs --slurm_walltime 24:00:00 --slurm_threads 24 --slurm_mem 30G"
+metaphlan="bash $ANCHOR/$ILL_PIPELINES/generateslurm_taxonomic_abundance.metaphlan.sh \
+	--slurm_log $ANCHOR/$MC/logs --slurm_walltime 24:00:00 --slurm_threads 24 --slurm_mem 30G"
 
 # Generate SLURM scripts https://github.com/jflucier/ILL_pipelines/blob/main/generateslurm_taxonomic_abundance.metaphlan.sh
 # 2022 database
-$metaphlan --sample_tsv $SALIVA_TSV --db $FAST/metaphlan4_db/mpa_vOct22_CHOCOPhlAnSGB_202212 --out $MC/P19_Saliva/MPA_db2022
-$metaphlan --sample_tsv $SALIVA_TSV --db $FAST/metaphlan4_db/mpa_vJun23_CHOCOPhlAnSGB_202307 --out $MC/P19_Saliva/MPA_db2023
-sbatch --array=1-"$NUM_P19_Saliva" $MC/P19_Saliva/MPA_db2022/metaphlan.slurm.sh
-sbatch --array=1-"$NUM_P19_Saliva" $MC/P19_Saliva/MPA_db2023/metaphlan.slurm.sh
 
-$metaphlan --sample_tsv $FECES_TSV --db $FAST/metaphlan4_db/mpa_vOct22_CHOCOPhlAnSGB_202212 --out $MC/P19_Gut/MPA_db2022
-$metaphlan --sample_tsv $FECES_TSV --db $FAST/metaphlan4_db/mpa_vJun23_CHOCOPhlAnSGB_202307 --out $MC/P19_Gut/MPA_db2023
-sbatch --array=1-"$NUM_P19_Gut" $MC/P19_Gut/MPA_db2022/metaphlan.slurm.sh
-sbatch --array=1-"$NUM_P19_Gut" $MC/P19_Gut/MPA_db2023/metaphlan.slurm.sh
+$metaphlan --sample_tsv $ANCHOR/$TSV --db $FAST/metaphlan3_db/mpa_v30_CHOCOPhlAn_201901 --out $ANCHOR/$MC/$DATASET/MPA_db2019
+sbatch --array=1-"$N_SAMPLES" $ANCHOR/$MC/$DATASET/MPA_db2019/metaphlan.slurm.sh
 
-$metaphlan --sample_tsv $MOSS_TSV --db $FAST/metaphlan4_db/mpa_vOct22_CHOCOPhlAnSGB_202212 --out $MC/Moss/MPA_db2022
-$metaphlan --sample_tsv $MOSS_TSV --db $FAST/metaphlan4_db/mpa_vJun23_CHOCOPhlAnSGB_202307 --out $MC/Moss/MPA_db2023
-sbatch --array=1-"$NUM_Moss" $MC/Moss/MPA_db2022/mfetaphlan.slurm.sh
-sbatch --array=1-"$NUM_Moss" $MC/Moss/MPA_db2023/metaphlan.slurm.sh
+$metaphlan --sample_tsv $ANCHOR/$TSV --db $FAST/metaphlan4_db/mpa_vOct22_CHOCOPhlAnSGB_202212 --out $ANCHOR/$MC/$DATASET/MPA_db2022
+sbatch --array=1-"$N_SAMPLES" $ANCHOR/$MC/$DATASET/MPA_db2022/metaphlan.slurm.sh
 
-$metaphlan --sample_tsv $NAFLD_TSV --db $FAST/metaphlan3_db/mpa_v30_CHOCOPhlAn_201901 --out $MC/NAFLD/MPA_db2019
-$metaphlan --sample_tsv $NAFLD_TSV --db $FAST/metaphlan4_db/mpa_vOct22_CHOCOPhlAnSGB_202212 --out $MC/NAFLD/MPA_db2022
-$metaphlan --sample_tsv $NAFLD_TSV --db $FAST/metaphlan4_db/mpa_vJun23_CHOCOPhlAnSGB_202307 --out $MC/NAFLD/MPA_db2023
-sbatch --array=1-"$NUM_NAFLD" $MC/NAFLD/MPA_db2019/metaphlan.slurm.sh
-sbatch --array=1-"$NUM_NAFLD" $MC/NAFLD/MPA_db2022/metaphlan.slurm.sh
-sbatch --array=1-"$NUM_NAFLD" $MC/NAFLD/MPA_db2023/metaphlan.slurm.sh
-
-$metaphlan --sample_tsv $AD_Skin_TSV --db $FAST/metaphlan3_db/mpa_v30_CHOCOPhlAn_201901 --out $MC/AD_Skin/MPA_db2019
-$metaphlan --sample_tsv $AD_Skin_TSV --db $FAST/metaphlan4_db/mpa_vOct22_CHOCOPhlAnSGB_202212 --out $MC/AD_Skin/MPA_db2022
-$metaphlan --sample_tsv $AD_Skin_TSV --db $FAST/metaphlan4_db/mpa_vJun23_CHOCOPhlAnSGB_202307 --out $MC/AD_Skin/MPA_db2023
-sbatch --array=1-"$NUM_AD_Skin" $MC/AD_Skin/MPA_db2019/metaphlan.slurm.sh
-sbatch --array=1-"$NUM_AD_Skin" $MC/AD_Skin/MPA_db2022/metaphlan.slurm.sh
-sbatch --array=1-"$NUM_AD_Skin" $MC/AD_Skin/MPA_db2023/metaphlan.slurm.sh
-
-$metaphlan --sample_tsv $PD_TSV --db $FAST/metaphlan4_db/mpa_vOct22_CHOCOPhlAnSGB_202212 --out $MC/PD/MPA_db2022
-$metaphlan --sample_tsv $PD_TSV --db $FAST/metaphlan4_db/mpa_vJun23_CHOCOPhlAnSGB_202307 --out $MC/PD/MPA_db2023
-sbatch --array=1-"$NUM_PD" $MC/PD/MPA_db2022/metaphlan.slurm.sh
-sbatch --array=1-"$NUM_PD" $MC/PD/MPA_db2023/metaphlan.slurm.sh
-
-$metaphlan --sample_tsv $BEE_TSV --db $FAST/metaphlan4_db/mpa_vOct22_CHOCOPhlAnSGB_202212 --out $MC/Bee/MPA_db2022
-$metaphlan --sample_tsv $BEE_TSV --db $FAST/metaphlan4_db/mpa_vJun23_CHOCOPhlAnSGB_202307 --out $MC/Bee/MPA_db2023
-sbatch --array=1-"$NUM_BEE" $MC/Bee/MPA_db2022/metaphlan.slurm.sh
-sbatch --array=1-"$NUM_BEE" $MC/Bee/MPA_db2023/metaphlan.slurm.sh
-
-#singularity exec -e -B $ILAFORES:$ILAFORES -B $FAST:$FAST $ILAFORES/programs/ILL_pipelines/containers/humann.3.6.sif metaphlan \
-#	-t rel_ab --input_type fastq --unclassified_estimation --mpa3 \
-#	--bowtie2db $FAST/metaphlan3_db \
-#	-x 'mpa_v30_CHOCOPhlAn_201901' \
-#	--nproc 72 $MC/AD_Skin/preproc/SRR20002471/SRR20002471_1.fastq.gz $PWD/test_profile.txt 
-#	
+$metaphlan --sample_tsv $ANCHOR/$TSV --db $FAST/metaphlan4_db/mpa_vJun23_CHOCOPhlAnSGB_202307 --out $ANCHOR/$MC/$DATASET/MPA_db2023
+sbatch --array=1-"$N_SAMPLES" $ANCHOR/$MC/$DATASET/MPA_db2023/metaphlan.slurm.sh
 
 # Rerun missing MPA
-dataset="PD"
 database="MPA_db2023"
-missing_MPA=$(grep -n -v -f <(ls $dataset/$database/*/*_profile.txt | awk -F'/' '{print $3}' | sed 's/_profile\.txt//') $dataset/preproc/preprocessed_reads.sample.tsv | cut -f1 -d: | tr '\n' ','); echo $missing_MPA
-sbatch --array="$missing_MPA" $MC/$dataset/$database/metaphlan.slurm.sh $dataset "\$${dataset}_TSV"
+missing_MPA=$(grep -n -v -f <(ls $DATASET/$database/*/*_profile.txt | awk -F'/' '{print $3}' | sed 's/_profile\.txt//') $DATASET/preproc/preprocessed_reads.sample.tsv | cut -f1 -d: | tr '\n' ','); echo $missing_MPA
+sbatch --array="$missing_MPA" $MC/$DATASET/$database/metaphlan.slurm.sh $DATASET "\$${dataset}_TSV"
 
 # Check completion status
-check_output 'MPA_db2022 MPA_db2023 MPA_db2019' 'PD' _profile.txt
+check_output 'MPA_db2022 MPA_db2023 MPA_db2019' $DATASET _profile.txt
 
 # Remove bowtie indexes
 rm */MPA_db*/*/*.bowtie2.txt
@@ -257,39 +152,17 @@ rm */*/.throttle -r
 
 #####################
 # Sourmash gather ###
+#####################
 
-sbatch --mem=60G -n 16 --array=1-"$NUM_P19_Saliva" $MC/scripts/gather_SLURM.sh "P19_Saliva" $SALIVA_TSV "genbank-2022.03"
-sbatch --mem=31G -n 24 --array=1-"$NUM_P19_Saliva" $MC/scripts/gather_SLURM.sh "P19_Saliva" $SALIVA_TSV "gtdb-rs214-rep"
-sbatch --mem=80G -n 16 --array=1-"$NUM_P19_Saliva" $MC/scripts/gather_SLURM.sh "P19_Saliva" $SALIVA_TSV "gtdb-rs214-full"
-
-sbatch --mem=80G -n 16 --array=1-"$NUM_P19_Gut" $MC/scripts/gather_SLURM.sh "P19_Gut" $FECES_TSV "genbank-2022.03"
-sbatch --mem=31G -n 24 --array=1-"$NUM_P19_Gut" $MC/scripts/gather_SLURM.sh "P19_Gut" $FECES_TSV "gtdb-rs214-rep"
-sbatch --mem=80G -n 16 --array=1-"$NUM_P19_Gut" $MC/scripts/gather_SLURM.sh "P19_Gut" $FECES_TSV "gtdb-rs214-full"
-
-sbatch --mem=80G -n 16 --array=1-"$NUM_Moss" $MC/scripts/gather_SLURM.sh "Moss" $MOSS_TSV "genbank-2022.03"
-sbatch --mem=31G -n 24 --array=1-"$NUM_Moss" $MC/scripts/gather_SLURM.sh "Moss" $MOSS_TSV "gtdb-rs214-rep"
-sbatch --mem=80G -n 16 --array=1-"$NUM_Moss" $MC/scripts/gather_SLURM.sh "Moss" $MOSS_TSV "gtdb-rs214-full"
-
-sbatch --mem=120G -n 24 --array=1-"$NUM_NAFLD" $MC/scripts/gather_SLURM_fast.sh "NAFLD" $NAFLD_TSV "genbank-2022.03"
-sbatch --mem=31G -n 24 --array=1-"$NUM_NAFLD" $MC/scripts/gather_SLURM_fast.sh "NAFLD" $NAFLD_TSV "gtdb-rs214-rep"
-sbatch --mem=31G -n 24 --array=1-"$NUM_NAFLD" $MC/scripts/gather_SLURM_fast.sh "NAFLD" $NAFLD_TSV "gtdb-rs214-full"
-
-sbatch --mem=120G -n 24--array=1-"$NUM_AD_Skin" $MC/scripts/gather_SLURM_fast.sh "AD_Skin" $AD_Skin_TSV "genbank-2022.03"
-sbatch --mem=31G -n 24 --array=1-"$NUM_AD_Skin" $MC/scripts/gather_SLURM_fast.sh "AD_Skin" $AD_Skin_TSV "gtdb-rs214-rep"
-sbatch --mem=80G -n 16 --array=1-"$NUM_AD_Skin" $MC/scripts/gather_SLURM_fast.sh "AD_Skin" $AD_Skin_TSV "gtdb-rs214-full"
-
-sbatch --mem=120G -n 24 --array=1-"$NUM_PD" $MC/scripts/gather_SLURM_fast.sh "PD" $PD_TSV "genbank-2022.03"
-sbatch --mem=31G -n 24 --array=1-"$NUM_PD" $MC/scripts/gather_SLURM_fast.sh "PD" $PD_TSV "gtdb-rs214-rep"
-sbatch --mem=80G -n 16 --array=1-"$NUM_PD" $MC/scripts/gather_SLURM_fast.sh "PD" $PD_TSV "gtdb-rs214-full"
-
-sbatch --mem=120G -n 24 --array=1-"$NUM_BEE" $MC/scripts/gather_SLURM_fast.sh "Bee" $BEE_TSV.fast "genbank-2022.03"
-sbatch --mem=31G -n 24 --array=1-"$NUM_BEE" $MC/scripts/gather_SLURM_fast.sh "Bee" $BEE_TSV.fast "gtdb-rs220-rep" #!!!! NEW VERSION
-sbatch --mem=80G -n 16 --array=1-"$NUM_BEE" $MC/scripts/gather_SLURM_fast.sh "Bee" $BEE_TSV.fast "gtdb-rs214-full"
+sbatch --mem=120G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "genbank-2022.03"
+sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "gtdb-rs214-rep"
+sbatch --mem=80G -n 16 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "gtdb-rs214-full"
+sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "gtdb-reps-rs220"
 
 # Check completion status
-check_output 'gtdb-rs214-rep gtdb-rs214-full genbank-2022.03' 'PD' _gather.csv
+check_output 'gtdb-rs214-rep gtdb-rs214-full genbank-2022.03' $DATASET _gather.csv
 
-# Extract the lineage subset 
+# Extract Sourmash lineage subset
 for i in $DATASETS; do
 for j in SM_gtdb-rs214-full SM_gtdb-rs214-rep SM_genbank-2022.03; do
 	db=$(echo "$j" | cut -d'_' -f2 | cut -d'-' -f1,2)
@@ -312,7 +185,7 @@ grep -v -f <(cut -f1 $ILAFORES/ref_dbs/sourmash_db/bac120_taxonomy_r220.tsv | se
 
 
 ## Remove and Redownload corrupted samples:
-remove_these=($(sed -n "$(echo $missing_samples | sed 's/,/p;/g' | sed 's/;$//')" $dataset/preproc/preprocessed_reads.sample.tsv | awk '{print $1}' ))
+remove_these=($(sed -n "$(echo $missing_samples | sed 's/,/p;/g' | sed 's/;$//')" $DATASET/preproc/preprocessed_reads.sample.tsv | awk '{print $1}' ))
 for sample in "${remove_these[@]}"; do
 	rm PD/raw/${sample}_?.fastq.gz
 done

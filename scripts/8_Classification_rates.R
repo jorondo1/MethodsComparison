@@ -1,7 +1,8 @@
 library(pacman)
 p_load(tidyverse)
 
-class_rate <- read_tsv('kraken_classification_rate.tsv', col_names = c('path','Rate')) %>% 
+class_rate <- read_tsv('kraken_classification_rate.tsv', 
+                       col_names = c('path','classified','unclassified','Rate')) %>% 
   separate(path, into = c('dot','Dataset', 'Tool', 'Sample', 'Report' ),
            sep = '/') %>% 
   select(-dot, -Report) %>% 
