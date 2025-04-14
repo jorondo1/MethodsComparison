@@ -24,7 +24,7 @@ check_output() {
 		echo "$num_found $db output for $DATASET found, $N_SAMPLES expected."
 		
 		if [ "$num_found" -lt "$N_SAMPLES" ]; then 
-			grep -nv -E "${found}" $TSV | cut -d: -f1| paste -s -d,
+			grep -nv -E "${found}" "$TSV" | cut -d: -f1| paste -s -d,
 		fi
 	done
 }
