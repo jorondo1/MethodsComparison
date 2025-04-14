@@ -1,25 +1,24 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Gilliamella apicola	1196095	S	1220	5174	6394	0.27237
-Gilliamella apis	1970738	S	709	1077	1786	0.07608
-Gilliamella sp. wkB7	3120264	S	255	1341	1596	0.06799
-Frischella perrara	1267021	S	1428	2172	3600	0.15335
-Rahnella bonaserana	2816248	S	24	75	99	0.00422
-Ewingella americana	41202	S	1	1	2	0.00009
-Escherichia coli	562	S	2	415	417	0.01776
-Snodgrassella alvi	1196083	S	1429	1144	2573	0.10961
-Herbaspirillum huttiense	863372	S	1	42	43	0.00183
-Commensalibacter melissae	2070537	S	91	78	169	0.00720
-Lactobacillus apis	303541	S	966	662	1628	0.06935
-Lactobacillus sp. IBH004	2879107	S	610	849	1459	0.06215
-Lactobacillus sp. wkB8	1545702	S	1	22	23	0.00098
-Lactobacillus kullabergensis	1218493	S	201	370	571	0.02432
-Lactobacillus helsingborgensis	1218494	S	52	569	621	0.02645
-Apilactobacillus kunkeei	148814	S	575	475	1050	0.04473
-Bombilactobacillus mellifer	1218492	S	2	6	8	0.00034
-Caproicibacterium lactatifermentans	2666138	S	4	0	4	0.00017
-Ethanoligenens harbinense	253239	S	1	0	1	0.00004
-Bifidobacterium coryneforme	1687	S	77	46	123	0.00524
-Bifidobacterium asteroides	1684	S	68	13	81	0.00345
-Mycolicibacterium doricum	126673	S	1	0	1	0.00004
-Apis mellifera filamentous virus	1100043	S	1206	3	1209	0.05150
-Badaztecvirus badaztec1	2843847	S	6	0	6	0.00026
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_sp._wkB7	1596
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_apicola	6394
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_apis	1786
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Frischella|s__Frischella_perrara	3600
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Escherichia|s__Escherichia_coli	417
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Yersiniaceae|g__Rahnella|s__Rahnella_bonaserana	99
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Yersiniaceae|g__Ewingella|s__Ewingella_americana	2
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Neisseriales|f__Neisseriaceae|g__Snodgrassella|s__Snodgrassella_alvi	2573
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Burkholderiales|f__Oxalobacteraceae|g__Herbaspirillum|s__Herbaspirillum_huttiense	43
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Commensalibacter|s__Commensalibacter_melissae	169
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_sp._IBH004	1459
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_sp._wkB8	23
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_apis	1628
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_kullabergensis	571
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_helsingborgensis	621
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Apilactobacillus|s__Apilactobacillus_kunkeei	1050
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Bombilactobacillus|s__Bombilactobacillus_mellifer	8
+k__Bacteria|k__Bacillati|p__Bacillota|c__Clostridia|o__Eubacteriales|f__Oscillospiraceae|g__Caproicibacterium|s__Caproicibacterium_lactatifermentans	4
+k__Bacteria|k__Bacillati|p__Bacillota|c__Clostridia|o__Eubacteriales|f__Oscillospiraceae|g__Ethanoligenens|s__Ethanoligenens_harbinense	1
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Bifidobacteriales|f__Bifidobacteriaceae|g__Bifidobacterium|s__Bifidobacterium_coryneforme	123
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Bifidobacteriales|f__Bifidobacteriaceae|g__Bifidobacterium|s__Bifidobacterium_asteroides	81
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Mycobacteriaceae|g__Mycolicibacterium|s__Mycolicibacterium_doricum	1
+k__Viruses|s__Apis_mellifera_filamentous_virus	1209
+k__Viruses|k__Heunggongvirae|p__Uroviricota|c__Caudoviricetes|g__Badaztecvirus|s__Badaztecvirus_badaztec1	6

@@ -1,32 +1,31 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Gilliamella apis	1970738	S	558	800	1358	0.07593
-Gilliamella apicola	1196095	S	320	1457	1777	0.09936
-Gilliamella sp. wkB7	3120264	S	44	216	260	0.01454
-Frischella perrara	1267021	S	670	1736	2406	0.13453
-Citrobacter sp. RHB35-C21	2742626	S	1	332	333	0.01862
-Escherichia coli	562	S	1	927	928	0.05189
-Pluralibacter gergoviae	61647	S	1	23	24	0.00134
-Pantoea agglomerans	549	S	5	64	69	0.00386
-Winslowiella toletana	92490	S	1	10	11	0.00062
-Stenotrophomonas maltophilia	40324	S	1	10	11	0.00062
-Snodgrassella alvi	1196083	S	977	2018	2995	0.16746
-Commensalibacter melissae	2070537	S	287	651	938	0.05245
-Bartonella apihabitans	2750929	S	42	39	81	0.00453
-Muribaculum intestinale	1796646	S	8	2	10	0.00056
-Muribaculum gordoncarteri	2530390	S	6	11	17	0.00095
-Paramuribaculum intestinale	2094151	S	9	4	13	0.00073
-Duncaniella dubosii	2518971	S	1	2	3	0.00017
-Lactobacillus apis	303541	S	503	351	854	0.04775
-Lactobacillus panisapium	2012495	S	385	272	657	0.03673
-Lactobacillus sp. IBH004	2879107	S	359	359	718	0.04015
-Lactobacillus sp. wkB8	1545702	S	13	204	217	0.01213
-Lactobacillus helsingborgensis	1218494	S	299	2325	2624	0.14672
-Lactobacillus kullabergensis	1218493	S	81	117	198	0.01107
-Lactobacillus melliventris	1218507	S	6	1037	1043	0.05832
-Lactobacillus kimbladii	1218506	S	2	35	37	0.00207
-Apilactobacillus kunkeei	148814	S	75	96	171	0.00956
-Apilactobacillus apinorum	1218495	S	3	3	6	0.00034
-Bombilactobacillus mellifer	1218492	S	1	4	5	0.00028
-Bifidobacterium asteroides	1684	S	50	16	66	0.00369
-Bifidobacterium coryneforme	1687	S	15	19	34	0.00190
-Apis mellifera filamentous virus	1100043	S	5	0	5	0.00028
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_apis	1358
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_apicola	1777
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_sp._wkB7	260
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Frischella|s__Frischella_perrara	2406
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Escherichia|s__Escherichia_coli	928
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Citrobacter|s__Citrobacter_sp._RHB35-C21	333
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Pluralibacter|s__Pluralibacter_gergoviae	24
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Erwiniaceae|g__Pantoea|s__Pantoea_agglomerans	69
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Erwiniaceae|g__Winslowiella|s__Winslowiella_toletana	11
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Lysobacterales|f__Lysobacteraceae|g__Stenotrophomonas|s__Stenotrophomonas_maltophilia	11
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Neisseriales|f__Neisseriaceae|g__Snodgrassella|s__Snodgrassella_alvi	2995
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Commensalibacter|s__Commensalibacter_melissae	938
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Bartonellaceae|g__Bartonella|s__Bartonella_apihabitans	81
+k__Bacteria|k__Pseudomonadati|p__Bacteroidota|c__Bacteroidia|o__Bacteroidales|f__Muribaculaceae|g__Muribaculum|s__Muribaculum_intestinale	10
+k__Bacteria|k__Pseudomonadati|p__Bacteroidota|c__Bacteroidia|o__Bacteroidales|f__Muribaculaceae|g__Muribaculum|s__Muribaculum_gordoncarteri	17
+k__Bacteria|k__Pseudomonadati|p__Bacteroidota|c__Bacteroidia|o__Bacteroidales|f__Muribaculaceae|g__Paramuribaculum|s__Paramuribaculum_intestinale	13
+k__Bacteria|k__Pseudomonadati|p__Bacteroidota|c__Bacteroidia|o__Bacteroidales|f__Muribaculaceae|g__Duncaniella|s__Duncaniella_dubosii	3
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_sp._IBH004	718
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_sp._wkB8	217
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_apis	854
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_panisapium	657
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_helsingborgensis	2624
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_kullabergensis	198
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_melliventris	1043
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_kimbladii	37
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Apilactobacillus|s__Apilactobacillus_kunkeei	171
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Apilactobacillus|s__Apilactobacillus_apinorum	6
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Bombilactobacillus|s__Bombilactobacillus_mellifer	5
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Bifidobacteriales|f__Bifidobacteriaceae|g__Bifidobacterium|s__Bifidobacterium_asteroides	66
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Bifidobacteriales|f__Bifidobacteriaceae|g__Bifidobacterium|s__Bifidobacterium_coryneforme	34
+k__Viruses|s__Apis_mellifera_filamentous_virus	5

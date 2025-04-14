@@ -1,42 +1,41 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Xylella fastidiosa	2371	S	92038	23732	115770	0.95157
-Stenotrophomonas maltophilia	40324	S	2	4	6	0.00005
-Xanthomonas albilineans	29447	S	1	0	1	0.00001
-Pantoea agglomerans	549	S	904	3028	3932	0.03232
-Pantoea vagans	470934	S	4	56	60	0.00049
-Aeromonas salmonicida	645	S	1	4	5	0.00004
-Methylobacterium sp. WL1	2603276	S	69	81	150	0.00123
-Methylobacterium fujisawaense	107400	S	3	55	58	0.00048
-Candidatus Liberibacter africanus	34020	S	32	12	44	0.00036
-Sphingomonas aerolata	185951	S	17	31	48	0.00039
-Sphingomonas aliaeris	2759526	S	3	7	10	0.00008
-Roseomonas haemaphysalidis	2768162	S	1	1	2	0.00002
-Acidovorax sp. BLS4	3273430	S	1	858	859	0.00706
-Aquabacterium olei	1296669	S	1	84	85	0.00070
-Caldimonas aquatica	376175	S	1	32	33	0.00027
-Neisseria meningitidis	487	S	2	0	2	0.00002
-Neisseria elongata	495	S	1	0	1	0.00001
-Hydrogenophilus thermoluteolus	297	S	1	0	1	0.00001
-Prevotella denticola	28129	S	2	0	2	0.00002
-Prevotella intermedia	28131	S	1	0	1	0.00001
-Porphyromonas endodontalis	28124	S	1	0	1	0.00001
-Campylobacter rectus	203	S	2	0	2	0.00002
-Cutibacterium acnes	1747	S	146	147	293	0.00241
-Cutibacterium granulosum	33011	S	2	3	5	0.00004
-Microlunatus sagamiharensis	546874	S	11	7	18	0.00015
-Curtobacterium sp. C1	2898151	S	2	32	34	0.00028
-Frigoribacterium sp. R86507	3093850	S	3	12	15	0.00012
-Frigoribacterium sp. NBH87	2596916	S	2	10	12	0.00010
-Kocuria rhizophila	72000	S	1	12	13	0.00011
-Corynebacterium kefirresidentii	1979527	S	1	3	4	0.00003
-Corynebacterium tuberculostearicum	38304	S	1	5	6	0.00005
-Streptomyces sp. T12	477697	S	1	0	1	0.00001
-Kineococcus sp. NBC_00420	2903564	S	1	0	1	0.00001
-Lactiplantibacillus pentosus	1589	S	11	14	25	0.00021
-Lactiplantibacillus plantarum	1590	S	1	2	3	0.00002
-Staphylococcus epidermidis	1282	S	1	8	9	0.00007
-Staphylococcus pasteuri	45972	S	1	6	7	0.00006
-Blautia wexlerae	418240	S	1	6	7	0.00006
-Metamycoplasma faucium	56142	S	1	0	1	0.00001
-Homo sapiens	9606	S	1	116	117	0.00096
-Tobacco mosaic virus	12242	S	1	0	1	0.00001
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Lysobacterales|f__Lysobacteraceae|g__Xylella|s__Xylella_fastidiosa	115770
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Lysobacterales|f__Lysobacteraceae|g__Stenotrophomonas|s__Stenotrophomonas_maltophilia	6
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Lysobacterales|f__Lysobacteraceae|g__Xanthomonas|s__Xanthomonas_albilineans	1
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Erwiniaceae|g__Pantoea|s__Pantoea_agglomerans	3932
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Erwiniaceae|g__Pantoea|s__Pantoea_vagans	60
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Aeromonadales|f__Aeromonadaceae|g__Aeromonas|s__Aeromonas_salmonicida	5
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Acidovorax|s__Acidovorax_sp._BLS4	859
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Burkholderiales|g__Aquabacterium|s__Aquabacterium_olei	85
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Burkholderiales|f__Sphaerotilaceae|g__Caldimonas|s__Caldimonas_aquatica	33
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Neisseriales|f__Neisseriaceae|g__Neisseria|s__Neisseria_meningitidis	2
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Neisseriales|f__Neisseriaceae|g__Neisseria|s__Neisseria_elongata	1
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium_sp._WL1	150
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium_fujisawaense	58
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Rhizobiaceae|g__Liberibacter|s__Candidatus_Liberibacter_africanus	44
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas_aerolata	48
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas_aliaeris	10
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Roseomonadaceae|g__Roseomonas|s__Roseomonas_haemaphysalidis	2
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Hydrogenophilia|o__Hydrogenophilales|f__Hydrogenophilaceae|g__Hydrogenophilus|s__Hydrogenophilus_thermoluteolus	1
+k__Bacteria|k__Pseudomonadati|p__Bacteroidota|c__Bacteroidia|o__Bacteroidales|f__Prevotellaceae|g__Prevotella|s__Prevotella_denticola	2
+k__Bacteria|k__Pseudomonadati|p__Bacteroidota|c__Bacteroidia|o__Bacteroidales|f__Prevotellaceae|g__Prevotella|s__Prevotella_intermedia	1
+k__Bacteria|k__Pseudomonadati|p__Bacteroidota|c__Bacteroidia|o__Bacteroidales|f__Porphyromonadaceae|g__Porphyromonas|s__Porphyromonas_endodontalis	1
+k__Bacteria|k__Pseudomonadati|p__Campylobacterota|c__Epsilonproteobacteria|o__Campylobacterales|f__Campylobacteraceae|g__Campylobacter|s__Campylobacter_rectus	2
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Cutibacterium|s__Cutibacterium_acnes	293
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Cutibacterium|s__Cutibacterium_granulosum	5
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Microlunatus|s__Microlunatus_sagamiharensis	18
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Micrococcales|f__Microbacteriaceae|g__Curtobacterium|s__Curtobacterium_sp._C1	34
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Micrococcales|f__Microbacteriaceae|g__Frigoribacterium|s__Frigoribacterium_sp._R86507	15
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Micrococcales|f__Microbacteriaceae|g__Frigoribacterium|s__Frigoribacterium_sp._NBH87	12
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Micrococcales|f__Micrococcaceae|g__Kocuria|s__Kocuria_rhizophila	13
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Corynebacteriaceae|g__Corynebacterium|s__Corynebacterium_tuberculostearicum	6
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Corynebacteriaceae|g__Corynebacterium|s__Corynebacterium_kefirresidentii	4
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Kineosporiales|f__Kineosporiaceae|g__Kineococcus|s__Kineococcus_sp._NBC_00420	1
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Kitasatosporales|f__Streptomycetaceae|g__Streptomyces|s__Streptomyces_sp._T12	1
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactiplantibacillus|s__Lactiplantibacillus_pentosus	25
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactiplantibacillus|s__Lactiplantibacillus_plantarum	3
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_pasteuri	7
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_epidermidis	9
+k__Bacteria|k__Bacillati|p__Bacillota|c__Clostridia|o__Lachnospirales|f__Lachnospiraceae|g__Blautia|s__Blautia_wexlerae	7
+k__Bacteria|k__Bacillati|p__Mycoplasmatota|o__Mycoplasmoidales|f__Metamycoplasmataceae|g__Metamycoplasma|s__Metamycoplasma_faucium	1
+k__Eukaryota|k__Metazoa|p__Chordata|c__Mammalia|o__Primates|f__Hominidae|g__Homo|s__Homo_sapiens	117
+k__Viruses|k__Orthornavirae|p__Kitrinoviricota|c__Alsuviricetes|o__Martellivirales|f__Virgaviridae|g__Tobamovirus|s__Tobacco_mosaic_virus	1

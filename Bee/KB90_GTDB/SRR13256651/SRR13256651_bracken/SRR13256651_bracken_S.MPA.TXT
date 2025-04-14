@@ -1,8 +1,7 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Gilliamella apicola	133069	S	1	141	142	0.12874
-Frischella perrara	133059	S	4	156	160	0.14506
-Snodgrassella alvi	130431	S	2	137	139	0.12602
-Commensalibacter melissae	113763	S	1	28	29	0.02629
-Lactobacillus helsingborgensis	55384	S	4	138	142	0.12874
-Bombilactobacillus mellis	55231	S	1	387	388	0.35177
-Bifidobacterium asteroides_F	42751	S	1	98	99	0.08976
+p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Bombilactobacillus|s__Bombilactobacillus_mellis	388
+p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_helsingborgensis	142
+p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Frischella|s__Frischella_perrara	160
+p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Gilliamella|s__Gilliamella_apicola	142
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Neisseriaceae|g__Snodgrassella|s__Snodgrassella_alvi	139
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Commensalibacter|s__Commensalibacter_melissae	29
+p__Actinomycetota|c__Actinomycetes|o__Actinomycetales|f__Bifidobacteriaceae|g__Bifidobacterium|s__Bifidobacterium_asteroides_F	99

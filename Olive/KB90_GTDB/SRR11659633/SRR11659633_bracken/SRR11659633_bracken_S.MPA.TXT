@@ -1,11 +1,10 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Cutibacterium acnes	48418	S	12	2173	2185	0.60931
-Protofrankia sp917627385	45450	S	9	23	32	0.00892
-Protofrankia californiensis	45447	S	3	19	22	0.00613
-Rothia amarae	45224	S	1	471	472	0.13162
-Afipia sp017474385	120328	S	2	136	138	0.03848
-Bradyrhizobium sp029892425	120642	S	1	13	14	0.00390
-Bradyrhizobium sp003020075	120535	S	1	258	259	0.07223
-Tardiphaga sp002256345	120829	S	1	8	9	0.00251
-Sphingobacterium bovisgrunnientis	90199	S	10	65	75	0.02091
-Staphylococcus epidermidis	57090	S	1	374	375	0.10457
+p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Cutibacterium|s__Cutibacterium_acnes	2185
+p__Actinomycetota|c__Actinomycetes|o__Actinomycetales|f__Micrococcaceae|g__Rothia|s__Rothia_amarae	472
+p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Frankiaceae|g__Protofrankia|s__Protofrankia_sp917627385	32
+p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Frankiaceae|g__Protofrankia|s__Protofrankia_californiensis	22
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Xanthobacteraceae|g__Bradyrhizobium|s__Bradyrhizobium_sp003020075	259
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Xanthobacteraceae|g__Bradyrhizobium|s__Bradyrhizobium_sp029892425	14
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Xanthobacteraceae|g__Afipia|s__Afipia_sp017474385	138
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Xanthobacteraceae|g__Tardiphaga|s__Tardiphaga_sp002256345	9
+p__Bacillota|c__Bacilli|o__Staphylococcales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_epidermidis	375
+p__Bacteroidota|c__Bacteroidia|o__Sphingobacteriales|f__Sphingobacteriaceae|g__Sphingobacterium|s__Sphingobacterium_bovisgrunnientis	75

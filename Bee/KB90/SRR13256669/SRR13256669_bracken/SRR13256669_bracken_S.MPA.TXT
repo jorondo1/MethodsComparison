@@ -1,10 +1,9 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Gilliamella apicola	1196095	S	1	52	53	0.07864
-Gilliamella apis	1970738	S	1	18	19	0.02819
-Gilliamella sp. wkB7	3120264	S	1	44	45	0.06677
-Frischella perrara	1267021	S	8	295	303	0.44955
-Snodgrassella alvi	1196083	S	6	128	134	0.19881
-Commensalibacter melissae	2070537	S	1	19	20	0.02967
-Lactobacillus apis	303541	S	2	40	42	0.06231
-Apilactobacillus kunkeei	148814	S	3	43	46	0.06825
-Apis mellifera filamentous virus	1100043	S	8	0	8	0.01187
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Frischella|s__Frischella_perrara	303
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_sp._wkB7	45
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_apis	19
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_apicola	53
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Neisseriales|f__Neisseriaceae|g__Snodgrassella|s__Snodgrassella_alvi	134
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Commensalibacter|s__Commensalibacter_melissae	20
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Apilactobacillus|s__Apilactobacillus_kunkeei	46
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_apis	42
+k__Viruses|s__Apis_mellifera_filamentous_virus	8

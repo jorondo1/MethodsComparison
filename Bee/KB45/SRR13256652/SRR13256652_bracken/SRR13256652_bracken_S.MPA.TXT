@@ -1,33 +1,32 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Gilliamella apis	1970738	S	1836	3057	4893	0.12042
-Gilliamella apicola	1196095	S	522	2540	3062	0.07536
-Gilliamella sp. wkB7	3120264	S	339	2036	2375	0.05845
-Frischella perrara	1267021	S	2269	3896	6165	0.15172
-Klebsiella oxytoca	571	S	7	191	198	0.00487
-Klebsiella michiganensis	1134687	S	1	83	84	0.00207
-Escherichia albertii	208962	S	1	31	32	0.00079
-Lonsdalea britannica	1082704	S	47	157	204	0.00502
-Gibbsiella quercinecans	929813	S	53	108	161	0.00396
-Serratia fonticola	47917	S	1	2	3	0.00007
-Pantoea agglomerans	549	S	2	17	19	0.00047
-Pseudomonas lundensis	86185	S	1	0	1	0.00002
-Snodgrassella alvi	1196083	S	3236	3071	6307	0.15521
-Commensalibacter melissae	2070537	S	433	406	839	0.02065
-Bartonella apihabitans	2750929	S	67	123	190	0.00468
-Bartonella choladocola	2750995	S	1	3	4	0.00010
-Lactobacillus apis	303541	S	4118	3037	7155	0.17608
-Lactobacillus sp. IBH004	2879107	S	1281	1667	2948	0.07255
-Lactobacillus sp. wkB8	1545702	S	6	124	130	0.00320
-Lactobacillus kullabergensis	1218493	S	463	831	1294	0.03185
-Lactobacillus helsingborgensis	1218494	S	228	2331	2559	0.06298
-Lactobacillus panisapium	2012495	S	202	160	362	0.00891
-Lactobacillus kimbladii	1218506	S	7	165	172	0.00423
-Apilactobacillus kunkeei	148814	S	75	120	195	0.00480
-Apilactobacillus apinorum	1218495	S	3	4	7	0.00017
-Bombilactobacillus mellifer	1218492	S	5	13	18	0.00044
-Planococcus sp. 107-1	2908840	S	1	3	4	0.00010
-Bifidobacterium coryneforme	1687	S	482	264	746	0.01836
-Bifidobacterium asteroides	1684	S	390	68	458	0.01127
-Bifidobacterium actinocoloniiforme	638619	S	2	0	2	0.00005
-Cutibacterium acnes	1747	S	1	3	4	0.00010
-Apis mellifera filamentous virus	1100043	S	27	0	27	0.00066
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_sp._wkB7	2375
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_apis	4893
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_apicola	3062
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Frischella|s__Frischella_perrara	6165
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Klebsiella|s__Klebsiella_oxytoca	198
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Klebsiella|s__Klebsiella_michiganensis	84
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Escherichia|s__Escherichia_albertii	32
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Pectobacteriaceae|g__Lonsdalea|s__Lonsdalea_britannica	204
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Yersiniaceae|g__Gibbsiella|s__Gibbsiella_quercinecans	161
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Yersiniaceae|g__Serratia|s__Serratia_fonticola	3
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Erwiniaceae|g__Pantoea|s__Pantoea_agglomerans	19
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Pseudomonas|s__Pseudomonas_lundensis	1
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Neisseriales|f__Neisseriaceae|g__Snodgrassella|s__Snodgrassella_alvi	6307
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Commensalibacter|s__Commensalibacter_melissae	839
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Bartonellaceae|g__Bartonella|s__Bartonella_apihabitans	190
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Bartonellaceae|g__Bartonella|s__Bartonella_choladocola	4
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_apis	7155
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_sp._IBH004	2948
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_sp._wkB8	130
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_kullabergensis	1294
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_helsingborgensis	2559
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_panisapium	362
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_kimbladii	172
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Apilactobacillus|s__Apilactobacillus_kunkeei	195
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Apilactobacillus|s__Apilactobacillus_apinorum	7
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Bombilactobacillus|s__Bombilactobacillus_mellifer	18
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Caryophanaceae|g__Planococcus|s__Planococcus_sp._107-1	4
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Bifidobacteriales|f__Bifidobacteriaceae|g__Bifidobacterium|s__Bifidobacterium_coryneforme	746
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Bifidobacteriales|f__Bifidobacteriaceae|g__Bifidobacterium|s__Bifidobacterium_asteroides	458
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Bifidobacteriales|f__Bifidobacteriaceae|g__Bifidobacterium|s__Bifidobacterium_actinocoloniiforme	2
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Cutibacterium|s__Cutibacterium_acnes	4
+k__Viruses|s__Apis_mellifera_filamentous_virus	27

@@ -1,32 +1,31 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Lactobacillus apis	303541	S	2501	1846	4347	0.17724
-Lactobacillus sp. IBH004	2879107	S	1101	1220	2321	0.09463
-Lactobacillus sp. wkB8	1545702	S	8	139	147	0.00599
-Lactobacillus kullabergensis	1218493	S	282	455	737	0.03005
-Lactobacillus helsingborgensis	1218494	S	85	733	818	0.03335
-Lactobacillus kimbladii	1218506	S	9	177	186	0.00758
-Lactobacillus melliventris	1218507	S	3	579	582	0.02373
-Lactobacillus panisapium	2012495	S	1	0	1	0.00004
-Bombilactobacillus mellifer	1218492	S	2	6	8	0.00033
-Bombilactobacillus bombi	1303590	S	1	2	3	0.00012
-Latilactobacillus sakei	1599	S	1	6	7	0.00029
-Limosilactobacillus vaginalis	1633	S	1	4	5	0.00020
-Novisyntrophococcus fermenticellae	2068655	S	5	9	14	0.00057
-Bifidobacterium coryneforme	1687	S	555	343	898	0.03661
-Bifidobacterium asteroides	1684	S	488	89	577	0.02353
-Gilliamella apis	1970738	S	680	904	1584	0.06458
-Gilliamella apicola	1196095	S	374	1501	1875	0.07645
-Gilliamella sp. wkB7	3120264	S	87	408	495	0.02018
-Frischella perrara	1267021	S	974	1592	2566	0.10462
-Klebsiella variicola	244366	S	2	414	416	0.01696
-Enterobacter ludwigii	299767	S	5	270	275	0.01121
-Escherichia coli	562	S	1	504	505	0.02059
-Serratia fonticola	47917	S	1	15	16	0.00065
-Snodgrassella alvi	1196083	S	2778	2777	5555	0.22649
-Herbaspirillum huttiense	863372	S	1	30	31	0.00126
-Caldimonas aquatica	376175	S	2	57	59	0.00241
-Bartonella apihabitans	2750929	S	36	129	165	0.00673
-Bartonella choladocola	2750995	S	7	46	53	0.00216
-Commensalibacter melissae	2070537	S	121	85	206	0.00840
-Tabrizicola piscis	2494374	S	1	0	1	0.00004
-Apis mellifera filamentous virus	1100043	S	58	0	58	0.00236
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_apis	1584
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_sp._wkB7	495
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_apicola	1875
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Frischella|s__Frischella_perrara	2566
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Escherichia|s__Escherichia_coli	505
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Klebsiella|s__Klebsiella_variicola	416
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Enterobacter|s__Enterobacter_ludwigii	275
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Yersiniaceae|g__Serratia|s__Serratia_fonticola	16
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Neisseriales|f__Neisseriaceae|g__Snodgrassella|s__Snodgrassella_alvi	5555
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Burkholderiales|f__Sphaerotilaceae|g__Caldimonas|s__Caldimonas_aquatica	59
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Burkholderiales|f__Oxalobacteraceae|g__Herbaspirillum|s__Herbaspirillum_huttiense	31
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Bartonellaceae|g__Bartonella|s__Bartonella_apihabitans	165
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Bartonellaceae|g__Bartonella|s__Bartonella_choladocola	53
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Commensalibacter|s__Commensalibacter_melissae	206
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Rhodobacterales|f__Paracoccaceae|g__Tabrizicola|s__Tabrizicola_piscis	1
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_apis	4347
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_sp._IBH004	2321
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_sp._wkB8	147
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_kullabergensis	737
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_helsingborgensis	818
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_kimbladii	186
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_melliventris	582
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_panisapium	1
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Bombilactobacillus|s__Bombilactobacillus_mellifer	8
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Bombilactobacillus|s__Bombilactobacillus_bombi	3
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Latilactobacillus|s__Latilactobacillus_sakei	7
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Limosilactobacillus|s__Limosilactobacillus_vaginalis	5
+k__Bacteria|k__Bacillati|p__Bacillota|c__Clostridia|o__Lachnospirales|f__Lachnospiraceae|g__Novisyntrophococcus|s__Novisyntrophococcus_fermenticellae	14
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Bifidobacteriales|f__Bifidobacteriaceae|g__Bifidobacterium|s__Bifidobacterium_coryneforme	898
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Bifidobacteriales|f__Bifidobacteriaceae|g__Bifidobacterium|s__Bifidobacterium_asteroides	577
+k__Viruses|s__Apis_mellifera_filamentous_virus	58

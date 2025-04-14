@@ -1,12 +1,11 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Methylobacterium sp022829585	118333	S	1	21	22	0.05432
-Methylobacterium sp022829385	118327	S	1	21	22	0.05432
-Methylobacterium sp022829365	118326	S	1	24	25	0.06173
-Lichenicoccus roseus	113922	S	17	105	122	0.30123
-Acidisoma sp009765865	113615	S	3	10	13	0.03210
-Caballeronia sp001557535	126764	S	4	164	168	0.41481
-Paraburkholderia ginsengisoli	127996	S	1	8	9	0.02222
-Ewingella sp946478305	133054	S	1	0	1	0.00247
-Acidisarcina polymorpha	40108	S	6	7	13	0.03210
-Granulicella_D aggregans_A	40206	S	1	2	3	0.00741
-Granulicella_D sp903642265	40207	S	1	0	1	0.00247
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Lichenicoccus|s__Lichenicoccus_roseus	122
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Acidisoma|s__Acidisoma_sp009765865	13
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829365	25
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829385	22
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829585	22
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia_sp001557535	168
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Paraburkholderia|s__Paraburkholderia_ginsengisoli	9
+p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Ewingella|s__Ewingella_sp946478305	1
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Acidisarcina|s__Acidisarcina_polymorpha	13
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Granulicella_D|s__Granulicella_D_sp903642265	1
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Granulicella_D|s__Granulicella_D_aggregans_A	3

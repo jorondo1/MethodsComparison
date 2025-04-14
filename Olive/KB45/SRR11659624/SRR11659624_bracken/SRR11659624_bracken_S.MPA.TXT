@@ -1,32 +1,31 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Xylella fastidiosa	2371	S	222	2933	3155	0.21111
-Stenotrophomonas maltophilia	40324	S	3	174	177	0.01184
-Xanthomonas albilineans	29447	S	2	6	8	0.00054
-Pantoea agglomerans	549	S	4	59	63	0.00422
-Acinetobacter ursingii	108980	S	2	204	206	0.01378
-Candidatus Liberibacter africanus	34020	S	86	153	239	0.01599
-Methylobacterium sp. WL1	2603276	S	12	44	56	0.00375
-Diaphorobacter sp. JS3051	2792224	S	2	3633	3635	0.24323
-Diaphorobacter sp. ED-3	3016636	S	1	429	430	0.02877
-Acidovorax sp. BLS4	3273430	S	1	285	286	0.01914
-Caldimonas aquatica	376175	S	4	47	51	0.00341
-Cutibacterium acnes	1747	S	289	1899	2188	0.14640
-Cutibacterium granulosum	33011	S	1	17	18	0.00120
-Microlunatus sagamiharensis	546874	S	1	0	1	0.00007
-Nocardioides aquaticus	160826	S	2	4	6	0.00040
-Kocuria palustris	71999	S	1	4	5	0.00033
-Microbacterium galbinum	2851646	S	1	1	2	0.00013
-Corynebacterium sp. Z-1	3074378	S	1	14	15	0.00100
-Streptomyces sp. T12	477697	S	1	6	7	0.00047
-Staphylococcus epidermidis	1282	S	4	800	804	0.05380
-Staphylococcus capitis	29388	S	2	492	494	0.03305
-Staphylococcus auricularis	29379	S	2	49	51	0.00341
-Staphylococcus pasteuri	45972	S	2	248	250	0.01673
-Staphylococcus haemolyticus	1283	S	1	167	168	0.01124
-Staphylococcus hominis	1290	S	1	133	134	0.00897
-Bacillus amyloliquefaciens	1390	S	1	1563	1564	0.10465
-Gemella morbillorum	29391	S	1	107	108	0.00723
-Lactiplantibacillus pentosus	1589	S	12	661	673	0.04503
-Lactiplantibacillus plantarum	1590	S	1	94	95	0.00636
-Streptococcus thermophilus	1308	S	1	38	39	0.00261
-Tobacco mild green mosaic virus	12241	S	1	0	1	0.00007
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Diaphorobacter|s__Diaphorobacter_sp._JS3051	3635
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Diaphorobacter|s__Diaphorobacter_sp._ED-3	430
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Acidovorax|s__Acidovorax_sp._BLS4	286
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Burkholderiales|f__Sphaerotilaceae|g__Caldimonas|s__Caldimonas_aquatica	51
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Lysobacterales|f__Lysobacteraceae|g__Xylella|s__Xylella_fastidiosa	3155
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Lysobacterales|f__Lysobacteraceae|g__Stenotrophomonas|s__Stenotrophomonas_maltophilia	177
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Lysobacterales|f__Lysobacteraceae|g__Xanthomonas|s__Xanthomonas_albilineans	8
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Moraxellales|f__Moraxellaceae|g__Acinetobacter|s__Acinetobacter_ursingii	206
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Erwiniaceae|g__Pantoea|s__Pantoea_agglomerans	63
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Rhizobiaceae|g__Liberibacter|s__Candidatus_Liberibacter_africanus	239
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium_sp._WL1	56
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_epidermidis	804
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_pasteuri	250
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_auricularis	51
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_capitis	494
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_hominis	134
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_haemolyticus	168
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Bacillaceae|g__Bacillus|s__Bacillus_amyloliquefaciens	1564
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Gemellaceae|g__Gemella|s__Gemella_morbillorum	108
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactiplantibacillus|s__Lactiplantibacillus_pentosus	673
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactiplantibacillus|s__Lactiplantibacillus_plantarum	95
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Streptococcaceae|g__Streptococcus|s__Streptococcus_thermophilus	39
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Cutibacterium|s__Cutibacterium_acnes	2188
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Cutibacterium|s__Cutibacterium_granulosum	18
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Microlunatus|s__Microlunatus_sagamiharensis	1
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Nocardioidaceae|g__Nocardioides|s__Nocardioides_aquaticus	6
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Corynebacteriaceae|g__Corynebacterium|s__Corynebacterium_sp._Z-1	15
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Micrococcales|f__Micrococcaceae|g__Kocuria|s__Kocuria_palustris	5
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Micrococcales|f__Microbacteriaceae|g__Microbacterium|s__Microbacterium_galbinum	2
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Kitasatosporales|f__Streptomycetaceae|g__Streptomyces|s__Streptomyces_sp._T12	7
+k__Viruses|k__Orthornavirae|p__Kitrinoviricota|c__Alsuviricetes|o__Martellivirales|f__Virgaviridae|g__Tobamovirus|s__Tobacco_mild_green_mosaic_virus	1

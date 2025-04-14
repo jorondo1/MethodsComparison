@@ -1,33 +1,32 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Methylobacterium sp022829365	118326	S	32	499	531	0.17783
-Methylobacterium sp022829585	118333	S	3	44	47	0.01574
-Methylobacterium sp022829515	118331	S	2	31	33	0.01105
-Lichenihabitans flavocetrariae	118233	S	22	50	72	0.02411
-Acidisoma sp009765865	113615	S	81	338	419	0.14032
-Lichenicoccus roseus	113922	S	43	290	333	0.11152
-LMUY01 sp009765685	113921	S	1	36	37	0.01239
-Sphingomonas_N sp937859915	125357	S	7	46	53	0.01775
-Rhizomicrobium sp021808875	115867	S	1	398	399	0.13362
-Rhizomicrobium sp903922545	115891	S	1	0	1	0.00033
-Caballeronia sp001557535	126764	S	9	289	298	0.09980
-Caballeronia sp011493005	126766	S	1	38	39	0.01306
-Caballeronia sp018449635	126769	S	1	15	16	0.00536
-Paraburkholderia metrosideri	128013	S	4	54	58	0.01942
-Paraburkholderia aspalathi	127967	S	1	15	16	0.00536
-Pararobbsia sp026225235	128132	S	6	5	11	0.00368
-Variovorax sp009765735	129478	S	1	71	72	0.02411
-Rhodanobacter sp903827735	140625	S	2	19	21	0.00703
-Rhodanobacter sp014200755	140600	S	1	235	236	0.07904
-Edaphobacter sp009765825	40142	S	17	49	66	0.02210
-Edaphobacter sp030853485	40162	S	1	0	1	0.00033
-Acidisarcina polymorpha	40108	S	19	35	54	0.01808
-Granulicella mallensis	40165	S	2	9	11	0.00368
-Granulicella paludicola	40167	S	1	2	3	0.00100
-Granulicella_C sibirica	40198	S	2	14	16	0.00536
-Terriglobus roseus	40380	S	1	2	3	0.00100
-Occallatibacter gabretensis	40248	S	1	29	30	0.01005
-Mucilaginibacter sp026224775	89935	S	3	7	10	0.00335
-Mucilaginibacter sp013408825	89912	S	1	2	3	0.00100
-Puia sp013288945	83678	S	4	25	29	0.00971
-JABDGH01 sp026225555	144936	S	4	8	12	0.00402
-Palsa-1515 sp903970385	102220	S	2	35	37	0.01239
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Acidisoma|s__Acidisoma_sp009765865	419
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Lichenicoccus|s__Lichenicoccus_roseus	333
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__LMUY01|s__LMUY01_sp009765685	37
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829365	531
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829585	47
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829515	33
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Lichenihabitans|s__Lichenihabitans_flavocetrariae	72
+p__Pseudomonadota|c__Alphaproteobacteria|o__Micropepsales|f__Micropepsaceae|g__Rhizomicrobium|s__Rhizomicrobium_sp903922545	1
+p__Pseudomonadota|c__Alphaproteobacteria|o__Micropepsales|f__Micropepsaceae|g__Rhizomicrobium|s__Rhizomicrobium_sp021808875	399
+p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas_N|s__Sphingomonas_N_sp937859915	53
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia_sp001557535	298
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia_sp018449635	16
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia_sp011493005	39
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Paraburkholderia|s__Paraburkholderia_metrosideri	58
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Paraburkholderia|s__Paraburkholderia_aspalathi	16
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Variovorax|s__Variovorax_sp009765735	72
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Pararobbsia|s__Pararobbsia_sp026225235	11
+p__Pseudomonadota|c__Gammaproteobacteria|o__Xanthomonadales|f__Rhodanobacteraceae|g__Rhodanobacter|s__Rhodanobacter_sp903827735	21
+p__Pseudomonadota|c__Gammaproteobacteria|o__Xanthomonadales|f__Rhodanobacteraceae|g__Rhodanobacter|s__Rhodanobacter_sp014200755	236
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Edaphobacter|s__Edaphobacter_sp009765825	66
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Edaphobacter|s__Edaphobacter_sp030853485	1
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Acidisarcina|s__Acidisarcina_polymorpha	54
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Occallatibacter|s__Occallatibacter_gabretensis	30
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Granulicella_C|s__Granulicella_C_sibirica	16
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Granulicella|s__Granulicella_mallensis	11
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Granulicella|s__Granulicella_paludicola	3
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Terriglobus|s__Terriglobus_roseus	3
+p__Bacteroidota|c__Bacteroidia|o__Chitinophagales|f__Chitinophagaceae|g__Puia|s__Puia_sp013288945	29
+p__Bacteroidota|c__Bacteroidia|o__Sphingobacteriales|f__Sphingobacteriaceae|g__Mucilaginibacter|s__Mucilaginibacter_sp026224775	10
+p__Bacteroidota|c__Bacteroidia|o__Sphingobacteriales|f__Sphingobacteriaceae|g__Mucilaginibacter|s__Mucilaginibacter_sp013408825	3
+p__Eremiobacterota|c__Eremiobacteria|o__Baltobacterales|f__Baltobacteraceae|g__Palsa-1515|s__Palsa-1515_sp903970385	37
+p__Verrucomicrobiota|c__Verrucomicrobiae|o__Methylacidiphilales|f__UBA1321|g__JABDGH01|s__JABDGH01_sp026225555	12

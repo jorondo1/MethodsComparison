@@ -1,13 +1,12 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Xylella fastidiosa	2371	S	281	85	366	0.62995
-Xanthomonas albilineans	29447	S	1	0	1	0.00172
-Bradyrhizobium betae	244734	S	1	2	3	0.00516
-Cutibacterium acnes	1747	S	34	25	59	0.10155
-Corynebacterium confusum	71254	S	1	1	2	0.00344
-Corynebacterium striatum	43770	S	1	2	3	0.00516
-Corynebacterium matruchotii	43768	S	1	0	1	0.00172
-Staphylococcus epidermidis	1282	S	21	77	98	0.16867
-Staphylococcus pasteuri	45972	S	5	16	21	0.03614
-Staphylococcus capitis	29388	S	3	15	18	0.03098
-Lactiplantibacillus pentosus	1589	S	1	2	3	0.00516
-Streptococcus thermophilus	1308	S	1	1	2	0.00344
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Lysobacterales|f__Lysobacteraceae|g__Xylella|s__Xylella_fastidiosa	366
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Lysobacterales|f__Lysobacteraceae|g__Xanthomonas|s__Xanthomonas_albilineans	1
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Nitrobacteraceae|g__Bradyrhizobium|s__Bradyrhizobium_betae	3
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_epidermidis	98
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_pasteuri	21
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_capitis	18
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactiplantibacillus|s__Lactiplantibacillus_pentosus	3
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Streptococcaceae|g__Streptococcus|s__Streptococcus_thermophilus	2
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Cutibacterium|s__Cutibacterium_acnes	59
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Corynebacteriaceae|g__Corynebacterium|s__Corynebacterium_matruchotii	1
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Corynebacteriaceae|g__Corynebacterium|s__Corynebacterium_striatum	3
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Corynebacteriaceae|g__Corynebacterium|s__Corynebacterium_confusum	2

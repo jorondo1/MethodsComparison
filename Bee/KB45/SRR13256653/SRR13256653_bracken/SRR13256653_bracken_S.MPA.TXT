@@ -1,22 +1,21 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Gilliamella apis	1970738	S	323	479	802	0.09949
-Gilliamella apicola	1196095	S	265	1274	1539	0.19092
-Gilliamella sp. wkB7	3120264	S	50	270	320	0.03970
-Frischella perrara	1267021	S	254	631	885	0.10979
-Bartonella apihabitans	2750929	S	476	394	870	0.10793
-Bartonella choladocola	2750995	S	30	39	69	0.00856
-Commensalibacter melissae	2070537	S	51	93	144	0.01786
-Snodgrassella alvi	1196083	S	732	1439	2171	0.26932
-Lactobacillus apis	303541	S	370	182	552	0.06848
-Lactobacillus panisapium	2012495	S	62	30	92	0.01141
-Lactobacillus sp. IBH004	2879107	S	55	68	123	0.01526
-Lactobacillus helsingborgensis	1218494	S	20	196	216	0.02680
-Lactobacillus kullabergensis	1218493	S	18	29	47	0.00583
-Lactobacillus kimbladii	1218506	S	2	46	48	0.00595
-Bombilactobacillus mellifer	1218492	S	7	9	16	0.00198
-Apilactobacillus kunkeei	148814	S	5	4	9	0.00112
-Bifidobacterium asteroides	1684	S	65	14	79	0.00980
-Bifidobacterium coryneforme	1687	S	35	23	58	0.00720
-Cutibacterium acnes	1747	S	1	2	3	0.00037
-Apis mellifera filamentous virus	1100043	S	7	0	7	0.00087
-Badaztecvirus badaztec1	2843847	S	1	0	1	0.00012
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_apis	802
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_sp._wkB7	320
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_apicola	1539
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Frischella|s__Frischella_perrara	885
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Neisseriales|f__Neisseriaceae|g__Snodgrassella|s__Snodgrassella_alvi	2171
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Bartonellaceae|g__Bartonella|s__Bartonella_apihabitans	870
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Bartonellaceae|g__Bartonella|s__Bartonella_choladocola	69
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Commensalibacter|s__Commensalibacter_melissae	144
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_apis	552
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_sp._IBH004	123
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_panisapium	92
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_helsingborgensis	216
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_kullabergensis	47
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_kimbladii	48
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Bombilactobacillus|s__Bombilactobacillus_mellifer	16
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Apilactobacillus|s__Apilactobacillus_kunkeei	9
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Bifidobacteriales|f__Bifidobacteriaceae|g__Bifidobacterium|s__Bifidobacterium_asteroides	79
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Bifidobacteriales|f__Bifidobacteriaceae|g__Bifidobacterium|s__Bifidobacterium_coryneforme	58
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Cutibacterium|s__Cutibacterium_acnes	3
+k__Viruses|s__Apis_mellifera_filamentous_virus	7
+k__Viruses|k__Heunggongvirae|p__Uroviricota|c__Caudoviricetes|g__Badaztecvirus|s__Badaztecvirus_badaztec1	1

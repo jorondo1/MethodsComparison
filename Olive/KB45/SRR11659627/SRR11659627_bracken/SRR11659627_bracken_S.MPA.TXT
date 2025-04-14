@@ -1,20 +1,19 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Candidatus Liberibacter africanus	34020	S	62	164	226	0.01959
-Methylobacterium sp. WL1	2603276	S	19	95	114	0.00988
-Sphingomonas aliaeris	2759526	S	1	3	4	0.00035
-Xylella fastidiosa	2371	S	16	285	301	0.02609
-Xanthomonas albilineans	29447	S	1	7	8	0.00069
-Pseudomonas aeruginosa	287	S	2	983	985	0.08537
-Aeromonas salmonicida	645	S	1	43	44	0.00381
-Caldimonas aquatica	376175	S	1	311	312	0.02704
-Cutibacterium acnes	1747	S	104	1463	1567	0.13581
-Streptomyces sp. T12	477697	S	1	14	15	0.00130
-Streptomyces olivaceus	47716	S	1	144	145	0.01257
-Lactiplantibacillus pentosus	1589	S	21	2432	2453	0.21260
-Lactiplantibacillus plantarum	1590	S	1	202	203	0.01759
-Streptococcus gordonii	1302	S	2	197	199	0.01725
-Staphylococcus epidermidis	1282	S	4	1172	1176	0.10192
-Staphylococcus hominis	1290	S	1	273	274	0.02375
-Staphylococcus auricularis	29379	S	1	52	53	0.00459
-Bacillus amyloliquefaciens	1390	S	1	3442	3443	0.29841
-Candidatus Phytoplasma solani	69896	S	1	8	9	0.00078
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Bacillaceae|g__Bacillus|s__Bacillus_amyloliquefaciens	3443
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_epidermidis	1176
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_auricularis	53
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_hominis	274
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactiplantibacillus|s__Lactiplantibacillus_pentosus	2453
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactiplantibacillus|s__Lactiplantibacillus_plantarum	203
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Streptococcaceae|g__Streptococcus|s__Streptococcus_gordonii	199
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Cutibacterium|s__Cutibacterium_acnes	1567
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Kitasatosporales|f__Streptomycetaceae|g__Streptomyces|s__Streptomyces_sp._T12	15
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Kitasatosporales|f__Streptomycetaceae|g__Streptomyces|s__Streptomyces_olivaceus	145
+k__Bacteria|k__Bacillati|p__Mycoplasmatota|c__Mollicutes|o__Acholeplasmatales|f__Acholeplasmataceae|g__Candidatus_Phytoplasma|s__Candidatus_Phytoplasma_solani	9
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Pseudomonas|s__Pseudomonas_aeruginosa	985
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Lysobacterales|f__Lysobacteraceae|g__Xylella|s__Xylella_fastidiosa	301
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Lysobacterales|f__Lysobacteraceae|g__Xanthomonas|s__Xanthomonas_albilineans	8
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Aeromonadales|f__Aeromonadaceae|g__Aeromonas|s__Aeromonas_salmonicida	44
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Rhizobiaceae|g__Liberibacter|s__Candidatus_Liberibacter_africanus	226
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium_sp._WL1	114
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas_aliaeris	4
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Burkholderiales|f__Sphaerotilaceae|g__Caldimonas|s__Caldimonas_aquatica	312

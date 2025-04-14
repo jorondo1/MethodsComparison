@@ -1,19 +1,18 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Gilliamella apis	1970738	S	979	1319	2298	0.12837
-Gilliamella apicola	1196095	S	768	2989	3757	0.20986
-Gilliamella sp. wkB7	3120264	S	154	754	908	0.05072
-Frischella perrara	1267021	S	1885	2532	4417	0.24673
-Snodgrassella alvi	1196083	S	829	767	1596	0.08915
-Commensalibacter melissae	2070537	S	51	108	159	0.00888
-Lactobacillus apis	303541	S	1169	621	1790	0.09999
-Lactobacillus sp. IBH004	2879107	S	638	674	1312	0.07329
-Lactobacillus kullabergensis	1218493	S	114	164	278	0.01553
-Lactobacillus helsingborgensis	1218494	S	56	466	522	0.02916
-Lactobacillus kimbladii	1218506	S	4	77	81	0.00452
-Apilactobacillus kunkeei	148814	S	65	64	129	0.00721
-Bombilactobacillus mellifer	1218492	S	1	2	3	0.00017
-Bifidobacterium coryneforme	1687	S	373	120	493	0.02754
-Bifidobacterium asteroides	1684	S	32	3	35	0.00196
-Cutibacterium acnes	1747	S	3	4	7	0.00039
-Thermobifida alba	53522	S	2	4	6	0.00034
-Apis mellifera filamentous virus	1100043	S	102	0	102	0.00570
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_apis	2298
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_sp._wkB7	908
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_apicola	3757
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Frischella|s__Frischella_perrara	4417
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Neisseriales|f__Neisseriaceae|g__Snodgrassella|s__Snodgrassella_alvi	1596
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Commensalibacter|s__Commensalibacter_melissae	159
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_sp._IBH004	1312
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_apis	1790
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_kullabergensis	278
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_helsingborgensis	522
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_kimbladii	81
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Apilactobacillus|s__Apilactobacillus_kunkeei	129
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Bombilactobacillus|s__Bombilactobacillus_mellifer	3
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Bifidobacteriales|f__Bifidobacteriaceae|g__Bifidobacterium|s__Bifidobacterium_coryneforme	493
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Bifidobacteriales|f__Bifidobacteriaceae|g__Bifidobacterium|s__Bifidobacterium_asteroides	35
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Cutibacterium|s__Cutibacterium_acnes	7
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Streptosporangiales|f__Nocardiopsidaceae|g__Thermobifida|s__Thermobifida_alba	6
+k__Viruses|s__Apis_mellifera_filamentous_virus	102

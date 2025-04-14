@@ -1,17 +1,16 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Protofrankia sp917627385	45450	S	41	230	271	0.05553
-Protofrankia californiensis	45447	S	12	173	185	0.03791
-Corynebacterium glutamicum	46055	S	3	866	869	0.17807
-Lawsonella clevelandensis_A	46365	S	1	27	28	0.00574
-Modestobacter lapidis	45556	S	1	172	173	0.03545
-Cutibacterium acnes	48418	S	3	1332	1335	0.27357
-Enemella evansiae	48430	S	1	6	7	0.00143
-Scardovia denticolens	42932	S	1	16	17	0.00348
-Renibacterium sp005809195	45221	S	1	3	4	0.00082
-Actinomyces sp000220835	42458	S	1	23	24	0.00492
-Streptomyces malachitofuscus	49255	S	1	88	89	0.01824
-Bradyrhizobium sp002831585	120534	S	1	38	39	0.00799
-Sphingobacterium bovisgrunnientis	90199	S	20	270	290	0.05943
-Staphylococcus epidermidis	57090	S	1	732	733	0.15020
-Schinkia azotoformans	54343	S	1	52	53	0.01086
-Clostridium_L simiarum	59754	S	1	755	756	0.15492
+p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Mycobacteriaceae|g__Corynebacterium|s__Corynebacterium_glutamicum	869
+p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Mycobacteriaceae|g__Lawsonella|s__Lawsonella_clevelandensis_A	28
+p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Frankiaceae|g__Protofrankia|s__Protofrankia_sp917627385	271
+p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Frankiaceae|g__Protofrankia|s__Protofrankia_californiensis	185
+p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Geodermatophilaceae|g__Modestobacter|s__Modestobacter_lapidis	173
+p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Cutibacterium|s__Cutibacterium_acnes	1335
+p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Enemella|s__Enemella_evansiae	7
+p__Actinomycetota|c__Actinomycetes|o__Streptomycetales|f__Streptomycetaceae|g__Streptomyces|s__Streptomyces_malachitofuscus	89
+p__Actinomycetota|c__Actinomycetes|o__Actinomycetales|f__Actinomycetaceae|g__Actinomyces|s__Actinomyces_sp000220835	24
+p__Actinomycetota|c__Actinomycetes|o__Actinomycetales|f__Bifidobacteriaceae|g__Scardovia|s__Scardovia_denticolens	17
+p__Actinomycetota|c__Actinomycetes|o__Actinomycetales|f__Micrococcaceae|g__Renibacterium|s__Renibacterium_sp005809195	4
+p__Bacillota|c__Bacilli|o__Staphylococcales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_epidermidis	733
+p__Bacillota|c__Bacilli|o__Bacillales_C|f__Bacillaceae_J|g__Schinkia|s__Schinkia_azotoformans	53
+p__Bacillota_A|c__Clostridia|o__Clostridiales|f__Clostridiaceae|g__Clostridium_L|s__Clostridium_L_simiarum	756
+p__Bacteroidota|c__Bacteroidia|o__Sphingobacteriales|f__Sphingobacteriaceae|g__Sphingobacterium|s__Sphingobacterium_bovisgrunnientis	290
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Xanthobacteraceae|g__Bradyrhizobium|s__Bradyrhizobium_sp002831585	39

@@ -1,8 +1,7 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Gilliamella apicola	1196095	S	1	57	58	0.05572
-Frischella perrara	1267021	S	11	478	489	0.46974
-Snodgrassella alvi	1196083	S	5	173	178	0.17099
-Lactobacillus apis	303541	S	5	38	43	0.04131
-Lactobacillus sp. IBH004	2879107	S	2	12	14	0.01345
-Lactobacillus kullabergensis	1218493	S	1	10	11	0.01057
-Apis mellifera filamentous virus	1100043	S	195	49	244	0.23439
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Frischella|s__Frischella_perrara	489
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_apicola	58
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Neisseriales|f__Neisseriaceae|g__Snodgrassella|s__Snodgrassella_alvi	178
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_sp._IBH004	14
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_apis	43
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_kullabergensis	11
+k__Viruses|s__Apis_mellifera_filamentous_virus	244

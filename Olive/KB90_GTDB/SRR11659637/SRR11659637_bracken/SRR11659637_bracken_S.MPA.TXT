@@ -1,31 +1,30 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Xylella fastidiosa	141322	S	288	7059	7347	0.19279
-Burkholderia contaminans	126608	S	1	154	155	0.00407
-QFNR01 sp003248485	130416	S	1	456	457	0.01199
-Afipia sp017474385	120328	S	9	908	917	0.02406
-Bradyrhizobium sp029892425	120642	S	3	59	62	0.00163
-Bradyrhizobium manausense_D	120485	S	2	33	35	0.00092
-Bradyrhizobium sp003020075	120535	S	2	676	678	0.01779
-Mesorhizobium sp004020645	119593	S	1	4	5	0.00013
-Sphingomonas echinoides	125025	S	1	70	71	0.00186
-Megaera polyxenophila	123452	S	1	27	28	0.00073
-Cutibacterium acnes	48418	S	60	23731	23791	0.62429
-Cutibacterium granulosum	48420	S	3	40	43	0.00113
-Cutibacterium namnetense	48422	S	1	11	12	0.00031
-Protofrankia sp917627385	45450	S	89	438	527	0.01383
-Protofrankia californiensis	45447	S	21	265	286	0.00750
-Corynebacterium sp030826625	46202	S	1	3	4	0.00010
-Corynebacterium macginleyi	46091	S	1	6	7	0.00018
-Lawsonella clevelandensis_A	46365	S	1	25	26	0.00068
-Renibacterium sp005809195	45221	S	4	12	16	0.00042
-SYAN01 sp005787575	47913	S	1	2	3	0.00008
-Sphingobacterium bovisgrunnientis	90199	S	61	698	759	0.01992
-Lactococcus cremoris	55805	S	1	519	520	0.01365
-Lactococcus lactis	55812	S	1	354	355	0.00932
-Limosilactobacillus sp946579075	55642	S	2	562	564	0.01480
-Brochothrix thermosphacta	55757	S	1	6	7	0.00018
-Staphylococcus capitis	57076	S	2	224	226	0.00593
-Staphylococcus epidermidis	57090	S	1	623	624	0.01637
-Terribacillus saccharophilus_A	54520	S	1	3	4	0.00010
-Maridesulfovibrio sp010470665	100468	S	1	544	545	0.01430
-JADFIX01 sp022566435	112051	S	1	20	21	0.00055
+p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Cutibacterium|s__Cutibacterium_acnes	23791
+p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Cutibacterium|s__Cutibacterium_granulosum	43
+p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Cutibacterium|s__Cutibacterium_namnetense	12
+p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Frankiaceae|g__Protofrankia|s__Protofrankia_sp917627385	527
+p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Frankiaceae|g__Protofrankia|s__Protofrankia_californiensis	286
+p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Mycobacteriaceae|g__Lawsonella|s__Lawsonella_clevelandensis_A	26
+p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Mycobacteriaceae|g__Corynebacterium|s__Corynebacterium_macginleyi	7
+p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Mycobacteriaceae|g__Corynebacterium|s__Corynebacterium_sp030826625	4
+p__Actinomycetota|c__Actinomycetes|o__Actinomycetales|f__Micrococcaceae|g__Renibacterium|s__Renibacterium_sp005809195	16
+p__Actinomycetota|c__Actinomycetes|o__Nanopelagicales|f__Nanopelagicaceae|g__SYAN01|s__SYAN01_sp005787575	3
+p__Pseudomonadota|c__Gammaproteobacteria|o__Xanthomonadales|f__Xanthomonadaceae|g__Xylella|s__Xylella_fastidiosa	7347
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Neisseriaceae|g__QFNR01|s__QFNR01_sp003248485	457
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Burkholderia|s__Burkholderia_contaminans	155
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Xanthobacteraceae|g__Afipia|s__Afipia_sp017474385	917
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Xanthobacteraceae|g__Bradyrhizobium|s__Bradyrhizobium_sp029892425	62
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Xanthobacteraceae|g__Bradyrhizobium|s__Bradyrhizobium_sp003020075	678
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Xanthobacteraceae|g__Bradyrhizobium|s__Bradyrhizobium_manausense_D	35
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Rhizobiaceae|g__Mesorhizobium|s__Mesorhizobium_sp004020645	5
+p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas_echinoides	71
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rickettsiales|f__Rickettsiaceae|g__Megaera|s__Megaera_polyxenophila	28
+p__Bacillota|c__Bacilli|o__Lactobacillales|f__Streptococcaceae|g__Lactococcus|s__Lactococcus_lactis	355
+p__Bacillota|c__Bacilli|o__Lactobacillales|f__Streptococcaceae|g__Lactococcus|s__Lactococcus_cremoris	520
+p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Limosilactobacillus|s__Limosilactobacillus_sp946579075	564
+p__Bacillota|c__Bacilli|o__Lactobacillales|f__Listeriaceae|g__Brochothrix|s__Brochothrix_thermosphacta	7
+p__Bacillota|c__Bacilli|o__Staphylococcales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_capitis	226
+p__Bacillota|c__Bacilli|o__Staphylococcales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_epidermidis	624
+p__Bacillota|c__Bacilli|o__Bacillales_D|f__Amphibacillaceae|g__Terribacillus|s__Terribacillus_saccharophilus_A	4
+p__Bacteroidota|c__Bacteroidia|o__Sphingobacteriales|f__Sphingobacteriaceae|g__Sphingobacterium|s__Sphingobacterium_bovisgrunnientis	759
+p__Desulfobacterota|c__Desulfovibrionia|o__Desulfovibrionales|f__Desulfovibrionaceae|g__Maridesulfovibrio|s__Maridesulfovibrio_sp010470665	545
+p__Planctomycetota|c__Phycisphaerae|o__UBA1845|f__UBA1845|g__JADFIX01|s__JADFIX01_sp022566435	21

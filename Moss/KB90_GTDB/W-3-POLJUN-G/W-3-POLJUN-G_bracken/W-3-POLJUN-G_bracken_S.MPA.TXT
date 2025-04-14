@@ -1,39 +1,38 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Rhizobium rhododendri	119997	S	20	589	609	0.06065
-Rhizobium tumorigenes	120079	S	3	91	94	0.00936
-Agrobacterium burrii	119051	S	6	144	150	0.01494
-Methylobacterium sp030700285	118344	S	42	824	866	0.08625
-Methylobacterium sp001455965	118303	S	42	634	676	0.06732
-Methylobacterium sp028290105	118341	S	1	9	10	0.00100
-Methylobacterium sp001422985	118296	S	1	14	15	0.00149
-Methylobacterium sp022829605	118334	S	1	13	14	0.00139
-RH-AL1 sp009765775	118495	S	1	10	11	0.00110
-Sphingomonas sp022662475	125218	S	18	395	413	0.04113
-Sphingomonas glacialis	125042	S	4	122	126	0.01255
-Sphingomonas sp000251145	125102	S	2	70	72	0.00717
-Sphingomonas sp005502745	125170	S	2	466	468	0.04661
-Sphingomonas sp000241485	125101	S	1	17	18	0.00179
-Sphingomonas glacialis_A	125043	S	1	14	15	0.00149
-Sphingomicrobium sp030775565	124982	S	1	5	6	0.00060
-Lichenicola sp903844135	113925	S	9	232	241	0.02400
-Acidisoma sp019351895	113616	S	1	6	7	0.00070
-Pseudomonas_E fluorescens	138296	S	22	3786	3808	0.37925
-Pseudomonas_E lactucae	138418	S	1	40	41	0.00408
-Caballeronia sp001557535	126764	S	1	27	28	0.00279
-Rhodanobacter sp002001085	140586	S	1	30	31	0.00309
-Rhodanobacter sp903827735	140625	S	1	55	56	0.00558
-Frondihabitans sp002074055	43908	S	37	1285	1322	0.13166
-Mycobacterium sp016462545	46709	S	5	15	20	0.00199
-Pseudonocardia sp001899645	47474	S	2	82	84	0.00837
-Nakamurella sp014303395	47166	S	1	24	25	0.00249
-Streptomyces hayashii	49179	S	1	576	577	0.05746
-Granulicella sp019351975	40174	S	4	7	11	0.00110
-Granulicella paludicola	40167	S	1	3	4	0.00040
-Terriglobus roseus	40380	S	3	10	13	0.00129
-Granulicella_D sp903642265	40207	S	1	1	2	0.00020
-Hymenobacter sp013256625	85204	S	1	9	10	0.00100
-REEB67 sp018971775	98642	S	5	3	8	0.00080
-Pseudanabaena biceps_B	97880	S	1	131	132	0.01315
-Deinococcus ruber	98799	S	1	29	30	0.00299
-JARLHE01 sp031292385	91765	S	1	7	8	0.00080
-JAJYCH01 sp021778575	112279	S	1	1	2	0.00020
+p__Pseudomonadota|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Pseudomonas_E|s__Pseudomonas_E_fluorescens	3808
+p__Pseudomonadota|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Pseudomonas_E|s__Pseudomonas_E_lactucae	41
+p__Pseudomonadota|c__Gammaproteobacteria|o__Xanthomonadales|f__Rhodanobacteraceae|g__Rhodanobacter|s__Rhodanobacter_sp903827735	56
+p__Pseudomonadota|c__Gammaproteobacteria|o__Xanthomonadales|f__Rhodanobacteraceae|g__Rhodanobacter|s__Rhodanobacter_sp002001085	31
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia_sp001557535	28
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp001455965	676
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp030700285	866
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829605	14
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp001422985	15
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp028290105	10
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__RH-AL1|s__RH-AL1_sp009765775	11
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Rhizobiaceae|g__Rhizobium|s__Rhizobium_rhododendri	609
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Rhizobiaceae|g__Rhizobium|s__Rhizobium_tumorigenes	94
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Rhizobiaceae|g__Agrobacterium|s__Agrobacterium_burrii	150
+p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas_sp022662475	413
+p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas_glacialis	126
+p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas_sp005502745	468
+p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas_sp000251145	72
+p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas_glacialis_A	15
+p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas_sp000241485	18
+p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomicrobium|s__Sphingomicrobium_sp030775565	6
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Lichenicola|s__Lichenicola_sp903844135	241
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Acidisoma|s__Acidisoma_sp019351895	7
+p__Actinomycetota|c__Actinomycetes|o__Actinomycetales|f__Microbacteriaceae|g__Frondihabitans|s__Frondihabitans_sp002074055	1322
+p__Actinomycetota|c__Actinomycetes|o__Streptomycetales|f__Streptomycetaceae|g__Streptomyces|s__Streptomyces_hayashii	577
+p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Pseudonocardiaceae|g__Pseudonocardia|s__Pseudonocardia_sp001899645	84
+p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Nakamurellaceae|g__Nakamurella|s__Nakamurella_sp014303395	25
+p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Mycobacteriaceae|g__Mycobacterium|s__Mycobacterium_sp016462545	20
+p__Cyanobacteriota|c__Cyanobacteriia|o__Pseudanabaenales|f__Pseudanabaenaceae|g__Pseudanabaena|s__Pseudanabaena_biceps_B	132
+p__Cyanobacteriota|c__Vampirovibrionia|o__Obscuribacterales|f__Obscuribacteraceae|g__REEB67|s__REEB67_sp018971775	8
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Granulicella|s__Granulicella_sp019351975	11
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Granulicella|s__Granulicella_paludicola	4
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Terriglobus|s__Terriglobus_roseus	13
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Granulicella_D|s__Granulicella_D_sp903642265	2
+p__Deinococcota|c__Deinococci|o__Deinococcales|f__Deinococcaceae|g__Deinococcus|s__Deinococcus_ruber	30
+p__Bacteroidota|c__Bacteroidia|o__Cytophagales|f__Hymenobacteraceae|g__Hymenobacter|s__Hymenobacter_sp013256625	10
+p__Bdellovibrionota|c__UBA1018|o__UBA1018|f__UBA1018|g__JARLHE01|s__JARLHE01_sp031292385	8
+p__Planctomycetota|c__Planctomycetia|o__Isosphaerales|f__Isosphaeraceae|g__JAJYCH01|s__JAJYCH01_sp021778575	2

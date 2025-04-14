@@ -1,21 +1,20 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Nostoc sp017114945	96872	S	29	1169	1198	0.34406
-Rhizobium rhododendri	119997	S	14	772	786	0.22573
-Methylobacterium sp022829385	118327	S	6	190	196	0.05629
-Methylobacterium sp022829365	118326	S	5	161	166	0.04767
-Methylobacterium sp022829585	118333	S	1	31	32	0.00919
-Lichenihabitans flavocetrariae	118233	S	1	4	5	0.00144
-Lichenicoccus roseus	113922	S	21	299	320	0.09190
-Acidisoma sp009765865	113615	S	1	8	9	0.00258
-Sphingomonas_N sp937859915	125357	S	3	54	57	0.01637
-Novosphingobium sp903970225	124574	S	1	21	22	0.00632
-Pseudomonas_E sp002814235	138649	S	2	121	123	0.03532
-Caballeronia sp001557535	126764	S	1	83	84	0.02412
-Janthinobacterium sp014200725	127467	S	1	42	43	0.01235
-Pedobacter cryoconitis_B	90023	S	14	44	58	0.01666
-Mucilaginibacter sp013408825	89912	S	1	3	4	0.00115
-Acidisarcina polymorpha	40108	S	12	34	46	0.01321
-Granulicella_B arctica	40194	S	3	16	19	0.00546
-Granulicella_D aggregans_A	40206	S	2	12	14	0.00402
-Palsa-1515 sp903970385	102220	S	6	282	288	0.08271
-Tsukamurella sp903970215	47126	S	1	2	3	0.00086
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Rhizobiaceae|g__Rhizobium|s__Rhizobium_rhododendri	786
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829385	196
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829365	166
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829585	32
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Lichenihabitans|s__Lichenihabitans_flavocetrariae	5
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Lichenicoccus|s__Lichenicoccus_roseus	320
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Acidisoma|s__Acidisoma_sp009765865	9
+p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas_N|s__Sphingomonas_N_sp937859915	57
+p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Novosphingobium|s__Novosphingobium_sp903970225	22
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia_sp001557535	84
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Janthinobacterium|s__Janthinobacterium_sp014200725	43
+p__Pseudomonadota|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Pseudomonas_E|s__Pseudomonas_E_sp002814235	123
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Nostoc|s__Nostoc_sp017114945	1198
+p__Eremiobacterota|c__Eremiobacteria|o__Baltobacterales|f__Baltobacteraceae|g__Palsa-1515|s__Palsa-1515_sp903970385	288
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Acidisarcina|s__Acidisarcina_polymorpha	46
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Granulicella_B|s__Granulicella_B_arctica	19
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Granulicella_D|s__Granulicella_D_aggregans_A	14
+p__Bacteroidota|c__Bacteroidia|o__Sphingobacteriales|f__Sphingobacteriaceae|g__Pedobacter|s__Pedobacter_cryoconitis_B	58
+p__Bacteroidota|c__Bacteroidia|o__Sphingobacteriales|f__Sphingobacteriaceae|g__Mucilaginibacter|s__Mucilaginibacter_sp013408825	4
+p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Mycobacteriaceae|g__Tsukamurella|s__Tsukamurella_sp903970215	3

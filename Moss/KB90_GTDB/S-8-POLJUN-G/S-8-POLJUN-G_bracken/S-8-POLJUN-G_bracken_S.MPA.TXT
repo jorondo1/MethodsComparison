@@ -1,11 +1,10 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Rhizobium rhododendri	119997	S	37	849	886	0.60977
-Methylobacterium sp008039875	118308	S	5	304	309	0.21266
-Methylobacterium sp022829385	118327	S	3	104	107	0.07364
-Methylobacterium sp022829585	118333	S	2	56	58	0.03992
-Methylobacterium sp022829365	118326	S	1	27	28	0.01927
-Methylobacterium cerastii	118248	S	1	44	45	0.03097
-Lichenicoccus roseus	113922	S	1	10	11	0.00757
-Granulicella_D sp903642265	40207	S	1	0	1	0.00069
-Granulicella sp937871785	40193	S	1	0	1	0.00069
-Gemmata tundricola	112182	S	1	2	3	0.00206
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Rhizobiaceae|g__Rhizobium|s__Rhizobium_rhododendri	886
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp008039875	309
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829385	107
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829585	58
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_cerastii	45
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829365	28
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Lichenicoccus|s__Lichenicoccus_roseus	11
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Granulicella|s__Granulicella_sp937871785	1
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Granulicella_D|s__Granulicella_D_sp903642265	1
+p__Planctomycetota|c__Planctomycetia|o__Gemmatales|f__Gemmataceae|g__Gemmata|s__Gemmata_tundricola	3

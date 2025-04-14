@@ -1,12 +1,11 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Rhizobium rhododendri	119997	S	14	343	357	0.47222
-Lichenihabitans flavocetrariae	118233	S	2	7	9	0.01190
-Roseiarcus sp030153205	118539	S	1	4	5	0.00661
-Lichenicoccus roseus	113922	S	9	61	70	0.09259
-Acidisoma sp009765865	113615	S	4	15	19	0.02513
-Sphingomonas_N sp937859915	125357	S	2	19	21	0.02778
-Paracoccus denitrificans_B	121826	S	1	64	65	0.08598
-Nostoc sp017115045	96876	S	1	32	33	0.04365
-Acidisarcina polymorpha	40108	S	1	1	2	0.00265
-Edaphobacter lichenicola	40130	S	1	144	145	0.19180
-Palsa-1515 sp903970385	102220	S	1	25	26	0.03439
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Rhizobiaceae|g__Rhizobium|s__Rhizobium_rhododendri	357
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Lichenihabitans|s__Lichenihabitans_flavocetrariae	9
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Roseiarcus|s__Roseiarcus_sp030153205	5
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Lichenicoccus|s__Lichenicoccus_roseus	70
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Acidisoma|s__Acidisoma_sp009765865	19
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhodobacterales|f__Rhodobacteraceae|g__Paracoccus|s__Paracoccus_denitrificans_B	65
+p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas_N|s__Sphingomonas_N_sp937859915	21
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Edaphobacter|s__Edaphobacter_lichenicola	145
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Acidisarcina|s__Acidisarcina_polymorpha	2
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Nostoc|s__Nostoc_sp017115045	33
+p__Eremiobacterota|c__Eremiobacteria|o__Baltobacterales|f__Baltobacteraceae|g__Palsa-1515|s__Palsa-1515_sp903970385	26

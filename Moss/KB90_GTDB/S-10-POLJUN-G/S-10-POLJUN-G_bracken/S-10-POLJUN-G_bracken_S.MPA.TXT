@@ -1,18 +1,17 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Nostoc sp017115085	96877	S	21	853	874	0.18938
-Nostoc sp002245985	96858	S	1	116	117	0.02535
-Nostoc sp020829625	96884	S	1	170	171	0.03705
-Rhizobium rhododendri	119997	S	44	1639	1683	0.36468
-Methylobacterium sp022829365	118326	S	3	101	104	0.02254
-Methylobacterium cerastii	118248	S	1	35	36	0.00780
-Lichenihabitans flavocetrariae	118233	S	3	15	18	0.00390
-Lichenicoccus roseus	113922	S	15	194	209	0.04529
-Acidisoma sp009765865	113615	S	13	90	103	0.02232
-Sphingomonas_N sp937859915	125357	S	1	20	21	0.00455
-Ewingella americana	133050	S	4	50	54	0.01170
-Erwinia billingiae	133008	S	2	198	200	0.04334
-Caballeronia sp001557535	126764	S	5	188	193	0.04182
-Palsa-1515 sp903970385	102220	S	41	711	752	0.16295
-Acidisarcina polymorpha	40108	S	2	4	6	0.00130
-Edaphobacter lichenicola_E	40135	S	1	63	64	0.01387
-Mucilaginibacter sp024808665	89928	S	1	1	2	0.00043
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Rhizobiaceae|g__Rhizobium|s__Rhizobium_rhododendri	1683
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829365	104
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_cerastii	36
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Lichenihabitans|s__Lichenihabitans_flavocetrariae	18
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Lichenicoccus|s__Lichenicoccus_roseus	209
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Acidisoma|s__Acidisoma_sp009765865	103
+p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas_N|s__Sphingomonas_N_sp937859915	21
+p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Erwinia|s__Erwinia_billingiae	200
+p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Ewingella|s__Ewingella_americana	54
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia_sp001557535	193
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Nostoc|s__Nostoc_sp017115085	874
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Nostoc|s__Nostoc_sp020829625	171
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Nostoc|s__Nostoc_sp002245985	117
+p__Eremiobacterota|c__Eremiobacteria|o__Baltobacterales|f__Baltobacteraceae|g__Palsa-1515|s__Palsa-1515_sp903970385	752
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Edaphobacter|s__Edaphobacter_lichenicola_E	64
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Acidisarcina|s__Acidisarcina_polymorpha	6
+p__Bacteroidota|c__Bacteroidia|o__Sphingobacteriales|f__Sphingobacteriaceae|g__Mucilaginibacter|s__Mucilaginibacter_sp024808665	2

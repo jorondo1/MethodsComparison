@@ -1,35 +1,34 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Methylobacterium sp. WL1	2603276	S	799	1800	2599	0.12624
-Methylobacterium sp. 391_Methyba4	3038924	S	1	88	89	0.00432
-Methylobacterium fujisawaense	107400	S	29	706	735	0.03570
-Methylobacterium flocculans	2984843	S	2	4	6	0.00029
-Methylobacterium bullatum	570505	S	2	3	5	0.00024
-Methylobacterium brachiatum	269660	S	1	9	10	0.00049
-Methylorubrum extorquens	408	S	2	14	16	0.00078
-Candidatus Liberibacter africanus	34020	S	45	100	145	0.00704
-Sphingomonas aliaeris	2759526	S	23	65	88	0.00427
-Sphingomonas aerolata	185951	S	16	47	63	0.00306
-Sphingomonas sp. FARSPH	2219696	S	4	290	294	0.01428
-Sphingomonas sp. AAP5	1523415	S	1	9	10	0.00049
-Sphingomonas taxi	1549858	S	5	14	19	0.00092
-Sphingomonas endolithica	2972485	S	1	1	2	0.00010
-Sphingomonas albertensis	2762591	S	1	2	3	0.00015
-Roseomonas haemaphysalidis	2768162	S	44	156	200	0.00971
-Paracoccus marcusii	59779	S	1	1	2	0.00010
-Xylella fastidiosa	2371	S	484	5518	6002	0.29153
-Xanthomonas albilineans	29447	S	2	10	12	0.00058
-Pseudomonas savastanoi	29438	S	3	112	115	0.00559
-Haemophilus parainfluenzae	729	S	2	70	72	0.00350
-Acidovorax sp. BLS4	3273430	S	2	1139	1141	0.05542
-Hymenobacter sp. GOD-10R	3093922	S	1	6	7	0.00034
-Cutibacterium acnes	1747	S	158	1862	2020	0.09812
-Microlunatus sagamiharensis	546874	S	60	126	186	0.00903
-Arachnia rubra	1547448	S	2	0	2	0.00010
-Kineococcus sp. NBC_00420	2903564	S	21	76	97	0.00471
-Streptomyces sp. T12	477697	S	2	22	24	0.00117
-Lactiplantibacillus pentosus	1589	S	22	1912	1934	0.09394
-Lactiplantibacillus plantarum	1590	S	6	907	913	0.04435
-Lactococcus lactis	1358	S	1	340	341	0.01656
-Staphylococcus epidermidis	1282	S	4	757	761	0.03696
-Bacillus amyloliquefaciens	1390	S	1	2500	2501	0.12148
-Homo sapiens	9606	S	2	154	156	0.00758
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Lysobacterales|f__Lysobacteraceae|g__Xylella|s__Xylella_fastidiosa	6002
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Lysobacterales|f__Lysobacteraceae|g__Xanthomonas|s__Xanthomonas_albilineans	12
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Pseudomonas|s__Pseudomonas_savastanoi	115
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Pasteurellales|f__Pasteurellaceae|g__Haemophilus|s__Haemophilus_parainfluenzae	72
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium_sp._WL1	2599
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium_sp._391_Methyba4	89
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium_fujisawaense	735
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium_bullatum	5
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium_flocculans	6
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Methylobacteriaceae|g__Methylobacterium|s__Methylobacterium_brachiatum	10
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Methylobacteriaceae|g__Methylorubrum|s__Methylorubrum_extorquens	16
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Rhizobiaceae|g__Liberibacter|s__Candidatus_Liberibacter_africanus	145
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas_sp._FARSPH	294
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas_sp._AAP5	10
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas_aliaeris	88
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas_aerolata	63
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas_taxi	19
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas_albertensis	3
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas_endolithica	2
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Roseomonadaceae|g__Roseomonas|s__Roseomonas_haemaphysalidis	200
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Rhodobacterales|f__Paracoccaceae|g__Paracoccus|s__Paracoccus_marcusii	2
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Burkholderiales|f__Comamonadaceae|g__Acidovorax|s__Acidovorax_sp._BLS4	1141
+k__Bacteria|k__Pseudomonadati|p__Bacteroidota|c__Cytophagia|o__Cytophagales|f__Hymenobacteraceae|g__Hymenobacter|s__Hymenobacter_sp._GOD-10R	7
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Bacillaceae|g__Bacillus|s__Bacillus_amyloliquefaciens	2501
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_epidermidis	761
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactiplantibacillus|s__Lactiplantibacillus_pentosus	1934
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactiplantibacillus|s__Lactiplantibacillus_plantarum	913
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Streptococcaceae|g__Lactococcus|s__Lactococcus_lactis	341
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Cutibacterium|s__Cutibacterium_acnes	2020
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Microlunatus|s__Microlunatus_sagamiharensis	186
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Arachnia|s__Arachnia_rubra	2
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Kineosporiales|f__Kineosporiaceae|g__Kineococcus|s__Kineococcus_sp._NBC_00420	97
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Kitasatosporales|f__Streptomycetaceae|g__Streptomyces|s__Streptomyces_sp._T12	24
+k__Eukaryota|k__Metazoa|p__Chordata|c__Mammalia|o__Primates|f__Hominidae|g__Homo|s__Homo_sapiens	156

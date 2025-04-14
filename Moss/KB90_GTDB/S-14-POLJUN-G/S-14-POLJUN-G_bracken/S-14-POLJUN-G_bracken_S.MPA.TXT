@@ -1,17 +1,16 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Rhizobium rhododendri	119997	S	25	542	567	0.29889
-Methylobacterium sp022829365	118326	S	8	179	187	0.09858
-Methylobacterium sp022829385	118327	S	1	19	20	0.01054
-Methylobacterium sp008039875	118308	S	1	26	27	0.01423
-Lichenicoccus roseus	113922	S	11	98	109	0.05746
-Sphingomonas_N sp937859915	125357	S	2	21	23	0.01212
-Sphingomonas sp903643035	125276	S	1	18	19	0.01002
-Caballeronia sp001557535	126764	S	12	282	294	0.15498
-Pseudomonas_E sp903970465	138888	S	2	10	12	0.00633
-Pseudomonas_E sp003014915	138658	S	2	184	186	0.09805
-Pseudomonas_E sp014842265	138726	S	1	20	21	0.01107
-Nostoc sp017115085	96877	S	2	60	62	0.03268
-Palsa-1515 sp903970385	102220	S	27	277	304	0.16025
-Terriglobus roseus	40380	S	2	4	6	0.00316
-Acidisarcina polymorpha	40108	S	1	2	3	0.00158
-Palsa-744 sp903970315	52641	S	2	45	47	0.02478
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Rhizobiaceae|g__Rhizobium|s__Rhizobium_rhododendri	567
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829365	187
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp008039875	27
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829385	20
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Lichenicoccus|s__Lichenicoccus_roseus	109
+p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas_N|s__Sphingomonas_N_sp937859915	23
+p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas|s__Sphingomonas_sp903643035	19
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia_sp001557535	294
+p__Pseudomonadota|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Pseudomonas_E|s__Pseudomonas_E_sp003014915	186
+p__Pseudomonadota|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Pseudomonas_E|s__Pseudomonas_E_sp903970465	12
+p__Pseudomonadota|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Pseudomonas_E|s__Pseudomonas_E_sp014842265	21
+p__Eremiobacterota|c__Eremiobacteria|o__Baltobacterales|f__Baltobacteraceae|g__Palsa-1515|s__Palsa-1515_sp903970385	304
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Nostoc|s__Nostoc_sp017115085	62
+p__Actinomycetota|c__Thermoleophilia|o__Solirubrobacterales|f__Solirubrobacteraceae|g__Palsa-744|s__Palsa-744_sp903970315	47
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Terriglobus|s__Terriglobus_roseus	6
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Acidisarcina|s__Acidisarcina_polymorpha	3

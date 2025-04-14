@@ -1,15 +1,14 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Nostoc sp028623165	96889	S	5	403	408	0.11857
-Nostoc sp002245985	96858	S	4	769	773	0.22464
-Nostoc muscorum	96852	S	1	142	143	0.04156
-Nostoc flagelliforme_A	96844	S	1	128	129	0.03749
-Rhizobium rhododendri	119997	S	22	1298	1320	0.38361
-Methylobacterium sp022829385	118327	S	5	173	178	0.05173
-Methylobacterium sp022829365	118326	S	3	115	118	0.03429
-Methylobacterium sp008039875	118308	S	1	49	50	0.01453
-Lichenihabitans minor	118234	S	1	34	35	0.01017
-Lichenicoccus roseus	113922	S	6	98	104	0.03022
-Acidisoma sp009765865	113615	S	1	9	10	0.00291
-Sphingomonas_N sp937859915	125357	S	2	35	37	0.01075
-Caballeronia sp001557535	126764	S	1	69	70	0.02034
-Acidisarcina polymorpha	40108	S	14	46	60	0.01744
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Rhizobiaceae|g__Rhizobium|s__Rhizobium_rhododendri	1320
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829385	178
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829365	118
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp008039875	50
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Lichenihabitans|s__Lichenihabitans_minor	35
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Lichenicoccus|s__Lichenicoccus_roseus	104
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Acidisoma|s__Acidisoma_sp009765865	10
+p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas_N|s__Sphingomonas_N_sp937859915	37
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia_sp001557535	70
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Nostoc|s__Nostoc_sp028623165	408
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Nostoc|s__Nostoc_sp002245985	773
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Nostoc|s__Nostoc_flagelliforme_A	129
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Nostoc|s__Nostoc_muscorum	143
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Acidisarcina|s__Acidisarcina_polymorpha	60

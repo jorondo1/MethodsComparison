@@ -1,8 +1,7 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Xylella fastidiosa	2371	S	139	133	272	0.66667
-Haematobacter massiliensis	195105	S	1	1	2	0.00490
-Brevundimonas nasdae	172043	S	1	5	6	0.01471
-Cutibacterium acnes	1747	S	36	44	80	0.19608
-Cutibacterium granulosum	33011	S	3	9	12	0.02941
-Staphylococcus epidermidis	1282	S	1	29	30	0.07353
-Brochothrix thermosphacta	2756	S	1	2	3	0.00735
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Lysobacterales|f__Lysobacteraceae|g__Xylella|s__Xylella_fastidiosa	272
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Caulobacterales|f__Caulobacteraceae|g__Brevundimonas|s__Brevundimonas_nasdae	6
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Rhodobacterales|f__Paracoccaceae|g__Haematobacter|s__Haematobacter_massiliensis	2
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Cutibacterium|s__Cutibacterium_acnes	80
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Cutibacterium|s__Cutibacterium_granulosum	12
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus_epidermidis	30
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Bacillales|f__Listeriaceae|g__Brochothrix|s__Brochothrix_thermosphacta	3

@@ -1,12 +1,11 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Lichenicoccus roseus	113922	S	20	147	167	0.25113
-Acidisoma sp009765865	113615	S	15	65	80	0.12030
-LMUY01 sp009765685	113921	S	1	52	53	0.07970
-Methylobacterium sp022829385	118327	S	3	46	49	0.07368
-Methylobacterium sp022829365	118326	S	3	48	51	0.07669
-Lichenihabitans flavocetrariae	118233	S	1	2	3	0.00451
-Sphingomonas_N sp937859915	125357	S	3	28	31	0.04662
-Caballeronia sp001557535	126764	S	5	200	205	0.30827
-Granulicella_D aggregans_A	40206	S	3	10	13	0.01955
-Acidisarcina polymorpha	40108	S	1	2	3	0.00451
-Granulicella_C tundricola	40204	S	1	4	5	0.00752
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Lichenicoccus|s__Lichenicoccus_roseus	167
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Acidisoma|s__Acidisoma_sp009765865	80
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__LMUY01|s__LMUY01_sp009765685	53
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829365	51
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829385	49
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Lichenihabitans|s__Lichenihabitans_flavocetrariae	3
+p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas_N|s__Sphingomonas_N_sp937859915	31
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia_sp001557535	205
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Granulicella_D|s__Granulicella_D_aggregans_A	13
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Granulicella_C|s__Granulicella_C_tundricola	5
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Acidisarcina|s__Acidisarcina_polymorpha	3

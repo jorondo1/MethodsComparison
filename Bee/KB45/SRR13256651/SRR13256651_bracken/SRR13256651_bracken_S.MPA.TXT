@@ -1,28 +1,27 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Gilliamella apis	1970738	S	1065	1508	2573	0.11442
-Gilliamella apicola	1196095	S	573	2552	3125	0.13896
-Gilliamella sp. wkB7	3120264	S	154	813	967	0.04300
-Frischella perrara	1267021	S	831	1521	2352	0.10459
-Escherichia coli	562	S	4	1125	1129	0.05020
-Citrobacter freundii	546	S	2	289	291	0.01294
-Morganella morganii	582	S	6	57	63	0.00280
-Snodgrassella alvi	1196083	S	2083	2585	4668	0.20758
-Commensalibacter melissae	2070537	S	192	151	343	0.01525
-Bartonella apihabitans	2750929	S	28	47	75	0.00334
-Bartonella choladocola	2750995	S	2	5	7	0.00031
-Bacteroides graminisolvens	477666	S	1	0	1	0.00004
-Lactobacillus apis	303541	S	659	451	1110	0.04936
-Lactobacillus sp. IBH004	2879107	S	405	482	887	0.03944
-Lactobacillus sp. wkB8	1545702	S	9	166	175	0.00778
-Lactobacillus helsingborgensis	1218494	S	252	2283	2535	0.11273
-Lactobacillus kullabergensis	1218493	S	246	392	638	0.02837
-Lactobacillus panisapium	2012495	S	123	91	214	0.00952
-Lactobacillus kimbladii	1218506	S	4	83	87	0.00387
-Bombilactobacillus mellifer	1218492	S	11	31	42	0.00187
-Apilactobacillus kunkeei	148814	S	9	17	26	0.00116
-Ethanoligenens harbinense	253239	S	2	0	2	0.00009
-Bifidobacterium asteroides	1684	S	223	53	276	0.01227
-Bifidobacterium coryneforme	1687	S	144	114	258	0.01147
-Spiroplasma citri	2133	S	17	600	617	0.02744
-Spiroplasma melliferum	2134	S	2	2	4	0.00018
-Apis mellifera filamentous virus	1100043	S	8	0	8	0.00036
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_apis	2573
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_sp._wkB7	967
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Gilliamella|s__Gilliamella_apicola	3125
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Orbales|f__Orbaceae|g__Frischella|s__Frischella_perrara	2352
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Escherichia|s__Escherichia_coli	1129
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Citrobacter|s__Citrobacter_freundii	291
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Morganellaceae|g__Morganella|s__Morganella_morganii	63
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Betaproteobacteria|o__Neisseriales|f__Neisseriaceae|g__Snodgrassella|s__Snodgrassella_alvi	4668
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Commensalibacter|s__Commensalibacter_melissae	343
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Bartonellaceae|g__Bartonella|s__Bartonella_apihabitans	75
+k__Bacteria|k__Pseudomonadati|p__Pseudomonadota|c__Alphaproteobacteria|o__Hyphomicrobiales|f__Bartonellaceae|g__Bartonella|s__Bartonella_choladocola	7
+k__Bacteria|k__Pseudomonadati|p__Bacteroidota|c__Bacteroidia|o__Bacteroidales|f__Bacteroidaceae|g__Bacteroides|s__Bacteroides_graminisolvens	1
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_sp._IBH004	887
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_sp._wkB8	175
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_apis	1110
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_helsingborgensis	2535
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_kullabergensis	638
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_panisapium	214
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Lactobacillus|s__Lactobacillus_kimbladii	87
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Bombilactobacillus|s__Bombilactobacillus_mellifer	42
+k__Bacteria|k__Bacillati|p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Apilactobacillus|s__Apilactobacillus_kunkeei	26
+k__Bacteria|k__Bacillati|p__Bacillota|c__Clostridia|o__Eubacteriales|f__Oscillospiraceae|g__Ethanoligenens|s__Ethanoligenens_harbinense	2
+k__Bacteria|k__Bacillati|p__Mycoplasmatota|c__Mollicutes|o__Entomoplasmatales|f__Spiroplasmataceae|g__Spiroplasma|s__Spiroplasma_citri	617
+k__Bacteria|k__Bacillati|p__Mycoplasmatota|c__Mollicutes|o__Entomoplasmatales|f__Spiroplasmataceae|g__Spiroplasma|s__Spiroplasma_melliferum	4
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Bifidobacteriales|f__Bifidobacteriaceae|g__Bifidobacterium|s__Bifidobacterium_asteroides	276
+k__Bacteria|k__Bacillati|p__Actinomycetota|c__Actinomycetes|o__Bifidobacteriales|f__Bifidobacteriaceae|g__Bifidobacterium|s__Bifidobacterium_coryneforme	258
+k__Viruses|s__Apis_mellifera_filamentous_virus	8

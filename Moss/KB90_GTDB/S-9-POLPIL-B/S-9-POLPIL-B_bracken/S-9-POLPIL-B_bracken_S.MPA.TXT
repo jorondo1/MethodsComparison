@@ -1,24 +1,23 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Methylobacterium sp022829385	118327	S	30	481	511	0.27577
-Methylobacterium sp022829365	118326	S	9	152	161	0.08689
-Methylobacterium sp008039875	118308	S	4	96	100	0.05397
-Methylobacterium sp022829585	118333	S	2	31	33	0.01781
-Methylobacterium sp022829515	118331	S	1	18	19	0.01025
-Methylobacterium sp022829545	118332	S	1	12	13	0.00702
-Lichenihabitans flavocetrariae	118233	S	6	13	19	0.01025
-Lichenicoccus roseus	113922	S	40	268	308	0.16622
-Acidisoma sp009765865	113615	S	8	31	39	0.02105
-Caballeronia sp001557535	126764	S	10	388	398	0.21479
-Caballeronia sordidicola_A	126761	S	1	12	13	0.00702
-Bog-1198 sp030776345	139669	S	1	77	78	0.04209
-NSF051 sp029379215	96827	S	1	7	8	0.00432
-NSF051 sp029379285	96829	S	1	14	15	0.00809
-Stigonema sp903903925	96940	S	1	10	11	0.00594
-Acidisarcina polymorpha	40108	S	13	27	40	0.02159
-EB88 sp003858395	40122	S	3	8	11	0.00594
-Terriglobus roseus_B	40382	S	1	2	3	0.00162
-Silvibacterium bohemicum	40370	S	1	7	8	0.00432
-CAHJWL01 sp937873265	40115	S	1	2	3	0.00162
-Occallatibacter gabretensis	40248	S	1	43	44	0.02375
-Granulicella_B arctica	40194	S	1	3	4	0.00216
-Granulicella_C pectinivorans	40196	S	1	3	4	0.00216
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829385	511
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829365	161
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp008039875	100
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829585	33
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829545	13
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829515	19
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Lichenihabitans|s__Lichenihabitans_flavocetrariae	19
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Lichenicoccus|s__Lichenicoccus_roseus	308
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Acidisoma|s__Acidisoma_sp009765865	39
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia_sp001557535	398
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia_sordidicola_A	13
+p__Pseudomonadota|c__Gammaproteobacteria|o__Steroidobacterales|f__Steroidobacteraceae|g__Bog-1198|s__Bog-1198_sp030776345	78
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Occallatibacter|s__Occallatibacter_gabretensis	44
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Acidisarcina|s__Acidisarcina_polymorpha	40
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__EB88|s__EB88_sp003858395	11
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Silvibacterium|s__Silvibacterium_bohemicum	8
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Granulicella_C|s__Granulicella_C_pectinivorans	4
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Granulicella_B|s__Granulicella_B_arctica	4
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Terriglobus|s__Terriglobus_roseus_B	3
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__CAHJWL01|s__CAHJWL01_sp937873265	3
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__NSF051|s__NSF051_sp029379285	15
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__NSF051|s__NSF051_sp029379215	8
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Stigonema|s__Stigonema_sp903903925	11

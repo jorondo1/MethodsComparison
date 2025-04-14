@@ -1,17 +1,16 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Nostoc sp002245985	96858	S	2	582	584	0.20243
-Nostoc calcicola	96837	S	1	96	97	0.03362
-Nostoc muscorum	96852	S	1	195	196	0.06794
-Nostoc sp017114945	96872	S	1	117	118	0.04090
-Nostoc sp028623165	96889	S	1	110	111	0.03847
-Nostoc punctiforme_A	96856	S	1	98	99	0.03432
-Rhizobium rhododendri	119997	S	18	1168	1186	0.41109
-Methylobacterium sp022829385	118327	S	3	115	118	0.04090
-Methylobacterium sp022829365	118326	S	2	77	79	0.02738
-Lichenihabitans flavocetrariae	118233	S	1	6	7	0.00243
-Azorhizobium doebereinerae	120376	S	1	55	56	0.01941
-Sphingomonas_N sp937859915	125357	S	4	90	94	0.03258
-Lichenicoccus roseus	113922	S	5	90	95	0.03293
-Acidisarcina polymorpha	40108	S	5	17	22	0.00763
-Granulicella_D aggregans_A	40206	S	1	7	8	0.00277
-Capsulimonas corticalis	52990	S	1	5	6	0.00208
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Rhizobiaceae|g__Rhizobium|s__Rhizobium_rhododendri	1186
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829385	118
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829365	79
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Lichenihabitans|s__Lichenihabitans_flavocetrariae	7
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Xanthobacteraceae|g__Azorhizobium|s__Azorhizobium_doebereinerae	56
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Lichenicoccus|s__Lichenicoccus_roseus	95
+p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Sphingomonas_N|s__Sphingomonas_N_sp937859915	94
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Nostoc|s__Nostoc_sp002245985	584
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Nostoc|s__Nostoc_punctiforme_A	99
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Nostoc|s__Nostoc_sp028623165	111
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Nostoc|s__Nostoc_sp017114945	118
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Nostoc|s__Nostoc_muscorum	196
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Nostoc|s__Nostoc_calcicola	97
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Acidisarcina|s__Acidisarcina_polymorpha	22
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Granulicella_D|s__Granulicella_D_aggregans_A	8
+p__Armatimonadota|c__Armatimonadia|o__Armatimonadales|f__Capsulimonadaceae|g__Capsulimonas|s__Capsulimonas_corticalis	6

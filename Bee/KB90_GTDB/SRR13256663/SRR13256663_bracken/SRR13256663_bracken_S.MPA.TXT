@@ -1,9 +1,8 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Gilliamella apis_A	133086	S	1	49	50	0.07194
-Gilliamella apis	133085	S	1	24	25	0.03597
-CALYPF01 sp945271245	132863	S	3	24	27	0.03885
-Frischella perrara	133059	S	1	13	14	0.02014
-Pseudomonas_E bharatica	138214	S	1	258	259	0.37266
-Bombilactobacillus mellifer	55230	S	1	235	236	0.33957
-Bifidobacterium indicum	42787	S	1	6	7	0.01007
-Alloprevotella sp002933955	76822	S	1	71	72	0.10360
+p__Pseudomonadota|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Pseudomonas_E|s__Pseudomonas_E_bharatica	259
+p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Gilliamella|s__Gilliamella_apis	25
+p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Gilliamella|s__Gilliamella_apis_A	50
+p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__CALYPF01|s__CALYPF01_sp945271245	27
+p__Pseudomonadota|c__Gammaproteobacteria|o__Enterobacterales|f__Enterobacteriaceae|g__Frischella|s__Frischella_perrara	14
+p__Bacillota|c__Bacilli|o__Lactobacillales|f__Lactobacillaceae|g__Bombilactobacillus|s__Bombilactobacillus_mellifer	236
+p__Bacteroidota|c__Bacteroidia|o__Bacteroidales|f__Bacteroidaceae|g__Alloprevotella|s__Alloprevotella_sp002933955	72
+p__Actinomycetota|c__Actinomycetes|o__Actinomycetales|f__Bifidobacteriaceae|g__Bifidobacterium|s__Bifidobacterium_indicum	7

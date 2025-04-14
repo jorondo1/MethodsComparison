@@ -1,18 +1,17 @@
-name	taxonomy_id	taxonomy_lvl	kraken_assigned_reads	added_reads	new_est_reads	fraction_total_reads
-Nostoc sp029379225	96890	S	1	20	21	0.02011
-Nostoc sp026127265	96888	S	1	151	152	0.14559
-Stigonema ocellatum	96939	S	2	409	411	0.39368
-Stigonema sp903903925	96940	S	1	6	7	0.00670
-Methylobacterium sp022829385	118327	S	2	28	30	0.02874
-Lichenihabitans minor	118234	S	1	14	15	0.01437
-Acidisoma sp019351895	113616	S	1	6	7	0.00670
-Novosphingobium sp903970225	124574	S	1	10	11	0.01054
-Caballeronia sp001557535	126764	S	1	30	31	0.02969
-Dyella_B sp903970555	140509	S	1	16	17	0.01628
-UBA5158 sp903970525	132093	S	1	2	3	0.00287
-Bog-1198 sp003137095	139643	S	1	113	114	0.10920
-Palsa-1515 sp903970385	102220	S	10	186	196	0.18774
-Acidisarcina polymorpha	40108	S	1	4	5	0.00479
-Acidoferrum sp003161195	39724	S	1	2	3	0.00287
-Gemmata tundricola	112182	S	1	2	3	0.00287
-Mycobacterium madagascariense	46516	S	1	10	11	0.01054
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Stigonema|s__Stigonema_ocellatum	411
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Stigonema|s__Stigonema_sp903903925	7
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Nostoc|s__Nostoc_sp026127265	152
+p__Cyanobacteriota|c__Cyanobacteriia|o__Cyanobacteriales|f__Nostocaceae|g__Nostoc|s__Nostoc_sp029379225	21
+p__Pseudomonadota|c__Gammaproteobacteria|o__Steroidobacterales|f__Steroidobacteraceae|g__Bog-1198|s__Bog-1198_sp003137095	114
+p__Pseudomonadota|c__Gammaproteobacteria|o__Burkholderiales|f__Burkholderiaceae|g__Caballeronia|s__Caballeronia_sp001557535	31
+p__Pseudomonadota|c__Gammaproteobacteria|o__Xanthomonadales|f__Rhodanobacteraceae|g__Dyella_B|s__Dyella_B_sp903970555	17
+p__Pseudomonadota|c__Gammaproteobacteria|o__DSM-16500|f__DSM-16500|g__UBA5158|s__UBA5158_sp903970525	3
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Methylobacterium|s__Methylobacterium_sp022829385	30
+p__Pseudomonadota|c__Alphaproteobacteria|o__Rhizobiales|f__Beijerinckiaceae|g__Lichenihabitans|s__Lichenihabitans_minor	15
+p__Pseudomonadota|c__Alphaproteobacteria|o__Sphingomonadales|f__Sphingomonadaceae|g__Novosphingobium|s__Novosphingobium_sp903970225	11
+p__Pseudomonadota|c__Alphaproteobacteria|o__Acetobacterales|f__Acetobacteraceae|g__Acidisoma|s__Acidisoma_sp019351895	7
+p__Eremiobacterota|c__Eremiobacteria|o__Baltobacterales|f__Baltobacteraceae|g__Palsa-1515|s__Palsa-1515_sp903970385	196
+p__Actinomycetota|c__Actinomycetes|o__Mycobacteriales|f__Mycobacteriaceae|g__Mycobacterium|s__Mycobacterium_madagascariense	11
+p__Acidobacteriota|c__Terriglobia|o__Terriglobales|f__Acidobacteriaceae|g__Acidisarcina|s__Acidisarcina_polymorpha	5
+p__Acidobacteriota|c__Terriglobia|o__Acidoferrales|f__UBA7541|g__Acidoferrum|s__Acidoferrum_sp003161195	3
+p__Planctomycetota|c__Planctomycetia|o__Gemmatales|f__Gemmataceae|g__Gemmata|s__Gemmata_tundricola	3
