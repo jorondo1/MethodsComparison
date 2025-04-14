@@ -107,14 +107,24 @@ RA_meta <- read.delim('RA_Gut/raw/metadata.tsv') %>%
 Bee_meta <- read_delim('Bee/raw/filereport_read_run_PRJNA685398_tsv.txt') %>% 
   select(run_accession, library_name) %>% 
   mutate(Group = as.factor(str_extract_all(library_name, "[A-Za-z]") %>% 
-           sapply(paste, collapse = ""),
-         .keep = 'unused'))
+           sapply(paste, collapse = "")),
+         .keep = 'unused') %>% 
+  column_to_rownames('run_accession')
 
-PD_meta <- read_delim('Olive/raw/filereport_read_run_PRJNA629675_tsv.txt') %>% 
+Olive_meta <- read_delim('Olive/raw/filereport_read_run_PRJNA629675_tsv.txt') %>% 
   select(run_accession, library_name) %>% 
   mutate(Group = as.factor(
     str_extract(library_name, regex(paste(c('Kal', 'FS'), collapse = "|")))),
-    .keep = 'unused')
+    .keep = 'unused') %>% 
+  column_to_rownames('run_accession')
+
+PD_meta <- read_delim('PD/raw/filereport_read_run_PRJNA834801_tsv.txt') %>% 
+  select(run_accession, library_name) %>% 
+  mutate(Group = as.factor(
+    str_extract(library_name, regex(paste(c('DP', 'DC'), collapse = "|")))),
+    .keep = 'unused') %>% 
+  filter(!is.na(Group)) %>% 
+  column_to_rownames('run_accession')
 
 # Full phyloseq objects 
 ps_raw.ls <- list()

@@ -160,7 +160,7 @@ for j in SM_gtdb-rs214-full SM_gtdb-rs214-rep SM_genbank-2022.03 SM_gtdb-rs220-r
 	ver=$(echo "$j" | cut -d'_' -f3)
 
 	if [[ ! -f $i/$j/${j}_lineages.csv ]]; then
-        cat $i/$j/*_gather.csv | cut -d, -f10 | tail -n+2 | awk '{print $1}' | sed 's/"//' | sort -u | grep -Fhf - $ILAFORES/ref_dbs/sourmash_db/${db}*${ver}*.lineages.csv > $i/$j/${j}_lineages.csv
+        cat $i/$j/*_gather.csv | cut -d, -f10 | tail -n+2 | awk '{print $1}' | sed 's/"//; s/^[^_]*_//; s/\.[^.]*$//' | grep -v name | sort -u | grep -Fhf - $ILAFORES/ref_dbs/sourmash_db/${db}*${ver}*.lineages.csv > $i/$j/${j}_lineages.csv
 	fi
 done
 done
