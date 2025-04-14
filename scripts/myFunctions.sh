@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Verify output for all datasets
 check_output() {
 	if [ $# -lt 3 ]; then
 	        echo "!!Usage: my_function <'database1 database2 ... databaseN'> <DATASETS> <filename_suffix>"
@@ -24,4 +25,15 @@ check_output() {
 		done
 	done
 }
+
+# Function to export variable names
+dataset() {
+    declare -g "TSV"="$2"
+    declare -g "N_SAMPLES"=$(wc -l < "$2")
+    
+    echo "\$DATASET evaluates to $1"
+    echo "\$TSV evaluates to $TSV"
+    echo "\$N_SAMPLES evaluates to $N_SAMPLES"
+}
+
 
