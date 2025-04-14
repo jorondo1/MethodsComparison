@@ -5,15 +5,16 @@ source scripts/myFunctions.sh
 
 # Create <dataset>_TSV and NUM_<dataset> variables
 # Choose the one to work with :
-dataset "P19_Saliva" "$PR19/Saliva/preproc/preprocessed_reads.sample.tsv"
-dataset "P19_Gut" "$PR19/Feces/preproc/preprocessed_reads.sample.tsv"
-dataset "Moss" "$MOSS/preproc/preprocessed_reads.sample.tsv"
-dataset "NAFLD" "$MC/NAFLD/preproc/preprocessed_reads.sample.tsv"
-dataset "AD_Skin" "$MC/NAFLD/preproc/preprocessed_reads.sample.tsv"
-dataset "PD" "$MC/PD/preproc/preprocessed_reads.sample.tsv"
-dataset "Bee" "$MC/Bee/preproc/preprocessed_reads.sample.tsv"
-dataset "Olive" "$MC/Olive/preproc/preprocessed_reads.sample.tsv"
-	
+dataset_variables "P19_Saliva" "$PR19/Saliva/preproc/preprocessed_reads.sample.tsv"
+dataset_variables "P19_Gut" "$PR19/Feces/preproc/preprocessed_reads.sample.tsv"
+dataset_variables "Moss" "$MOSS/preproc/preprocessed_reads.sample.tsv"
+dataset_variables "NAFLD" "$MC/NAFLD/preproc/preprocessed_reads.sample.tsv"
+dataset_variables "AD_Skin" "$MC/NAFLD/preproc/preprocessed_reads.sample.tsv"
+dataset_variables "PD" "$MC/PD/preproc/preprocessed_reads.sample.tsv"
+dataset_variables "Bee" "$MC/Bee/preproc/preprocessed_reads.sample.tsv"
+dataset_variables "Olive" "$MC/Olive/preproc/preprocessed_reads.sample.tsv"
+dataset_variables "RA_Gut" "$MC/RA_Gut/preproc/preprocessed_reads.sample.tsv"
+
 ######################
 # QC #################
 ######################
@@ -90,7 +91,7 @@ k2_local=$MC/scripts/kraken_local.sh
 bash $k2_local --tsv ${TSV}.fast --confidence 0.10 --output $MC/$DATASET/KB10 --kraken_db $k2_std --threads 24
 bash $k2_local --tsv ${TSV}.fast --confidence 0.45 --output $MC/$DATASET/KB45 --kraken_db $k2_std --threads 24
 bash $k2_local --tsv ${TSV}.fast --confidence 0.90 --output $MC/$DATASET/KB90 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${TSV}.fast --confidence 0.10 --output $MC/$DATASET/KB10_GTDB --kraken_db $k2_gtdb --threads 12
+bash $k2_local --tsv ${TSV}.fast --confidence 0.10 --output $MC/$DATASET/KB10_GTDB --kraken_db $k2_gtdb --threads 24
 bash $k2_local --tsv ${TSV}.fast --confidence 0.45 --output $MC/$DATASET/KB45_GTDB --kraken_db $k2_gtdb --threads 24
 bash $k2_local --tsv ${TSV}.fast --confidence 0.90 --output $MC/$DATASET/KB90_GTDB --kraken_db $k2_gtdb --threads 24
 
@@ -102,7 +103,7 @@ FNR==2 {classified=$2; rate=classified/(unclassified+classified);
 ' {} + > kraken_classification_rate.tsv
 
 # Check completion status
-check_output 'KB10_GTDB KB45_GTDB KB90_GTDB' $DATASET _bracken_S.MPA.TXT
+check_output 'KB10 KB45 KB90 KB10_GTDB KB45_GTDB KB90_GTDB' $DATASET _bracken_S.MPA.TXT
 
 database="KB90"
 missing_KB=$(grep -n -v -f <(ls $DATASET/$database/*/*/*_bracken_S.MPA.TXT | awk -F'/' '{print $3}' | sed 's/_profile\.txt//') $DATASET/preproc/preprocessed_reads.sample.tsv | cut -f1 -d: | tr '\n' ','); echo $missing_KB
@@ -147,18 +148,20 @@ rm */*/.throttle -r
 sbatch --mem=120G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "genbank-2022.03"
 sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "gtdb-rs214-rep"
 sbatch --mem=80G -n 16 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "gtdb-rs214-full"
-sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "gtdb-reps-rs220"
+sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "gtdb-rs220-rep"
 
 # Check completion status
 check_output 'gtdb-rs214-rep gtdb-rs214-full genbank-2022.03 gtdb-reps-rs220' $DATASET _gather.csv
 
 # Extract Sourmash lineage subset
-for i in $DATASETS; do
-for j in SM_gtdb-rs214-full SM_gtdb-rs214-rep SM_genbank-2022.03; do
+for i in P19_Saliva P19_Gut PD AD_Skin RA_Gut Bee Olive NAFLD; do
+for j in SM_gtdb-rs214-full SM_gtdb-rs214-rep SM_genbank-2022.03 SM_gtdb-rs220-rep; do
 	db=$(echo "$j" | cut -d'_' -f2 | cut -d'-' -f1,2)
 	ver=$(echo "$j" | cut -d'_' -f3)
-cat $i/$j/*_gather.csv | cut -d, -f10 | tail -n+2 | awk '{print $1}' | sed 's/"//' | sort -u | \
-	grep -Fhf - $ILAFORES/ref_dbs/sourmash_db/${db}*${ver}*.lineages.csv > $i/$j/${j}_lineages.csv
+
+	if [[ ! -f $i/$j/${j}_lineages.csv ]]; then
+        cat $i/$j/*_gather.csv | cut -d, -f10 | tail -n+2 | awk '{print $1}' | sed 's/"//' | sort -u | grep -Fhf - $ILAFORES/ref_dbs/sourmash_db/${db}*${ver}*.lineages.csv > $i/$j/${j}_lineages.csv
+	fi
 done
 done
 

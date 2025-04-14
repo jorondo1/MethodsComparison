@@ -9,7 +9,7 @@ check_output() {
 	fi
 	
     if [[ -z "$DATASET" || -z "$TSV" ]]; then
-		echo "\$DATASET or \$TSV Wnot set. Run dataset_variables <DATASET> <TSV> to declare variables."
+		echo "\$DATASET or \$TSV not set. Run dataset_variables <DATASET> <TSV> to declare variables."
 		return 1
 	fi
 	

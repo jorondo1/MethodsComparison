@@ -45,7 +45,7 @@ meta_parsing <- function(dsName, samData) {
     assemble_phyloseq(samData)
   
   SM_gtdb_dirs <- list.dirs(dsName, recursive = FALSE) %>% 
-    .[grep("/SM_gtdb-rs214[^/]*$", .)] %>% basename # rs220 has a different output, unique_intersect_bp column doesn't exist
+    .[grep("/SM_gtdb-[^/]*$", .)] %>% basename # rs220 has a different output, unique_intersect_bp column doesn't exist
   
   for (db in SM_gtdb_dirs) {
     message(paste('Parsing', db, '...'))
