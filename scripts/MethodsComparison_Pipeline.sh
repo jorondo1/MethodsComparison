@@ -3,16 +3,6 @@ export ILL_PIPELINES=$ILAFORES/analysis/MethodsComparison/ILL_pipelines
 cd $MC
 source scripts/myFunctions.sh
 
-# Function to export variable names
-dataset() {
-    declare -g "TSV"="$2"
-    declare -g "N_SAMPLES"=$(wc -l < "$2")
-    
-    echo "\$DATASET evaluates to $1"
-    echo "\$TSV evaluates to $TSV"
-    echo "\$N_SAMPLES evaluates to $N_SAMPLES"
-}
-
 # Create <dataset>_TSV and NUM_<dataset> variables
 # Choose the one to work with :
 dataset "P19_Saliva" "$PR19/Saliva/preproc/preprocessed_reads.sample.tsv"
@@ -66,7 +56,7 @@ sbatch --array="$missing_samples" /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/M
 sbatch --array=1-"$N_SAMPLES" $MC/scripts/motus_SLURM.sh $DATASET $TSV.fast
 
 # Check completion status
-check_output 'MOTUS' 'PD' _profile.txt
+check_output 'MOTUS' $DATASET _profile.txt
 
 # Rerun missing MOTUS
 rm $DATASET/MOTUS/_profile.txt # not sure why that appears
