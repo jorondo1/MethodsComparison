@@ -9,7 +9,7 @@ check_output() {
 	fi
 	
     if [[ -z "${!DATASET+x}" || -z "${!TSV+x}" ]]; then
-		echo "\$DATASET not set. Run dataset <DATASET> <TSV> to declare variables."
+		echo "\$DATASET not set. Run dataset_variables <DATASET> <TSV> to declare variables."
 		return 1
 	fi
 	
@@ -20,10 +20,10 @@ check_output() {
 		
 		found=$(find $DATASET/*$db -type f -name "*$filename_suffix" -exec basename {} \; | sed "s/${filename_suffix}//" | sed "s/_${db}//")
 		
-		num=$(echo $found | wc -w)
-		echo "$num $db output for $DATASET found, $N_SAMPLES expected."
+		num_found=$(echo $found | wc -w)
+		echo "$num_found $db output for $DATASET found, $N_SAMPLES expected."
 		
-		if [ "$num" -lt "$exp" ]; then 
+		if [ "$num_found" -lt "$N_SAMPLES" ]; then 
 			grep -nv -E "${found}" $TSV | cut -d: -f1| paste -s -d,
 		fi
 	done
