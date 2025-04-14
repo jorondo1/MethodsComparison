@@ -8,7 +8,7 @@ check_output() {
 	        return 1  # Exit the function with a non-zero status
 	fi
 	
-    if [[ -z "${!DATASET+x}" || -z "${!TSV+x}" ]]; then
+    if [[ -z "$DATASET" || -z "$TSV" ]]; then
 		echo "\$DATASET not set. Run dataset_variables <DATASET> <TSV> to declare variables."
 		return 1
 	fi
