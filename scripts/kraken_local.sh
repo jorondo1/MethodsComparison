@@ -101,24 +101,30 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
     $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
    
     # Kraken classify
-    $nice_cmd kraken2 --memory-mapping \\
-        --confidence ${confidence} \\
-        --paired \\
-        --threads \"${threads}\" \\
-        --db \"${kraken_db}\" \\
-        --use-names \\
-        --output /dev/null \\
-        --report \"${out_subdir}/${sample}.kreport\" \\
-        \"${fq1}\" \"${fq2}\"
-
+    if [[ ! -f \"${out_subdir}/${sample}.kreport\" ]]; then 
+        $nice_cmd kraken2 --memory-mapping \\
+            --confidence ${confidence} \\
+            --paired \\
+            --threads \"${threads}\" \\
+            --db \"${kraken_db}\" \\
+            --use-names \\
+            --output /dev/null \\
+            --report \"${out_subdir}/${sample}.kreport\" \\
+            \"${fq1}\" \"${fq2}\"
+    fi
+    
     # Bracken reestimations
     mkdir -p \"${out_subdir}/${sample}_bracken\"
     bracken \\
         -d \"${kraken_db}\" \\
         -i \"${out_subdir}/${sample}.kreport\" \\
-        -o \"${out_subdir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT\" \\
+        -o \"${out_subdir}/${sample}_bracken/${sample}_bracken_S.bracken\" \\
         -w \"${out_subdir}/${sample}_bracken/${sample}_bracken_S.kreport\" \\
         -r $bracken_readlen
+        
+    python3 /KrakenTools-1.2/kreport2mpa.py --display-header \\
+        -r \"${out_subdir}/${sample}_bracken/${sample}_bracken_S.kreport\" \\
+        -o \"${out_subdir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT\"
 "
 iter_end=$(date +%s)
 iter_time=$((iter_end - iter_start))

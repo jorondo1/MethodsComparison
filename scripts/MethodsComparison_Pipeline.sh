@@ -102,7 +102,7 @@ FNR==2 {classified=$2; rate=classified/(unclassified+classified);
 ' {} + > kraken_classification_rate.tsv
 
 # Check completion status
-check_output 'KB10 KB45 KB90' $DATASET _bracken_S.MPA.TXT
+check_output 'KB10_GTDB KB45_GTDB KB90_GTDB' $DATASET _bracken_S.MPA.TXT
 
 database="KB90"
 missing_KB=$(grep -n -v -f <(ls $DATASET/$database/*/*/*_bracken_S.MPA.TXT | awk -F'/' '{print $3}' | sed 's/_profile\.txt//') $DATASET/preproc/preprocessed_reads.sample.tsv | cut -f1 -d: | tr '\n' ','); echo $missing_KB
@@ -134,7 +134,7 @@ missing_MPA=$(grep -n -v -f <(ls $DATASET/$database/*/*_profile.txt | awk -F'/' 
 sbatch --array="$missing_MPA" $MC/$DATASET/$database/metaphlan.slurm.sh $DATASET "\$${dataset}_TSV"
 
 # Check completion status
-check_output 'MPA_db2022 MPA_db2023 MPA_db2019' $DATASET _profile.txt
+check_output 'MPA_db2022 MPA_db2023' $DATASET _profile.txt
 
 # Remove bowtie indexes
 rm */MPA_db*/*/*.bowtie2.txt
@@ -150,7 +150,7 @@ sbatch --mem=80G -n 16 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "
 sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "gtdb-reps-rs220"
 
 # Check completion status
-check_output 'gtdb-rs214-rep gtdb-rs214-full genbank-2022.03' $DATASET _gather.csv
+check_output 'gtdb-rs214-rep gtdb-rs214-full genbank-2022.03 gtdb-reps-rs220' $DATASET _gather.csv
 
 # Extract Sourmash lineage subset
 for i in $DATASETS; do

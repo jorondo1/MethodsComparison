@@ -117,6 +117,9 @@ ps_raw.ls$Moss$MOTUS <- NULL
 ps_raw.ls[['NAFLD']] <- meta_parsing('NAFLD', NAFLD_meta)
 ps_raw.ls[['AD_Skin']] <- meta_parsing('AD_Skin', AD_skin_meta)
 ps_raw.ls[['RA_Gut']] <- meta_parsing('RA_Gut', RA_meta)
+ps_raw.ls[['Bee']] <- meta_parsing('Bee', RA_meta)
+ps_raw.ls[['Olive']] <- meta_parsing('Olive', RA_meta)
+ps_raw.ls[['PD']] <- meta_parsing('PD', RA_meta)
 
 # Prevalence+Abundance filtering, currently hardcoded in filter_low_prevalence()
 ps_filt.ls <- lapply(ps_raw.ls, function(ds) {
