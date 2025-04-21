@@ -15,8 +15,8 @@ export ILAFORES=$ANCHOR/$ILAFORES
 module load StdEnv/2020 apptainer/1.1.5
 
 # Parse options and variables
-export SAM_LIST="${ANCHOR}/${2}"
-export SM_DB="${ANCHOR}/${3}"
+export SAM_LIST="${ANCHOR}${2}"
+export SM_DB="${ANCHOR}${3}"
 export DB_NAME=$(basename ${SM_DB/[-._]k??.*/})
 export OUT_DIR=${PWD}/"${1}"/SM_${DB_NAME}
 export DB_ANCHOR=$(dirname $SM_DB)
