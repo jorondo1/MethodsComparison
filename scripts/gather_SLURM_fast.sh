@@ -36,10 +36,12 @@ SAM_ANCHOR=$(dirname $FQ_P1)
 export sourmash="singularity exec --writable-tmpfs -e -B ${SAM_ANCHOR}:${SAM_ANCHOR} -B $ILAFORES:$ILAFORES ${ILAFORES}/programs/ILL_pipelines/containers/sourmash.4.8.11.sif sourmash"
 
 export SIG=$(realpath "${PWD}/${1}/${SAM_ID}.sig")
-
+echo $SIG
+exit 1
 mkdir -p $OUT_DIR/../signatures
 
 if [[ ! -f $SIG ]]; then
+	echo "$SIG not found"
 	echo "Sketch metagenomes"
 	$sourmash sketch dna -p k=31,scaled=1000,abund --merge ${SAM_ID} -o $SIG $FQ_P1 $FQ_P2 $FQ_U1 $FQ_U2
 else
