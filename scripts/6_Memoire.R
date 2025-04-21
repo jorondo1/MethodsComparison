@@ -1,6 +1,6 @@
 library(pacman)
 p_load( magrittr, tidyverse, purrr, kableExtra, phyloseq, patchwork, 
-        rstatix, parallel, reshape2, vegan)
+        rstatix, parallel, reshape2, vegan, RColorBrewer)
 ps_rare.ls <- read_rds('Out/ps_rare.ls.rds')
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/community_functions.R'))
 source("scripts/myFunctions.R")
@@ -41,9 +41,12 @@ tax_assignment <- imap(ps_rare.ls, function(ps_dataset.ls, dataset){
          CCE_tool = factor(CCE_tool, names(tool_colours)))
 
 # Prepare plot data
-these_databases <- c('SM_genbank-2022.03', 'SM_gtdb-rs214-full', 'MPA_db2023','KB10', 'KB45','KB90', 'MOTUS')
-these_datasets <- c('AD_Skin', 'Moss', 'NAFLD', 'P19_Gut', 'P19_Saliva')
+these_databases <- c('SM_genbank-2022.03', 'SM_gtdb-rs220-rep', 
+                     'MPA_db2022','MPA_db2023', 'MOTUS',
+                     'KB10', 'KB45','KB90', 'KB10_GTDB', 'KB45_GTDB','KB90_GTDB')
+these_datasets <- c('Moss', 'NAFLD', 'P19_Gut', 'P19_Saliva', 'PD', 'Olive', 'Bee', 'RA_Gut', 'AD_Skin')
 
+# SUBSET
 tax_assignment.pdat <- tax_assignment %>% 
   filter(CCE_tool %in% these_databases &
            Dataset %in% these_datasets &
@@ -58,8 +61,9 @@ tax_assignment.pdat <- tax_assignment %>%
 # | $$      | $$$$$$$$|  $$$$$$/   | $$          /$$$$$$
 # |__/      |________/ \______/    |__/         |______/
 
-# Number of taxa per taxrank
+# Number of Species per dataset
 tax_assignment.pdat %>% 
+  filter(Rank %in% c('Species', 'Phylum')) %>% 
   ggplot(aes(x = Dataset, y = Num_tax, fill = CCE_tool)) +
   geom_col(position = position_dodge2(preserve = 'single')) + # keep bars the same width
   facet_grid(Rank~., scales = 'free_y') +
@@ -71,7 +75,8 @@ tax_assignment.pdat %>%
   filter(Rank == 'Species') %>% 
   group_by(Dataset) %>% 
   summarise(min_count = min(Num_tax),
-            max_count = max(Num_tax))
+            max_count = max(Num_tax)) %>% 
+  mutate(Increase = max_count/min_count)
 
 # Reshape the data for each Dataset
 tax_assignment_wide <- tax_assignment %>%
@@ -108,7 +113,10 @@ grouping_variable <- c(
   NAFLD = 'Group',
   P19_Gut = 'diarr',
   P19_Saliva = 'diarr',
-  RA_Gut = 'Group'
+  RA_Gut = 'Group',
+  PD = 'Group',
+  Bee = 'Group',
+  Olive = 'Group'
 )
 
 # This function will recode them dynamically as A and B, simply 
@@ -124,7 +132,6 @@ recode_factor_AB <- function(factor_var) {
 
 alpha_div <-  imap(ps_rare.ls, function(ps_dataset.ls, dataset){
   imap(ps_dataset.ls, function(ps, CCE_tool){
-    
     #Estimate indices
     richness <- estimate_diversity(ps, 'Richness')
     shannon <- estimate_diversity(ps, 'Shannon')
@@ -138,13 +145,10 @@ alpha_div <-  imap(ps_rare.ls, function(ps_dataset.ls, dataset){
                as.factor %>% recode_factor_AB) %>% 
       select(Sample, Grouping_var)
   
-    # Pull CCE approach
-    approach <- CCE_metadata %>% # defined in myFunctions.R
-      filter(database == CCE_tool) %>% 
-      pull(CCE_approach)
-    
-    # Compile data
-    tibble(
+    # Pull CCE approach (defined in myFunctions.R)
+    approach <- CCE_metadata$CCE_approach[match(CCE_tool, CCE_metadata$database)]
+
+   tibble(
       Sample = names(richness),
       Dataset = dataset,
       CCE_tool = CCE_tool,
@@ -194,7 +198,7 @@ plot_div_by_approach <- function(df, approach) {
 
 # Subset to databases of interest
 alpha_div_subset <- alpha_div %>% 
-  filter(Index %in% c('Richness', 'Shannon') & 
+  filter(Index %in% c('Shannon') & 
            Dataset %in% these_datasets &
            CCE_tool %in% these_databases)
 
@@ -202,8 +206,8 @@ alpha_div_subset <- alpha_div %>%
 these_samples <- alpha_div_subset %>% 
   group_by(Dataset, Index, Sample, CCE_approach) %>% 
   summarise(num = n(), .groups = 'drop') %>% 
-  filter((num == 4 & CCE_approach == 'DNA-to-DNA') | 
-           (num == 2 & CCE_approach == 'DNA-to-Marker')) %>% 
+  #filter((num == 4 & CCE_approach == 'DNA-to-DNA') | 
+   #        (num == 2 & CCE_approach == 'DNA-to-Marker')) %>% 
   dplyr::select(Sample, CCE_approach)
 
 alpha_div_subset %>% # filter only for sample/approach combinations defined
@@ -214,6 +218,15 @@ alpha_div_subset %>%
   semi_join(these_samples, join_by(Sample, CCE_approach))%>% 
   plot_div_by_approach(approach = 'DNA-to-Marker')
 
+# Mean Dataset alphadiv range across methods
+alpha_div_subset %>% group_by(CCE_tool, Dataset) %>% 
+  # Mean tool div by dataset
+  summarise(mean = mean(Index_value)) %>% 
+  # Mean 
+  group_by(Dataset) %>% 
+  summarise(min = min(mean), max = max(mean)) %>% 
+  mutate(range = max - min) 
+
 # Or One plot per index showing tools from both approaches 
 plot_div_by_index <- function(df, index) {
   df %>%   filter(Index == index) %>% 
@@ -223,6 +236,7 @@ plot_div_by_index <- function(df, index) {
     facet_grid(. ~ CCE_approach, scales = 'free') +
     scale_x_discrete(labels = CCE_names) +
     theme(axis.text.x = element_text(angle = 45,  hjust=1)) +
+    #scale_colour_manual(values = tool_colours, labels = CCE_names) +
     scale_y_continuous(limits = c(0, NA)) +
     labs(x = 'CCE Tool', y = index,
          colour = 'Community Composition\nEstimation Tool &\nReference Database')
@@ -231,10 +245,9 @@ plot_div_by_index <- function(df, index) {
 alpha_div_subset2 <- alpha_div %>% 
   semi_join(these_samples, join_by(Sample, CCE_approach))%>% 
   filter(Dataset %in% these_datasets &
-           CCE_tool %in% these_databases) %>% 
-  mutate(CCE_tool = factor(CCE_tool, levels = c('SM_genbank-2022.03', 'SM_gtdb-rs214-full', 'KB45','KB90', 'MPA_db2023', 'MOTUS'))) 
-
+           CCE_tool %in% these_databases) 
 plot_div_by_index(alpha_div_subset2, 'Richness')
+
 ggsave('Out/memoire/change_richness.png', bg = 'white', width = 2000, height = 2000, 
        units = 'px', dpi = 220)
 
@@ -254,23 +267,24 @@ compute_sign_specific_changes <- function(df, tool1, tool2){
     summarise(mean = mean(diff),
               min = min(diff),
               max = max(diff),
-              n = n())
+              n = n()) %>% 
+    select(-direction)
 }
 
 alpha_div %>% 
   filter( ! Dataset %in% 'RA_Gut' &
-            Index == 'Richness') %>% 
-  compute_sign_specific_changes('SM_gtdb-rs214-full', 'KB45')
+            Index == 'Shannon') %>% 
+  compute_sign_specific_changes('KB45_GTDB', 'SM_gtdb-rs220-rep')
   
 alpha_div %>% 
   filter( ! Dataset %in% 'Moss' &
             Index == 'Shannon') %>% 
-  compute_sign_specific_changes('KB90', 'KB45')
+  compute_sign_specific_changes('MOTUS', 'MPA_db2023')
 
 alpha_div %>% 
-  filter( ! Dataset %in% c('RA_Gut', 'AD_Skin') &
-            Index == 'Richness') %>% 
-  compute_sign_specific_changes('SM_genbank-2022.03', 'SM_gtdb-rs214-full')
+  filter( #! Dataset %in% c('RA_Gut', 'AD_Skin') &
+            Index == 'Shannon') %>% 
+  compute_sign_specific_changes('SM_genbank-2022.03', 'SM_gtdb-rs214-rep')
 
 alpha_div %>% 
   filter( ! Dataset %in% c('Moss') &
@@ -316,6 +330,7 @@ alpha_div %>%
 # using collapsed pairwise matrices (BC and rAitchison):
 # Sample_pair, Dataset, idx, idx_value, CCE, Approach
 
+# pcoa.ls <- read_rds('Out/pcoa.ls.RDS')
 pcoa.ls <- list()
 for (dist_metric in c('bray', 'robust.aitchison')) {
   pcoa.ls[[dist_metric]] <- lapply(ps_rare.ls, function(ps.ls) {
@@ -325,18 +340,22 @@ for (dist_metric in c('bray', 'robust.aitchison')) {
   })
 }
 
+write_rds(pcoa.ls, 'Out/pcoa.ls.RDS')
+
 ### 1. TECHNICAL COMPARISON
 # Essentially the same plot as alphadiv
 
 # Function to extract unique distances for each pair as long df
 compile_pair_distances <- function(dist.mx) {
-  
   dist_matrix <- as.matrix(dist.mx)
-  dist_matrix[lower.tri(dist_matrix, diag = TRUE)] <- NA #lower triangle
   
-  as.data.frame(dist_matrix) %>% # 
-    rownames_to_column(var = "Sample1") %>%
-    pivot_longer(-Sample1, names_to = "Sample2", values_to = "Distance", values_drop_na = TRUE)
+  upper_indices <- which(upper.tri(dist_matrix), arr.ind = TRUE)
+  
+  data.frame(
+    Sample1 = rownames(dist_matrix)[upper_indices[, 1]],
+    Sample2 = colnames(dist_matrix)[upper_indices[, 2]],
+    Distance = dist_matrix[upper_indices]
+  )
 }
 
 # Iterate over all pcoa
@@ -366,7 +385,7 @@ pairwise_distances <- imap(pcoa.ls, function(dist.ls, dist) {
 
 # Either a simple dot-plot, but we don't keep track of samples:
 pairwise_distances %>% 
-  filter(#Dist == 'bray' &
+  filter(Dist == 'bray' &
            CCE_tool %in% these_databases &
            Dataset %in% these_datasets) %>% 
   ggplot(aes(y = Distance, x = Dataset, colour = CCE_tool))+
@@ -376,35 +395,41 @@ pairwise_distances %>%
       dodge.width = 0.7    # Adjust dodge width
   )) +
   geom_boxplot(outliers = FALSE, alpha = 0.7) +
-  facet_grid(Dist~CCE_approach, scale = 'free')+
+  facet_grid(.~CCE_approach, scale = 'free')+
   scale_colour_manual(values = tool_colours, labels = CCE_names)
   
 ggsave('Out/memoire/change_beta.png', bg = 'white', width = 2000, height = 2000, 
        units = 'px', dpi = 220)
 
 
-pairwise_dist_split <- pairwise_distances %>% 
-  filter(CCE_tool %in% c('KB45', 'MOTUS', 'SM_genbank-2022.03', 'MPA_db2023')) %>% 
-  mutate(Pair = paste0(Sample1, '_',Sample2), .keep = 'unused') %>% # unique pair id
-  group_by(CCE_approach, Dataset, Dist, Pair) %>% 
-  select(-CCE_tool) %>% 
-  group_split %>% # subset by group (creates a list of tibbles)
-  .[sapply(., nrow) == 2] # drop groups that only have one tool
-
-# Function to pivot a single pair wide and compute change ### NEEDS OPTIMIZATION
-pivot_group <- function(group) {
-  group %>% 
-    mutate(CCE_ID = paste0("CCE_", row_number())) %>% 
-    pivot_wider(names_from = CCE_ID, values_from = Distance) %>% 
-    mutate(dist_diff = abs(CCE_1 - CCE_2), .keep = 'unused') # difference in pair dist
+compute_distance_differences <- function(pairwise_distances, tool1, tool2) {
+  pairwise_distances %>%
+    filter(CCE_tool %in% c(tool1, tool2)) %>%
+    #Create sample pair ID with consistence and uniqueness
+    mutate(Pair = ifelse(Sample1 < Sample2, 
+                         paste(Sample1, Sample2, sep = "_"),
+                         paste(Sample2, Sample1, sep = "_"))) %>%
+    select(-Sample1, -Sample2) %>%
+    # Pivot wide to manually compute difference
+    pivot_wider(names_from = CCE_tool, values_from = Distance) %>%
+    filter(complete.cases(.)) %>%
+    mutate(dist_diff = .[[tool1]] - .[[tool2]]) %>% # instead of !!sym() , thanks deepseek
+    select(-all_of(c(tool1, tool2)))
 }
 
-pairwise_dist_gap <- pairwise_dist_split %>% 
-  mclapply(pivot_group, mc.cores = 8) %>% 
-  bind_rows()
+pairwise_dist_gap <- compute_distance_differences(pairwise_distances, 
+                             'KB90_GTDB', 'KB90')
 
 pairwise_dist_gap %>% 
-  filter(Dataset %in% these_datasets) %>% 
+  filter(Dist == 'bray') %>% 
+  group_by(Dataset, Dist) %>% 
+  summarise(min_diff = min(dist_diff),
+            mean_diff = mean(dist_diff),
+            median_diff = median(dist_diff),
+            max_diff = max(dist_diff))
+
+pairwise_dist_gap %>% 
+  filter(Dist == 'bray') %>% 
   ggplot(aes(x = Dataset, y = dist_diff, fill = Dataset)) +
   geom_boxplot() +
   # geom_jitter(size = 0.3,
@@ -412,9 +437,9 @@ pairwise_dist_gap %>%
   #               jitter.width = 0.4,  # Adjust jitter width
   #               dodge.width = 0.7    # Adjust dodge width
   #             )) +
-  facet_grid(Dist~CCE_approach, scale = 'free') +
+ #facet_grid(Dist~CCE_approach, scale = 'free') +
   theme_light() +
-  labs(y = 'Differences in pairwise distances between tools')
+  labs(y = 'Differences in pairwise dissimilarities between tools')
 
 ggsave('test_dist.png', bg = 'white', width = 2000, height = 2000, 
        units = 'px', dpi = 220)
@@ -520,6 +545,7 @@ pcoa.ds %>%
   labs(fill = 'Grouping', colour = 'Grouping')
 
 # Procruste comparison of pcoas ?
+# permanova.ds <- read_rds('Out/permanova.ds.RDS')
 
 # 2.2. perMANOVA
 permanova.ds <- imap(pcoa.ls, function(pcoa_ds.ls, dist) {
@@ -550,6 +576,8 @@ permanova.ds <- imap(pcoa.ls, function(pcoa_ds.ls, dist) {
   }) %>% list_rbind
 }) %>% list_rbind
 
+write_rds(permanova.ds, 'Out/permanova.ds.RDS')
+
 # Presented as in poster? 
 p_value_lines <- function() {
   list(
@@ -564,15 +592,21 @@ p_value_lines <- function() {
 }
 
 permanova.ds %>% 
-  filter(Index == 'bray' & 
-           Database %in% these_databases) %>% 
+  filter(Index == 'bray' ) %>% 
   ggplot(aes(y = R2, x = log10(p))) +
   geom_point(size = 4, colour = 'black', shape = 21, alpha = 0.8,
              aes(fill = Database)) +
-  facet_grid(Dataset~.)  +
+  facet_grid(Dataset~., scales = 'free')  +
   p_value_lines() +
   scale_fill_manual(values = tool_colours, labels = CCE_names)
 
+test <- permanova.ds %>% 
+ # filter(Index == 'bray' ) %>% 
+  left_join(CCE_metadata, join_by('Database' == 'database')) %>% 
+  mutate(across(where(is.character),as.factor)) %>% 
+  lm(R2~ CCE_approach, data = .)
+
+summary(test)
 ########################################################
 # Taxa discovery rate (rarefaction curves comparison) ###
 ##########################################################

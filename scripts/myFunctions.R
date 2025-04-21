@@ -3,17 +3,19 @@ source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/phylose
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/psflashmelt.R'))
 my_datasets_factorlevels <- c('P19_Saliva', 'P19_Gut', 'RA_Gut', 'AD_Skin', 'Moss', 'NAFLD')
 tool_colours <- c(
-  'MPA_db2019' = 'seagreen3',
-  'MPA_db2022' = 'darkolivegreen2',
-  'MPA_db2023' = 'darkolivegreen4',
+  'MPA_db2022' = 'green4',
+  'MPA_db2023' = 'darkolivegreen',
   'MOTUS' = 'goldenrod',
   'KB10' = 'indianred1',
-  'KB45' = 'indianred3',
-  'KB51' = 'indianred3',
-  'KB90' = 'orangered4',
+  'KB10_GTDB' = 'indianred4',
+  'KB45' = 'orangered',
+  'KB45_GTDB' = 'orangered3',
+  'KB90' = 'violetred',
+  'KB90_GTDB' = 'violetred4',
   'SM_genbank-2022.03' = 'purple3',
   'SM_gtdb-rs214-full' = 'navyblue',
-  'SM_gtdb-rs214-rep'= 'royalblue',
+  'SM_gtdb-rs220-rep'= 'royalblue',
+  'SM_gtdb-rs214-rep'= 'blue',
   'SM_gtdb-rs214-rep_MAGs'= 'skyblue3'
 )
 
@@ -28,13 +30,16 @@ CCE_names <- c(
   'MPA_db2019' = 'MetaPhlAn3 (2019)',
   'MPA_db2022' = 'Metaphlan4 (2022)',
   'MPA_db2023' = 'Metaphlan4 (2023)',
-  'KB10' = 'Kraken (10% conf.)\n+ Bracken',
-  'KB45' = 'Kraken (45% conf.)\n+ Bracken',
-  'KB51' = 'Kraken (51% conf.)\n+ Bracken',
-  'KB90' = 'Kraken (90% conf.)\n+ Bracken',
+  'KB10' = 'Kraken 10% RefSeq',
+  'KB45' = 'Kraken 45% RefSeq',
+  'KB90' = 'Kraken 90% RefSeq',
+  'KB10_GTDB' = 'Kraken 10% GTDB rep.',
+  'KB45_GTDB' = 'Kraken 45% GTDB rep.',
+  'KB90_GTDB' = 'Kraken 90% GTDB rep.',
   'SM_genbank-2022.03' = 'Sourmash (Genbank)',
-  'SM_gtdb-rs214-full' = 'Sourmash (GTDB)',
-  'SM_gtdb-rs214-rep'= 'Sourmash (GTDB rep.)',
+  'SM_gtdb-rs214-full' = 'Sourmash (GTDB 214 full)',
+  'SM_gtdb-rs214-rep' = 'Sourmash (GTDB 214 rep)',
+  'SM_gtdb-rs220-rep'= 'Sourmash (GTDB 220 rep.)',
   'SM_gtdb-rs214-rep_MAGs'= 'Sourmash (GTDB rep.\n+ Novel MAGs)'
 )
 
@@ -45,18 +50,36 @@ Hill_numbers <- c(
 )
 
 CCE_metadata <- tibble(
-  database = c("MOTUS","MPA_db2019","MPA_db2022","MPA_db2023",
-               "KB10","KB45","KB51","KB90",
-               "SM_genbank-2022.03", "SM_gtdb-rs214-full","SM_gtdb-rs214-rep","SM_gtdb-rs214-rep_MAGs"),
-  plot_colour = c("goldenrod","green4","palegreen3","darkolivegreen",
-                  "indianred1","indianred2","indianred3", "orangered4", 
-                  "purple3", "navyblue", "royalblue", "skyblue3"),
-  tool = c('MOTUS', 'MPA','MPA','MPA',
-           'KB','KB','KB','KB','SM','SM','SM','SM'),
-  CCE_approach = c('DNA-to-Marker','DNA-to-Marker','DNA-to-Marker','DNA-to-Marker',
-               'DNA-to-DNA','DNA-to-DNA','DNA-to-DNA','DNA-to-DNA','DNA-to-DNA','DNA-to-DNA','DNA-to-DNA','DNA-to-DNA'),
-  taxonomy = c('NCBI','NCBI','NCBI','NCBI','NCBI','NCBI','NCBI','NCBI','NCBI','GTDB','GTDB','GTDB'),
-  
+  database = c("MOTUS","MPA_db2022","MPA_db2023",
+               "KB10","KB45","KB90",
+               "KB10_GTDB","KB45_GTDB","KB90_GTDB",
+               "SM_genbank-2022.03", 
+               "SM_gtdb-rs214-full", "SM_gtdb-rs214-rep","SM_gtdb-rs220-rep","SM_gtdb-rs214-rep_MAGs"),
+  plot_colour = c("goldenrod","green4","darkolivegreen",
+                  "indianred1","orangered","violetred", 
+                  "indianred4", "orangered3", "violetred4",
+                  "purple3", 
+                  "navyblue", 'blue',"royalblue", "skyblue3"),
+  tool = c('MOTUS', 'MPA','MPA',
+           'KB','KB','KB',
+           'KB','KB','KB',
+           'SM',
+           'SM','SM','SM','SM'),
+  CCE_approach = c('DNA-to-Marker','DNA-to-Marker','DNA-to-Marker',
+               'DNA-to-DNA','DNA-to-DNA','DNA-to-DNA',
+               'DNA-to-DNA','DNA-to-DNA','DNA-to-DNA',
+               'DNA-to-DNA',
+               'DNA-to-DNA','DNA-to-DNA','DNA-to-DNA','DNA-to-DNA'),
+  taxonomy = c('NCBI','NCBI','NCBI',
+               'NCBI','NCBI','NCBI',
+               'GTDB','GTDB','GTDB',
+               'NCBI',
+               'GTDB','GTDB','GTDB','GTDB'),
+  refdb = c('MOTUS', 'MPA', 'MPA',
+            'RefSeq', 'RefSeq', 'RefSeq',
+            'GTDB_220', 'GTDB_220', 'GTDB_220',
+            'GenBank', 
+            'GTDB_214', 'GTDB_214', 'GTDB_220', 'GTDB_214')
 )
 
 

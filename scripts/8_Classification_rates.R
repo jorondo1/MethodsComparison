@@ -12,6 +12,8 @@ class_rate <- read_tsv('kraken_classification_rate.tsv',
                               TRUE ~ 'RefSeq'),
          Tool = str_remove(Tool, '_GTDB'))
 
+
+
 # Subset samples with both GTDB and RefSeq
 sample_subset <- class_rate %>% 
   group_by(Dataset, Sample) %>% 
@@ -36,3 +38,4 @@ class_rate %>%
   facet_grid(~Dataset_n) +
   theme_light()
 
+#NEXT : check by dataset type ??

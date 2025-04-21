@@ -14,6 +14,8 @@ for bibitte in archaea bacteria plasmid viral; do
 done
 
 # Create index
+$sourmash sig cat $refseq_genomes/*/${dwnld_date}-signatures/*.sig -o $refseq_genomes/all_sig.zip
+# OR index (may take weeks)
 $sourmash index -k 31 $refseq_genomes/RefSeq-ABPV-090425.k31.sbt.zip $refseq_genomes/*/${dwnld_date}-signatures/*.sig
 
 cp $refseq_genomes/RefSeq-ABPV-090425.k31.rocksdb

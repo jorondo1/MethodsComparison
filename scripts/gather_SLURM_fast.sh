@@ -24,9 +24,10 @@ echo "Exporting to $OUT_DIR"
 export SAM_NUM=$(awk "NR==$SLURM_ARRAY_TASK_ID" ${SAM_LIST})
 IFS=$'\t' read -r SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2 <<< "$SAM_NUM" # array it up
 export SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2
+# Add Anchor to sample paths
 for var in FQ_P1 FQ_P2 FQ_U1 FQ_U2; do
     if [[ "${!var}" != ${ANCHOR}/* && "${!var}" != /nfs3_ib/* ]]; then
-        declare "$var"="${ANCHOR}/${!var}"
+        declare "$var"="${ANCHOR}${!var}"
     fi
 done
 
@@ -34,7 +35,7 @@ SAM_ANCHOR=$(dirname $FQ_P1)
 
 export sourmash="singularity exec --writable-tmpfs -e -B ${SAM_ANCHOR}:${SAM_ANCHOR} -B $ILAFORES:$ILAFORES ${ILAFORES}/programs/ILL_pipelines/containers/sourmash.4.8.11.sif sourmash"
 
-export SIG=$(realpath "${OUT_DIR}/../signatures/${SAM_ID}.sig")
+export SIG=$(realpath "${OUT_DIR}/${1}/${SAM_ID}.sig")
 
 mkdir -p $OUT_DIR/../signatures
 

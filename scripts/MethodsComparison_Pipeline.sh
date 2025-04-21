@@ -51,14 +51,16 @@ missing_samples=$(grep -n -v -f <(ls $DATASET/preproc/*/*_1.fastq.gz | awk -F'/'
 rm -r $DATASET/preproc/.throttle
 sbatch --array="$missing_samples" /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/PD/preproc/preprocess.kneaddata.slurm.sh
 
-############
-# mOTUs ####
+################
+# mOTUs ########
+################
+
 # Custom SLURM script
 sbatch --array=1-"$N_SAMPLES" $MC/scripts/motus_SLURM.sh $DATASET $TSV.fast
 
 # Check completion status
 check_output 'MOTUS' $DATASET _profile.txt
-
+ 
 # Rerun missing MOTUS
 rm $DATASET/MOTUS/_profile.txt # not sure why that appears
 missing_motus=$(grep -n -v -f <(ls "$DATASET/MOTUS/"*_profile.txt | awk -F'/' '{print $3}' | sed 's/_profile\.txt//') "$(eval echo \$${dataset}_TSV)" | cut -f1 -d: | tr '\n' ','); echo "$missing_motus"
@@ -110,10 +112,12 @@ missing_KB=$(grep -n -v -f <(ls $DATASET/$database/*/*/*_bracken_S.MPA.TXT | awk
 sbatch --array="$missing_KB" $MC/$DATASET/$database/taxonomic_profile.samples.slurm.sh $DATASET "\$${dataset}_TSV"
 
 # Once completely done, remove heavy files from kraken out 
-rm */KB*/*/*_taxonomy_nt */KB*/*/*/*.bracken */KB*/*/*/*.kreport */KB*/*/*bugs_list.MPA.TXT */KB*/*/*/*_temp.MPA.TXT */KB*/*/*/*_bracken_[^S].MPA.TXT -r */KB*/*/*_kronagrams -r */*/.throttle/
+rm */KB*/*/*_taxonomy_nt */KB*/*/*/*.bracken */KB*/*/*bugs_list.MPA.TXT */KB*/*/*/*_temp.MPA.TXT */KB*/*/*/*_bracken_[^S].MPA.TXT -r */KB*/*/*_kronagrams -r */*/.throttle/
 
 ################
 # MetaPhlAn4 ###
+################
+
 metaphlan="bash $ANCHOR/$ILL_PIPELINES/generateslurm_taxonomic_abundance.metaphlan.sh \
 	--slurm_log $ANCHOR/$MC/logs --slurm_walltime 24:00:00 --slurm_threads 24 --slurm_mem 30G"
 
@@ -149,6 +153,7 @@ sbatch --mem=120G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh 
 sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "gtdb-rs214-rep"
 sbatch --mem=80G -n 16 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "gtdb-rs214-full"
 sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "gtdb-rs220-rep"
+sbatch --mem=60G -n 12 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "refseq-229"
 
 # Check completion status
 check_output 'gtdb-rs214-rep gtdb-rs214-full genbank-2022.03 gtdb-reps-rs220' $DATASET _gather.csv

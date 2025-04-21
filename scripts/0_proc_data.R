@@ -138,15 +138,19 @@ ps_raw.ls$Moss$KB90 <- NULL
 ps_raw.ls$Moss$MOTUS <- NULL
 ps_raw.ls[['NAFLD']] <- meta_parsing('NAFLD', NAFLD_meta)
 ps_raw.ls[['AD_Skin']] <- meta_parsing('AD_Skin', AD_skin_meta)
-ps_raw.ls[['RA_Gut']] <- meta_parsing('RA_Gut', RA_meta)
+#ps_raw.ls[['RA_Gut']] <- meta_parsing('RA_Gut', RA_meta)
 ps_raw.ls[['Bee']] <- meta_parsing('Bee', Bee_meta)
 ps_raw.ls[['Olive']] <- meta_parsing('Olive', Olive_meta)
 ps_raw.ls[['PD']] <- meta_parsing('PD', PD_meta)
 
+write_rds(ps_raw.ls, "Out/ps_raw.ls.RDS")
+
 # Prevalence+Abundance filtering, currently hardcoded in filter_low_prevalence()
+
 ps_filt.ls <- lapply(ps_raw.ls, function(ds) {
   lapply(ds, filter_low_prevalence, minPrev = 0.10, minAbund = 0)
 })
+write_rds(ps_filt.ls, "Out/ps_filt.ls.RDS")
 
 ps_full.ls <- list()
 ps_full.ls[['Species']] <- ps_filt.ls
@@ -184,8 +188,7 @@ ps_rare.ls[['Family']] <- lapply(ps_rare.ls[['Species']], function(ds) {
 
 
 write_rds(ps_full.ls, "Out/ps_full.ls.RDS")
-write_rds(ps_raw.ls, "Out/ps_raw.ls.RDS")
-#write_rds(ps_filt.ls, "Out/ps_filt.ls.rds")
+
 write_rds(ps_rare.ls, "Out/ps_rare.ls.RDS")
 
 
