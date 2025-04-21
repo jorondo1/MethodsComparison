@@ -14,10 +14,12 @@ export ILAFORES=$ANCHOR/$ILAFORES
 # Load sourmash
 module load StdEnv/2020 apptainer/1.1.5
 
-# Parse options
+# Parse options and variables
 export SAM_LIST="${ANCHOR}/${2}"
-export SM_DB="${3}"
-export OUT_DIR=${PWD}/"${1}"/SM_${SM_DB}
+export SM_DB="${ANCHOR}/${3}"
+export DB_NAME=$(basename ${SM_DB/[-._]k??.*/})
+export OUT_DIR=${PWD}/"${1}"/SM_${DB_NAME}
+export DB_ANCHOR=$(dirname $SM_DB)
 echo "Exporting to $OUT_DIR"
 
 # Parse samples
@@ -33,7 +35,7 @@ done
 
 SAM_ANCHOR=$(dirname $FQ_P1)
 
-export sourmash="singularity exec --writable-tmpfs -e -B ${SAM_ANCHOR}:${SAM_ANCHOR} -B $ILAFORES:$ILAFORES ${ILAFORES}/programs/ILL_pipelines/containers/sourmash.4.8.11.sif sourmash"
+export sourmash="singularity exec --writable-tmpfs -e -B ${SAM_ANCHOR}:${SAM_ANCHOR} -B $ILAFORES:$ILAFORES -B $DB_ANCHOR:DB_ANCHOR ${ILAFORES}/programs/ILL_pipelines/containers/sourmash.4.8.11.sif sourmash"
 
 export SIG=$(realpath "${PWD}/${1}/signatures/${SAM_ID}.sig")
 
@@ -49,8 +51,8 @@ fi
 
 if [[ ! -f ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv ]]; then
 	echo "Gather against index database"
-	$sourmash scripts fastgather $SIG $ILAFORES/ref_dbs/sourmash_db/${SM_DB}*k31.zip \
-	-o ${OUT_DIR}/${SAM_ID}_${SM_DB}_gather.csv \
+	$sourmash scripts fastgather $SIG ${SM_DB} \
+	-o ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv \
 	-c $SLURM_NTASKS
 else
 	echo "Gather output found. Skipping..."
