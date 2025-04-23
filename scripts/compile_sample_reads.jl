@@ -33,24 +33,24 @@ function parse_commandline()
 end
 
 # ========== Count function ==========
-const COUNT_FUNCTION = """
-    using FASTX
-    function count_reads_fastx(filename)
-        try
-            FASTQ.Reader(open(filename)) do reader
-                sum(1 for _ in reader)
-            end
-        catch e
-            @warn "Failed: \$filename (\$e)"
-            missing
-        end
-    end
-"""
-# ========== WORKER SETUP ==========
 function init_workers(ncores)
     addprocs(ncores)
-    @everywhere eval(Meta.parse($COUNT_FUNCTION))
+    # Re-defining the function on workers is now safe
+    @everywhere begin
+        using FASTX
+        function count_reads_fastx(filename)
+            try
+                FASTQ.Reader(open(filename)) do reader
+                    sum(1 for _ in reader)
+                end
+            catch e
+                @warn "Failed: $filename ($e)"
+                missing
+            end
+        end
+    end
 end
+
 
 # ========== GENERATE FILE LIST ==========
 function generateFastaList(directories::Vector{String})
