@@ -75,11 +75,11 @@ function generate_read_counts(input_dirs::Vector{String}, output_path::String)
 end
 
 # ========== MAIN ==========
+using Distributed
+addprocs(args["ncores"])
+@everywhere using FASTX
 function main()
     args = parse_commandline()
-    using Distributed
-    addprocs(args["ncores"])
-    @everywhere using FASTX
     output_file_path = joinpath(args["output_dir"], "read_counts.csv")
     generate_read_counts(args["input_directories"], output_file_path)
 end
