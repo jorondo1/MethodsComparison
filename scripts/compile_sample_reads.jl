@@ -47,10 +47,10 @@ function generateFastaList(directories::Vector{String})
 		# Find all files
         files = Glob.glob("*/*.fa*", dir)  # Explicit extensions
         for file in files
-        	if !occursin("_paired_", file) & (occursin("contam", file) || occursin("_2.", file) || occursin("unmatched", file)) 
-        		continue
-        	end
+        	if occursin("_paired_", file) &&
+               !(occursin("contam", file) || occursin("_2.", file) || occursin("unmatched", file))
         	println(file)
+        	end
         end
 	end	
 end
