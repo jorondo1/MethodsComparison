@@ -47,6 +47,7 @@ addprocs(args["ncores"])
 		FASTQ.Reader(open(filename)) do reader
     		sum(1 for _ in reader)
 		end
+	end
 end
 
 # ========== GENERATE FILE LIST ==========
