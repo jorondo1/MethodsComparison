@@ -76,10 +76,10 @@ end
 
 # ========== MAIN ==========
 using Distributed
+args = parse_commandline()
 addprocs(args["ncores"])
 @everywhere using FASTX
 function main()
-    args = parse_commandline()
     output_file_path = joinpath(args["output_dir"], "read_counts.csv")
     generate_read_counts(args["input_directories"], output_file_path)
 end
