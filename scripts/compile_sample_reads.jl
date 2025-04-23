@@ -18,13 +18,13 @@ function parse_commandline()
 		"--output_dir", "-o"
 			help = "Path where reports will be saved"
 			arg_type = String
-			required = true
+#			required = true
 		"--paired_only"
 			help = "Only count paired samples (will look for the string 'paired' in filenames)"
 			default = true
 		"input_directories"
 			help = "Input directories to process (at least one required)"
-			required = true  
+#			required = true  
 			nargs = '+'  # "+" means one or more arguments
 	end
 	
