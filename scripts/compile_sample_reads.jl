@@ -32,6 +32,7 @@ function parse_commandline()
 	return parse_args(s)
 end
 
+# ========== PARALLEL SETUP ==========
 args = parse_commandline()
 addprocs(args["ncores"])
 @everywhere using FASTX
