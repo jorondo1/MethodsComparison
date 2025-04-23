@@ -45,17 +45,10 @@ function generateFastaList(directories::Vector{String})
 	fasta_files = String[] # define empty vector
 	for dir in directories
 		# Find all files
-		files = Glob.glob("*/*.fa*", dir)
-		
-		for file in files
-			basename = lowercase(file)
-			if endswith(basename, ".gz")
-				basename = basename[1:end-3] #strip .gz
-			end
-			if endswith(basename, ".fa") || endswith(basename, ".fasta")
-			println(basename)
-			end
-		end
+        files = Glob.glob("*/*.{fa,fasta,fa.gz,fasta.gz}", dir)  # Explicit extensions
+        for file in files
+            println(file)  
+        end
 	end	
 end
 
@@ -74,7 +67,6 @@ Main
 function main()
 	args = parse_commandline()
 	generateFastaList(args["input_directories"])
-	#println("Found $(length(fasta_files)) FAST(A) files.")
 end
 
 main()
