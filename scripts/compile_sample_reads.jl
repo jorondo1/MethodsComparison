@@ -11,7 +11,7 @@ function parse_commandline()
 	s = ArgParseSettings()
     
 	@add_arg_table s begin
-		"--n_cores", "-c"
+		"--ncores", "-c"
 			help = "Number of cores for parallel processing"
 			arg_type = Int
 			default = 2
@@ -57,7 +57,7 @@ Adding workers for parallel processing.
 =# #...................................
 
 using Distributed, Gzip_jll, CodecZlib
-addprocs(args["n_cores"])  
+addprocs(args["ncores"])  
 
 #= *******************
 Function Count reads *
