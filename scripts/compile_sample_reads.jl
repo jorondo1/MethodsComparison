@@ -66,4 +66,26 @@ function generateFastaList(directories::Vector{String})
     return fasta_files
 end
 
-function generate_read_counts(input
+function generate_read_counts(input_dirs::Vector{String}, output_path::String)
+    fastq_files = generateFastaList(input_dirs)  
+    
+    # Parallel counting
+    results = @distributed (vcat) for file in fastq_files
+        (filepath = file, count = count_reads_fastx(file))
+    end
+
+    # Save as CSV
+    df = DataFrame(results)
+    CSV.write(output_path, df)
+    return df
+end
+
+# ========== MAIN EXECUTION ==========
+function main()
+    args = parse_commandline()
+    setup_workers(args["ncores"])
+    output_file_path = joinpath(args["output_dir"], "read_counts.csv")
+    generate_read_counts(args["input_directories"], output_file_path)
+end
+
+main()
