@@ -72,7 +72,7 @@ Main
 
 function main()
 	args = parse_commandline()
-    function generateFastaList(directories::Vector{String})    
+	generateFastaList(args["input_directories"])
 end
 
 main()
