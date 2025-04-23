@@ -25,6 +25,7 @@ function parse_commandline()
 		"input_directories"
 			help = "Input directories to process (at least one required)"
 #			required = true  
+			arg_type = String
 			nargs = '+'  # "+" means one or more arguments
 	end
 	
@@ -73,6 +74,7 @@ Main
 function main()
 	args = parse_commandline()
 	generateFastaList(args["input_directories"])
+	#println("Found $(length(fasta_files)) FAST(A) files.")
 end
 
 main()
