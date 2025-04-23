@@ -45,7 +45,7 @@ function generateFastaList(directories::Vector{String})
 	fasta_files = String[] # define empty vector
 	for dir in directories
 		# Find all files
-		files = Glob.glob("*/*", dir)
+		files = Glob.glob("*/*.fa*", dir)
 		
 		for file in files
 			basename = lowercase(file)
