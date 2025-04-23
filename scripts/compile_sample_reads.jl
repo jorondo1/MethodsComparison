@@ -39,17 +39,20 @@ addprocs(args["ncores"])
 
 # ========== Count function ==========
 @everywhere function count_reads_fastx(filename)
-	if occursin(".gz", filename)
-		println(filename)
-		FASTQReader(GzipDecompressorStream(open(filename))) do reader
-    		sum(1 for _ in reader)
-    	end
-	else 
-		println(filename)
-		FASTQReader(open(filename)) do reader
-    		sum(1 for _ in reader)
+	try
+		if occursin(".gz", filename)
+			FASTQ.Reader(GzipDecompressorStream(open(filename))) do reader
+				sum(1 for _ in reader)
+			end
+		else 
+			FASTQ.Reader(open(filename)) do reader
+				sum(1 for _ in reader)
+			end
 		end
-	end
+	catch e
+		@warn "Failed: $filename ($e)"
+        missing
+    end
 end
 
 # ========== GENERATE FILE LIST ==========
