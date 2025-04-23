@@ -40,10 +40,12 @@ addprocs(args["ncores"])
 # ========== Count function ==========
 @everywhere function count_reads_fastx(filename)
 	if occursin(".gz", filename)
+		println(filename)
 		FASTQ.Reader(GzipDecompressorStream(open(filename))) do reader
     		sum(1 for _ in reader)
     	end
 	else 
+		println(filename)
 		FASTQ.Reader(open(filename)) do reader
     		sum(1 for _ in reader)
 		end
