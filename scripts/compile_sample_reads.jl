@@ -39,18 +39,14 @@ function init_workers(ncores)
         using FASTX
         # ========== COUNT READS ==========
         function count_reads_fastx(filename)
-            try
-                reader = FASTQ.Reader(open(filename))
-                count = 0
-                for _ in reader
-                    count += 1
-                end
-                close(reader)
-                return count
-            catch e
-                @warn "Failed to process $filename: $e"
-                return missing
-            end
+    		try
+        		FASTQ.Reader(open(filename)) do reader
+            		sum(1 for _ in reader)  # More memory-efficient counting
+        		end
+    		catch e
+        		@warn "Failed: $filename ($e)"
+        		missing
+    		end
         end
     end
 end
