@@ -52,7 +52,7 @@ function generateFastaList(directories::Vector{String})
 			if endswith(basename, ".gz")
 				basename = basename[1:end-3] #strip .gz
 			end
-			if (endswith(basename, ".fa") || endswith(basename, ".fasta")) && !occursin("contam", basename)
+			if endswith(basename, ".fa") || endswith(basename, ".fasta")
 			println(basename)
 			end
 		end
