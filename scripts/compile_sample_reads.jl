@@ -75,13 +75,27 @@ function generate_read_counts(input_dirs::Vector{String}, output_path::String)
 end
 
 # ========== MAIN ==========
-using Distributed
-args = parse_commandline()
-addprocs(args["ncores"])
-@everywhere using FASTX
 function main()
+    args = parse_commandline()
+    addprocs(args["ncores"])
+    
+    # Load FASTX on all workers
+    @everywhere using FASTX
+    # Redefine the function on all workers
+    @everywhere function count_reads_fastx(filename)
+        try
+            FASTQ.Reader(open(filename)) do reader
+                sum(1 for _ in reader)
+            end
+        catch e
+            @warn "Failed: $filename ($e)"
+            missing
+        end
+    end
+    
     output_file_path = joinpath(args["output_dir"], "read_counts.csv")
     generate_read_counts(args["input_directories"], output_file_path)
 end
+
 
 main()
