@@ -42,18 +42,20 @@ Function Generate file list*
 =# #************************
 using Glob
 function generateFastaList(directories::Vector{String})
-	fasta_files = String[] # define empty vector
-	for dir in directories
-		# Find all files
-        files = Glob.glob("*/*.fa*", dir)  # Explicit extensions
+    fasta_files = String[]
+    for dir in directories
+        files = Glob.glob("*/*.fa*", dir)
         for file in files
-        	if occursin("_paired_", file) &&
+            # Keep ONLY if:
+            # 1. Contains "_paired_" AND
+            # 2. Does NOT contain "contam", "_2.", or "unmatched"
+            if occursin("_paired_", file) &&
                !(occursin("contam", file) || occursin("_2.", file) || occursin("unmatched", file))
-        	push!(fasta_files, file)
-        	end
+                push!(fasta_files, file)
+            end
         end
-	end	
-	return fasta_files
+    end
+    return fasta_files
 end
 
 #= ******************
