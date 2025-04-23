@@ -49,10 +49,11 @@ function generateFastaList(directories::Vector{String})
         for file in files
         	if occursin("_paired_", file) &&
                !(occursin("contam", file) || occursin("_2.", file) || occursin("unmatched", file))
-        	println(file)
+        	push!(fasta_files, file)
         	end
         end
 	end	
+	return fasta_files
 end
 
 #= ******************
