@@ -42,8 +42,7 @@ addprocs(args["ncores"])
 	if occursin(".gz", filename)
 		FASTQ.Reader(GzipDecompressorStream(open(filename))) do reader
     	sum(1 for _ in reader)
-	end	
-	else do reader
+	else FASTQ.Reader(open(filename)) do reader
     	sum(1 for _ in reader)
 	end
 end
