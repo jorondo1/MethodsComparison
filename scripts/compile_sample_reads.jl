@@ -35,18 +35,17 @@ end
 # ========== PARALLEL SETUP ==========
 args = parse_commandline()
 addprocs(args["ncores"])
-@everywhere using FASTX
+@everywhere using FASTX, CodecZlib
 
 # ========== Count function ==========
 @everywhere function count_reads_fastx(filename)
-        try
-            FASTQ.Reader(open(filename)) do reader
-                sum(1 for _ in reader)
-            end
-        catch e
-            @warn "Failed: $filename ($e)"
-            missing
-        end
+	if occursin(".gz", filename)
+		FASTQ.Reader(GzipDecompressorStream(open(filename))) do reader
+    	sum(1 for _ in reader)
+	end	
+	else do reader
+    	sum(1 for _ in reader)
+	end
 end
 
 # ========== GENERATE FILE LIST ==========
