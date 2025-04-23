@@ -49,8 +49,8 @@ function generateFastaList(directories::Vector{String})
         for file in files
         	if (occursin("contam", file) || occursin("_2.", file) || occursin("unmatched", file))
         		continue
-        		println(file)
         	end
+        	println(file)
         end
 	end	
 end
