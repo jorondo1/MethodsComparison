@@ -72,11 +72,7 @@ Main
 
 function main()
 	args = parse_commandline()
-    
-    println("Number of cores: $(args["n_cores"])")
-    println("Output directory: $(args["output_dir"])")
-    println("Paired only: $(args["paired_only"])")
-    println("Input directories: $(args["input_directories"])")
+    function generateFastaList(directories::Vector{String})    
 end
 
 main()
