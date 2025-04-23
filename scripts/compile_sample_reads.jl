@@ -41,10 +41,12 @@ addprocs(args["ncores"])
 @everywhere function count_reads_fastx(filename)
 	if occursin(".gz", filename)
 		FASTQ.Reader(GzipDecompressorStream(open(filename))) do reader
-    	sum(1 for _ in reader)
-	else FASTQ.Reader(open(filename)) do reader
-    	sum(1 for _ in reader)
-	end
+    		sum(1 for _ in reader)
+    	end
+	else 
+		FASTQ.Reader(open(filename)) do reader
+    		sum(1 for _ in reader)
+		end
 end
 
 # ========== GENERATE FILE LIST ==========
