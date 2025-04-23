@@ -34,6 +34,14 @@ function parse_commandline()
 end
 args = parse_commandline()
 
+#= #..........................................
+Packages and workers for parallel processing .
+=# #..........................................
+
+using Distributed
+addprocs(args["ncores"])  
+
+
 #= *************************
 Function Generate file list*
 =# #************************
@@ -52,17 +60,10 @@ function generateFastaList(directories::Vector{String})
     return(fasta_files)
 end
 
-#= #...................................
-Adding workers for parallel processing.
-=# #...................................
-
-using Distributed, Gzip_jll, CodecZlib
-addprocs(args["ncores"])  
-
 #= *******************
 Function Count reads *
 =# #******************
-@everywhere using Distributed, FASTX, DataFrames, CSV
+@everywhere using Distributed, FASTX, DataFrames, CSV, Glob, Gzip_jll, CodecZlib
 @everywhere begin
     function count_reads_fastx(filename::String)
         reader = FASTQ.Reader(open(filename))
