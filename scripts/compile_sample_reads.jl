@@ -32,6 +32,7 @@ function parse_commandline()
 	return parse_args(s)
 	
 end
+args = parse_commandline()
 
 #= *************************
 Function Generate file list*
@@ -96,7 +97,6 @@ Main
 =# 
 
 function main()
-	args = parse_commandline()
 	output_file = joinpath(args["output_dir"], "read_counts.csv")
 	generate_read_counts(args["input_directories"], output_file)
 end
