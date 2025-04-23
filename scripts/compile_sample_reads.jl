@@ -32,23 +32,24 @@ function parse_commandline()
 	return parse_args(s)
 end
 
-# ========== PARALLEL FUNCTION SETUP ==========
-function init_workers(ncores)
-    addprocs(ncores)
-    @everywhere begin
-        using FASTX
-        # ========== COUNT READS ==========
-        function count_reads_fastx(filename)
-    		try
-        		FASTQ.Reader(open(filename)) do reader
-            		sum(1 for _ in reader)  # More memory-efficient counting
-        		end
-    		catch e
-        		@warn "Failed: $filename ($e)"
-        		missing
-    		end
+# ========== Count function ==========
+const COUNT_FUNCTION = """
+    using FASTX
+    function count_reads_fastx(filename)
+        try
+            FASTQ.Reader(open(filename)) do reader
+                sum(1 for _ in reader)
+            end
+        catch e
+            @warn "Failed: \$filename (\$e)"
+            missing
         end
     end
+"""
+# ========== WORKER SETUP ==========
+function init_workers(ncores)
+    addprocs(ncores)
+    @everywhere eval(Meta.parse($COUNT_FUNCTION))
 end
 
 # ========== GENERATE FILE LIST ==========
