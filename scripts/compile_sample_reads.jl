@@ -45,7 +45,7 @@ function generateFastaList(directories::Vector{String})
 	fasta_files = String[] # define empty vector
 	for dir in directories
 		# Find all files
-        files = Glob.glob("*/*.{fa,fasta,fa.gz,fasta.gz}", dir)  # Explicit extensions
+        files = Glob.glob("*/*.{fq,fastq,fq.gz,fastq.gz}", dir)  # Explicit extensions
         for file in files
             println(file)  
         end
