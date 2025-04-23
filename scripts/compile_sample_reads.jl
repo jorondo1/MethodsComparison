@@ -1,7 +1,7 @@
 #!/usr/bin/env julia
 
 # ========== TOP LEVEL PACKAGES (Main process only) ==========
-using ArgParse, Glob, DataFrames, CSV
+using ArgParse, Glob, DataFrames, CSV, Distributed
 
 # ========== ARG PARSING ==========
 function parse_commandline()
