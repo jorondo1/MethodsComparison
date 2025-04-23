@@ -2,11 +2,11 @@
 
 # Compile the number of reads in metagenome samples
 
-#= #............
-Parse arguments.
-=# #............
-using ArgParse
+# ========== PACKAGES ==========
+using ArgParse, Distributed, Glob
+using FASTX, DataFrames, CSV 
 
+# ========== ARG PARSING ==========
 function parse_commandline()
 	s = ArgParseSettings()
     
@@ -18,34 +18,44 @@ function parse_commandline()
 		"--output_dir", "-o"
 			help = "Path where reports will be saved"
 			arg_type = String
-#			required = true
+			required = true
+			default = "."
 		"--paired_only"
 			help = "Only count paired samples (will look for the string 'paired' in filenames)"
 			default = true
 		"input_directories"
 			help = "Input directories to process (at least one required)"
-#			required = true  
+			required = true  
 			arg_type = String
 			nargs = '+'  # "+" means one or more arguments
 	end
-	
 	return parse_args(s)
-	
 end
-args = parse_commandline()
 
-#= #..........................................
-Packages and workers for parallel processing .
-=# #..........................................
+# ========== PARALLEL FUNCTION SETUP ==========
+function init_workers(ncores)
+    addprocs(ncores)
+    @everywhere begin
+        using FASTX
+        # ========== COUNT READS ==========
+        function count_reads_fastx(filename)
+            try
+                reader = FASTQ.Reader(open(filename))
+                count = 0
+                for _ in reader
+                    count += 1
+                end
+                close(reader)
+                return count
+            catch e
+                @warn "Failed to process $filename: $e"
+                return missing
+            end
+        end
+    end
+end
 
-using Distributed
-addprocs(args["ncores"])  
-
-
-#= *************************
-Function Generate file list*
-=# #************************
-
+# ========== GENERATE FILE LIST ==========
 function generateFastaList(directories::Vector{String})
     fasta_files = String[]
     for dir in directories
@@ -60,25 +70,7 @@ function generateFastaList(directories::Vector{String})
     return(fasta_files)
 end
 
-#= *******************
-Function Count reads *
-=# #******************
-@everywhere using Distributed, FASTX, DataFrames, CSV, Glob, Gzip_jll, CodecZlib
-@everywhere begin
-    function count_reads_fastx(filename::String)
-        reader = FASTQ.Reader(open(filename))
-        count = 0
-        for _ in reader
-            count += 1
-        end
-        close(reader)
-        return count
-    end
-end
-
-#= ***********************
-Function generate report *
-=# #**********************
+# ========== GENERATE REPORT ==========
 function generate_read_counts(input_dirs::Vector{String}, output_path::String)
     fastq_files = generateFastaList(input_dirs)  
     
@@ -93,13 +85,12 @@ function generate_read_counts(input_dirs::Vector{String}, output_path::String)
     return df
 end
 
-#= 
-Main 
-=# 
-
+# ========== MAIN ==========
 function main()
-	output_file = joinpath(args["output_dir"], "read_counts.csv")
-	generate_read_counts(args["input_directories"], output_file)
+    args = parse_commandline()
+    init_workers(args["ncores"])
+    output_file_path = joinpath(args["output_dir"], "read_counts.csv")
+    generate_read_counts(args["input_directories"], output_file_path)
 end
 
 main()
