@@ -35,22 +35,20 @@ end
 # ========== Count function ==========
 function init_workers(ncores)
     addprocs(ncores)
-    # Re-defining the function on workers is now safe
-    @everywhere begin
-        using FASTX
-        function count_reads_fastx(filename)
-            try
-                FASTQ.Reader(open(filename)) do reader
-                    sum(1 for _ in reader)
-                end
-            catch e
-                @warn "Failed: $filename ($e)"
-                missing
+    # Load required packages on workers
+    @everywhere using FASTX
+    # Define the function on workers
+    @everywhere function count_reads_fastx(filename)
+        try
+            FASTQ.Reader(open(filename)) do reader
+                sum(1 for _ in reader)
             end
+        catch e
+            @warn "Failed: $filename ($e)"
+            missing
         end
     end
 end
-
 
 # ========== GENERATE FILE LIST ==========
 function generateFastaList(directories::Vector{String})
