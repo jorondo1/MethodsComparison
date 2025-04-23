@@ -33,12 +33,7 @@ function parse_commandline()
 end
 
 # ========== Count function ==========
-function init_workers(ncores)
-    addprocs(ncores)
-    # Load required packages on workers
-    @everywhere using FASTX
-    # Define the function on workers
-    @everywhere function count_reads_fastx(filename)
+@everywhere function count_reads_fastx(filename)
         try
             FASTQ.Reader(open(filename)) do reader
                 sum(1 for _ in reader)
@@ -47,7 +42,6 @@ function init_workers(ncores)
             @warn "Failed: $filename ($e)"
             missing
         end
-    end
 end
 
 # ========== GENERATE FILE LIST ==========
@@ -83,7 +77,9 @@ end
 # ========== MAIN ==========
 function main()
     args = parse_commandline()
-    init_workers(args["ncores"])
+    using Distributed
+    addprocs(args["ncores"])
+    @everywhere using FASTX
     output_file_path = joinpath(args["output_dir"], "read_counts.csv")
     generate_read_counts(args["input_directories"], output_file_path)
 end
