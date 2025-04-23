@@ -32,7 +32,6 @@ end
 # ========== PARALLEL WORKER SETUP ==========
 function setup_workers(ncores)
     # Load Distributed package in main process
-    using Distributed
     addprocs(ncores)
     
     # Ensure FASTX is available on all workers
