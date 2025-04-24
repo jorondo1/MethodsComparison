@@ -350,8 +350,3 @@ compute_meandiff <- function(div, tool1, tool2) {
     transmute(mean = (!!sym(tool1) + !!sym(tool2))/2,
               Diff = !!sym(tool1) - !!sym(tool2))
 }
-
-
-######################################
-### Differential Abundance Testing ####
-########################################
