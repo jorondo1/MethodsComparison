@@ -9,7 +9,7 @@ dataset_variables "P19_Saliva" "$PR19/Saliva/preproc/preprocessed_reads.sample.t
 dataset_variables "P19_Gut" "$PR19/Feces/preproc/preprocessed_reads.sample.tsv"
 dataset_variables "Moss" "$MOSS/preproc/preprocessed_reads.sample.tsv"
 dataset_variables "NAFLD" "$MC/NAFLD/preproc/preprocessed_reads.sample.tsv"
-dataset_variables "AD_Skin" "$MC/NAFLD/preproc/preprocessed_reads.sample.tsv"
+dataset_variables "AD_Skin" "$MC/AD_Skin/preproc/preprocessed_reads.sample.tsv"
 dataset_variables "PD" "$MC/PD/preproc/preprocessed_reads.sample.tsv"
 dataset_variables "Bee" "$MC/Bee/preproc/preprocessed_reads.sample.tsv"
 dataset_variables "Olive" "$MC/Olive/preproc/preprocessed_reads.sample.tsv"
@@ -98,11 +98,12 @@ bash $k2_local --tsv ${TSV}.fast --confidence 0.45 --output $MC/$DATASET/KB45_GT
 bash $k2_local --tsv ${TSV}.fast --confidence 0.90 --output $MC/$DATASET/KB90_GTDB --kraken_db $k2_gtdb --threads 24
 
 # Record % sequence classification
+mkdir -p Out/classification_rates
 cd "$MC" && find . -name '*.kreport' ! -name '*bracken*' -exec awk '
 FNR==1 {unclassified=$2; next} 
 FNR==2 {classified=$2; rate=classified/(unclassified+classified); 
          printf "%s\t%d\t%d\t%.5f\n", FILENAME, classified, unclassified, rate}
-' {} + > kraken_classification_rate.tsv
+' {} + > Out/classification_rates/kraken_classification_rate.tsv
 
 # Check completion status
 check_output 'KB10 KB45 KB90 KB10_GTDB KB45_GTDB KB90_GTDB' $DATASET _bracken_S.MPA.TXT
@@ -153,7 +154,7 @@ sbatch --mem=120G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh 
 sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "gtdb-rs214-rep"
 sbatch --mem=80G -n 16 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "gtdb-rs214-full"
 sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "gtdb-rs220-rep"
-sbatch --mem=60G -n 12 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/fast2/def-ilafores/refseq_genomes/refseq-229.k31.sig"
+sbatch --mem=120G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" /fast2/def-ilafores/refseq_genomes/all_sig_refseq-09-April-2025.zip
 
 # Check completion status
 check_output 'gtdb-rs214-rep gtdb-rs214-full genbank-2022.03 gtdb-reps-rs220' $DATASET _gather.csv
@@ -169,6 +170,22 @@ for j in SM_gtdb-rs214-full SM_gtdb-rs214-rep SM_genbank-2022.03 SM_gtdb-rs220-r
 	fi
 done
 done
+
+# Compute classification rates from sourmash gather output : 
+mkdir -p Out/classification_rates
+cd $MC && find ./*/SM* -name '*_gather.csv' -exec awk -F',' '
+  FNR == 1 {
+    for (i=1; i<=NF; i++) {
+      if ($i == "f_unique_weighted") {
+        col = i;
+        break;
+      }
+    }
+    next;
+  }
+  { sum += $col }
+  END { if (col) printf "%s\t%.5f\n", FILENAME, sum }
+' {} \; > Out/classification_rates/sourmash_classification_rate.tsv
 
 ## surplus taxa in sourmash rs220 index
 cat $MC/P19_Gut/Sourmash/*rs220*_gather.csv | cut -d, -f10 | tail -n+2 | \

@@ -138,7 +138,7 @@ ps_raw.ls$Moss$KB90 <- NULL
 ps_raw.ls$Moss$MOTUS <- NULL
 ps_raw.ls[['NAFLD']] <- meta_parsing('NAFLD', NAFLD_meta)
 ps_raw.ls[['AD_Skin']] <- meta_parsing('AD_Skin', AD_skin_meta)
-#ps_raw.ls[['RA_Gut']] <- meta_parsing('RA_Gut', RA_meta)
+ps_raw.ls[['RA_Gut']] <- meta_parsing('RA_Gut', RA_meta)
 ps_raw.ls[['Bee']] <- meta_parsing('Bee', Bee_meta)
 ps_raw.ls[['Olive']] <- meta_parsing('Olive', Olive_meta)
 ps_raw.ls[['PD']] <- meta_parsing('PD', PD_meta)
@@ -170,7 +170,7 @@ ps_rare.ls <- list()
 ps_rare.ls[['Species']] <- lapply(ps_raw.ls, function(ds) {
   lapply(ds, function(db) {
     rarefy_even_depth2(db, rngseed = 1234, 
-                       verbose = TRUE, ncores = 7)
+                       verbose = TRUE, ncores = 6)
   })
 })
 
