@@ -38,7 +38,7 @@ if (is.null(opt$input_path)) {
 # +++ LOAD DATA ###
 ####################
 
-ps.ls <- read_rds(input_path)
+ps.ls <- read_rds(opt$input_path)
 ps.ls <- ps.ls$Species
 
 
@@ -129,8 +129,8 @@ results_df <- imap(ps.ls, function(ds.ls, dataset){
   imap(ds.ls, function(ps, database){
     rarefaction_out <- rarefaction_curves(
       ps = ps,
-      steps = steps,   
-      repeats = repeats,  
+      steps = opt$steps,   
+      repeats = opt$repeats,  
       cores = detectCores()     
     )
     
@@ -142,4 +142,4 @@ results_df <- imap(ps.ls, function(ds.ls, dataset){
   }) %>% list_rbind
 }) %>% list_rbind
 
-write_rds(results_df, output_path)
+write_rds(results_df, opt$output_path)
