@@ -38,7 +38,7 @@ if (is.null(opt$input_path)) {
 # +++ LOAD DATA ###
 ####################
 
-ps.ls <- read_rds(input)
+ps.ls <- read_rds(input_path)
 ps.ls <- ps.ls$Species
 
 
