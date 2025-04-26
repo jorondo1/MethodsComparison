@@ -1,5 +1,5 @@
 library(pacman)
-p_load(optparse, tidyverse, phyloseq, rtk, parallel, purrr)
+p_load(optparse, tidyverse, phyloseq, rtk, parallel, purrr, glue)
 
 #########################
 # +++ ARGUMENT PARSING ###
@@ -15,10 +15,15 @@ option_list <- list(
               type = "character", 
               default = "output_df.rds", 
               help = "Output file path [default: %default]"),
-  make_option(c("-c", "--cores"), 
+  make_option("--steps", 
               type = "integer", 
-              default = 2, 
-              help = "Number of cores to use [default: %default]"),
+              default = 30, 
+              help = "Number of rarefaction steps. Will include a step at mindepth and mindepth/c(2,4,6,8,10)"),
+  make_option("--repeats", 
+              type = "integer", 
+              default = 3, 
+              help = "Number of times to repeat rarefaction at each step.")
+  
 )
 
 # Parse arguments
@@ -55,7 +60,7 @@ rarefaction_curves <- function(
   maxdepth <- max(colSums(seqtab))
   mindepth <- min(colSums(seqtab))
   depths <- c(mindepth/c(2,4,6,8,10),
-              seq(mindepth, maxdepth, floor((maxdepth-mindepth)/steps))
+              seq(mindepth, maxdepth, floor((maxdepth-mindepth)/(steps-5)))
   )
   
   # Parallel processing function
@@ -117,14 +122,16 @@ rarefaction_curves <- function(
     return()
 }
 
+message(glue("Running with {detectCores()} cores!"))
+
 # Execute across all list elements 
 results_df <- imap(ps.ls, function(ds.ls, dataset){
   imap(ds.ls, function(ps, database){
     rarefaction_out <- rarefaction_curves(
       ps = ps,
-      steps = 50,   
-      repeats = 3,  
-      cores = cores     
+      steps = steps,   
+      repeats = repeats,  
+      cores = detectCores()     
     )
     
     rarefaction_out %>% 
