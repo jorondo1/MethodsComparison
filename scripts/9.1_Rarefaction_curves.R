@@ -75,7 +75,6 @@ rarefaction_curves <- function(
   seqtab <- as(otu_table(ps), 'matrix')
   if(!taxa_are_rows(ps)) { seqtab <- t(seqtab) }
   
-  
   # Remove empty samples (!?)
   sample_depths <- colSums(seqtab) 
   seqtab %<>% .[,which(sample_depths > 0)]
@@ -115,7 +114,8 @@ rarefaction_curves <- function(
           sample = sample_out$samplename,
           richness = mean(sample_out$richness),
           stringsAsFactors = FALSE,
-          depth = as.integer(depth)
+          depth = as.integer(depth),
+          mindepth = mindepth
           )
         })
       }) %>% list_rbind
@@ -140,6 +140,8 @@ all_work <- expand_grid(
 # Process multiple depths in parallel
 process_job <- function(row) {
   ps <- ps.ls[[row$dataset]][[row$database]]
+  message(glue('Rarefying {row$dataset}, with {row$database}...'))
+  flush.console() # force messages
   
   rarefaction_out <- rarefaction_curves(
     ps = ps,
@@ -147,7 +149,6 @@ process_job <- function(row) {
     repeats = opt$repeats,
     threads = rtk_cores  
   )
-  
   rarefaction_out %>% 
     mutate(Database = row$database, Dataset = row$dataset) %>% 
     filter(!is.na(richness))
