@@ -125,6 +125,7 @@ results_df <- future_imap(ps.ls, function(ds.ls, dataset) {
 # Reset sequential processing
 plan(sequential)
 
+result_df %>% return()
 # Combine and format results
 result <- results_df %>% 
   filter(!is.na(richness)) %>% 
