@@ -66,6 +66,8 @@ rarefaction_curves <- function(
   if(!taxa_are_rows(ps)) { seqtab <- t(seqtab) }
   
   # Calculate depth range
+  sample_depths <- colSums(seqtab)
+  seqtab %<>% .[,which(sample_depths > 0)]
   maxdepth <- max(colSums(seqtab))
   mindepth <- min(colSums(seqtab))
   depths <- round(
@@ -119,11 +121,11 @@ results_df <- future_imap(ps.ls, function(ds.ls, dataset) {
       mutate(
         Database = database,
         Dataset = dataset
-      ) %>% tibble() 
+      ) %>% filter(!is.na(richness))
     
   }, .options = furrr_options(seed = TRUE)) %>% list_rbind()
-}, .options = furrr_options(seed = TRUE)) %>% list_rbind() %>% 
-  filter(!is.na(richness))
+}, .options = furrr_options(seed = TRUE)) %>% list_rbind() 
+  
 
 # Reset sequential processing
 plan(sequential)
