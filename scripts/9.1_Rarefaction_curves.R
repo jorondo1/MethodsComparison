@@ -1,3 +1,5 @@
+# Rscript scripts/9.1_Rarefaction_curves.R -c 96 -i Out/ps_full.ls.RDS -o Out/Rarefaction.RDS
+
 library(pacman)
 p_load(optparse, tidyverse, phyloseq, rtk, glue, magrittr,
        future, furrr, purrr, parallel)
@@ -28,7 +30,7 @@ option_list <- list(
   make_option(c("-c","--cores"), 
               type = "integer", 
               default = 2, 
-              help = "Cores to use. If >12, recommend multiples of 12")
+              help = "Cores to use. If >16, recommend multiples of 16")
 )
 
 # Parse arguments
@@ -39,11 +41,12 @@ if (is.null(opt$input_path)) {
   stop("--input argument is required. See --help for usage.")
 }
 
-rtk_cores <- min(12, opt$cores)
+rtk_cores <- min(16, opt$cores)
 list_cores <- floor(opt$cores/rtk_cores)
 plan(multisession, workers = list_cores)
 
-message(glue('Running rtk rarefaction with {rtk_cores} and {list_cores} ps objects in parallel.'))
+message(glue('Running rtk rarefaction on {list_cores} ps objects in parallel with {rtk_cores} threads each.'))
+
 ##################
 # +++ LOAD DATA ###
 ####################
@@ -57,9 +60,9 @@ ps.ls <- ps.ls$Species
 
 rarefaction_curves <- function(
     ps,
-    steps = 50,
-    threads = 2,
-    repeats = 3) {  # Use one less than available threads
+    steps = opt$steps,
+    threads = rtk_cores,
+    repeats = opt$repeats) {  # Use one less than available threads
   
   # Extract sequence table
   seqtab <- as(otu_table(ps), 'matrix')
@@ -74,6 +77,7 @@ rarefaction_curves <- function(
     c(mindepth/c(2,4,6,8,10),
       seq(mindepth, maxdepth, floor((maxdepth - mindepth) / (steps - 5)))
   ))
+  
   # Rarefaction, processing samples in parallel
   rtk_out.ls <- suppressWarnings(
     rtk(
@@ -107,8 +111,6 @@ rarefaction_curves <- function(
 results_df <- future_imap(ps.ls, function(ds.ls, dataset) {
   future_imap(ds.ls, function(ps, database) {
     
-    message(glue('Rarefying {dataset}, {database}...'))
-    
     rarefaction_out <- rarefaction_curves(
       ps = ps,
       steps = opt$steps,
@@ -116,6 +118,8 @@ results_df <- future_imap(ps.ls, function(ds.ls, dataset) {
       threads = rtk_cores
     )
     
+    message(glue('Done rarefying {dataset}, {database}...'))
+
     # Add database/dataset columns
     rarefaction_out %>% 
       mutate(
