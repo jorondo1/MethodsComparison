@@ -92,7 +92,7 @@ rarefaction_curves <- function(
           sample = sample_out$samplename,
           richness = mean(sample_out$richness),
           stringsAsFactors = FALSE,
-          depth = depth
+          depth = as.integer(depth)
           )
         }) %>% mutate(depth = depth)
       }) %>% list_rbind
@@ -139,8 +139,6 @@ result <- results_df %>%
     first_deriv = (richness - lag(richness)) / (depth - lag(depth)),
     second_deriv = (first_deriv - lag(first_deriv)) / (depth - lag(depth))
   )
-
-message(glue("Running with {detectCores()} threads!"))
 
 # Execute across all list elements 
 
