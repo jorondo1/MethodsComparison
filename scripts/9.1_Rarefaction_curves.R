@@ -101,6 +101,9 @@ rarefaction_curves <- function(
 # Process multiple depths in parallel
 results_df <- future_imap(ps.ls, function(ds.ls, dataset) {
   future_imap(ds.ls, function(ps, database) {
+    
+    message(glue('Rarefying {dataset}, {database}...'))
+    
     rarefaction_out <- rarefaction_curves(
       ps = ps,
       steps = opt$steps,
