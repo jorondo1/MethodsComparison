@@ -44,7 +44,7 @@ if (is.null(opt$input_path)) {
   stop("--input argument is required. See --help for usage.")
 }
 
-rtk_cores <- min(4, opt$cores)
+rtk_cores <- min(8, opt$cores)
 list_cores <- floor(opt$cores/rtk_cores)
 plan(multisession, workers = list_cores)
 
@@ -117,28 +117,28 @@ rarefaction_curves <- function(
 
 # Process multiple depths in parallel
 results_df <- future_imap(ps.ls, function(ds.ls, dataset) {
-  future_imap(ds.ls, function(ps, database) {
-    
-    # RAREFY
+  message(glue("\n[START] Dataset: {dataset} at {format(Sys.time(), '%H:%M:%S')}"))
+  
+  # Process all databases in parallel WITHIN each dataset
+  db_results <- imap(ds.ls, function(ps, database) {
     rarefaction_out <- rarefaction_curves(
       ps = ps,
       steps = opt$steps,
       repeats = opt$repeats,
-      threads = rtk_cores
+      threads = 4  # All 4 cores dedicated to RTK
     )
     
-    message(glue('Done rarefying {dataset}, {database}...'))
-
-    # Add database/dataset columns to output
-    rarefaction_out %>% 
-      mutate(
-        Database = database,
-        Dataset = dataset
-      ) %>% filter(!is.na(richness)) # Remove NA richness (common)
+    message(glue("[PROGRESS] {dataset}/{database} completed"))
     
-  }, .options = furrr_options(seed = TRUE)) %>% list_rbind()
-}, .options = furrr_options(seed = TRUE)) %>% list_rbind() 
+    rarefaction_out %>% 
+      mutate(Database = database, Dataset = dataset) %>% 
+      filter(!is.na(richness))
+  }) %>% list_rbind()
   
+  message(glue("[END] Dataset: {dataset} at {format(Sys.time(), '%H:%M:%S')}"))
+  db_results
+}, .options = furrr_options(seed = TRUE, scheduling = 1)) %>% list_rbind()
+
 # Reset sequential processing
 plan(sequential)
 
