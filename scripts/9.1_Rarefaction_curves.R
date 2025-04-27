@@ -154,14 +154,11 @@ results_df <- mclapply(
   process_job,
   mc.cores = list_cores, 
   mc.preschedule = FALSE  # Better for uneven workloads (says deepseek)
-) %>% bind_rows()
+) %>% bind_rows() %>% tibble()
 
-results_df
 
-# Combine and format results
+# Compute secondary derivatives by sample
 result <- results_df %>% 
-  tibble() %>% 
-  # Compute secondary derivatives by sample
   group_by(sample) %>% 
   arrange(depth, .by_group = TRUE) %>% 
   mutate(
