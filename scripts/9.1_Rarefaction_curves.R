@@ -115,34 +115,37 @@ rarefaction_curves <- function(
   return(richness_df)
 }
 
-all_work <- cross_df(list(
+all_work <- expand_grid(
   dataset = names(ps.ls),
   database = names(ps.ls[[1]])
-))
+  )
+
 
 # Process multiple depths in parallel
-future_pmap_dfr(all_work, function(dataset, database) {
+results_df <- future_pmap_dfr(all_work, function(dataset, database) {
   ps <- ps.ls[[dataset]][[database]]
   
-  message(glue("\n[START] Dataset: {dataset} at {format(Sys.time(), '%H:%M:%S')}"))
+  # Process with full RTK cores
+  rarefaction_out <- rarefaction_curves(
+    ps = ps,
+    steps = opt$steps,
+    repeats = opt$repeats,
+    threads = rtk_cores  # Dedicated cores per job
+  )
   
-  # Process all databases in parallel WITHIN each dataset
-    rarefaction_out <- rarefaction_curves(
-      ps = ps,
-      steps = opt$steps,
-      repeats = opt$repeats,
-      threads = rtk_cores
-    )
-    
-    message(glue("[PROGRESS] {dataset}/{database} completed"))
-    
-    rarefaction_out %>% 
-      mutate(Database = database, Dataset = dataset) %>% 
-      filter(!is.na(richness))
+  # Progress message (now visible immediately)
+  message(glue("[{format(Sys.time(), '%H:%M:%S')}] Completed {dataset}/{database}"))
   
-  message(glue("[END] Dataset: {dataset} at {format(Sys.time(), '%H:%M:%S')}"))
-  db_results
-}, .options = furrr_options(chunk_size = 1))
+  rarefaction_out %>% 
+    mutate(Database = database, Dataset = dataset) %>% 
+    filter(!is.na(richness))
+  
+}, .options = furrr_options(
+  seed = TRUE,
+  scheduling = Inf,  # Dynamic load balancing
+  chunk_size = 1     # Prevent memory spikes
+))
+
 
 # Reset sequential processing
 plan(sequential)
