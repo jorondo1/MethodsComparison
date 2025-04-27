@@ -46,7 +46,11 @@ if (is.null(opt$input_path)) {
 
 rtk_cores <- min(4, opt$cores)
 list_cores <- floor(opt$cores/rtk_cores)
-plan(multisession, workers = list_cores)
+plan(multisession, workers = 24, .options = future_options(
+  persistent = TRUE,
+  earlySignal = TRUE,
+  scheduling = Inf  # Allows faster workers to grab more tasks
+))
 
 message(glue('Running rtk rarefaction on {list_cores} ps objects in parallel with {rtk_cores} threads each.'))
 
@@ -125,7 +129,7 @@ results_df <- future_imap(ps.ls, function(ds.ls, dataset) {
       ps = ps,
       steps = opt$steps,
       repeats = opt$repeats,
-      threads = 4  # All 4 cores dedicated to RTK
+      threads = rtk_cores
     )
     
     message(glue("[PROGRESS] {dataset}/{database} completed"))
