@@ -46,9 +46,7 @@ if (is.null(opt$input_path)) {
 
 rtk_cores <- min(4, opt$cores)
 list_cores <- floor(opt$cores/rtk_cores)
-plan(multisession, workers = list_cores, .options = future_options(
-  scheduling = Inf  # Allows faster workers to grab more tasks
-))
+plan(multisession, workers = list_cores)
 
 message(glue('Running rtk rarefaction on {list_cores} ps objects in parallel with {rtk_cores} threads each.'))
 
@@ -117,12 +115,18 @@ rarefaction_curves <- function(
   return(richness_df)
 }
 
+all_work <- cross_df(list(
+  dataset = names(ps.ls),
+  database = names(ps.ls[[1]])
+))
+
 # Process multiple depths in parallel
-results_df <- future_imap(ps.ls, function(ds.ls, dataset) {
+future_pmap_dfr(all_work, function(dataset, database) {
+  ps <- ps.ls[[dataset]][[database]]
+  
   message(glue("\n[START] Dataset: {dataset} at {format(Sys.time(), '%H:%M:%S')}"))
   
   # Process all databases in parallel WITHIN each dataset
-  db_results <- imap(ds.ls, function(ps, database) {
     rarefaction_out <- rarefaction_curves(
       ps = ps,
       steps = opt$steps,
@@ -135,11 +139,10 @@ results_df <- future_imap(ps.ls, function(ds.ls, dataset) {
     rarefaction_out %>% 
       mutate(Database = database, Dataset = dataset) %>% 
       filter(!is.na(richness))
-  }) %>% list_rbind()
   
   message(glue("[END] Dataset: {dataset} at {format(Sys.time(), '%H:%M:%S')}"))
   db_results
-}, .options = furrr_options(seed = TRUE, scheduling = 1)) %>% list_rbind()
+}, .options = furrr_options(chunk_size = 1))
 
 # Reset sequential processing
 plan(sequential)
