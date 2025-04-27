@@ -44,7 +44,7 @@ if (is.null(opt$input_path)) {
   stop("--input argument is required. See --help for usage.")
 }
 
-rtk_cores <- min(8, opt$cores)
+rtk_cores <- min(4, opt$cores)
 list_cores <- floor(opt$cores/rtk_cores)
 plan(multisession, workers = list_cores)
 
