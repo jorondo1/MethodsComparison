@@ -130,7 +130,7 @@ results_df <- future_pmap_dfr(all_work, function(dataset, database) {
     ps = ps,
     steps = opt$steps,
     repeats = opt$repeats,
-    threads = rtk_cores  # Dedicated cores per job
+    threads = rtk_cores
   )
   
   # Progress message (now visible immediately)
