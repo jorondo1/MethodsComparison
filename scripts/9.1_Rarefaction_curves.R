@@ -46,9 +46,7 @@ if (is.null(opt$input_path)) {
 
 rtk_cores <- min(4, opt$cores)
 list_cores <- floor(opt$cores/rtk_cores)
-plan(multisession, workers = 24, .options = future_options(
-  persistent = TRUE,
-  earlySignal = TRUE,
+plan(multisession, workers = list_cores, .options = future_options(
   scheduling = Inf  # Allows faster workers to grab more tasks
 ))
 
