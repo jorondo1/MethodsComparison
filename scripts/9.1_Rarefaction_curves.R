@@ -114,11 +114,12 @@ results_df <- future_imap(ps.ls, function(ds.ls, dataset) {
       threads = rtk_cores
     )
     
+    # Add database/dataset columns
     rarefaction_out %>% 
       mutate(
         Database = database,
         Dataset = dataset
-      )
+      ) %>% tibble()
   }, .options = furrr_options(seed = TRUE)) %>% list_rbind()
 }, .options = furrr_options(seed = TRUE)) %>% list_rbind()
 
