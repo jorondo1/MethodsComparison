@@ -30,7 +30,12 @@ option_list <- list(
               default = 3, 
               help = "Number of times to repeat rarefaction at each step."),
   
-  make_option(c("-c","--cores"), 
+  make_option(c("-tc","--total_cores"), 
+              type = "integer", 
+              default = 2, 
+              help = "Cores to use. If >16, recommend multiples of 16"),
+  
+  make_option(c("-c","--cores_per_rtk"), 
               type = "integer", 
               default = 2, 
               help = "Cores to use. If >16, recommend multiples of 16")
@@ -44,8 +49,8 @@ if (is.null(opt$input_path)) {
   stop("--input argument is required. See --help for usage.")
 }
 
-rtk_cores <- min(4, opt$cores)
-list_cores <- floor(opt$cores/rtk_cores)
+rtk_cores <- opt$cores_per_rtk
+list_cores <- floor(opt$total_cores/rtk_cores)
 plan(multisession, workers = list_cores)
 
 message(glue('Running rtk rarefaction on {list_cores} ps objects in parallel with {rtk_cores} threads each.'))
