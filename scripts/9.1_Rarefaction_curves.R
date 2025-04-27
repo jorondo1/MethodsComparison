@@ -24,7 +24,7 @@ option_list <- list(
               default = 3, 
               help = "Number of times to repeat rarefaction at each step."),
   
-  make_option(c("-c","---cores"), 
+  make_option(c("-c","--cores"), 
               type = "integer", 
               default = 2, 
               help = "Cores to use. If >12, recommend multiples of 12")
