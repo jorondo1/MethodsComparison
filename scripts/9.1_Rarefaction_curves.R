@@ -132,7 +132,7 @@ result <- results_df %>%
   group_by(sample) %>% 
   arrange(depth, .by_group = TRUE) %>% 
   mutate(
-    depth = log10(depth),
+    depth = depth,
     first_deriv = (richness - lag(richness)) / (depth - lag(depth)),
     second_deriv = (first_deriv - lag(first_deriv)) / (depth - lag(depth))
   )
