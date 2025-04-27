@@ -91,7 +91,8 @@ rarefaction_curves <- function(
         data.frame(
           sample = sample_out$samplename,
           richness = mean(sample_out$richness),
-          stringsAsFactors = FALSE
+          stringsAsFactors = FALSE,
+          depth = depth
           )
         }) %>% mutate(depth = depth)
       }) %>% list_rbind
@@ -132,7 +133,6 @@ result <- results_df %>%
   group_by(sample) %>% 
   arrange(depth, .by_group = TRUE) %>% 
   mutate(
-    depth = depth,
     first_deriv = (richness - lag(richness)) / (depth - lag(depth)),
     second_deriv = (first_deriv - lag(first_deriv)) / (depth - lag(depth))
   )
