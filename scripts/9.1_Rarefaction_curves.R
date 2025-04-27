@@ -32,7 +32,7 @@ option_list <- list(
   
   make_option(c("-t","--total_cores"), 
               type = "integer", 
-              default = 2, 
+              default = 8, 
               help = "Cores to use. If >16, recommend multiples of 16"),
   
   make_option(c("-c","--cores_per_rtk"), 
@@ -120,13 +120,13 @@ rarefaction_curves <- function(
   return(richness_df)
 }
 
+# Process from largest to smallest object
 all_work <- expand_grid(
   dataset = names(ps.ls),
   database = names(ps.ls[[1]])
   ) %>% 
   mutate(size = map2_dbl(dataset, database, ~object.size(ps.ls[[.x]][[.y]]))) %>% 
   arrange(desc(size))  # Largest jobs first
-
 
 # Process multiple depths in parallel
 process_job <- function(row) {
@@ -148,13 +148,12 @@ process_job <- function(row) {
 results_list <- mclapply(
   split(all_work, 1:nrow(all_work)), 
   process_job,
-  mc.cores = list_cores,      # 24 workers
+  mc.cores = list_cores, 
   mc.preschedule = FALSE  # Better for uneven workloads
 )
 
 results_df <- bind_rows(results_list)
-
-
+results_df
 # Reset sequential processing
 plan(sequential)
 
