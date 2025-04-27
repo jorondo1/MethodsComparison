@@ -14,14 +14,17 @@ option_list <- list(
               default = NULL, 
               help = "Input file path (required)", 
               metavar = "FILE"),
+  
   make_option(c("-o", "--output_path"), 
               type = "character", 
               default = "output_df.rds", 
               help = "Output file path [default: %default]"),
+  
   make_option("--steps", 
               type = "integer", 
               default = 30, 
               help = "Number of rarefaction steps. Will include a step at mindepth and mindepth/c(2,4,6,8,10)"),
+  
   make_option("--repeats", 
               type = "integer", 
               default = 3, 
@@ -41,7 +44,7 @@ if (is.null(opt$input_path)) {
   stop("--input argument is required. See --help for usage.")
 }
 
-rtk_cores <- min(16, opt$cores)
+rtk_cores <- min(4, opt$cores)
 list_cores <- floor(opt$cores/rtk_cores)
 plan(multisession, workers = list_cores)
 
@@ -60,21 +63,24 @@ ps.ls <- ps.ls$Species
 
 rarefaction_curves <- function(
     ps,
-    steps = opt$steps,
-    threads = rtk_cores,
-    repeats = opt$repeats) {  # Use one less than available threads
+    steps,
+    repeats,
+    threads) {  # Use one less than available threads
   
   # Extract sequence table
   seqtab <- as(otu_table(ps), 'matrix')
   if(!taxa_are_rows(ps)) { seqtab <- t(seqtab) }
   
-  # Calculate depth range
-  sample_depths <- colSums(seqtab)
+  
+  # Remove empty samples (!?)
+  sample_depths <- colSums(seqtab) 
   seqtab %<>% .[,which(sample_depths > 0)]
+  
+  # Calculate depth range
   maxdepth <- max(colSums(seqtab))
   mindepth <- min(colSums(seqtab))
   depths <- round(
-    c(mindepth/c(2,4,6,8,10),
+    c(mindepth/c(2,4,6,8,10), # a few below mindepth
       seq(mindepth, maxdepth, floor((maxdepth - mindepth) / (steps - 5)))
   ))
   
@@ -88,6 +94,8 @@ rarefaction_curves <- function(
       threads = threads
       )
   )
+  
+  # Extract element lists that correspond to all tested depths 
   rtk_out.ls <- rtk_out.ls[names(rtk_out.ls) %in% rtk_out.ls$depth]
   
   # Extract richness at each depth
@@ -111,6 +119,7 @@ rarefaction_curves <- function(
 results_df <- future_imap(ps.ls, function(ds.ls, dataset) {
   future_imap(ds.ls, function(ps, database) {
     
+    # RAREFY
     rarefaction_out <- rarefaction_curves(
       ps = ps,
       steps = opt$steps,
@@ -120,21 +129,18 @@ results_df <- future_imap(ps.ls, function(ds.ls, dataset) {
     
     message(glue('Done rarefying {dataset}, {database}...'))
 
-    # Add database/dataset columns
+    # Add database/dataset columns to output
     rarefaction_out %>% 
       mutate(
         Database = database,
         Dataset = dataset
-      ) %>% filter(!is.na(richness))
+      ) %>% filter(!is.na(richness)) # Remove NA richness (common)
     
   }, .options = furrr_options(seed = TRUE)) %>% list_rbind()
 }, .options = furrr_options(seed = TRUE)) %>% list_rbind() 
   
-
 # Reset sequential processing
 plan(sequential)
-
-results_df %>% return()
 
 # Combine and format results
 result <- results_df %>% 
