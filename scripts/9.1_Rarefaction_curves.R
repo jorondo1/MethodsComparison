@@ -22,8 +22,12 @@ option_list <- list(
   make_option("--repeats", 
               type = "integer", 
               default = 3, 
-              help = "Number of times to repeat rarefaction at each step.")
+              help = "Number of times to repeat rarefaction at each step."),
   
+  make_option(c("-c","---cores"), 
+              type = "integer", 
+              default = 2, 
+              help = "Cores to use. If >12, recommend multiples of 12")
 )
 
 # Parse arguments
@@ -34,13 +38,16 @@ if (is.null(opt$input_path)) {
   stop("--input argument is required. See --help for usage.")
 }
 
+rtk_cores <- min(12, opt$cores)
+list_cores <- floor(opt$cores/rtk_cores)
+plan(multisession, workers = list_cores)
+
 ##################
 # +++ LOAD DATA ###
 ####################
 
 ps.ls <- read_rds(opt$input_path)
 ps.ls <- ps.ls$Species
-
 
 ####################
 # FUNCTION RAREFY ###
@@ -49,8 +56,8 @@ ps.ls <- ps.ls$Species
 rarefaction_curves <- function(
     ps,
     steps = 50,
-    repeats = 3, 
-    cores = detectCores() - 1) {  # Use one less than available cores
+    threads = 2,
+    repeats = 3) {  # Use one less than available threads
   
   # Extract sequence table
   seqtab <- as(otu_table(ps), 'matrix')
@@ -59,79 +66,46 @@ rarefaction_curves <- function(
   # Calculate depth range
   maxdepth <- max(colSums(seqtab))
   mindepth <- min(colSums(seqtab))
-  depths <- c(mindepth/c(2,4,6,8,10),
-              seq(mindepth, maxdepth, floor((maxdepth-mindepth)/(steps-5)))
+  depths <- round(
+    c(mindepth/c(2,4,6,8,10),
+      seq(mindepth, maxdepth, floor((maxdepth - mindepth) / (steps - 5)))
+  ))
+  # Rarefaction, processing samples in parallel
+  rtk_out.ls <- suppressWarnings(
+    rtk(
+      input = seqtab,
+      depth = depths,
+      repeats = repeats,
+      seed = 42,
+      threads = threads
+      )
   )
+  rtk_out.ls <- rtk_out.ls[names(rtk_out.ls) %in% rtk_out.ls$depth]
   
-  # Parallel processing function
-  process_depth <- function(depth, seqtab, repeats) {
-    
-    # Rarefaction, processing samples in parallel
-    rtk_result <- #suppressWarnings(
-      rtk(
-        input = seqtab,
-        depth = depth,
-        repeats = repeats,
-        seed = 42,
-        threads = 2
-        )
-   # )
-    
-    # Extract and format results
-    richness_df <- tryCatch({
+  # Extract richness at each depth
+  richness_df <- 
+    imap(rtk_out.ls, function(rtk_result, depth){
       imap_dfr(rtk_result$divvs, function(sample_out, sample_index) {
         data.frame(
           sample = sample_out$samplename,
-          depth = depth,
           richness = mean(sample_out$richness),
           stringsAsFactors = FALSE
-        )
-      })
-    }, error = function(e) {
-      data.frame(sample = colnames(seqtab), 
-                 depth = depth,
-                 richness = NA_real_)
-    })
-    
-    # Filter NA results
-    return(richness_df)
-  }
-  
-  # Process multiple depths in parallel
-  results <- mclapply(
-    depths, 
-    process_depth,
-    seqtab = seqtab,
-    repeats = repeats,
-    mc.cores = cores
-  )
-  
-  # Combine and format results
-  bind_rows(results) %>% 
-    filter(!is.na(richness)) %>% 
-    tibble() %>% 
-    # Compute secondary derivatives by sample
-    group_by(sample) %>% 
-    arrange(depth, .by_group = TRUE) %>% 
-    mutate(
-      depth = log10(depth),
-      first_deriv = (richness - lag(richness)) / (depth - lag(depth)),
-      second_deriv = (first_deriv - lag(first_deriv)) / (depth - lag(depth))
-    ) %>%
-    #filter(!is.na(second_deriv)) %>% 
-    return()
+          )
+        }) %>% mutate(depth = depth)
+      }) %>% list_rbind
+
+  # Filter NA results
+  return(richness_df)
 }
 
-message(glue("Running with {detectCores()} cores!"))
-
-# Execute across all list elements 
-results_df <- imap(ps.ls, function(ds.ls, dataset){
-  imap(ds.ls, function(ps, database){
+# Process multiple depths in parallel
+results_df <- future_imap(ps.ls, function(ds.ls, dataset) {
+  future_imap(ds.ls, function(ps, database) {
     rarefaction_out <- rarefaction_curves(
       ps = ps,
-      steps = opt$steps,   
-      repeats = opt$repeats,  
-      cores = detectCores()     
+      steps = opt$steps,
+      repeats = opt$repeats,
+      threads = rtk_cores
     )
     
     rarefaction_out %>% 
@@ -139,7 +113,27 @@ results_df <- imap(ps.ls, function(ds.ls, dataset){
         Database = database,
         Dataset = dataset
       )
-  }) %>% list_rbind
-}) %>% list_rbind
+  }, .options = furrr_options(seed = TRUE)) %>% list_rbind()
+}, .options = furrr_options(seed = TRUE)) %>% list_rbind()
 
-write_rds(results_df, opt$output_path)
+# Reset sequential processing
+plan(sequential)
+
+# Combine and format results
+result <- results_df %>% 
+  filter(!is.na(richness)) %>% 
+  tibble() %>% 
+  # Compute secondary derivatives by sample
+  group_by(sample) %>% 
+  arrange(depth, .by_group = TRUE) %>% 
+  mutate(
+    depth = log10(depth),
+    first_deriv = (richness - lag(richness)) / (depth - lag(depth)),
+    second_deriv = (first_deriv - lag(first_deriv)) / (depth - lag(depth))
+  )
+
+message(glue("Running with {detectCores()} threads!"))
+
+# Execute across all list elements 
+
+write_rds(result, opt$output_path)
