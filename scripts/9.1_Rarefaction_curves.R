@@ -1,5 +1,6 @@
 library(pacman)
-p_load(optparse, tidyverse, phyloseq, rtk, parallel, purrr, glue)
+p_load(optparse, tidyverse, phyloseq, rtk, glue, 
+       future, furrr, purrr, parallel)
 
 #########################
 # +++ ARGUMENT PARSING ###
