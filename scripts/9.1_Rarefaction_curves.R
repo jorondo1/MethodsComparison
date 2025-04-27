@@ -1,5 +1,5 @@
 library(pacman)
-p_load(optparse, tidyverse, phyloseq, rtk, glue, 
+p_load(optparse, tidyverse, phyloseq, rtk, glue, magrittr,
        future, furrr, purrr, parallel)
 
 #########################
