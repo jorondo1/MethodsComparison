@@ -83,10 +83,15 @@ rarefaction_curves <- function(
   # Calculate depth range
   maxdepth <- max(colSums(seqtab))
   mindepth <- min(colSums(seqtab))
-  depths <- round(
-    c(mindepth/c(2,4,6,8,10), # a few below mindepth
-      seq(mindepth, maxdepth, floor((maxdepth - mindepth) / (steps - 5)))
-  ))
+  
+  # Depths at which to rarefy
+  fractions_of_mindepth <- c(1.2, 1.5, 2, 4, 10, 100, 1000, 5000, 10000)
+
+  depths <- unique(round(
+    c(mindepth/fractions_of_mindepth, # a few below mindepth
+      seq(from = mindepth, to = maxdepth, 
+          by = floor((maxdepth - mindepth) / (steps - length(fractions_of_mindepth))))
+  ))) %>% setdiff(seq(1:10)) # Exclude ultra low depths
   
   # Rarefaction, processing samples in parallel
   rtk_out.ls <- suppressWarnings(
