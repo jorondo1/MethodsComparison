@@ -43,7 +43,7 @@ rtk_cores <- min(12, opt$cores)
 list_cores <- floor(opt$cores/rtk_cores)
 plan(multisession, workers = list_cores)
 
-message(glue('Running RKT with {rtk_cores} and {list_cores} ps objects in parallel.'))
+message(glue('Running rtk rarefaction with {rtk_cores} and {list_cores} ps objects in parallel.'))
 ##################
 # +++ LOAD DATA ###
 ####################
@@ -94,7 +94,7 @@ rarefaction_curves <- function(
           stringsAsFactors = FALSE,
           depth = as.integer(depth)
           )
-        }) %>% mutate(depth = depth)
+        })
       }) %>% list_rbind
 
   # Filter NA results
