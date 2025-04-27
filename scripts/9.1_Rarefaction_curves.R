@@ -49,10 +49,9 @@ if (is.null(opt$input_path)) {
   stop("--input argument is required. See --help for usage.")
 }
 
+# Multicore planning
 rtk_cores <- opt$cores_per_rtk
 list_cores <- floor(opt$total_cores/rtk_cores)
-plan(multisession, workers = list_cores)
-
 message(glue('Running rtk rarefaction on {list_cores} ps objects in parallel with {rtk_cores} threads each.'))
 
 ##################
@@ -120,13 +119,18 @@ rarefaction_curves <- function(
   return(richness_df)
 }
 
+########################
+# PARALLEL PROCESSING ###
+##########################
+
 # Process from largest to smallest object
 all_work <- expand_grid(
   dataset = names(ps.ls),
   database = names(ps.ls[[1]])
-  ) %>% 
-  mutate(size = map2_dbl(dataset, database, ~object.size(ps.ls[[.x]][[.y]]))) %>% 
-  arrange(desc(size))  # Largest jobs first
+  ) %>% mutate(
+    size = map2_dbl(dataset, database, ~object.size(ps.ls[[.x]][[.y]]))) %>% 
+  arrange(desc(size)) %>% 
+  filter(size>0) # Expand grid creates all combinations including non-existing ones
 
 # Process multiple depths in parallel
 process_job <- function(row) {
@@ -136,7 +140,7 @@ process_job <- function(row) {
     ps = ps,
     steps = opt$steps,
     repeats = opt$repeats,
-    threads = rtk_cores  # Use all 4 cores per job
+    threads = rtk_cores  
   )
   
   rarefaction_out %>% 
@@ -145,17 +149,14 @@ process_job <- function(row) {
 }
 
 # Run with mclapply
-results_list <- mclapply(
+results_df <- mclapply(
   split(all_work, 1:nrow(all_work)), 
   process_job,
   mc.cores = list_cores, 
-  mc.preschedule = FALSE  # Better for uneven workloads
-)
+  mc.preschedule = FALSE  # Better for uneven workloads (says deepseek)
+) %>% bind_rows()
 
-results_df <- bind_rows(results_list)
 results_df
-# Reset sequential processing
-plan(sequential)
 
 # Combine and format results
 result <- results_df %>% 
