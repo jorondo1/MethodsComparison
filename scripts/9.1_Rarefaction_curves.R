@@ -119,16 +119,17 @@ results_df <- future_imap(ps.ls, function(ds.ls, dataset) {
       mutate(
         Database = database,
         Dataset = dataset
-      ) %>% tibble() %>% 
-      filter(!is.na(richness))
+      ) %>% tibble() 
     
   }, .options = furrr_options(seed = TRUE)) %>% list_rbind()
-}, .options = furrr_options(seed = TRUE)) %>% list_rbind()
+}, .options = furrr_options(seed = TRUE)) %>% list_rbind() %>% 
+  filter(!is.na(richness))
 
 # Reset sequential processing
 plan(sequential)
 
 results_df %>% return()
+
 # Combine and format results
 result <- results_df %>% 
   tibble() %>% 
