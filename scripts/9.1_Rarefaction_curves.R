@@ -44,7 +44,7 @@ if (is.null(opt$input_path)) {
   stop("--input argument is required. See --help for usage.")
 }
 
-rtk_cores <- min(4, opt$cores)
+rtk_cores <- min(12, opt$cores)
 list_cores <- floor(opt$cores/rtk_cores)
 plan(multisession, workers = list_cores)
 
@@ -120,31 +120,31 @@ all_work <- expand_grid(
   database = names(ps.ls[[1]])
   )
 
-
 # Process multiple depths in parallel
-results_df <- future_pmap_dfr(all_work, function(dataset, database) {
-  ps <- ps.ls[[dataset]][[database]]
+process_job <- function(row) {
+  ps <- ps.ls[[row$dataset]][[row$database]]
   
-  # Process with full RTK cores
   rarefaction_out <- rarefaction_curves(
     ps = ps,
     steps = opt$steps,
     repeats = opt$repeats,
-    threads = rtk_cores
+    threads = rtk_cores  # Use all 4 cores per job
   )
   
-  # Progress message (now visible immediately)
-  message(glue("[{format(Sys.time(), '%H:%M:%S')}] Completed {dataset}/{database}"))
-  
   rarefaction_out %>% 
-    mutate(Database = database, Dataset = dataset) %>% 
+    mutate(Database = row$database, Dataset = row$dataset) %>% 
     filter(!is.na(richness))
-  
-}, .options = furrr_options(
-  seed = TRUE,
-  scheduling = Inf,  # Dynamic load balancing
-  chunk_size = 1     # Prevent memory spikes
-))
+}
+
+# Run with mclapply
+results_list <- mclapply(
+  split(all_work, 1:nrow(all_work)), 
+  process_job,
+  mc.cores = list_cores,      # 24 workers
+  mc.preschedule = FALSE  # Better for uneven workloads
+)
+
+results_df <- bind_rows(results_list)
 
 
 # Reset sequential processing
