@@ -44,7 +44,7 @@ if (is.null(opt$input_path)) {
   stop("--input argument is required. See --help for usage.")
 }
 
-rtk_cores <- min(12, opt$cores)
+rtk_cores <- min(4, opt$cores)
 list_cores <- floor(opt$cores/rtk_cores)
 plan(multisession, workers = list_cores)
 
@@ -118,7 +118,10 @@ rarefaction_curves <- function(
 all_work <- expand_grid(
   dataset = names(ps.ls),
   database = names(ps.ls[[1]])
-  )
+  ) %>% 
+  mutate(size = map2_dbl(dataset, database, ~object.size(ps.ls[[.x]][[.y]]))) %>% 
+  arrange(desc(size))  # Largest jobs first
+
 
 # Process multiple depths in parallel
 process_job <- function(row) {
