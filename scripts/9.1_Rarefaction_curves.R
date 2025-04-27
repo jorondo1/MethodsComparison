@@ -119,7 +119,9 @@ results_df <- future_imap(ps.ls, function(ds.ls, dataset) {
       mutate(
         Database = database,
         Dataset = dataset
-      ) %>% tibble()
+      ) %>% tibble() %>% 
+      filter(!is.na(richness))
+    
   }, .options = furrr_options(seed = TRUE)) %>% list_rbind()
 }, .options = furrr_options(seed = TRUE)) %>% list_rbind()
 
@@ -129,7 +131,6 @@ plan(sequential)
 results_df %>% return()
 # Combine and format results
 result <- results_df %>% 
-  filter(!is.na(richness)) %>% 
   tibble() %>% 
   # Compute secondary derivatives by sample
   group_by(sample) %>% 
