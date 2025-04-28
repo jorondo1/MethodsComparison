@@ -180,4 +180,4 @@ results_df <- mclapply(
   bind_rows() %>% tibble()
 
 # Execute across all list elements 
-write_rds(result_df, opt$output_path)
+write_rds(results_df, opt$output_path)
