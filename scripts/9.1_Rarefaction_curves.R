@@ -148,17 +148,19 @@ process_job <- function(row) {
     repeats = opt$repeats,
     threads = rtk_cores  
   )
+  
+  message(glue('Done rarefying {row$dataset} + {row$database}!')); flush.console()
+  
+  # Add database/dataset info
   rarefaction_out %>% 
     {
-      if (nrow(.) == 0 || ncol(.) == 0) {
+      if (nrow(.) == 0) {
         .  # return empty tibble as-is
       } else {
-        . %>%
-    mutate(Database = row$database, Dataset = row$dataset) %>% 
+    mutate(., Database = row$database, Dataset = row$dataset) %>% 
     filter(!is.na(richness))
       }
     }
-  message(glue('Done rarefying {row$dataset} + {row$database}!')); flush.console()
 }
 
 # Run with mclapply
@@ -167,10 +169,10 @@ results_df <- mclapply(
   process_job,
   mc.cores = list_cores, 
   mc.preschedule = FALSE  # Better for uneven workloads (says deepseek)
-) %>% bind_rows() %>% tibble()
-results_df
+) %>% discard(~ nrow(.) == 0) %>% # some may be empty
+  bind_rows() %>% tibble()
 
-#write_rds(result, opt$output_path)
+write_rds(result_df, opt$output_path)
 
 # Compute secondary derivatives by sample
 result <- results_df %>% 
@@ -179,7 +181,8 @@ result <- results_df %>%
   mutate(
     first_deriv = (richness - lag(richness)) / (depth - lag(depth)),
     second_deriv = (first_deriv - lag(first_deriv)) / (depth - lag(depth))
-  )
+  ) %>% 
+  mutate(l2f_rate = first_deriv*log(2)*depth)
 
 # Execute across all list elements 
 write_rds(result, opt$output_path)
