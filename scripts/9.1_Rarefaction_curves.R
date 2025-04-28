@@ -134,14 +134,13 @@ all_work <- expand_grid(
   database = names(ps.ls[[1]])
   ) %>% mutate(
     size = map2_dbl(dataset, database, ~object.size(ps.ls[[.x]][[.y]]))) %>% 
-  arrange(desc(size)) %>% 
+  arrange(size) %>% 
   filter(size>0) # Expand grid creates all combinations including non-existing ones
 
 # Process multiple depths in parallel
 process_job <- function(row) {
   ps <- ps.ls[[row$dataset]][[row$database]]
-  message(glue('Rarefying {row$dataset}, with {row$database}...'))
-  flush.console() # force messages
+  message(glue('Rarefying {row$dataset} + {row$database}...')) ; flush.console() # force messages
   
   rarefaction_out <- rarefaction_curves(
     ps = ps,
@@ -150,8 +149,16 @@ process_job <- function(row) {
     threads = rtk_cores  
   )
   rarefaction_out %>% 
+    {
+      if (nrow(.) == 0 || ncol(.) == 0) {
+        .  # return empty tibble as-is
+      } else {
+        . %>%
     mutate(Database = row$database, Dataset = row$dataset) %>% 
     filter(!is.na(richness))
+      }
+    }
+  message(glue('Done rarefying {row$dataset} + {row$database}!')); flush.console()
 }
 
 # Run with mclapply
