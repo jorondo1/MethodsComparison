@@ -84,7 +84,7 @@ rarefaction_curves <- function(
   mindepth <- min(colSums(seqtab))
   
   # Depths at which to rarefy
-  fractions_of_mindepth <- c(1.2, 1.5, 2, 4, 10, 100, 1000, 5000, 10000)
+  fractions_of_mindepth <- c(1.1 ,1.2, 1.5, 2, 4, 10, 100, 1000, 2000, 5000, 10000)
 
   depths <- unique(round(
     c(mindepth/fractions_of_mindepth, # a few below mindepth
