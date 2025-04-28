@@ -82,7 +82,7 @@ rarefaction_curves <- function(
   # Calculate depth range
   maxdepth <- max(colSums(seqtab))
   mindepth <- min(colSums(seqtab))
-  
+
   # Depths at which to rarefy
   fractions_of_mindepth <- c(0.1, 0.5, 0.8, 0.9, 1.2, 1.5, 2, 4, 10, 100, 1000, 2000, 5000, 10000)
 
@@ -90,8 +90,9 @@ rarefaction_curves <- function(
     c(mindepth/fractions_of_mindepth, # a few below mindepth
       seq(from = mindepth, to = maxdepth, 
           by = floor((maxdepth - mindepth) / (steps - length(fractions_of_mindepth))))
-  ))) %>% setdiff(seq(1:10)) # Exclude ultra low depths
-  
+  ))) %>% setdiff(seq(0, 10, 1)) %>% # Exclude ultra low depths
+    sort()
+
   # Rarefaction, processing samples in parallel
   rtk_out.ls <- suppressWarnings(
     rtk(
@@ -102,7 +103,7 @@ rarefaction_curves <- function(
       threads = threads
       )
   )
-  
+
   # Extract element lists that correspond to all tested depths 
   rtk_out.ls <- rtk_out.ls[names(rtk_out.ls) %in% rtk_out.ls$depth]
   
@@ -130,11 +131,11 @@ rarefaction_curves <- function(
 
 # Process from largest to smallest object
 all_work <- expand_grid(
-  dataset = names(ps.ls),
-  database = names(ps.ls[[1]])
+  Dataset = names(ps.ls),
+  Database = names(ps.ls[[1]])
 ) %>% 
   mutate(
-    size = map2_dbl(dataset, database, ~ {
+    size = map2_dbl(Dataset, Database, ~ {
       tryCatch({
         sum(as(otu_table(ps.ls[[.x]][[.y]]), "matrix"), na.rm = TRUE)
       }, error = function(e) NA_real_)
@@ -145,8 +146,8 @@ all_work <- expand_grid(
 
 # Process multiple depths in parallel
 process_job <- function(row) {
-  ps <- ps.ls[[row$dataset]][[row$database]]
-  message(glue('Rarefying {row$dataset} + {row$database}...')) ; flush.console() # force messages
+  ps <- ps.ls[[row$Dataset]][[row$Database]]
+  message(glue('Rarefying {row$Dataset} + {row$Database}...')) ; flush.console() # force messages
   
   rarefaction_out <- rarefaction_curves(
     ps = ps,
@@ -155,7 +156,7 @@ process_job <- function(row) {
     threads = rtk_cores  
   )
   
-  message(glue('Done rarefying {row$dataset} + {row$database}!')); flush.console()
+  message(glue('Done rarefying {row$Dataset} + {row$Database}!')); flush.console()
   
   # Add database/dataset info
   rarefaction_out %>% 
@@ -163,7 +164,7 @@ process_job <- function(row) {
       if (nrow(.) == 0) {
         .  # return empty tibble as-is
       } else {
-    mutate(., Database = row$database, Dataset = row$dataset) %>% 
+    mutate(., Database = row$Database, Dataset = row$Dataset) %>% 
     filter(!is.na(richness))
       }
     }
@@ -177,18 +178,6 @@ results_df <- mclapply(
   mc.preschedule = FALSE  # Better for uneven workloads (says deepseek)
 ) %>% discard(~ nrow(.) == 0) %>% # some may be empty
   bind_rows() %>% tibble()
-
-write_rds(results_df, opt$output_path)
-
-# Compute secondary derivatives by sample
-result <- results_df %>% 
-  group_by(sample) %>% 
-  arrange(depth, .by_group = TRUE) %>% 
-  mutate(
-    first_deriv = (richness - lag(richness)) / (depth - lag(depth)),
-    second_deriv = (first_deriv - lag(first_deriv)) / (depth - lag(depth))
-  ) %>% 
-  mutate(l2f_rate = first_deriv*log(2)*depth)
 
 # Execute across all list elements 
 write_rds(result, opt$output_path)
