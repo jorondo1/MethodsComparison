@@ -132,8 +132,14 @@ rarefaction_curves <- function(
 all_work <- expand_grid(
   dataset = names(ps.ls),
   database = names(ps.ls[[1]])
-  ) %>% mutate(
-    size = map2_dbl(dataset, database, ~object.size(ps.ls[[.x]][[.y]]))) %>% 
+) %>% 
+  mutate(
+    size = map2_dbl(dataset, database, ~ {
+      tryCatch({
+        sum(as(otu_table(ps.ls[[.x]][[.y]]), "matrix"), na.rm = TRUE)
+      }, error = function(e) NA_real_)
+    })
+  ) %>% 
   arrange(desc(size)) %>% 
   filter(size>0) # Expand grid creates all combinations including non-existing ones
 
