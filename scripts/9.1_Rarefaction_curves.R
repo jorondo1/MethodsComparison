@@ -168,7 +168,9 @@ results_df <- mclapply(
   mc.cores = list_cores, 
   mc.preschedule = FALSE  # Better for uneven workloads (says deepseek)
 ) %>% bind_rows() %>% tibble()
+results_df
 
+#write_rds(result, opt$output_path)
 
 # Compute secondary derivatives by sample
 result <- results_df %>% 
@@ -180,5 +182,4 @@ result <- results_df %>%
   )
 
 # Execute across all list elements 
-
 write_rds(result, opt$output_path)
