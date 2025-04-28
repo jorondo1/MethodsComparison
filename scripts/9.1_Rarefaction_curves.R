@@ -134,7 +134,7 @@ all_work <- expand_grid(
   database = names(ps.ls[[1]])
   ) %>% mutate(
     size = map2_dbl(dataset, database, ~object.size(ps.ls[[.x]][[.y]]))) %>% 
-  arrange(size) %>% 
+  arrange(desc(size)) %>% 
   filter(size>0) # Expand grid creates all combinations including non-existing ones
 
 # Process multiple depths in parallel
