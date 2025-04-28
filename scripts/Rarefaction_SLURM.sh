@@ -7,6 +7,7 @@
 #SBATCH --time=6:00:00
 #SBATCH -N 1
 #SBATCH -n 48
+#SBATCH --mem=500G
 #SBATCH -A def-ilafores
 #SBATCH -J rarefaction
 
