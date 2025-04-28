@@ -172,7 +172,7 @@ results_df <- mclapply(
 ) %>% discard(~ nrow(.) == 0) %>% # some may be empty
   bind_rows() %>% tibble()
 
-write_rds(result_df, opt$output_path)
+write_rds(results_df, opt$output_path)
 
 # Compute secondary derivatives by sample
 result <- results_df %>% 
