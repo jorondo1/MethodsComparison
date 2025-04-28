@@ -3,11 +3,11 @@
 #SBATCH --mail-type=END,FAIL
 #SBATCH -D /net/nfs-ip34/home/def-ilafores/analysis/MethodsComparison
 #SBATCH -o /net/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/logs/Rarefaction-%A_%a.slurm.out
-#SBATCH -e /net/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/logs/Rarefaction-%A_%a.slurm.out
+#SBATCH -e /net/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/logs/Rarefaction-%A_%a.slurm.err
 #SBATCH --time=6:00:00
 #SBATCH -N 1
 #SBATCH -n 48
-#SBATCH --mem=500G
+#SBATCH --mem=250G
 #SBATCH -A def-ilafores
 #SBATCH -J rarefaction
 
