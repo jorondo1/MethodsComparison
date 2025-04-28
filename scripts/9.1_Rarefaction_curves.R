@@ -84,7 +84,7 @@ rarefaction_curves <- function(
   mindepth <- min(colSums(seqtab))
 
   # Depths at which to rarefy
-  fractions_of_mindepth <- c(0.1, 0.5, 0.8, 0.9, 1.2, 1.5, 2, 4, 10, 100, 1000, 2000, 5000, 10000)
+  fractions_of_mindepth <- c(.05,0.1, 0.5, 0.7, 0.8, 0.9, 1.2, 1.5, 2, 4, 10, 100, 1000, 2000, 5000, 10000)
 
   depths <- unique(round(
     c(mindepth/fractions_of_mindepth, # a few below mindepth
@@ -180,4 +180,4 @@ results_df <- mclapply(
   bind_rows() %>% tibble()
 
 # Execute across all list elements 
-write_rds(result, opt$output_path)
+write_rds(result_df, opt$output_path)
