@@ -21,7 +21,7 @@ mkdir -p "$OUTDIR"
 base_name=$(basename "$FNA_PATH" .fna.gz)
 
 # Create a temporary directory for this file
-temp_dir=${ANCHOR}$(mktemp -d -p /tmp "split_${SLURM_JOB_ID}_XXXXXX") || exit 1
+temp_dir=$(mktemp -d -p /tmp "split_${SLURM_JOB_ID}_XXXXXX") || exit 1
 
 # Stagger jobs
 echo "Copying $FNA_PATH to tmpdir... "
