@@ -3,6 +3,7 @@
 #SBATCH --mail-type=END,FAIL
 #SBATCH -D /net/nfs-ip34/home/def-ilafores/analysis/MethodsComparison
 #SBATCH -o /net/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/logs/sourmash-%A_%a.slurm.out
+#SBATCH -e /net/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/logs/sourmash-%A_%a.slurm.err
 #SBATCH --time=6:00:00
 #SBATCH -N 1
 #SBATCH -n 24
@@ -26,6 +27,7 @@ echo "Exporting to $OUT_DIR"
 export SAM_NUM=$(awk "NR==$SLURM_ARRAY_TASK_ID" ${SAM_LIST})
 IFS=$'\t' read -r SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2 <<< "$SAM_NUM" # array it up
 export SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2
+
 # Add Anchor to sample paths
 for var in FQ_P1 FQ_P2 FQ_U1 FQ_U2; do
     if [[ "${!var}" != ${ANCHOR}/* && "${!var}" != /nfs3_ib/* ]]; then
