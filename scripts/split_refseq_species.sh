@@ -6,7 +6,7 @@
 #SBATCH --time=2:00:00
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH --mem=1G
+#SBATCH --mem=24G
 #SBATCH -A def-ilafores
 #SBATCH -J split_refseq
 
@@ -15,7 +15,6 @@ export FNA_PATH=${ANCHOR}$(awk "NR==$SLURM_ARRAY_TASK_ID" "${ANCHOR}${1}")
 export OUT_DIR="${ANCHOR}${2}"
 
 # Create output directory if it doesn't exist
-echo "$OUT_DIR"
 mkdir -p "$OUT_DIR"
 
 # Get the base filename without extension
