@@ -6,7 +6,7 @@
 #SBATCH --time=2:00:00
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH --mem=1G
+#SBATCH --mem=2G
 #SBATCH -A def-ilafores
 #SBATCH -J split_refseq
 
@@ -57,6 +57,17 @@ for species_file in "$temp_dir"/*.fna; do
     cp "${temp_dir}/${base_name}_${species_name}.fna.gz" "$OUT_DIR"
 done
 
+# Sourmash signatures
+find $temp_dir/ -name '*.fna' > $temp_dir/file_list.txt
+
+echo "Computing sourmash signatures..."
+ml apptainer
+singularity exec --writable-tmpfs -e \
+-B $ILAFORES:$ILAFORES,/fast2/def-ilafores:/fast2/def-ilafores \
+$ILL_PIPELINES/containers/sourmash.4.8.11.sif sourmash sketch \
+dna -p k=31,scaled=1000,abund --name-from-first --from-file $temp_dir/file_list.txt --outdir $temp_dir
+
+cp $temp_dir/*sig "$OUT_DIR"/sourmash_signatures
 
 # Clean up
 rm -rf "$temp_dir"
