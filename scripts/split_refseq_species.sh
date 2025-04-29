@@ -64,8 +64,8 @@ echo "Computing sourmash signatures..."
 ml apptainer
 
 singularity exec --writable-tmpfs -e \
--B $ILAFORES:$ILAFORES,/fast2/def-ilafores:/fast2/def-ilafores \
-$ILL_PIPELINES/containers/sourmash.4.8.11.sif sourmash sketch \
+-B $ANCHOR$ILAFORES:$ANCHOR$ILAFORES,$ANCHOR/fast2/def-ilafores:$ANCHOR/fast2/def-ilafores \
+$ANCHOR$ILL_PIPELINES/containers/sourmash.4.8.11.sif sourmash sketch \
 dna -p k=31,scaled=1000,abund --name-from-first --from-file $temp_dir/file_list.txt --outdir $temp_dir
 
 mkdir -p "$OUT_DIR"/sourmash_signatures
