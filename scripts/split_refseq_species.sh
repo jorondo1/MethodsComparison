@@ -11,6 +11,7 @@
 #SBATCH -J split_refseq
 
 echo "test"
+module load StdEnv/2020
 export ANCHOR="/net/nfs-ip34"
 export FNA_PATH=${ANCHOR}$(awk "NR==$SLURM_ARRAY_TASK_ID" "${ANCHOR}${1}")
 export OUT_DIR="${ANCHOR}${2}"
