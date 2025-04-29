@@ -11,7 +11,7 @@
 #SBATCH -J split_refseq
 
 export ANCHOR=/net/nfs-ip34
-export FNA_PATH=$(awk "NR==$SLURM_ARRAY_TASK_ID" "${ANCHOR}${1}")
+export FNA_PATH=${ANCHOR}$(awk "NR==$SLURM_ARRAY_TASK_ID" "${ANCHOR}${1}")
 export OUTDIR="${ANCHOR}${2}"
 
 # Create output directory if it doesn't exist
