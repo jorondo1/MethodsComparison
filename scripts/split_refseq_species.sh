@@ -13,11 +13,11 @@
 echo "test"
 export ANCHOR="/net/nfs-ip34"
 export FNA_PATH=${ANCHOR}$(awk "NR==$SLURM_ARRAY_TASK_ID" "${ANCHOR}${1}")
-export OUTDIR="${ANCHOR}${2}"
+export OUT_DIR="${ANCHOR}${2}"
 
 # Create output directory if it doesn't exist
-echo "$OUTDIR"
-mkdir -p "$OUTDIR"
+echo "$OUT_DIR"
+mkdir -p "$OUT_DIR"
 
 # Get the base filename without extension
 base_name=$(basename "$FNA_PATH" .fna.gz)
@@ -56,8 +56,8 @@ for species_file in "$temp_dir"/*.fna; do
     gzip -c "$species_file" > "${temp_dir}/${base_name}_${species_name}.fna.gz"
 done
 
-echo "copying back to ${OUTDIR}..."
-cp "${temp_dir}/*.fna.gz" "$OUTDIR"
+echo "copying back to ${OUT_DIR}..."
+cp "${temp_dir}/*.fna.gz" "$OUT_DIR"
 
 # Clean up
 rm -rf "$temp_dir"
