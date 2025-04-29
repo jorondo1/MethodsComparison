@@ -1,15 +1,16 @@
-#!/bin/bash
+#!/bin/bash -l 
 
 #SBATCH --mail-type=END,FAIL
 #SBATCH -D /net/nfs-ip34/home/def-ilafores/analysis/MethodsComparison
 #SBATCH -o /net/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/logs/split_refseq-%A_%a.slurm.out
 #SBATCH --time=2:00:00
 #SBATCH -N 1
-#SBATCH -n 1
+#SBATCH -n 2
 #SBATCH --mem=30G
 #SBATCH -A def-ilafores
 #SBATCH -J split_refseq
 
+echo "test"
 export ANCHOR=/net/nfs-ip34
 export FNA_PATH=${ANCHOR}$(awk "NR==$SLURM_ARRAY_TASK_ID" "${ANCHOR}${1}")
 export OUTDIR="${ANCHOR}${2}"
