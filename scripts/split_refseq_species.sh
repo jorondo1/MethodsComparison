@@ -5,13 +5,11 @@
 #SBATCH -o /net/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/logs/split_refseq-%A_%a.slurm.out
 #SBATCH --time=2:00:00
 #SBATCH -N 1
-#SBATCH -n 2
-#SBATCH --mem=30G
+#SBATCH -n 1
+#SBATCH --mem=1G
 #SBATCH -A def-ilafores
 #SBATCH -J split_refseq
 
-echo "test"
-module load StdEnv/2020
 export ANCHOR="/net/nfs-ip34"
 export FNA_PATH=${ANCHOR}$(awk "NR==$SLURM_ARRAY_TASK_ID" "${ANCHOR}${1}")
 export OUT_DIR="${ANCHOR}${2}"
@@ -27,10 +25,11 @@ base_name=$(basename "$FNA_PATH" .fna.gz)
 temp_dir=$(mktemp -d -p /tmp "split_${SLURM_JOB_ID}_XXXXXX") || exit 1
 
 # Stagger jobs
-echo "Copying $FNA_PATH to tmpdir... "
+echo "Copying $FNA_PATH to ${temp_dir}... "
 sleep $((RANDOM % 30))
 cp "$FNA_PATH" $temp_dir
 
+echo "Splitting file..."
 zcat $temp_dir/$(basename "$FNA_PATH") | awk -v temp_dir="$temp_dir" '
 /^>/ {
     # Extract the species identifier (first 9 characters after >)
@@ -52,13 +51,13 @@ zcat $temp_dir/$(basename "$FNA_PATH") | awk -v temp_dir="$temp_dir" '
 }'
 
 # Compress and move the output files
+
+echo "Compress and copy back to ${OUT_DIR}..."
 for species_file in "$temp_dir"/*.fna; do
     species_name=$(basename "$species_file" .fna)
-    gzip -c "$species_file" > "${temp_dir}/${base_name}_${species_name}.fna.gz"
+    gzip -c "$species_file" > "${OUT_DIR}/${base_name}_${species_name}.fna.gz"
 done
-
-echo "copying back to ${OUT_DIR}..."
-cp "${temp_dir}/*.fna.gz" "$OUT_DIR"
 
 # Clean up
 rm -rf "$temp_dir"
+echo "Done!"
