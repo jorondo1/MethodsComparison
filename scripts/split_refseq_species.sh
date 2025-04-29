@@ -6,7 +6,7 @@
 #SBATCH --time=2:00:00
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH --mem=1G
+#SBATCH --mem=30G
 #SBATCH -A def-ilafores
 #SBATCH -J split_refseq
 
