@@ -11,11 +11,12 @@
 #SBATCH -J split_refseq
 
 echo "test"
-export ANCHOR=/net/nfs-ip34
+export ANCHOR="/net/nfs-ip34"
 export FNA_PATH=${ANCHOR}$(awk "NR==$SLURM_ARRAY_TASK_ID" "${ANCHOR}${1}")
 export OUTDIR="${ANCHOR}${2}"
 
 # Create output directory if it doesn't exist
+echo "$OUTDIR"
 mkdir -p "$OUTDIR"
 
 # Get the base filename without extension
