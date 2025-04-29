@@ -6,7 +6,7 @@
 #SBATCH --time=2:00:00
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH --mem=24G
+#SBATCH --mem=2G
 #SBATCH -A def-ilafores
 #SBATCH -J split_refseq
 
@@ -24,8 +24,8 @@ base_name=$(basename "$FNA_PATH" .fna.gz)
 temp_dir=$(mktemp -d -p /tmp "split_${SLURM_JOB_ID}_XXXXXX") || exit 1
 
 # Stagger jobs
-echo "Copying $FNA_PATH to ${temp_dir}... "
-sleep $((RANDOM % 30))
+echo "Copying $FNA_PATH to ${tempdir}... "
+#sleep $((RANDOM % 30))
 cp "$FNA_PATH" $temp_dir
 
 echo "Splitting file..."
@@ -47,15 +47,16 @@ zcat $temp_dir/$(basename "$FNA_PATH") | awk -v temp_dir="$temp_dir" '
 {
     # Print sequence lines to the same file
     print >> output_file
-}'
+}' 
 
 # Compress and move the output files
-
-echo "Compress and copy back to ${OUT_DIR}..."
+echo "Compressing and copying back to ${OUT_DIR}..."
 for species_file in "$temp_dir"/*.fna; do
     species_name=$(basename "$species_file" .fna)
-    gzip -c "$species_file" > "${OUT_DIR}/${base_name}_${species_name}.fna.gz"
+    gzip -c "$species_file" > "${temp_dir}/${base_name}_${species_name}.fna.gz"
+    cp "${temp_dir}/${base_name}_${species_name}.fna.gz" "$OUT_DIR"
 done
+
 
 # Clean up
 rm -rf "$temp_dir"
