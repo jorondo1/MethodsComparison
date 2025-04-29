@@ -1,4 +1,4 @@
-#!/bin/bash -l 
+#!/bin/bash
 
 #SBATCH --mail-type=END,FAIL
 #SBATCH -D /net/nfs-ip34/home/def-ilafores/analysis/MethodsComparison
@@ -26,7 +26,7 @@ temp_dir=$(mktemp -d -p /tmp "split_${SLURM_JOB_ID}_XXXXXX") || exit 1
 
 # Stagger jobs
 echo "Copying $FNA_PATH to tmpdir... "
-#sleep $((RANDOM % 30))
+sleep $((RANDOM % 30))
 cp "$FNA_PATH" $temp_dir
 
 zcat $temp_dir/$(basename "$FNA_PATH") | awk -v temp_dir="$temp_dir" '
