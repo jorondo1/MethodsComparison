@@ -6,7 +6,7 @@
 #SBATCH --time=2:00:00
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH --mem=2G
+#SBATCH --mem=1G
 #SBATCH -A def-ilafores
 #SBATCH -J split_refseq
 
@@ -68,17 +68,24 @@ find $temp_dir -name '*.fna' > $temp_dir/file_list.txt
 echo "Computing sourmash signatures..."
 ml apptainer
 
+mkdir -p "$OUT_DIR"/signatures/tmp
+
 singularity exec --writable-tmpfs -e -B $ANCHOR$ILAFORES:$ANCHOR$ILAFORES,$ANCHOR/fast2/def-ilafores:$ANCHOR/fast2/def-ilafores $ANCHOR$ILL_PIPELINES/containers/sourmash.4.8.11.sif bash -c "
-sourmash sketch dna -p k=31,scaled=1000,abund --name-from-first --from-file $temp_dir/file_list.txt --outdir $temp_dir/out
-for sig in $(find $temp_dir/out -name '*sig'); do
-    sourmash signature describe $sig
+for FNA_file in $(find $temp_dir -name '*.fna'); do
+    # sketch signature
+    sourmash sketch dna -p k=31,scaled=1000,abund --name-from-first $FNA_file --outdir $temp_dir/out/
+    
+    # check signature
+    sourmash signature describe $temp_dir/out/${FNA_file}.sig
+    
+    # Copy signature
+    cp $temp_dir/out/${FNA_file}.sig \"$OUT_DIR\"/signatures/tmp
+    mv \"$OUT_DIR\"/signatures/tmp/${FNA_file}.sig \"$OUT_DIR\"/signatures
+    rm $temp_dir/out/${FNA_file}.sig
 done
 "
 
-mkdir -p "$OUT_DIR"/signatures/tmp
 #mkdir -p "$OUT_DIR"/genomes
-cp $temp_dir/out/*sig "$OUT_DIR"/signatures/tmp
-mv "$OUT_DIR"/signatures/tmp/* "$OUT_DIR"/signatures
 
 # cp $temp_dir/out/*fna.gz "$OUT_DIR"/genomes
 
