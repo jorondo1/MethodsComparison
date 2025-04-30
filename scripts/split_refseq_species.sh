@@ -6,7 +6,7 @@
 #SBATCH --time=2:00:00
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH --mem=1G
+#SBATCH --mem=3G
 #SBATCH -A def-ilafores
 #SBATCH -J split_refseq
 
@@ -24,10 +24,13 @@ base_name=$(basename "$FNA_PATH" .fna.gz)
 temp_dir=$(mktemp -d -p /tmp "split_${SLURM_JOB_ID}_XXXXXX") || exit 1
 
 # Stagger jobs
-echo "Copying $FNA_PATH to ${temp_dir}... "
 sleep $((RANDOM % 60))
+
+# Copy files
+echo "Copying $FNA_PATH to ${temp_dir}... "
 cp "$FNA_PATH" $temp_dir
 
+#Split files by species 
 echo "Splitting file..."
 zcat $temp_dir/$(basename "$FNA_PATH") | awk -v temp_dir="$temp_dir" '
 /^>/ {
