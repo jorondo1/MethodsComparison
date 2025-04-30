@@ -25,7 +25,7 @@ temp_dir=$(mktemp -d -p /tmp "split_${SLURM_JOB_ID}_XXXXXX") || exit 1
 
 # Stagger jobs
 echo "Copying $FNA_PATH to ${temp_dir}... "
-sleep $((RANDOM % 30))
+sleep $((RANDOM % 60))
 cp "$FNA_PATH" $temp_dir
 
 echo "Splitting file..."
