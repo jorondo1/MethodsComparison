@@ -77,16 +77,16 @@ singularity exec --writable-tmpfs -e -B $ANCHOR$ILAFORES:$ANCHOR$ILAFORES,$ANCHO
 for FNA_file in $(find $temp_dir -name '*.fna'); do
 
     # sketch signature
-    sourmash sketch dna -p k=31,scaled=1000,abund --name-from-first $FNA_file --outdir $temp_dir/out/
+    sourmash sketch dna \$FNA_file -p k=31,scaled=1000,abund --name-from-first --outdir $temp_dir/out/
     
     # check signature
-    FNA_name=$(basename $FNA_file) # no path
+    FNA_name=$(basename \$FNA_file) # no path
     sourmash signature describe $temp_dir/out/${FNA_name}.sig
     
     # Copy signature
-    cp $temp_dir/out/${FNA_name}.sig \"$OUT_DIR\"/signatures/tmp
-    mv \"$OUT_DIR\"/signatures/tmp/${FNA_name}.sig \"$OUT_DIR\"/signatures
-    rm $temp_dir/out/${FNA_name}.sig
+    cp $temp_dir/out/\${FNA_name}.sig \"$OUT_DIR\"/signatures/tmp
+    mv \"$OUT_DIR\"/signatures/tmp/\${FNA_name}.sig \"$OUT_DIR\"/signatures
+    rm $temp_dir/out/\${FNA_name}.sig
 done
 "
 
