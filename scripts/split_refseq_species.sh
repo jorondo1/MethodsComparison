@@ -97,5 +97,4 @@ done
 
 # Clean up
 rm -rf "$temp_dir"
-rm -r "$OUT_DIR"/signatures/tmp
 echo "Done!"
