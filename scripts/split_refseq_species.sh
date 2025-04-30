@@ -24,7 +24,7 @@ base_name=$(basename "$FNA_PATH" .fna.gz)
 temp_dir=$(mktemp -d -p /tmp "split_${SLURM_JOB_ID}_XXXXXX") || exit 1
 
 # Stagger jobs
-sleep $((RANDOM % 60))
+# sleep $((RANDOM % 60))
 
 # Copy files
 echo "Copying $FNA_PATH to ${temp_dir}... "
@@ -82,7 +82,7 @@ for FNA_file in \$(find \"$temp_dir\" -name '*.fna'); do
     
     # check signature
     FNA_name=\$(basename \${FNA_file}) # no path
-    sourmash signature describe \"$temp_dir\"/out/\${FNA_name}.sig
+    # sourmash signature describe \"$temp_dir\"/out/\${FNA_name}.sig
     
     # Copy signature
     cp \"$temp_dir\"/out/\${FNA_name}.sig \"$OUT_DIR\"/signatures/tmp
