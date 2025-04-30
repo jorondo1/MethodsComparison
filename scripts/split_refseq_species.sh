@@ -73,20 +73,21 @@ ml apptainer
 mkdir -p $temp_dir/out
 mkdir -p "$OUT_DIR"/signatures/tmp
 
-singularity exec --writable-tmpfs -e -B $ANCHOR$ILAFORES:$ANCHOR$ILAFORES,$ANCHOR/fast2/def-ilafores:$ANCHOR/fast2/def-ilafores $ANCHOR$ILL_PIPELINES/containers/sourmash.4.8.11.sif bash -c "
-for FNA_file in $(find $temp_dir -name '*.fna'); do
+singularity exec --writable-tmpfs -e -B $ANCHOR$ILAFORES:$ANCHOR$ILAFORES,$ANCHOR/fast2/def-ilafores:$ANCHOR/fast2/def-ilafores $ANCHOR$ILL_PIPELINES/containers/sourmash.4.8.11.sif \
+bash -c "
+for FNA_file in \$(find \"$temp_dir\" -name '*.fna'); do
 
     # sketch signature
-    sourmash sketch dna \$FNA_file -p k=31,scaled=1000,abund --name-from-first --outdir $temp_dir/out/
+    sourmash sketch dna \$FNA_file -p k=31,scaled=1000,abund --name-from-first --outdir \"$temp_dir/out/\"
     
     # check signature
-    FNA_name=$(basename \$FNA_file) # no path
-    sourmash signature describe $temp_dir/out/${FNA_name}.sig
+    FNA_name=\$(basename \${FNA_file}) # no path
+    sourmash signature describe \"$temp_dir\"/out/\${FNA_name}.sig
     
     # Copy signature
-    cp $temp_dir/out/\${FNA_name}.sig \"$OUT_DIR\"/signatures/tmp
+    cp \"$temp_dir\"/out/\${FNA_name}.sig \"$OUT_DIR\"/signatures/tmp
     mv \"$OUT_DIR\"/signatures/tmp/\${FNA_name}.sig \"$OUT_DIR\"/signatures
-    rm $temp_dir/out/\${FNA_name}.sig
+    rm \"$temp_dir\"/out/\${FNA_name}.sig
 done
 "
 
