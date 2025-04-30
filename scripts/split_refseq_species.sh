@@ -67,12 +67,14 @@ find $temp_dir/out -name '*.fna.gz' > $temp_dir/file_list.txt
 
 echo "Computing sourmash signatures..."
 ml apptainer
-sourmash="singularity exec --writable-tmpfs -e -B $ANCHOR$ILAFORES:$ANCHOR$ILAFORES,$ANCHOR/fast2/def-ilafores:$ANCHOR/fast2/def-ilafores $ANCHOR$ILL_PIPELINES/containers/sourmash.4.8.11.sif sourmash"
 
-# Sketch signature
-$sourmash sketch dna -p k=31,scaled=1000,abund --name-from-first --from-file $temp_dir/file_list.txt --outdir $temp_dir/out
+singularity exec --writable-tmpfs -e -B $ANCHOR$ILAFORES:$ANCHOR$ILAFORES,$ANCHOR/fast2/def-ilafores:$ANCHOR/fast2/def-ilafores $ANCHOR$ILL_PIPELINES/containers/sourmash.4.8.11.sif bash -c "
 
-# Check signoture
+sourmash sketch dna -p k=31,scaled=1000,abund --name-from-first --from-file $temp_dir/file_list.txt --outdir $temp_dir/out
+for sig in $(find $temp_dir/out -name '*sig'); do
+    sourmash signature describe $sig
+done
+"
 
 mkdir -p "$OUT_DIR"/signatures
 mkdir -p "$OUT_DIR"/genomes
