@@ -24,7 +24,7 @@ base_name=$(basename "$FNA_PATH" .fna.gz)
 temp_dir=$(mktemp -d -p /tmp "split_${SLURM_JOB_ID}_XXXXXX") || exit 1
 
 # Stagger jobs
-# sleep $((RANDOM % 60))
+sleep $((RANDOM % 30))
 
 # Copy files
 echo "Copying $FNA_PATH to ${temp_dir}... "
