@@ -51,25 +51,33 @@ zcat $temp_dir/$(basename "$FNA_PATH") | awk -v temp_dir="$temp_dir" '
 
 # Compress and move the output files
 echo "Compressing and copying back to ${OUT_DIR}..."
+
+mkdir -p $temp_dir/out
 for species_file in "$temp_dir"/*.fna; do
     species_name=$(basename "$species_file" .fna)
-    gzip -c "$species_file" > "${temp_dir}/${base_name}_${species_name}.fna.gz"
-    cp "${temp_dir}/${base_name}_${species_name}.fna.gz" "$OUT_DIR"
+    if [[ -s "${OUT_DIR}/signatures/${base_name}_${species_name}.fna.gz" ]]; then
+        continue
+    else
+        gzip -c "$species_file" > "${temp_dir}/out/${base_name}_${species_name}.fna.gz"
+    fi
 done
 
 # Sourmash signatures
-find $temp_dir/ -name '*.fna' > $temp_dir/file_list.txt
+find $temp_dir/out -name '*.fna.gz' > $temp_dir/file_list.txt
 
 echo "Computing sourmash signatures..."
 ml apptainer
+sourmash="singularity exec --writable-tmpfs -e -B $ANCHOR$ILAFORES:$ANCHOR$ILAFORES,$ANCHOR/fast2/def-ilafores:$ANCHOR/fast2/def-ilafores $ANCHOR$ILL_PIPELINES/containers/sourmash.4.8.11.sif sourmash"
 
-singularity exec --writable-tmpfs -e \
--B $ANCHOR$ILAFORES:$ANCHOR$ILAFORES,$ANCHOR/fast2/def-ilafores:$ANCHOR/fast2/def-ilafores \
-$ANCHOR$ILL_PIPELINES/containers/sourmash.4.8.11.sif sourmash sketch \
-dna -p k=31,scaled=1000,abund --name-from-first --from-file $temp_dir/file_list.txt --outdir $temp_dir
+# Sketch signature
+$sourmash sketch dna -p k=31,scaled=1000,abund --name-from-first --from-file $temp_dir/file_list.txt --outdir $temp_dir/out
 
-mkdir -p "$OUT_DIR"/sourmash_signatures
-cp $temp_dir/*sig "$OUT_DIR"/sourmash_signatures
+# Check signoture
+
+mkdir -p "$OUT_DIR"/signatures
+mkdir -p "$OUT_DIR"/genomes
+cp $temp_dir/out/*sig "$OUT_DIR"/signatures
+# cp $temp_dir/out/*fna.gz "$OUT_DIR"/genomes
 
 # Clean up
 rm -rf "$temp_dir"
