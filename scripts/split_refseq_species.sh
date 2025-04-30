@@ -80,7 +80,7 @@ for FNA_file in $(find $temp_dir -name '*.fna'); do
     sourmash sketch dna -p k=31,scaled=1000,abund --name-from-first $FNA_file --outdir $temp_dir/out/
     
     # check signature
-    FNA_name=$(basename $FNA_FILE) # no path
+    FNA_name=$(basename $FNA_file) # no path
     sourmash signature describe $temp_dir/out/${FNA_name}.sig
     
     # Copy signature
