@@ -53,9 +53,8 @@ zcat $temp_dir/$(basename "$FNA_PATH") | awk -v temp_dir="$temp_dir" '
 }' 
 
 # Compress and move the output files
-echo "Compressing and copying back to ${OUT_DIR}..."
+# echo "Compressing and copying back to ${OUT_DIR}..."
 
-mkdir -p $temp_dir/out
 #for species_file in "$temp_dir"/*.fna; do
 #    species_name=$(basename "$species_file" .fna)
 #    if [[ -s "${OUT_DIR}/signatures/${base_name}_${species_name}.fna.gz" ]]; then
@@ -66,25 +65,28 @@ mkdir -p $temp_dir/out
 #done
 
 # Sourmash signatures
-find $temp_dir -name '*.fna' > $temp_dir/file_list.txt
+#find $temp_dir -name '*.fna' > $temp_dir/file_list.txt
 
 echo "Computing sourmash signatures..."
 ml apptainer
 
+mkdir -p $temp_dir/out
 mkdir -p "$OUT_DIR"/signatures/tmp
 
 singularity exec --writable-tmpfs -e -B $ANCHOR$ILAFORES:$ANCHOR$ILAFORES,$ANCHOR/fast2/def-ilafores:$ANCHOR/fast2/def-ilafores $ANCHOR$ILL_PIPELINES/containers/sourmash.4.8.11.sif bash -c "
 for FNA_file in $(find $temp_dir -name '*.fna'); do
+
     # sketch signature
     sourmash sketch dna -p k=31,scaled=1000,abund --name-from-first $FNA_file --outdir $temp_dir/out/
     
     # check signature
-    sourmash signature describe $temp_dir/out/${FNA_file}.sig
+    FNA_name=$(basename $FNA_FILE) # no path
+    sourmash signature describe $temp_dir/out/${FNA_name}.sig
     
     # Copy signature
-    cp $temp_dir/out/${FNA_file}.sig \"$OUT_DIR\"/signatures/tmp
-    mv \"$OUT_DIR\"/signatures/tmp/${FNA_file}.sig \"$OUT_DIR\"/signatures
-    rm $temp_dir/out/${FNA_file}.sig
+    cp $temp_dir/out/${FNA_name}.sig \"$OUT_DIR\"/signatures/tmp
+    mv \"$OUT_DIR\"/signatures/tmp/${FNA_name}.sig \"$OUT_DIR\"/signatures
+    rm $temp_dir/out/${FNA_name}.sig
 done
 "
 
