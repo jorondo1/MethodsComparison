@@ -22,7 +22,7 @@ export DB_NAME=$(basename ${SM_DB/[-._]k??.*/})
 export OUT_DIR=${PWD}/"${1}"/SM_${DB_NAME}
 export DB_ANCHOR=$(dirname $SM_DB)
 echo "Exporting to $OUT_DIR"
-
+echo "using $SM_DB"
 # Parse samples
 export SAM_NUM=$(awk "NR==$SLURM_ARRAY_TASK_ID" ${SAM_LIST})
 IFS=$'\t' read -r SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2 <<< "$SAM_NUM" # array it up

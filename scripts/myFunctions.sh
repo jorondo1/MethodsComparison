@@ -34,9 +34,11 @@ dataset_variables() {
     declare -g "DATASET"="$1"
     declare -g "TSV"="$2"
     declare -g "N_SAMPLES"=$(wc -l < "$2")
+    declare -g "DATASET_PATH"="$MC/data/$DATASET"
     echo "\$DATASET evaluates to $1"
     echo "\$TSV evaluates to $TSV"
     echo "\$N_SAMPLES evaluates to $N_SAMPLES"
+    echo "\$DATASET_PATH evaluates to $DATASET_PATH"
 }
 
 

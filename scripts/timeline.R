@@ -218,5 +218,5 @@ ggplot(timeline_data) +
     )
   ) + labs(color = '') 
 
-ggsave('Out/comite2/timeline.png', bg = 'white', width = 1800, height = 2200, 
+ggsave('Out/comite2/timeline.pdf', bg = 'white', width = 1800, height = 2200, 
        units = 'px', dpi = 220)

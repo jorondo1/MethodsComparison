@@ -20,6 +20,7 @@ class_rate_sm <- read_tsv('Out/classification_rates/sourmash_classification_rate
   select(-dot) %>% 
   filter(!is.na(Rate)) %>% 
   mutate(Database = case_when(str_detect(Tool, "genbank") ~ 'Genbank (NCBI)',
+                              str_detect(Tool, 'MAG') ~ 'GTDB rep. + MAGs',
                               str_detect(Tool, 'rep') ~ 'GTDB rep. espèces',
                               str_detect(Tool, 'full') ~ 'GTDB complet'),
          Tool = str_remove(Tool, 'SM_')) %>% 
@@ -34,7 +35,7 @@ class_rate <- rbind(
 sample_subset <- class_rate %>% 
   group_by(Dataset, Sample) %>% 
   summarise(n = n()) %>% 
-  filter(n > 9) # should have 10 entries per sample
+  filter(n > 8) # should have 10 entries per sample
 
 # Create a label for each dataset with n = sample_count
 Dataset_n_labels <- sample_subset %>% 
@@ -49,8 +50,8 @@ class_rate_kb %>%
   left_join(Dataset_n_labels, by = 'Dataset') %>% 
   filter(Sample %in% pull(sample_subset, Sample)) %>% 
   ggplot(aes(x = Tool, y = Rate, fill = Database)) +
-  geom_boxplot(width = 0.3, linewidth = 0.2,
-               position = position_dodge(width=0.5),
+  geom_boxplot(width = 0.6, linewidth = 0.2,
+               position = position_dodge(width=0.7),
                outlier.size = 0.2) +
   facet_grid(.~Dataset_n) +
   theme_light() +
@@ -63,10 +64,11 @@ class_rate_kb %>%
       color = "black",       # Black border
       linewidth = 0.2        # Border thickness
     )) +
+  scale_x_discrete(expand = expansion(mult = 0.2)) + # Reduce buffer between boxes and panel
   labs(x = 'Méthode', y = 'Taux de classification des lectures', 
        fill = 'Base de données\nde référence') 
 
-ggsave('Out/comite2/classrate_kb.png', bg = 'white', width = 2200, height = 1000, 
+ggsave('Out/comite2/classrate_kb.pdf', bg = 'white', width = 2200, height = 1000, 
        units = 'px', dpi = 200)
 
  #NEXT : check by dataset type ??
@@ -74,14 +76,16 @@ ggsave('Out/comite2/classrate_kb.png', bg = 'white', width = 2200, height = 1000
 class_rate_sm %>% 
   left_join(Dataset_n_labels, by = 'Dataset') %>% 
   filter(Sample %in% pull(sample_subset, Sample)) %>% 
-  ggplot(aes(x = NA, y = Rate, fill = Database)) +
-  geom_boxplot(width = 0.3, linewidth = 0.2,
+  ggplot(aes(x = NA, y = Rate, fill = Tool)) +
+  geom_boxplot(width = 0.4, linewidth = 0.2,
                position = position_dodge(width=0.5),
                outlier.size = 0.2) +
-  facet_grid(.~Dataset_n, scales = 'free') +
+  facet_grid(.~Dataset_n, scales = 'free', space = 'free') +
   theme_light() +
   theme(
     panel.grid.major.x = element_blank(),
+    panel.spacing = unit(0.1,'cm'),
+    position_dodge(width = 0.7),
     axis.text.x = element_blank(),
     axis.title.x = element_blank(),
     legend.position = c(0.25, 0.6),
@@ -91,8 +95,9 @@ class_rate_sm %>%
       linewidth = 0.2        # Border thickness
   )) +
   scale_fill_brewer(palette = 'Pastel2')+
-  labs(x = 'Méthode', y = 'Taux de classification des lectures', 
+  scale_x_discrete(expand = expansion(mult = 0.4)) + # Reduce buffer between boxes and panel
+  labs(x = 'Méthode', y = 'Couverture minimale du métagénome', 
        fill = 'Base de données\nde référence') 
 
-ggsave('Out/comite2/classrate_sm.png', bg = 'white', width = 2200, height = 1000, 
+ggsave('Out/comite2/classrate_sm.pdf', bg = 'white', width = 2200, height = 1000, 
        units = 'px', dpi = 200)

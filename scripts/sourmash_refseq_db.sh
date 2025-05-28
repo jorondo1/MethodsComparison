@@ -4,6 +4,11 @@ sourmash="singularity exec --writable-tmpfs -e -B $ILAFORES:$ILAFORES,/fast2/def
 refseq_genomes="/fast2/def-ilafores/refseq_genomes"
 dwnld_date=refseq-09-April-2025
 
+find $PWD/split_genomes_09-April-2025/signatures/ -type f -name "*.sig" > split_genomes_09-April-2025/signature_list.txt
+
+singularity exec --writable-tmpfs -e -B $ANCHOR$ILAFORES:$ANCHOR$ILAFORES,$ANCHOR/fast2/def-ilafores:$ANCHOR/fast2/def-ilafores $ANCHOR$ILL_PIPELINES/containers/sourmash.4.8.11.sif sourmash index -k=31 split_genomes_09-April-2025/RefSeq_abpv_09042025 --from-file $ANCHOR$PWD/split_genomes_09-April-2025/signature_list.txt
+
+
 # branchwater multithread sketch
 
 # Build csv
@@ -42,3 +47,4 @@ wget https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/nucl_wgs.accessio
 wget https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.Z
 
 uncompress -c taxdump.tar.Z | tar xf - 
+

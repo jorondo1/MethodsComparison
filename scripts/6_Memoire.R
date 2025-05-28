@@ -50,7 +50,8 @@ these_datasets <- c('Moss', 'NAFLD', 'P19_Gut', 'P19_Saliva', 'PD', 'Olive', 'Be
 tax_assignment.pdat <- tax_assignment %>% 
   filter(Database %in% these_databases &
            Dataset %in% these_datasets &
-           Rank == 'Species') 
+           Rank == 'Species') %>% 
+  mutate(Prop_db = Num_tax / Num_species_in_db)
 
 #  /$$$$$$$  /$$        /$$$$$$  /$$$$$$$$         /$$  
 # | $$__  $$| $$       /$$__  $$|__  $$__/       /$$$$  
@@ -65,13 +66,15 @@ tax_assignment.pdat <- tax_assignment %>%
 tax_assignment.pdat %>% 
   filter(! Database %in% c('SM_gtdb-rs214-rep_MAGs', 'SM_gtdb-rs214-full')) %>% 
   ggplot(aes(y = Dataset, x = Num_tax, fill = Database)) +
-  geom_col(position = position_dodge2(preserve = 'single')) + # keep bars the same width
+  geom_col(position = position_dodge2(preserve = 'single'),
+           width = 1.1) + # keep bars the same width
   facet_grid(Dataset~., scales = 'free', switch = 'y') +
   scale_fill_manual(values = tool_colours, labels = CCE_names) +
   labs(y = 'Jeu de données', 
        x = "Nombre d'espèces détectées",
        fill = "Méthodologie") +
   theme(
+    panel.spacing.y = unit(0.05, "cm"),
     legend.position = c(.85,.32),
     #axis.text.x = element_text(angle = 45,  hjust=1),
     axis.text.y = element_blank(),
@@ -84,7 +87,7 @@ tax_assignment.pdat %>%
     )
     ) 
   
-ggsave('Out/comite2/species_count.png',
+ggsave('Out/comite2/species_count.pdf',
        bg = 'white', width = 2600, height = 1400,
        units = 'px', dpi = 220)
 
@@ -281,12 +284,12 @@ hill1_comparison %>%
   scale_y_continuous(limits = c(0, NA)) +
   labs(fill = 'Méthodologie', x = '', y = "Nombre Hill d'ordre 1")
   
-ggsave('Out/comite2/hill1_comparison.png',
+ggsave('Out/comite2/hill1_comparison.pdf',
        bg = 'white', width = 2200, height = 1600,
        units = 'px', dpi = 220)
 
 # For PPT 
-ggsave('Out/comite2/hill1_comparison_wide.png',
+ggsave('Out/comite2/hill1_comparison_wide.pdf',
        bg = 'white', width = 2400, height = 1400,
        units = 'px', dpi = 220)
 
@@ -391,10 +394,11 @@ alpha_div_test <- alpha_div %>%
   
 alpha_div %>% 
   filter(Index == 'Hill_2' 
-         & Database %in% c('KB10','KB10_GTDB','KB45', 'KB45_GTDB', 'KB90', 'KB90_GTDB', 'MOTUS', 'MPA_db2023', 'SM_gtdb-rs220-rep')
-         & ! Dataset %in% c('Bee', 'Moss', 'Olive')
-         & CCE_approach == 'DNA-to-DNA'
-         ) %>% 
+        # & Database %in% c('KB10','KB10_GTDB','KB45', 'KB45_GTDB', 'KB90', 'KB90_GTDB', 'MOTUS', 'MPA_db2023', 'SM_gtdb-rs220-rep')
+        & ! Dataset %in% c('Bee', 'Moss', 'Olive')
+        #& CCE_approach == 'DNA-to-DNA'
+        & CCE_approach == 'DNA-to-Marker'
+        ) %>% 
   left_join(alpha_div_test, by = c('Dataset', 'Database', 'Index')) %>% 
   ggplot(aes(x = Grouping_var, y = Index_value, fill = p.signif)) +
   geom_boxplot(outliers = FALSE, linewidth =0.2) +
@@ -411,8 +415,12 @@ alpha_div %>%
   guides(fill = guide_legend(nrow = 1)) 
 
 # Comité ppt
-ggsave('Out/comite2/hill1_group_test_wide.png',
+ggsave('Out/comite2/hill1_group_test_wide.pdf',
        bg = 'white', width = 2400, height = 1400,
+       units = 'px', dpi = 220)
+
+ggsave('Out/comite2/hill1_group_test_wide2.pdf',
+       bg = 'white', width = 2000, height = 2400,
        units = 'px', dpi = 220)
 
 ###################
@@ -476,22 +484,24 @@ pairwise_distances <- imap(pcoa.ls, function(dist.ls, dist) {
 # |__/      |________/ \______/    |__/               |__/
 
 # Either a simple dot-plot, but we don't keep track of samples:
-pairwise_distances %>% 
+p <- pairwise_distances %>% 
   #filter(Dataset != 'PD') %>% 
   filter(Dist == 'bray' &
            Database %in% these_databases &
            Dataset %in% these_datasets) %>% 
   ggplot(aes(y = Distance, x = Dataset, colour = Database))+
-  geom_jitter(size = 0.1,alpha = 0.5,
+  geom_jitter(size = 0.1, alpha = 0.5,
     position = position_jitterdodge(
       jitter.width = 0.4,  # Adjust jitter width
       dodge.width = 0.7    # Adjust dodge width
   )) +
   geom_boxplot(outliers = FALSE, alpha = 0.7) +
   facet_grid(.~CCE_approach, scale = 'free')+
-  scale_colour_manual(values = tool_colours, labels = CCE_names)
+  scale_colour_manual(values = tool_colours, labels = CCE_names) +
+  labs(colour = 'Méthodologie',
+       y = 'Dissimilarité bray-curtis', x = 'Jeu de données') 
 
-ggsave('Out/comite2/change_bc.png', bg = 'white', width = 2400, height = 1400, 
+ggsave(plot = p, 'Out/comite2/change_bc.png', bg = 'white', width = 2600, height = 1400, 
        units = 'px', dpi = 220)
 
 compute_distance_differences <- function(df, tool1, tool2) {
@@ -515,9 +525,9 @@ database_pairs_of_interest <- list(
   `Kraken 0.45: GTDB – NCBI` = c('KB45_GTDB', 'KB45'),
   `GTDB: Sourmash – Kraken 0.45` = c('SM_gtdb-rs220-rep', 'KB45_GTDB'),
  # `NCBI: Sourmash – Kraken 0.45` = c('SM_genbank-2022.03', 'KB45'),
- `mOTUs – MetaPhlAn` = c('MOTUS', 'MPA_db2023'),
- `MetaPhlAn: 2022 – 2023` = c('MPA_db2023', 'MPA_db2022'),
- `Sourmash: rs214 – rs220` = c('SM_gtdb-rs220-rep', 'SM_gtdb-rs214-rep')
+ `mOTUs – MetaPhlAn 2023` = c('MOTUS', 'MPA_db2023'),
+ `MetaPhlAn: 2022 – 2023` = c('MPA_db2022', 'MPA_db2023'),
+ `Sourmash: rs220 – rs214` = c('SM_gtdb-rs220-rep', 'SM_gtdb-rs214-rep')
 )
 
 # Iterate over pairs of interest
@@ -548,7 +558,7 @@ pairwise_dist_gap.df %>%
   filter(Dist == 'bray') %>% 
   mutate(Pair_name = factor(Pair_name, levels = names(database_pairs_of_interest))) %>% 
   ggplot(aes(x = Dataset, y = dist_diff, fill = Dataset)) +
-  geom_boxplot(outlier.size = 0.2 , linewidth = 0.3) +
+  geom_violin(linewidth = 0.2) +
   facet_grid(.~Pair_name, scale = 'free') +
   theme_bw() +
   labs(y = 'Différences des dissimilarités en paires',
@@ -562,8 +572,8 @@ pairwise_dist_gap.df %>%
   guides(
     fill = guide_legend(nrow = 1))
 
-ggsave('Out/comite2/bray_diff.png', bg = 'white', width = 2200, height = 1200, 
-       units = 'px', dpi = 220)
+ggsave('Out/comite2/bray_diff.pdf', bg = 'white', width = 2200, height = 1200, 
+       units = 'px', dpi = 200)
 
 ### 2. HYPOTHESIS COMPARISONS
 # 2.1. PCoA comparison
@@ -678,7 +688,7 @@ p2 <- permanova.ds %>%
 
 p1 + p2 + plot_layout(guides = 'collect')
 
-ggsave('Out/comite2/permanova_bray.png', bg = 'white', width = 2200, height = 1200, 
+ggsave('Out/comite2/permanova_bray.pdf', bg = 'white', width = 2200, height = 1200, 
        units = 'px', dpi = 220)
 
 # descriptive Statistics
