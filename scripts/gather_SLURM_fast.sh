@@ -39,7 +39,7 @@ SAM_ANCHOR=$(dirname $FQ_P1)
 
 export sourmash="singularity exec --writable-tmpfs -e -B ${SAM_ANCHOR}:${SAM_ANCHOR} -B $ILAFORES:$ILAFORES -B $DB_ANCHOR:$DB_ANCHOR ${ILAFORES}/programs/ILL_pipelines/containers/sourmash.4.8.11.sif sourmash"
 
-export SIG=$(realpath "${PWD}/${1}/signatures/${SAM_ID}.sig")
+export SIG=$(realpath "${PWD}/data/${1}/signatures/${SAM_ID}.sig")
 
 mkdir -p $OUT_DIR/../signatures
 
