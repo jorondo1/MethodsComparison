@@ -16,7 +16,7 @@ export ILAFORES=$ANCHOR/$ILAFORES
 module load StdEnv/2020 apptainer/1.1.5
 
 # Parse options and variables
-export SAM_LIST="${ANCHOR}${2}"
+export SAM_LIST="${ANCHOR}${2#$ANCHOR}" # allows providing variables generated from remote server like mp2b
 export SM_DB="${ANCHOR}${3}"
 export DB_NAME=$(basename ${SM_DB/[-._]k??.*/})
 export OUT_DIR=${PWD}/data/"${1}"/SM_${DB_NAME}

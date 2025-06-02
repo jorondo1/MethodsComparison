@@ -4,7 +4,7 @@ sourmash="singularity exec --writable-tmpfs -e -B $ILAFORES:$ILAFORES,/fast2/def
 refseq_genomes="/fast2/def-ilafores/refseq_genomes"
 dwnld_date="20250528"
 genomes=$refseq_genomes/${dwnld_date}_genomes
-signatures=$refseq_genomes/${dwnld_date}_signatures
+signatures=$refseq_genomes/RefSeq_${dwnld_date}
 mkdir -p $genomes
 mkdir -p $signatures
 
