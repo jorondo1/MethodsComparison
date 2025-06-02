@@ -213,6 +213,7 @@ sbatch --mem=80G -n 16 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "
 sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/home/def-ilafores/ref_dbs/sourmash_db/gtdb-rs220-reps-k31.zip"
 sbatch --mem=120G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/fast2/def-ilafores/refseq_genomes/all_sig_refseq-09-April-2025.zip"
 sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/home/def-ilafores/analysis/boreal_moss/genome_sketches/gtdb-rs214-rep-MAGs.sbt.zip"
+sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/fast2/def-ilafores/refseq_genomes/20250528_signatures"
 
 # Check completion status
 check_output 'gtdb-rs214-rep gtdb-rs214-full genbank-2022.03 gtdb-reps-rs220'  $DATASET_PATH _gather.csv
