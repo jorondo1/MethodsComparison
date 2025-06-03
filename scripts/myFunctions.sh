@@ -18,7 +18,7 @@ check_output() {
 
 	for db in $DATABASES; do
 		
-		found=$(find $DATASET/*$db -type f -name "*$filename_suffix" -exec basename {} \; | sed "s/${filename_suffix}//" | sed "s/_${db}//")
+		found=$(find $DATASET/data/*$db -type f -name "*$filename_suffix" -exec basename {} \; | sed "s/${filename_suffix}//" | sed "s/_${db}//")
 		
 		num_found=$(echo $found | wc -w)
 		echo "$num_found $db output for $DATASET found, $N_SAMPLES expected."
