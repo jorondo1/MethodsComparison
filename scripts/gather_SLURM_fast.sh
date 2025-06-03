@@ -43,6 +43,7 @@ export SIG=$(realpath "${PWD}/data/${1}/signatures/${SAM_ID}.sig")
 
 mkdir -p $OUT_DIR/../signatures
 
+# Sketch Signatures
 if [[ ! -f $SIG ]]; then
 	echo "$SIG not found"
 	echo "Sketch metagenomes"
@@ -51,13 +52,14 @@ else
 	echo "Metagenome sketches found. Skipping..."
 fi
 
+# Gather
 if [[ ! -f ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv ]]; then
 	echo "Gather $SIG against index database..."
 if [[ "$SLURM_NTASKS" -ne 1 ]]; then
 	$sourmash scripts fastgather $SIG ${SM_DB} \
 	-o ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv \
 	-c $SLURM_NTASKS
-else
+else # Single thread if custom index, pending sourmash 4.9 update
     $sourmash gather $SIG ${SM_DB} \
 	-o ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv
 fi	
