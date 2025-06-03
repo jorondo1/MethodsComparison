@@ -14,7 +14,8 @@ check_output() {
 	fi
 	
 	DATABASES="$1"
-	filename_suffix="$2"
+	DATASET="$2"
+	filename_suffix="$3"
 
 	for db in $DATABASES; do
 		

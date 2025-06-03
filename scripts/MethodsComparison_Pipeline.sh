@@ -216,7 +216,7 @@ sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "
 sbatch --mem=31G -n 1 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "$ILAFORES/ref_dbs/sourmash_db/RefSeq_20250528.k31.sbt.zip" # Here using 1 see gather_SLURM_fast.sh script; pending sourmash 4.9 update to remove 
 
 # Check completion status
-check_output 'RefSeq_20250528'  $DATASET_PATH _gather.csv
+check_output 'RefSeq_20250528' $DATASET _gather.csv
 
 # Extract Sourmash lineage subset
 for i in P19_Saliva P19_Gut PD AD_Skin Moss RA_Gut Bee Olive NAFLD; do
