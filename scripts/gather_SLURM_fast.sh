@@ -52,10 +52,15 @@ else
 fi
 
 if [[ ! -f ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv ]]; then
-	echo "Gather against index database"
+	echo "Gather $SIG against index database..."
+if [[ "$SLURM_NTASKS" -ne 1 ]]; then
 	$sourmash scripts fastgather $SIG ${SM_DB} \
 	-o ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv \
 	-c $SLURM_NTASKS
+else
+    $sourmash gather $SIG ${SM_DB} \
+	-o ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv
+fi	
 else
 	echo "Gather output found. Skipping..."
 fi
