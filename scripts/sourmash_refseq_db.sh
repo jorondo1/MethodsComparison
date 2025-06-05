@@ -32,9 +32,14 @@ nice parallel -j 24 $sourmash sourmash sketch dna {} -p k=31,scaled=1000,abund \
     --name-from-first --outdir "$signatures" \
     :::: "$refseq_genomes/${dwnld_date}_genome_list.txt"
 
-# Find missing signatures 
 find "$signatures" -name '*.sig' > "$refseq_genomes/${dwnld_date}_signature_list.txt"
 
+# Rename using GCA|F identifier
+nice parallel -j 24 'id=$(basename {} | sed '\''s/\.fna\.gz\.sig$//'\''); \
+    '"$sourmash"' sourmash signature rename {} "$id" -o {}' \
+    :::: "$refseq_genomes/${dwnld_date}_signature_list.txt"
+
+# Find missing signatures 
 missing_genomes=($(grep -vFf <(sed "s|$signatures/||g" 20250528_signature_list.txt | sed 's|.sig||g') 20250528_genome_list.txt))
 for genome in "${missing_genomes[@]}"; do
     $sourmash sourmash sketch dna "$genome" -p k=31,scaled=1000,abund --name-from-first --outdir "$signatures"

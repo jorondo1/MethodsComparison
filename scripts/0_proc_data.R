@@ -36,23 +36,20 @@ meta_parsing <- function(dsName, samData) {
   }
   
   # SOURMASH #####################
-  message(paste('Parsing', 'SM_genbank-2022.03', '...'))
-  ps[['SM_genbank-2022.03']] <- left_join(
-    parse_SM(file.path('data', dsName,'SM_genbank-2022.03/*_genbank-2022.03_gather.csv')),
-    parse_genbank_lineages(file.path('data',dsName,'SM_genbank-2022.03/SM_genbank-2022.03_lineages.csv')),
-    by = 'genome'
-  ) %>% species_glom() %>%
-    assemble_phyloseq(samData)
+  SM_dirs <- list.dirs(file.path('data',dsName), recursive = FALSE) %>% 
+    .[grep("/SM_[^/]*$",.)] %>% basename
   
-  SM_gtdb_dirs <- list.dirs(file.path('data',dsName), recursive = FALSE) %>% 
-    .[grep("/SM_gtdb-[^/]*$", .)] %>% basename # rs220 has a different output, unique_intersect_bp column doesn't exist
-  
-  for (db in SM_gtdb_dirs) {
+  for (db in SM_dirs) {
     message(paste('Parsing', db, '...'))
-    
+    lineage_path <- file.path('data', dsName, db, paste0(db, '_lineages.csv'))
+
     ps[[db]] <- left_join(
       parse_SM(file.path('data', dsName, db, '*_gather.csv')),
-      parse_GTDB_lineages(file.path('data', dsName, db, paste0(db, '_lineages.csv'))),
+      if(str_detect(db, 'gtdb')) {
+        parse_GTDB_lineages(lineage_path)
+      } else {
+        parse_genbank_lineages(lineage_path)
+      },
       by = 'genome'
     ) %>% species_glom() %>%
       assemble_phyloseq(samData)
