@@ -235,7 +235,7 @@ done
 mkdir -p Out/classification_rates
 cd $MC && find ./data/*/SM* -name '*_gather.csv' -exec awk -F',' '
   FNR == 1 {
-    for (i=1; i<=NF; i++) {
+      for (i=1; i<=NF; i++) {
       if ($i == "f_unique_weighted") {
         col = i;
         break;
@@ -247,6 +247,9 @@ cd $MC && find ./data/*/SM* -name '*_gather.csv' -exec awk -F',' '
   END { if (col) printf "%s\t%.5f\n", FILENAME, sum }
 ' {} \; > Out/classification_rates/sourmash_classification_rate.tsv
 
+################################################################
+# #### GRAVEYARD ###############################################
+################################################################
 ## surplus taxa in sourmash rs220 index
 mkdir tmp
 cat $MC/data/P19_Gut/Sourmash/*rs220*_gather.csv | cut -d, -f10 | tail -n+2 | \
@@ -254,7 +257,6 @@ cat $MC/data/P19_Gut/Sourmash/*rs220*_gather.csv | cut -d, -f10 | tail -n+2 | \
 
 # of which 1191 are not in the species reps lineage file
 grep -v -f <(cut -f1 $ILAFORES/ref_dbs/sourmash_db/bac120_taxonomy_r220.tsv | sed 's/^[^_]*_//' | sort -u) tmp/found_taxa.tsv | wc
-
 
 ## Remove and Redownload corrupted samples:
 remove_these=($(sed -n "$(echo $missing_samples | sed 's/,/p;/g' | sed 's/;$//')"  $DATASET_PATH/preproc/preprocessed_reads.sample.tsv | awk '{print $1}' ))
@@ -265,11 +267,6 @@ done
 cd data/PD/raw
 grep -f <(printf "%s\n" "${remove_these[@]}") "../ena-file-download-read_run-PRJNA834801-fastq_ftp-20250310-1443.sh" | bash
 cd ../../
-
-
-
-
-
 
 # Find missing line numbers
 grep -n -v -f <(ls NAFLD/SM_genbank_202203/ | sed 's/_.*//' | sort | uniq) NAFLD/preproc/preprocessed_reads.sample.tsv | awk -F: '{print $1}' | paste -sd,
