@@ -2,7 +2,7 @@ ml apptainer
 
 sourmash="singularity exec --writable-tmpfs -e -B $ILAFORES:$ILAFORES,/fast2/def-ilafores:/fast2/def-ilafores $ILL_PIPELINES/containers/sourmash.4.8.11.sif"
 refseq_genomes="/fast2/def-ilafores/refseq_genomes"
-dwnld_date="20250528"
+dwnld_date=20250528
 genomes=$refseq_genomes/${dwnld_date}_genomes
 signatures=$refseq_genomes/${dwnld_date}_signatures
 mkdir -p $genomes
@@ -40,7 +40,7 @@ nice parallel -j 24 'id=$(basename {} | sed '\''s/\.fna\.gz\.sig$//'\''); \
     :::: "$refseq_genomes/${dwnld_date}_signature_list.txt"
 
 # Find missing signatures 
-missing_genomes=($(grep -vFf <(sed "s|$signatures/||g" 20250528_signature_list.txt | sed 's|.sig||g') 20250528_genome_list.txt))
+missing_genomes=($(grep -vFf <(sed "s|$signatures/||g" ${dwnld_date}_signature_list.txt | sed 's|.sig||g') ${dwnld_date}_genome_list.txt))
 for genome in "${missing_genomes[@]}"; do
     $sourmash sourmash sketch dna "$genome" -p k=31,scaled=1000,abund --name-from-first --outdir "$signatures"
 done 
@@ -51,7 +51,7 @@ done
 
 # BUILD INDEX 
 $sourmash sourmash index --dna -k 31 ${signatures}.k31 --from-file $refseq_genomes/${dwnld_date}_signature_list.txt
-cp /fast2/def-ilafores/refseq_genomes/RefSeq_20250528.k31.sbt.zip $ILAFORES/ref_dbs/sourmash_db/
+cp /fast2/def-ilafores/refseq_genomes/RefSeq_${dwnld_date}.k31.sbt.zip $ILAFORES/ref_dbs/sourmash_db/
 
 # TAXONOMY LINEAGE FILE for sourmash
 # 1. Extract just the IDs (GC?_xxxxxxxxx.x
@@ -61,7 +61,12 @@ mkdir -p ncbi_ref && cd ncbi_ref
 
 # 2. Download NCBI assembly accession-to-taxid map (updated daily)
 wget ftp://ftp.ncbi.nlm.nih.gov/genomes/ASSEMBLY_REPORTS/assembly_summary_refseq.txt
-wget ftp://ftp.ncbi.nlm.nih.gov/genomes/ASSEMBLY_REPORTS/assembly_summary_genbank.txt # necessary?
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/ASSEMBLY_REPORTS/assembly_summary_genbank.txt
+#!!! FOR LEGACY DB (suppressed taxa) :::::::::::::::::
+# included because we are trying to replicate the 20241228 Kraken db used in other analysis: 
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/ASSEMBLY_REPORTS/assembly_summary_genbank_historical.txt
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/ASSEMBLY_REPORTS/assembly_summary_refseq_historical.txt 
+#!!!  :::::::::::::::::::::::::::::::::::::::::::::::::
 
 # 3. Download complete taxonomy dump (nodes/names)
 wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz
@@ -71,15 +76,28 @@ cd ..
 # 4. Subset taxids of our database
 grep -wFf $refseq_genomes/ncbi_accession.txt <(cat ncbi_ref/assembly_summary_*.txt) | awk -F'\t' '{print $1"\t"$6}' > ncbi_ref/assembly_subset_taxid.tsv
 
+## Some taxa may be missing because the Kraken ref file used to select the genomes has a GCF_* but it was eventually 
+## removed by refseq, so now it's not in the assembly_summary_refseq.txt but rather the genbank one and has a GCA_* id.
+## PROBABLY NOT NECESSARY IF HISTORICAL ARE INCLUDED
+## In this case : 
+### 4.1 Extract the numeric portion of accessions from all downloaded genomes 
+cut -f1 ncbi_ref/assembly_subset_taxid.tsv | sed "s/^[^_]*_\([^.]*\).*$/\1/" > ncbi_ref/acc_nums.txt
+### 4.2 find the ones missing from the assembly subset taxid
+missing_num_acc=($(grep -vFf ncbi_ref/acc_nums.txt $refseq_genomes/ncbi_accession.txt | grep GC | sed 's|GC.||g'))
+### 4.3 Append them to the assembly_subset_taxid.tsv
+grep -f <(printf "%s\n" "${missing_num_acc[@]}") <(cat ncbi_ref/assembly_summary_*.txt) | awk -F'\t' '{print $1"\t"$6}' >> ncbi_ref/assembly_subset_taxid.tsv
+# Some will still be missing, we delete them from the index! Ex. GCA_045946455 has been suppressed by NCBI. Flush it !
+
+
 # 5. Create full lineage info
 # Requires taxonkit v0.20 since March 2025, NCBI made massive changes to rank names and so on
 conda activate
 taxonkit reformat2 -I 2 --data-dir ncbi_ref/ \
     -f "{domain};{phylum};{class};{order};{family};{genus};{species}" ncbi_ref/assembly_subset_taxid.tsv \
-    | sed 's/\t\|;/,/g' > ncbi_ref/RefSeq_20250528.lineages.csv
+    | sed 's/\t\|;/,/g' > ncbi_ref/RefSeq_${dwnld_date}.lineages.csv
 
 # Copy final files to sourmash ref directory
-cp ncbi_ref/RefSeq_20250528.lineages.csv $ILAFORES/ref_dbs/sourmash_db/
+cp ncbi_ref/RefSeq_${dwnld_date}.lineages.csv $ILAFORES/ref_dbs/sourmash_db/
 
 
 #find $PWD/split_genomes_09-April-2025/signatures/ -type f -name "*.sig" > split_genomes_09-April-2025/signature_list.txt
