@@ -226,7 +226,7 @@ for j in $(find data/$i -maxdepth 1 -type d -name 'SM_*'); do
 	ver=$(echo "$db_name" | cut -d'_' -f3)
 
 	if [[ ! -f $j/${db_name}_lineages.csv ]]; then
-        cat $j/*_gather.csv | cut -d, -f10 | tail -n+2 | awk '{print $1}' | sed 's/"//; s/^[^_]*_//; s/\.[^.]*$//' | grep -v name | sort -u | grep -Fhf - $ILAFORES/ref_dbs/sourmash_db/${db}*${ver}*.lineages.csv > $j/${db_name}_lineages.csv
+        cat $j/*_gather.csv | cut -d, -f10 | tail -n+2 | awk '{print $1}' | sed 's/"//g; s/^[^_]*_\([^.]*\).*$/\1/' | grep -v name | sort -u | grep -Fhf - $ILAFORES/ref_dbs/sourmash_db/${db}*${ver}*.lineages.csv > $j/${db_name}_lineages.csv
 	fi
 done
 done
