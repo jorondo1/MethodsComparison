@@ -1,4 +1,4 @@
-# Rscript scripts/9.1_Rarefaction_curves.R -c 96 -i Out/ps_full.ls.RDS -o Out/Rarefaction.RDS
+# Rscript scripts/9.1_Rarefaction_curves.R -c 4 -t 64 -i Out/ps_raw.ls.RDS -o Out/Rarefaction.rds
 
 library(pacman)
 p_load(optparse, tidyverse, phyloseq, rtk, glue, magrittr,
@@ -59,7 +59,6 @@ message(glue('Running rtk rarefaction on {list_cores} ps objects in parallel wit
 ####################
 
 ps.ls <- read_rds(opt$input_path)
-ps.ls <- ps.ls$Species
 
 ####################
 # FUNCTION RAREFY ###

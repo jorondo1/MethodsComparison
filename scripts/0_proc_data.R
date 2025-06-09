@@ -134,7 +134,7 @@ ps_raw.ls$Moss$KB90 <- NULL
 ps_raw.ls$Moss$MOTUS <- NULL
 ps_raw.ls[['NAFLD']] <- meta_parsing('NAFLD', NAFLD_meta)
 ps_raw.ls[['AD_Skin']] <- meta_parsing('AD_Skin', AD_skin_meta)
-ps_raw.ls[['RA_Gut']] <- meta_parsing('RA_Gut', RA_meta)
+#ps_raw.ls[['RA_Gut']] <- meta_parsing('RA_Gut', RA_meta)
 ps_raw.ls[['Bee']] <- meta_parsing('Bee', Bee_meta)
 ps_raw.ls[['Olive']] <- meta_parsing('Olive', Olive_meta)
 ps_raw.ls[['PD']] <- meta_parsing('PD', PD_meta)
@@ -148,42 +148,13 @@ ps_filt.ls <- lapply(ps_raw.ls, function(ds) {
 })
 write_rds(ps_filt.ls, "Out/ps_filt.ls.RDS")
 
-ps_full.ls <- list()
-ps_full.ls[['Species']] <- ps_filt.ls
-ps_full.ls[['Genus']] <- lapply(ps_filt.ls, function(ds) {
-  lapply(ds, function(db) {
-    tax_glom2(db, taxrank = "Genus") 
-  })
-})
-
-ps_full.ls[['Family']] <- lapply(ps_filt.ls, function(ds) {
-  lapply(ds, function(db) {
-    tax_glom2(db, taxrank = "Family") 
-  })
-})
-
 ps_rare.ls <- list()
-ps_rare.ls[['Species']] <- lapply(ps_raw.ls, function(ds) {
+ps_rare.ls <- lapply(ps_raw.ls, function(ds) {
   lapply(ds, function(db) {
     rarefy_even_depth2(db, rngseed = 1234, 
                        verbose = TRUE, ncores = 6)
   })
 })
-
-ps_rare.ls[['Genus']] <- lapply(ps_rare.ls[['Species']], function(ds) {
-  lapply(ds, function(db) {
-    tax_glom2(db, taxrank = "Genus")
-  })
-})
-
-ps_rare.ls[['Family']] <- lapply(ps_rare.ls[['Species']], function(ds) {
-  lapply(ds, function(db) {
-    tax_glom2(db, taxrank = "Family")
-  })
-})
-
-
-write_rds(ps_full.ls, "Out/ps_full.ls.RDS")
 
 write_rds(ps_rare.ls, "Out/ps_rare.ls.RDS")
 

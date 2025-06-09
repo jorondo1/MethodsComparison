@@ -2,22 +2,6 @@ source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/rarefy_
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/phyloseq_to_edgeR.R'))
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/psflashmelt.R'))
 my_datasets_factorlevels <- c('P19_Saliva', 'P19_Gut', 'RA_Gut', 'AD_Skin', 'Moss', 'NAFLD')
-tool_colours <- c(
-  'MPA_db2022' = 'green4',
-  'MPA_db2023' = 'darkolivegreen',
-  'MOTUS' = 'goldenrod',
-  'KB10' = 'indianred1',
-  'KB45' = 'orangered',
-  'KB90' = 'violetred',
-  'KB10_GTDB' = 'indianred4',
-  'KB45_GTDB' = 'orangered3',
-  'KB90_GTDB' = 'violetred1',
-  'SM_genbank-2022.03' = 'purple3',
-  'SM_gtdb-rs214-full' = 'navyblue',
-  'SM_gtdb-rs220-rep'= 'royalblue',
-  'SM_gtdb-rs214-rep'= 'blue',
-  'SM_gtdb-rs214-rep_MAGs'= 'skyblue3'
-)
 
 group_vars <- c(
   'NAFLD' = 'Group',
@@ -37,6 +21,7 @@ CCE_names <- c(
   'KB45_GTDB' = 'Kraken 45% GTDB 220',
   'KB90_GTDB' = 'Kraken 90% GTDB 220',
   'SM_genbank-2022.03' = 'Sourmash (Genbank)',
+  'SM_RefSeq_20250528' = 'Sourmash (RefSeq)',
   'SM_gtdb-rs214-full' = 'Sourmash (GTDB 214 full)',
   'SM_gtdb-rs214-rep' = 'Sourmash (GTDB 214)',
   'SM_gtdb-rs220-rep'= 'Sourmash (GTDB 220)',
@@ -53,47 +38,53 @@ CCE_metadata <- tibble(
   Database = c("MOTUS","MPA_db2022","MPA_db2023",
                "KB10","KB45","KB90",
                "KB10_GTDB","KB45_GTDB","KB90_GTDB",
-               "SM_genbank-2022.03", 
+               "SM_genbank-2022.03", 'SM_RefSeq_20250528',
                "SM_gtdb-rs214-full", "SM_gtdb-rs214-rep",
                "SM_gtdb-rs220-rep","SM_gtdb-rs214-rep_MAGs"),
   Num_species_in_db = c(25314, 30094, 36333,
-                  rep(27706,3),
+                  rep(27285,3),
                   rep(113104,3),
-                  62052, #Genbank has >1M genomes, but only that many bacterial and archeal species
+                  62052, 27285,#Genbank has >1M genomes, but only that many bacterial and archeal species
                   85205, 85205, #GTDB full and rep have the same number of species, just more genomes
                   113104, 113211),
   plot_colour = c("goldenrod","green4","darkolivegreen",
                   "indianred1","orangered","violetred", 
-                  "indianred4", "orangered3", "violetred1",
-                  "purple3", 
+                  "indianred4", "orangered4", "violetred1",
+                  "purple3", 'lightsteelblue',
                   "navyblue", 'blue',
                   "royalblue", "skyblue3"),
-  Tool = c('MOTUS', 'MPA','MPA',
-           'KB','KB','KB',
-           'KB','KB','KB',
-           'SM',
-           'SM','SM',
-           'SM','SM'),
+  Tool = c('mOTUs3', 'MetaPhlAn4','MetaPhlAn4',
+           rep('Kraken2+Bracken', 6),
+           rep('Sourmash gather',6)),
   CCE_approach = c('DNA-to-Marker','DNA-to-Marker','DNA-to-Marker',
                'DNA-to-DNA','DNA-to-DNA','DNA-to-DNA',
                'DNA-to-DNA','DNA-to-DNA','DNA-to-DNA',
-               'DNA-to-DNA',
+               'DNA-to-DNA','DNA-to-DNA',
                'DNA-to-DNA','DNA-to-DNA',
                'DNA-to-DNA','DNA-to-DNA'),
-  Taxonomy = c('NCBI','NCBI','NCBI',
+  Taxonomy = c('Tool-specific','Tool-specific','Tool-specific',
                'NCBI','NCBI','NCBI',
                'GTDB','GTDB','GTDB',
-               'NCBI',
+               'NCBI','NCBI',
                'GTDB','GTDB',
                'GTDB','GTDB'),
   refdb = c('MOTUS', 'MPA', 'MPA',
             'RefSeq', 'RefSeq', 'RefSeq',
             'GTDB_220', 'GTDB_220', 'GTDB_220',
-            'GenBank', 
+            'GenBank', 'RefSeq',
             'GTDB_214', 'GTDB_214', 
             'GTDB_220', 'GTDB_214')
 )
 
+tooldb_colours <- CCE_metadata$plot_colour
+names(tooldb_colours) <- CCE_metadata$Database
+
+tool_colours <- c(
+  'mOTUs3' = "goldenrod", 
+  'MetaPhlAn4'= "green4",
+  'Kraken2+Bracken' = "orangered3",
+  'Sourmash gather' = "royalblue" 
+)
 
 tool_vars <- tibble(
   "Aldex2" = "wi.eBH",

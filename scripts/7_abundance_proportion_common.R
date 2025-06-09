@@ -7,7 +7,7 @@ source("scripts/myFunctions.R")
 theme_set(theme_light())
 
 # List of each dataset psmelt (subset of columns)
-supermelt <- imap(ps_rare.ls$Species, function(ps_ds.ls, ds) {
+supermelt <- imap(ps_rare.ls, function(ps_ds.ls, ds) {
   imap(ps_ds.ls, function(ps, db) {
     samvars <- colnames(ps@sam_data)
     psflashmelt(ps) %>% 

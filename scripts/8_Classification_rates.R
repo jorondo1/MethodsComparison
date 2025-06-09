@@ -3,7 +3,8 @@ p_load(tidyverse)
 
 class_rate_kb <- read_tsv('Out/classification_rates/kraken_classification_rate.tsv', 
                        col_names = c('path','classified','unclassified','Rate')) %>% 
-  separate(path, into = c('dot','Dataset', 'Tool', 'Sample', 'Report' ),
+  separate(path, into = c(#'data',
+    'dot','Dataset', 'Tool', 'Sample', 'Report' ),
            sep = '/') %>% 
   select(-dot, -Report) %>% 
   filter(!is.na(Rate)) %>% 
@@ -13,13 +14,14 @@ class_rate_kb <- read_tsv('Out/classification_rates/kraken_classification_rate.t
 
 class_rate_sm <- read_tsv('Out/classification_rates/sourmash_classification_rate.tsv',
                           col_names = c('path', 'Rate')) %>% 
-  separate(path, into = c('dot', 'Dataset', 'Tool', 'Report'),
+  separate(path, into = c('data','dot', 'Dataset', 'Tool', 'Report'),
            sep = '/') %>% 
   separate(Report, into= c('Sample', NA), 
            sep = '_', extra = 'drop') %>% 
-  select(-dot) %>% 
+  select(-dot, -data) %>% 
   filter(!is.na(Rate)) %>% 
   mutate(Database = case_when(str_detect(Tool, "genbank") ~ 'Genbank (NCBI)',
+                              str_detect(Tool, 'RefSeq') ~ 'RefSeq',
                               str_detect(Tool, 'MAG') ~ 'GTDB rep. + MAGs',
                               str_detect(Tool, 'rep') ~ 'GTDB rep. espèces',
                               str_detect(Tool, 'full') ~ 'GTDB complet'),
@@ -68,7 +70,7 @@ class_rate_kb %>%
   labs(x = 'Méthode', y = 'Taux de classification des lectures', 
        fill = 'Base de données\nde référence') 
 
-ggsave('Out/comite2/classrate_kb.pdf', bg = 'white', width = 2200, height = 1000, 
+ggsave('Out/memoire/classrate_kb.pdf', bg = 'white', width = 2200, height = 1000, 
        units = 'px', dpi = 200)
 
  #NEXT : check by dataset type ??
@@ -99,5 +101,5 @@ class_rate_sm %>%
   labs(x = 'Méthode', y = 'Couverture minimale du métagénome', 
        fill = 'Base de données\nde référence') 
 
-ggsave('Out/comite2/classrate_sm.pdf', bg = 'white', width = 2200, height = 1000, 
+ggsave('Out/memoire/classrate_sm.pdf', bg = 'white', width = 2200, height = 1000, 
        units = 'px', dpi = 200)
