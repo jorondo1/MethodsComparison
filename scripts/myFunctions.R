@@ -10,16 +10,16 @@ group_vars <- c(
 )
 
 CCE_names <- c(
-  'MOTUS' = 'mOTUs',
+  'MOTUS' = 'mOTUs3',
   'MPA_db2019' = 'MetaPhlAn3 (2019)',
   'MPA_db2022' = 'Metaphlan4 (2022)',
   'MPA_db2023' = 'Metaphlan4 (2023)',
-  'KB10' = 'Kraken 10% RefSeq',
-  'KB45' = 'Kraken 45% RefSeq',
-  'KB90' = 'Kraken 90% RefSeq',
-  'KB10_GTDB' = 'Kraken 10% GTDB 220',
-  'KB45_GTDB' = 'Kraken 45% GTDB 220',
-  'KB90_GTDB' = 'Kraken 90% GTDB 220',
+  'KB10' = 'Kraken 0.10 (RefSeq)',
+  'KB45' = 'Kraken 0.45 (RefSeq)',
+  'KB90' = 'Kraken 0.90 (RefSeq)',
+  'KB10_GTDB' = 'Kraken 0.10 (GTDB 220)',
+  'KB45_GTDB' = 'Kraken 0.45 (GTDB 220)',
+  'KB90_GTDB' = 'Kraken 0.90 (GTDB 220)',
   'SM_genbank-2022.03' = 'Sourmash (Genbank)',
   'SM_RefSeq_20250528' = 'Sourmash (RefSeq)',
   'SM_gtdb-rs214-full' = 'Sourmash (GTDB 214 full)',
@@ -41,6 +41,12 @@ CCE_metadata <- tibble(
                "SM_genbank-2022.03", 'SM_RefSeq_20250528',
                "SM_gtdb-rs214-full", "SM_gtdb-rs214-rep",
                "SM_gtdb-rs220-rep","SM_gtdb-rs214-rep_MAGs"),
+  MethodName = c('mOTUs', 'MPA 2022', 'MPA 2023',
+                 'KB10 RefSeq', 'KB45 RefSeq', 'KB90 RefSeq',
+                 'KB10 GTDB Rep.', 'KB45 GTDB Rep.', 'KB90 GTDB Rep.',
+                 'SM GenBank', 'SM RefSeq',
+                 'SM GTDB Full', 'SM GTDB Rep.',
+                 'SM GTDB Rep.', 'SM GTDB Rep.+ MAGs'),
   Num_species_in_db = c(25314, 30094, 36333,
                   rep(27285,3),
                   rep(113104,3),
@@ -74,7 +80,7 @@ CCE_metadata <- tibble(
             'GenBank', 'RefSeq',
             'GTDB_214', 'GTDB_214', 
             'GTDB_220', 'GTDB_214')
-)
+  )
 
 tooldb_colours <- CCE_metadata$plot_colour
 names(tooldb_colours) <- CCE_metadata$Database

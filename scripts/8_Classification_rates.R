@@ -8,7 +8,7 @@ class_rate_kb <- read_tsv('Out/classification_rates/kraken_classification_rate.t
            sep = '/') %>% 
   select(-dot, -Report) %>% 
   filter(!is.na(Rate)) %>% 
-  mutate(Database = case_when(str_detect(Tool, "GTDB") ~ 'GTDB rep. espèces',
+  mutate(Database = case_when(str_detect(Tool, "GTDB") ~ 'GTDB Rep.',
                               TRUE ~ 'RefSeq'),
          Tool = str_remove(Tool, '_GTDB'))
 
@@ -20,11 +20,11 @@ class_rate_sm <- read_tsv('Out/classification_rates/sourmash_classification_rate
            sep = '_', extra = 'drop') %>% 
   select(-dot, -data) %>% 
   filter(!is.na(Rate)) %>% 
-  mutate(Database = case_when(str_detect(Tool, "genbank") ~ 'Genbank (NCBI)',
+  mutate(Database = case_when(str_detect(Tool, "genbank") ~ 'Genbank',
                               str_detect(Tool, 'RefSeq') ~ 'RefSeq',
-                              str_detect(Tool, 'MAG') ~ 'GTDB rep. + MAGs',
-                              str_detect(Tool, 'rep') ~ 'GTDB rep. espèces',
-                              str_detect(Tool, 'full') ~ 'GTDB complet'),
+                              str_detect(Tool, 'MAG') ~ 'GTDB Rep. + MAGs',
+                              str_detect(Tool, 'rep') ~ 'GTDB Rep.',
+                              str_detect(Tool, 'full') ~ 'GTDB Full'),
          Tool = str_remove(Tool, 'SM_')) %>% 
   filter(!is.na(Database))
   
@@ -49,26 +49,25 @@ Dataset_n_labels <- sample_subset %>%
 
 # Plot 
 class_rate_kb %>% 
-  left_join(Dataset_n_labels, by = 'Dataset') %>% 
   filter(Sample %in% pull(sample_subset, Sample)) %>% 
   ggplot(aes(x = Tool, y = Rate, fill = Database)) +
   geom_boxplot(width = 0.6, linewidth = 0.2,
                position = position_dodge(width=0.7),
                outlier.size = 0.2) +
-  facet_grid(.~Dataset_n) +
+  facet_grid(.~Dataset) +
   theme_light() +
   theme(
     panel.grid.major.x = element_blank(),
     axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
-    legend.position = c(0.22, 0.8),
+    legend.position = c(0.25, 0.8),
     legend.background = element_rect(
       fill = "white",        # White background
       color = "black",       # Black border
       linewidth = 0.2        # Border thickness
     )) +
   scale_x_discrete(expand = expansion(mult = 0.2)) + # Reduce buffer between boxes and panel
-  labs(x = 'Méthode', y = 'Taux de classification des lectures', 
-       fill = 'Base de données\nde référence') 
+  labs(x = 'Method', y = 'Read classification rate', 
+       fill = 'Reference database') 
 
 ggsave('Out/memoire/classrate_kb.pdf', bg = 'white', width = 2200, height = 1000, 
        units = 'px', dpi = 200)
@@ -76,13 +75,12 @@ ggsave('Out/memoire/classrate_kb.pdf', bg = 'white', width = 2200, height = 1000
  #NEXT : check by dataset type ??
 
 class_rate_sm %>% 
-  left_join(Dataset_n_labels, by = 'Dataset') %>% 
   filter(Sample %in% pull(sample_subset, Sample)) %>% 
   ggplot(aes(x = NA, y = Rate, fill = Tool)) +
   geom_boxplot(width = 0.4, linewidth = 0.2,
                position = position_dodge(width=0.5),
                outlier.size = 0.2) +
-  facet_grid(.~Dataset_n, scales = 'free', space = 'free') +
+  facet_grid(.~Dataset, scales = 'free', space = 'free') +
   theme_light() +
   theme(
     panel.grid.major.x = element_blank(),
@@ -98,8 +96,8 @@ class_rate_sm %>%
   )) +
   scale_fill_brewer(palette = 'Pastel2')+
   scale_x_discrete(expand = expansion(mult = 0.4)) + # Reduce buffer between boxes and panel
-  labs(x = 'Méthode', y = 'Couverture minimale du métagénome', 
-       fill = 'Base de données\nde référence') 
+  labs(y = 'Metagenome containment in database', 
+       fill = 'Reference database') 
 
 ggsave('Out/memoire/classrate_sm.pdf', bg = 'white', width = 2200, height = 1000, 
        units = 'px', dpi = 200)

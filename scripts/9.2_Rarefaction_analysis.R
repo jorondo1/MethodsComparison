@@ -1,7 +1,7 @@
 library(pacman)
 p_load(tidyverse, slider)
 
-ps.ls <- readRDS('Out/ps_full.ls.RDS')$Species
+ps.ls <- readRDS('Out/ps_filt.ls.RDS')
 theme_set(theme_light())
 
 rare.df <- readRDS('Out/Rarefaction.rds') %>% 
@@ -20,7 +20,7 @@ rare.df <- readRDS('Out/Rarefaction.rds') %>%
   mutate(norm_depth = depth/mindepth)
   
 # Plot rarefaction curves
-these_databases <- c('KB45', 'KB45_GTDB', 'SM_gtdb-rs220-rep', 'SM_genbank-2022.03')
+these_databases <- c('KB45', 'KB45_GTDB', 'SM_gtdb-rs220-rep', 'SM_RefSeq_20250528')
 
 rare.df %>% 
   #filter(Database %in% c('MOTUS', 'MPA_db2022')) %>% 
@@ -37,7 +37,9 @@ rare.df %>%
                       guide = guide_legend(override.aes = list(linewidth = 2))) 
 
 # Depth normalized to smallest sample
-these_databases <- c('KB10', 'KB45', 'KB45_GTDB', 'SM_gtdb-rs220-rep', 'MPA_db2023','MOTUS')
+these_databases <- c('KB10', 'KB45', 'KB45_GTDB', 
+                     'SM_gtdb-rs220-rep', 'SM_RefSeq_20250528', 
+                     'MPA_db2023','MOTUS')
 these_datasets <- c('P19_Gut', 'P19_Saliva', 'PD','NAFLD') 
 
 rare_plot.df <- rare.df %>% 
@@ -62,7 +64,7 @@ rare_plot.df %>%
   geom_line(size = 0.2) +
   # geom_point(size = 2, shape = 8, colour = 'black', alpha = 0.2)+
   facet_grid(Database ~Dataset, scales = 'free') +
-  scale_colour_manual(values = tool_colours, labels = CCE_names,
+  scale_colour_manual(values = tooldb_colours, labels = CCE_names,
                       guide = guide_legend(override.aes = list(linewidth = 2))) +
   labs(x = 'Ratio de profondeur par rapport au plus petit échantillon') +
   theme(legend.position = c(1.04,.5),
@@ -77,7 +79,7 @@ rare_plot.df %>%
         )) +
   ylim(0,NA)
 
-ggsave('Out/comite2/rarefaction_curves.pdf',
+ggsave('Out/memoire/rarefaction_curves.pdf',
        bg = 'white', width = 2600, height = 1400,
        units = 'px', dpi = 220)
 
@@ -91,13 +93,12 @@ rare_plot.df %>%
   geom_hline(aes(yintercept = 0), color = "grey50", linewidth = 0.3) +
   geom_line(linewidth = 0.2) +
   facet_grid(Database~Dataset, scales = 'free') +
-  labs(y = 'Espèces découvertes par un doublement de la profondeur',
-       x = 'Profondeur de raréfaction (ratio au petit échantillon du jeu)') +
-  scale_colour_manual(values = tool_colours, labels = CCE_names,
+  labs(y = 'Species discovered by doubling depth',
+       x = 'Rarefaction depth (ratio to smallest sample in dataset)') +
+  scale_colour_manual(values = tooldb_colours, labels = CCE_names,
                       guide = guide_legend(override.aes = list(linewidth = 2))) +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor.x = element_blank(),
-        panel.border = element_blank(),
         legend.position = c(.92,.3),
         legend.background = element_rect(
           fill = "white",        # White background
@@ -106,7 +107,7 @@ rare_plot.df %>%
         ), 
         strip.text.y = element_blank()) 
 
-ggsave('Out/comite2/l2f_rate.pdf',
+ggsave('Out/memoire/l2f_rate.pdf',
        bg = 'white', width = 2600, height = 1400,
        units = 'px', dpi = 180)
 

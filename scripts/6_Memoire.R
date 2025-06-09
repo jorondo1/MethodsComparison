@@ -1,6 +1,6 @@
 library(pacman)
 p_load( magrittr, tidyverse, purrr, kableExtra, phyloseq, patchwork, 
-        rstatix, parallel, reshape2, vegan, RColorBrewer)
+        rstatix, parallel, reshape2, vegan, RColorBrewer, ggridges)
 ps_rare.ls <- read_rds('Out/ps_rare.ls.rds')
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/community_functions.R'))
 source("scripts/myFunctions.R")
@@ -386,44 +386,69 @@ alpha_div %>%
 alpha_div_test <- alpha_div %>% 
   group_by(Dataset, Database, Index) %>% 
   wilcox_test(as.formula("Index_value ~ Grouping_var"),
-              p.adjust.method = NULL) %>% # conservative
-  add_significance() %>% 
-  mutate(p.signif = case_when(p.signif == '*' ~ 'p < 0.05',
-                              p.signif == '**' ~ 'p < 0.01',
-                              p.signif == '***' ~ 'p < 0.001',
-                              p.signif == 'ns' ~ 'p > 0.05')) %>% 
+              p.adjust.method = NULL) %>% 
+  add_significance()
+
+alpha_div_test %<>% # conservative
+  mutate(p.signif = case_when(#p < 0.001 ~ 'p < 0.001',
+    p < 0.01 ~ 'p < 0.01',
+    p < 0.05 ~ 'p < 0.05',
+    TRUE ~ 'p ≥ 0.05')) %>% 
   select(Dataset, Database, Index, p, p.signif) %>% 
-  mutate(p.signif = factor(p.signif, levels = c('p > 0.05', 'p < 0.05', 'p < 0.01', 'p < 0.001')))
+  mutate(p.signif = factor(p.signif, levels = c('p ≥ 0.05', 'p < 0.05', 'p < 0.01'#, 'p < 0.001'
+  )))
+
+these_databases <- c('KB45', 'KB90', 'SM_RefSeq_20250528', 
+                     'KB45_GTDB', 'KB90_GTDB', 'SM_gtdb-rs220-rep',
+                     'MPA_db2023','MOTUS')
+
+alpha_labels <- alpha_div_test %>% 
+  filter(Index == 'Hill_1' 
+         & Database %in% these_databases) %>% 
+  mutate(
+    Database = factor(Database, levels = these_databases),
+    label = paste0('p=',
+                  ifelse(p < 0.01, 
+                         format(p, scientific = TRUE, digits = 2), 
+                         round(p, 2))),            
+    x = Inf, y = Inf,                     # Anchor to panel edge
+    hjust = 1.1, vjust = 1.5 # Adjust position
+  )
 
 alpha_div %>% 
-  filter(Index == 'Hill_2' 
-         # & Database %in% c('KB10','KB10_GTDB','KB45', 'KB45_GTDB', 'KB90', 'KB90_GTDB', 'MOTUS', 'MPA_db2023', 'SM_gtdb-rs220-rep')
-         & ! Dataset %in% c('Bee', 'Moss', 'Olive')
+  filter(Index == 'Hill_1' 
+         & Database %in% these_databases
+         #& ! Dataset %in% c('Bee', 'Moss', 'Olive')
          #& CCE_approach == 'DNA-to-DNA'
-         & CCE_approach == 'DNA-to-Marker'
+         #& CCE_approach == 'DNA-to-DNA'
   ) %>% 
   left_join(alpha_div_test, by = c('Dataset', 'Database', 'Index')) %>% 
+  mutate(Database = factor(Database, levels = these_databases)) %>% 
   ggplot(aes(x = Grouping_var, y = Index_value, fill = p.signif)) +
-  geom_boxplot(outliers = FALSE, linewidth =0.2) +
-  facet_grid(Dataset~Database, scales = 'free') +
-  labs(fill = 'Valeur p', x = 'Groupe', y = 'Nombre de Hill (ordre 1)') +
+  geom_violin(linewidth =0.2) +
+  geom_text(
+    data = alpha_labels,
+    aes(x = x, y = y, label = label, 
+        hjust = hjust, vjust = vjust),
+    size = 2, color = "black"
+  ) +
+  facet_grid(Dataset~Database, scales = 'free',
+             # Relabel facets :
+             labeller = labeller(Database = as_labeller(
+               setNames(CCE_metadata$MethodName, CCE_metadata$Database)
+             ))) +
+  labs(fill = 'p-value', x = 'Group', y = '1st order Hill number') +
   scale_y_continuous(limits = c(0, NA)) +
-  theme(legend.position = c(0.72,0.95),
+  theme(legend.position = c(0.9,0.75),
         legend.title = element_blank(),
         legend.background = element_rect(
           fill = "white",        # White background
           color = "black",       # Black border
-          linewidth = 0.5        # Border thickness
-        )) +
-  guides(fill = guide_legend(nrow = 1)) 
+          linewidth = 0.2        # Border thickness
+        )) 
 
-# Comité ppt
-ggsave('Out/memoire/hill1_group_test_wide.pdf',
+ggsave('Out/memoire/hill1_group_test_wide.png',
        bg = 'white', width = 2400, height = 1400,
-       units = 'px', dpi = 220)
-
-ggsave('Out/memoire/hill1_group_test_wide2.pdf',
-       bg = 'white', width = 2000, height = 2400,
        units = 'px', dpi = 220)
 
 ###################
@@ -500,7 +525,7 @@ p <- pairwise_distances %>%
               )) +
   geom_boxplot(outliers = FALSE, alpha = 0.7) +
   facet_grid(.~CCE_approach, scale = 'free')+
-  scale_colour_manual(values = tool_colours, labels = CCE_names) +
+  scale_colour_manual(values = tooldb_colours, labels = CCE_names) +
   labs(colour = 'Méthodologie',
        y = 'Dissimilarité bray-curtis', x = 'Jeu de données') 
 
@@ -525,58 +550,62 @@ compute_distance_differences <- function(df, tool1, tool2) {
 
 # Define list of pairs of interest, with names used for facet_grid
 database_pairs_of_interest <- list(
-  `Kraken 0.45: GTDB – NCBI` = c('KB45_GTDB', 'KB45'),
+  `Kraken 0.45: GTDB 220 – RefSeq` = c('KB45_GTDB', 'KB45'),
+  `Sourmash: GTDB 220 – RefSeq` = c('SM_gtdb-rs220-rep', 'SM_RefSeq_20250528'),
+  `Sourmash: GTDB 220 – GTDB 214` = c('SM_gtdb-rs220-rep', 'SM_gtdb-rs214-rep'),
   `GTDB: Sourmash – Kraken 0.45` = c('SM_gtdb-rs220-rep', 'KB45_GTDB'),
-  # `NCBI: Sourmash – Kraken 0.45` = c('SM_genbank-2022.03', 'KB45'),
-  `mOTUs – MetaPhlAn 2023` = c('MOTUS', 'MPA_db2023'),
-  `MetaPhlAn: 2022 – 2023` = c('MPA_db2022', 'MPA_db2023'),
-  `Sourmash: rs220 – rs214` = c('SM_gtdb-rs220-rep', 'SM_gtdb-rs214-rep')
+  `RefSeq: Sourmash – Kraken 0.45` = c('SM_RefSeq_20250528', 'KB45'),
+  `MetaPhlAn 2023 – mOTUs` = c('MPA_db2023', 'MOTUS'),
+  `MetaPhlAn: 2022 – 2023` = c('MPA_db2022', 'MPA_db2023')
 )
 
 # Iterate over pairs of interest
-pairwise_dist_gap.df <- imap(database_pairs_of_interest, 
-                             function(tool_pair, pair_name){
-                               compute_distance_differences(pairwise_distances, 
-                                                            tool_pair[1], tool_pair[2]) %>% 
-                                 mutate(
-                                   Pair_name = pair_name
-                                 )
-                             }) %>% list_rbind
+pairwise_dist_gap.df <- imap(
+  database_pairs_of_interest,
+  function(tool_pair, pair_name){
+    compute_distance_differences(pairwise_distances, 
+                                 tool_pair[1], tool_pair[2]) %>% 
+      mutate(
+        Pair_name = pair_name
+      )
+  }) %>% list_rbind %>% 
+  mutate(Pair_name = factor(Pair_name, levels = names(database_pairs_of_interest)))
 
 # Summary
 pairwise_dist_gap.df %>% 
   filter(Dist == 'bray' 
          #& Dataset == 'AD_Skin'
   ) %>% 
-  group_by(Pair_name) %>% 
+  group_by(Pair_name, Dataset) %>% 
   summarise(mean_diff = mean(abs_diff),
             sd_diff = sd(abs_diff),
             median_diff = median(abs_diff),
             min_diff = min(abs_diff),
             max_diff = max(abs_diff)
-  )
+  ) %>%
+  filter(Dataset == "P19_Gut")
 
 # PLOT Boxplot with differences between pairs of interest
 pairwise_dist_gap.df %>% 
   filter(Dist == 'bray') %>% 
-  mutate(Pair_name = factor(Pair_name, levels = names(database_pairs_of_interest))) %>% 
   ggplot(aes(x = Dataset, y = dist_diff, fill = Dataset)) +
   geom_violin(linewidth = 0.2) +
   facet_grid(.~Pair_name, scale = 'free') +
   theme_bw() +
-  labs(y = 'Différences des dissimilarités en paires',
-       fill = 'Jeu de données') +
+  labs(y = 'Same-pair differences in dissimilarities',
+       fill = 'Dataset') +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
-        strip.text.x.top = element_text(angle = 0, hjust = 0),
+        strip.text.x.top = element_text(angle = 0, hjust = 0.5, size = 7),
         panel.grid.major.x = element_blank(),
         legend.position = 'bottom') +
   guides(
     fill = guide_legend(nrow = 1))
 
-ggsave('Out/memoire/bray_diff.pdf', bg = 'white', width = 2200, height = 1200, 
+ggsave('Out/memoire/bray_diff.pdf', bg = 'white', width = 2500, height = 1200, 
        units = 'px', dpi = 200)
+
 
 ### 2. HYPOTHESIS COMPARISONS
 # 2.1. PCoA comparison
@@ -600,7 +629,7 @@ pcoa.ds <- imap(pcoa.ls, function(pcoa_ds.ls, dist) {
 }) %>% list_rbind
 
 pcoa.ds %>% 
-  filter(Index == 'hellinger' &
+  filter(Index == 'bray' &
            # Dataset %in% "PD" &
            Database %in% c(these_databases)
   ) %>% 
@@ -648,14 +677,15 @@ permanova.ds <- imap(pcoa.ls, function(pcoa_ds.ls, dist) {
 
 write_rds(permanova.ds, 'Out/permanova.ds.RDS')
 
-# Presented as in poster? 
+# PLOT variance with p-values
+p_load(patchwork)
 p_value_lines <- function() {
   list(
     geom_vline(aes(xintercept = log10(0.05), linetype = "p = 0.05"), 
                color = "red", linewidth = 0.3),
     geom_vline(aes(xintercept = log10(0.01), linetype = "p = 0.01"), 
                color = "blue", linewidth = 0.3),
-    scale_linetype_manual(name = "Valeur p", 
+    scale_linetype_manual(name = "p-value thresholds", 
                           values = c("p = 0.05" = "dashed", 
                                      "p = 0.01" = "dashed"))
   )
@@ -663,24 +693,26 @@ p_value_lines <- function() {
 
 plot_permanova <- function(ds) {
   ggplot(ds, aes(y = R2, x = log10(p))) +
-    geom_point(size = 2, colour = 'black', shape = 23, alpha = 0.8,
-               aes(fill = Database)) +
+    geom_point(shape = 4, alpha = 0.9, size = 3, stroke = 0.8,
+               aes(colour = Database),
+               position = position_jitter(seed = 1, width = 0.01, height = 0)) +
     facet_grid(Dataset~., scales = 'free')  +
     p_value_lines() +
-    scale_fill_manual(values = tool_colours, labels = CCE_names) +
+    scale_colour_manual(values = tooldb_colours, labels = CCE_names) +
     expand_limits(y = 0) +  
     scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
-    labs(x = 'log10(valeur p)', y = '', fill = 'Méthodologie')
+    labs(x = expression("log"[10]*"(p-value)"), y = '', colour = 'Methodology')
 }
 
-these_databases <- c('KB10','KB10_GTDB','KB45', 'KB45_GTDB', 'KB90', 'KB90_GTDB', 'MOTUS', 'MPA_db2023','MPA_db2022',  'SM_gtdb-rs220-rep', 'SM_genbank-2022.03')
-p_load(patchwork)
+these_databases <- c('KB45', 'KB90', 'SM_RefSeq_20250528', 
+                     'KB45_GTDB', 'KB90_GTDB', 'SM_gtdb-rs220-rep',
+                     'MPA_db2023','MOTUS')
 p1 <- permanova.ds %>% 
   filter(Index == 'bray'
          & Database %in% these_databases
          & ! Dataset %in% c('Bee', 'Moss', 'Olive', 'AD_Skin')
   ) %>% plot_permanova() +
-  labs(y = "Proportion de variance expliquée (R^2)")
+  labs(y = expression("Proportion of inertia explained (R"^2*")"))
 
 
 p2 <- permanova.ds %>% 
@@ -692,7 +724,7 @@ p2 <- permanova.ds %>%
 p1 + p2 + plot_layout(guides = 'collect')
 
 ggsave('Out/memoire/permanova_bray.pdf', bg = 'white', width = 2200, height = 1200, 
-       units = 'px', dpi = 220)
+       units = 'px', dpi = 200)
 
 # descriptive Statistics
 permanova.ds %>% 
@@ -705,8 +737,3 @@ permanova.ds %>%
   ) %>% 
   mutate(range = maxR2 - minR2,
          ratio = maxR2/minR2)
-
-########################################################
-# Taxa discovery rate (rarefaction curves comparison) ###
-##########################################################
-
