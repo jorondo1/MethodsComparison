@@ -1,7 +1,6 @@
 library(pacman)
 p_load(tidyverse, slider)
 
-ps.ls <- readRDS('Out/ps_filt.ls.RDS')
 theme_set(theme_light())
 
 rare.df <- readRDS('Out/Rarefaction.rds') %>% 
@@ -80,7 +79,7 @@ rare_plot.df %>%
   ylim(0,NA)
 
 ggsave('Out/memoire/rarefaction_curves.pdf',
-       bg = 'white', width = 2600, height = 1400,
+       bg = 'white', width = 2600, height = 1800,
        units = 'px', dpi = 220)
 
 # Estimate discovery rates at rarefaction depth
@@ -107,8 +106,8 @@ rare_plot.df %>%
         ), 
         strip.text.y = element_blank()) 
 
-ggsave('Out/memoire/l2f_rate.pdf',
-       bg = 'white', width = 2600, height = 1400,
+ggsave('Out/memoire/rarefaction_l2f_rate.pdf',
+       bg = 'white', width = 2600, height = 1800,
        units = 'px', dpi = 180)
 
 # Compare minimum discovery rate with rate at minimum
@@ -180,9 +179,6 @@ plot_df %>%
     sec.axis = sec_axis(~ . / axis_scale_factor, name = "Second Derivative (dashed lines)")
   )
 
-
-
-test$`1000`$divvs
 
 
 

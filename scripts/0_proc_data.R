@@ -17,11 +17,32 @@ moss.ps <-readRDS(url('https://github.com/jorondo1/borealMoss/raw/main/data/R_ou
 meta_parsing <- function(dsName, samData) {
   ps <- list()
   
+  # SOURMASH #####################
+  SM_dirs <- list.dirs(file.path('data',dsName), recursive = FALSE) %>% 
+    .[grep("/SM_[^/]*$",.)] %>% basename
+  
+  for (db in SM_dirs) {
+    message(paste('Parsing', db, '...'))
+    lineage_path <- file.path('data', dsName, db, paste0(db, '_lineages.csv'))
+    
+    ps[[db]] <- left_join(
+      parse_SM(file.path('data', dsName, db, '*_gather.csv')),
+      if(str_detect(db, 'gtdb')) {
+        parse_GTDB_lineages(lineage_path)
+      } else {
+        parse_genbank_lineages(lineage_path)
+      },
+      by = 'genome'
+    ) %>% species_glom() %>%
+      assemble_phyloseq(samData)
+  }
+  
   # MOTUS
   message(paste('Parsing', 'MOTUS', '...'))
   ps[['MOTUS']] <- parse_MPA(
     MPA_files = file.path('data', dsName,"MOTUS/*_profile.txt"), 
-    column_names = c('mOTU', 'Taxonomy', 'NCBI', 'Abundance')) %>% 
+    column_names = c('mOTU', 'Taxonomy', 'NCBI', 'Abundance'),
+    mOTUs_data = TRUE) %>% 
     assemble_phyloseq(samData)
   
   # Kraken-bracken (using default headers from parse_MPA function)
@@ -35,26 +56,7 @@ meta_parsing <- function(dsName, samData) {
       assemble_phyloseq(samData)
   }
   
-  # SOURMASH #####################
-  SM_dirs <- list.dirs(file.path('data',dsName), recursive = FALSE) %>% 
-    .[grep("/SM_[^/]*$",.)] %>% basename
-  
-  for (db in SM_dirs) {
-    message(paste('Parsing', db, '...'))
-    lineage_path <- file.path('data', dsName, db, paste0(db, '_lineages.csv'))
 
-    ps[[db]] <- left_join(
-      parse_SM(file.path('data', dsName, db, '*_gather.csv')),
-      if(str_detect(db, 'gtdb')) {
-        parse_GTDB_lineages(lineage_path)
-      } else {
-        parse_genbank_lineages(lineage_path)
-      },
-      by = 'genome'
-    ) %>% species_glom() %>%
-      assemble_phyloseq(samData)
-  }
-  
   # METAPHLAN ######################
   mpadirs <- list.dirs(file.path('data',dsName), recursive = FALSE) %>% 
     .[grep("/MPA_[^/]*$", .)] %>% basename

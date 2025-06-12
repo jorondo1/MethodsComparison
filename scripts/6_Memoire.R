@@ -1,6 +1,6 @@
 library(pacman)
-p_load( magrittr, tidyverse, purrr, kableExtra, phyloseq, patchwork, 
-        rstatix, parallel, reshape2, vegan, RColorBrewer, ggridges)
+p_load( magrittr, tidyverse, purrr, kableExtra, phyloseq, patchwork, beanplot, 
+        rstatix, parallel, reshape2, vegan, RColorBrewer, ggridges, htmltools)
 ps_rare.ls <- read_rds('Out/ps_rare.ls.rds')
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/community_functions.R'))
 source("scripts/myFunctions.R")
@@ -12,14 +12,15 @@ taxRanks <- c("Phylum", "Class", "Order", "Family", "Genus", "Species")
 ################################
 # Taxonomic assignment table ####
 ##################################
-# Using tax table only, grouped at each taxrank
 
-tax_assignment <- imap(ps_rare.ls, function(ps_dataset.ls, dataset){
+# Number of taxa by taxrank at the dataset level
+tax_assign_ds <- imap(ps_rare.ls, function(ps_dataset.ls, dataset){
   imap(ps_dataset.ls, function(ps, database){
     tax_count <- ps %>% tax_table() %>% data.frame() %>% tibble()
     
     # Iterate over taxRanks
     map_dfr(taxRanks, function(rank) {
+      
       num_tax <- tax_count %>%
         filter(!is.na(!!sym(rank))) %>%
         pull(!!sym(rank)) %>%
@@ -34,9 +35,29 @@ tax_assignment <- imap(ps_rare.ls, function(ps_dataset.ls, dataset){
       ) 
     })
   }) %>% bind_rows() 
-}) %>% bind_rows() %>% 
+}) %>% bind_rows()  %>% 
   mutate(Rank = factor(Rank, levels = taxRanks),
-         Database = factor(Database, names(tool_colours))) %>% 
+         Database = factor(Database, names(tooldb_colours))) %>% 
+  left_join(CCE_metadata, by = 'Database')
+
+# Alt: Number of species by sample
+tax_assign_sam <- imap(ps_rare.ls, function(ps_dataset.ls, dataset){
+  imap(ps_dataset.ls, function(ps, database){
+    
+    # Species per sample
+    psflashmelt(ps) %>% 
+      filter(Abundance > 0) %>% 
+      select(Sample, Species) %>% 
+      distinct() %>% 
+      group_by(Sample) %>% 
+      summarise(Num_tax = n()) %>% 
+      mutate(
+        Dataset = dataset,
+        Database = database
+      )
+  }) %>% bind_rows() 
+}) %>% bind_rows()  %>% 
+  mutate(Database = factor(Database, names(tooldb_colours))) %>% 
   left_join(CCE_metadata, by = 'Database')
 
 # Prepare plot data
@@ -46,10 +67,15 @@ these_databases <- c('SM_genbank-2022.03', 'SM_gtdb-rs220-rep', 'SM_RefSeq_20250
 these_datasets <- c('Moss', 'NAFLD', 'P19_Gut', 'P19_Saliva', 'PD', 'Olive', 'Bee', 'AD_Skin')
 
 # SUBSET
-tax_assignment.pdat <- tax_assignment %>% 
+tax_assign_ds.pdat <- tax_assign_ds %>% 
   filter(Database %in% these_databases &
            Dataset %in% these_datasets &
            Rank == 'Species') %>% 
+  mutate(Prop_db = Num_tax / Num_species_in_db)
+
+tax_assign_sam.pdat <- tax_assign_sam %>% 
+  filter(Database %in% these_databases &
+           Dataset %in% these_datasets) %>% 
   mutate(Prop_db = Num_tax / Num_species_in_db)
 
 #  /$$$$$$$  /$$        /$$$$$$  /$$$$$$$$         /$$  
@@ -61,17 +87,17 @@ tax_assignment.pdat <- tax_assignment %>%
 # | $$      | $$$$$$$$|  $$$$$$/   | $$          /$$$$$$
 # |__/      |________/ \______/    |__/         |______/
 
-# Number of Species per dataset
-tax_assignment.pdat %>% 
-  filter(! Database %in% c('SM_gtdb-rs214-rep_MAGs', 'SM_gtdb-rs214-full')) %>% 
+# Number of Species per datase
+tax_assign_ds.pdat %>% 
   ggplot(aes(y = Dataset, x = Num_tax, fill = Database)) +
-  geom_col(position = position_dodge2(preserve = 'single'),
+  geom_col(position = position_dodge2(preserve = 'single',
+                                      reverse = TRUE),
            width = 1.1) + # keep bars the same width
   facet_grid(Dataset~., scales = 'free', switch = 'y') +
-  scale_fill_manual(values = tool_colours, labels = CCE_names) +
-  labs(y = 'Jeu de données', 
-       x = "Nombre d'espèces détectées",
-       fill = "Méthodologie") +
+  scale_fill_manual(values = tooldb_colours, labels = CCE_names) +
+  labs(y = 'Dataset', 
+       x = "Number of detected species",
+       fill = "Methodology") +
   theme(
     panel.spacing.y = unit(0.05, "cm"),
     legend.position = c(.85,.32),
@@ -86,17 +112,40 @@ tax_assignment.pdat %>%
     )
   ) 
 
-ggsave('Out/memoire/species_count.pdf',
+ggsave('Out/memoire/species_count_ds.pdf',
+       bg = 'white', width = 2600, height = 1400,
+       units = 'px', dpi = 220)
+
+# Number of Species per sample per dataset
+tax_assign_sam.pdat %>% 
+  filter(!str_detect(Database, 'KB10')) %>% 
+  ggplot(aes(y = "", x = Num_tax, fill = Database)) +
+  geom_boxplot(outliers = FALSE, linewidth = 0.3) + 
+  facet_wrap(.~Dataset, scales = 'free', ncol = 2) +
+  scale_fill_manual(values = tooldb_colours, labels = CCE_names) +
+  labs(y = 'Dataset', 
+       x = "Number of detected species",
+       fill = "Methodology") +
+  theme(
+    panel.spacing.y = unit(0.05, "cm"),
+    legend.position = c(.85,.15),
+    #axis.text.x = element_text(angle = 45,  hjust=1),
+    panel.grid = element_blank(),
+    axis.ticks.y = element_blank(),
+    legend.background = element_rect(
+      fill = "white",        # White background
+      color = "black",       # Black border
+      linewidth = 0.5        # Border thickness
+    )
+  ) 
+
+ggsave('Out/memoire/species_count_sam.pdf',
        bg = 'white', width = 2600, height = 1400,
        units = 'px', dpi = 220)
 
 
-# Extreme KB10 values
-tax_assignment.pdat %>% 
-  filter(Tool %in% c('KB10', 'KB10_GTDB')) 
-
 # Min max across all
-tax_assignment.pdat %>% 
+tax_assign_ds.pdat %>% 
   filter(Taxonomy != 'GTDB') %>% 
   group_by(Dataset) %>% 
   summarise(
@@ -106,26 +155,21 @@ tax_assignment.pdat %>%
   ) %>% 
   mutate(ratio = max_species / min_species) 
 
-
-
 ## TABLES 
 # Reshape the data for each Dataset
 tax_assignment_wide <- tax_assignment %>%
-  filter(Database %in% these_databases & Dataset %in% these_datasets) %>% 
-  pivot_wider(names_from = Rank, values_from = Num_tax, values_fill = list(Num_tax = 0))
+  filter(Database %in% these_databases 
+         & Dataset %in% these_datasets
+         & Rank == 'Species') %>% 
+  select(Dataset, Database, Num_tax) %>% 
+  pivot_wider(names_from = Dataset, values_from = Num_tax, values_fill = list(Num_tax = 0))
 
 # Split the data by Dataset and create a kable table for each
-tables <- tax_assignment_wide %>%
-  arrange(CCE_approach) %>% 
-  split(.$Dataset) %>%  # Split by Dataset
-  imap(function(data, dataset_name) {
-    data %>%
-      select(-Dataset) %>%  # Remove the Dataset column for the table
-      kable(caption = paste("Dataset:", dataset_name), align = "c") %>%
-      kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
-  })
+tax_assignment_wide %>%
+  kable( align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% 
+  save_kable(paste0('Out/memoire/tables/species_count.html'))
 
-tables
 # By taxrank, number of taxa found by tool, shown independently by approach
 # and within approach, intersect size
 # One table per dataset
@@ -198,6 +242,7 @@ alpha_div_tmp <-  imap(ps_rare.ls, function(ps_dataset.ls, dataset){
     
   }) %>% list_rbind()
 }) %>% list_rbind()
+
 # Reorder factors 
 alpha_div <- alpha_div_tmp %>% 
   mutate(Database = factor(Database, levels = names(tooldb_colours))) %>% 
@@ -224,10 +269,10 @@ these_datasets <- c('Moss', 'NAFLD', 'P19_Gut', 'P19_Saliva', 'PD', 'Olive', 'Be
 plot_div_by_approach <- function(df, approach) {
   df %>% filter(approach == CCE_approach) %>% 
     ggplot(aes(x = Database, y = Index_value, )) +
-    geom_line(aes(group = Sample), alpha = 0.5, linewidth = 0.2) +
+    geom_line(aes(group = Sample), alpha = 0.5, linewidth = 0.1) +
     geom_point(aes(colour = Database)) + 
     facet_grid(Index ~ ., scales = 'free') +
-    scale_colour_manual(values = tool_colours, labels = CCE_names) +
+    scale_colour_manual(values = tooldb_colours, labels = CCE_names) +
     theme(
       axis.text.x = element_blank()
     ) +
@@ -256,7 +301,7 @@ alpha_div_subset %>% # filter only for sample/approach combinations defined
 
 alpha_div_subset %>% 
   filter(Index %in% c('Shannon')) %>% 
-  semi_join(these_samples, join_by(Sample, CCE_approach))%>% 
+  semi_join(these_samples, join_by(Sample, CCE_approach)) %>% 
   plot_div_by_approach(approach = 'DNA-to-Marker')
 
 # PLOT hill_1 variation for methods most equivalent in terms of number of species
@@ -279,24 +324,19 @@ alpha_div %>%
     panel.grid = element_blank()
   ) +
   scale_y_continuous(limits = c(0, NA)) +
-  labs(fill = 'Méthodologie', x = '', y = "Nombre Hill d'ordre 1")
+  labs(fill = 'Methodology', x = '', y = "Hill number of order 1 (effective number of equally abundant species)")
 
 ggsave('Out/memoire/hill1_comparison.pdf',
        bg = 'white', width = 2200, height = 1600,
        units = 'px', dpi = 220)
 
-# For PPT 
-ggsave('Out/memoire/hill1_comparison_wide.pdf',
-       bg = 'white', width = 2400, height = 1400,
-       units = 'px', dpi = 220)
-
-
 # Quantify those variations
-quantify_div_variation <- function(df, ds1, ds2, by_dataset = TRUE) {
+quantify_div_variation <- function(df, ds1, ds2, idx, by_dataset = TRUE) {
   message(paste("Changement entre", ds1, "et", ds2))
   df %>% 
-    select(Sample, Database, Index_value, Dataset) %>% 
-    filter(Database %in% c(ds1,ds2)) %>% 
+    select(Sample, Database, Index_value, Dataset, Index) %>% 
+    filter(Database %in% c(ds1,ds2)
+           & Index == idx) %>% 
     pivot_wider(names_from = Database,
                 values_from = Index_value) %>% 
     mutate(change = .[[ds1]] - .[[ds2]]) %>%  # Dynamic column name in mutate()
@@ -307,17 +347,33 @@ quantify_div_variation <- function(df, ds1, ds2, by_dataset = TRUE) {
               cv = sd_change / mean_change)
 }
 
-quantify_div_variation(hill1_comparison, 
-                       'KB45_GTDB', 'SM_gtdb-rs220-rep', 
-                       by_dataset = TRUE)
+alpha_vars.ls <- list()
+for (idx in c('Richness', 'Hill_1', 'Hill_2')) {
+  
+  alpha_vars.ls[[idx]][['GTDB']] <- quantify_div_variation(
+    alpha_div, idx = idx,
+    'KB45_GTDB', 'SM_gtdb-rs220-rep',
+    by_dataset = TRUE) 
+  
+  alpha_vars.ls[[idx]][['RefSeq']] <- quantify_div_variation(
+    alpha_div, idx = idx,
+    'KB45', 'SM_RefSeq_20250528', 
+    by_dataset = TRUE)
+  
+  alpha_vars.ls[[idx]][['Marker']] <- quantify_div_variation(
+    alpha_div, idx = idx,
+    'MPA_db2023', 'MOTUS',
+    by_dataset = TRUE)
+}
 
-quantify_div_variation(hill1_comparison, 
-                       'KB45', 'SM_RefSeq_20250528', 
-                       by_dataset = TRUE)
+imap(alpha_vars.ls, function(set.ls, idx) {
+  imap(set.ls, function(out_table, comparison) {
+    kable(out_table, align = "c") %>%
+      kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>% 
+      save_kable(paste0('Out/memoire/tables/', idx,'_',comparison,'.html'))
+  })
+})
 
-quantify_div_variation(hill1_comparison,
-                       'MPA_db2023', 'MOTUS',
-                       by_dataset = TRUE)
 
 # Mean Dataset alphadiv range across methods
 alpha_div %>% group_by(Database, Dataset, Taxonomy) %>% 
@@ -350,23 +406,19 @@ compute_sign_specific_changes <- function(df, tool1, tool2){
 }
 
 alpha_div %>% 
-  filter(! Dataset %in% c('RA_Gut', 'AD_Skin') &
-           Index == 'Hill_1') %>% 
-  compute_sign_specific_changes('SM_RefSeq_20250528', 'SM_gtdb-rs220-rep')
+  filter(Index == 'Hill_1') %>% 
+  compute_sign_specific_changes('SM_gtdb-rs220-rep', 'SM_RefSeq_20250528')
 
 alpha_div %>% 
-  filter(! Dataset %in% c('RA_Gut', 'AD_Skin') &
-           Index == 'Hill_1') %>% 
+  filter(Index == 'Hill_1') %>% 
   compute_sign_specific_changes('SM_RefSeq_20250528', 'KB45')
 
 alpha_div %>% 
-  filter(! Dataset %in% c('RA_Gut', 'AD_Skin') &
-           Index == 'Hill_1') %>% 
+  filter(Index == 'Hill_1') %>% 
   compute_sign_specific_changes('KB45_GTDB', 'SM_gtdb-rs220-rep')
 
 alpha_div %>% 
-  filter( ! Dataset %in% c('Moss') &
-            Index == 'Shannon' ) %>% 
+  filter(Index == 'Shannon' ) %>% 
   compute_sign_specific_changes('MPA_db2023', 'MOTUS')
 # Compute mean change? 
 
@@ -386,16 +438,16 @@ alpha_div %>%
 alpha_div_test <- alpha_div %>% 
   group_by(Dataset, Database, Index) %>% 
   wilcox_test(as.formula("Index_value ~ Grouping_var"),
-              p.adjust.method = NULL) %>% 
+              p.adjust.method = NULL) %>%  # because we want to see what happens when you do only one
   add_significance()
 
 alpha_div_test %<>% # conservative
-  mutate(p.signif = case_when(#p < 0.001 ~ 'p < 0.001',
-    p < 0.01 ~ 'p < 0.01',
-    p < 0.05 ~ 'p < 0.05',
-    TRUE ~ 'p ≥ 0.05')) %>% 
+  mutate(p.signif = case_when(p < 0.001 ~ 'p < 0.001',
+                              p < 0.01 ~ 'p < 0.01',
+                              p < 0.05 ~ 'p < 0.05',
+                              TRUE ~ 'p ≥ 0.05')) %>% 
   select(Dataset, Database, Index, p, p.signif) %>% 
-  mutate(p.signif = factor(p.signif, levels = c('p ≥ 0.05', 'p < 0.05', 'p < 0.01'#, 'p < 0.001'
+  mutate(p.signif = factor(p.signif, levels = c('p ≥ 0.05', 'p < 0.05', 'p < 0.01', 'p < 0.001'
   )))
 
 these_databases <- c('KB45', 'KB90', 'SM_RefSeq_20250528', 
@@ -408,9 +460,9 @@ alpha_labels <- alpha_div_test %>%
   mutate(
     Database = factor(Database, levels = these_databases),
     label = paste0('p=',
-                  ifelse(p < 0.01, 
-                         format(p, scientific = TRUE, digits = 2), 
-                         round(p, 2))),            
+                   ifelse(p < 0.01, 
+                          format(p, scientific = TRUE, digits = 2), 
+                          round(p, 2))),            
     x = Inf, y = Inf,                     # Anchor to panel edge
     hjust = 1.1, vjust = 1.5 # Adjust position
   )
@@ -418,37 +470,38 @@ alpha_labels <- alpha_div_test %>%
 alpha_div %>% 
   filter(Index == 'Hill_1' 
          & Database %in% these_databases
-         #& ! Dataset %in% c('Bee', 'Moss', 'Olive')
          #& CCE_approach == 'DNA-to-DNA'
          #& CCE_approach == 'DNA-to-DNA'
   ) %>% 
   left_join(alpha_div_test, by = c('Dataset', 'Database', 'Index')) %>% 
   mutate(Database = factor(Database, levels = these_databases)) %>% 
   ggplot(aes(x = Grouping_var, y = Index_value, fill = p.signif)) +
-  geom_violin(linewidth =0.2) +
+  geom_violin(linewidth =0.2, draw_quantiles = c(0.50)) +
   geom_text(
     data = alpha_labels,
     aes(x = x, y = y, label = label, 
         hjust = hjust, vjust = vjust),
     size = 2, color = "black"
-  ) +
+  ) + # Show the mean too :
+  # stat_summary(fun = mean, geom = "point", size = 2, shape = 3) +
   facet_grid(Dataset~Database, scales = 'free',
              # Relabel facets :
              labeller = labeller(Database = as_labeller(
                setNames(CCE_metadata$MethodName, CCE_metadata$Database)
              ))) +
-  labs(fill = 'p-value', x = 'Group', y = '1st order Hill number') +
+  labs(fill = 'p-value', x = 'Group', y = 'Hill number of order 1 (effective number of equally abundant species)') +
   scale_y_continuous(limits = c(0, NA)) +
   theme(legend.position = c(0.9,0.75),
         legend.title = element_blank(),
+        axis.text = element_text(size = 4),
         legend.background = element_rect(
           fill = "white",        # White background
           color = "black",       # Black border
           linewidth = 0.2        # Border thickness
         )) 
 
-ggsave('Out/memoire/hill1_group_test_wide.png',
-       bg = 'white', width = 2400, height = 1400,
+ggsave('Out/memoire/hill1_group_test.pdf',
+       bg = 'white', width = 2400, height = 1800,
        units = 'px', dpi = 220)
 
 ###################
@@ -460,7 +513,7 @@ ggsave('Out/memoire/hill1_group_test_wide.png',
 
 # pcoa.ls <- read_rds('Out/pcoa_noVST.ls.RDS')
 pcoa.ls <- list()
-for (dist_metric in c('bray', 'robust.aitchison', 'hellinger')) {
+for (dist_metric in c('bray', 'robust.aitchison')) {
   pcoa.ls[[dist_metric]] <- lapply(ps_rare.ls, function(ps.ls) {
     mclapply(ps.ls, mc.cores = 7, function(ps) {
       compute_pcoa(ps, dist = dist_metric)
@@ -514,20 +567,22 @@ pairwise_distances <- imap(pcoa.ls, function(dist.ls, dist) {
 # Either a simple dot-plot, but we don't keep track of samples:
 p <- pairwise_distances %>% 
   #filter(Dataset != 'PD') %>% 
-  filter(Dist == 'bray' &
-           Database %in% these_databases &
-           Dataset %in% these_datasets) %>% 
-  ggplot(aes(y = Distance, x = Dataset, colour = Database))+
-  geom_jitter(size = 0.1, alpha = 0.5,
-              position = position_jitterdodge(
-                jitter.width = 0.4,  # Adjust jitter width
-                dodge.width = 0.7    # Adjust dodge width
-              )) +
-  geom_boxplot(outliers = FALSE, alpha = 0.7) +
-  facet_grid(.~CCE_approach, scale = 'free')+
-  scale_colour_manual(values = tooldb_colours, labels = CCE_names) +
-  labs(colour = 'Méthodologie',
-       y = 'Dissimilarité bray-curtis', x = 'Jeu de données') 
+  filter(Dist == 'bray' 
+         & Database %in% these_databases
+         & Dataset %in% these_datasets
+  ) %>% 
+  ggplot(aes(y = Distance, x = "", fill = Database))+
+  geom_violin(linewidth = 0.2, draw_quantiles = c(0.5))+
+  # geom_jitter(size = 0.1, alpha = 0.5,
+  #             position = position_jitterdodge(
+  #               jitter.width = 0.4,  # Adjust jitter width
+  #               dodge.width = 0.7    # Adjust dodge width
+  #             )) +
+  #geom_boxplot(outliers = FALSE, alpha = 0.7) +
+  facet_grid(.~Dataset, scale = 'free')+
+  scale_fill_manual(values = tooldb_colours, labels = CCE_names) +
+  labs(colour = 'Methodology',
+       y = 'Bray-curtis dissimilarities between each pair of samples', x = 'Dataset'); p
 
 ggsave(plot = p, 'Out/memoire/change_bc.png', bg = 'white', width = 2600, height = 1400, 
        units = 'px', dpi = 220)
@@ -549,19 +604,26 @@ compute_distance_differences <- function(df, tool1, tool2) {
 }
 
 # Define list of pairs of interest, with names used for facet_grid
-database_pairs_of_interest <- list(
-  `Kraken 0.45: GTDB 220 – RefSeq` = c('KB45_GTDB', 'KB45'),
-  `Sourmash: GTDB 220 – RefSeq` = c('SM_gtdb-rs220-rep', 'SM_RefSeq_20250528'),
-  `Sourmash: GTDB 220 – GTDB 214` = c('SM_gtdb-rs220-rep', 'SM_gtdb-rs214-rep'),
-  `GTDB: Sourmash – Kraken 0.45` = c('SM_gtdb-rs220-rep', 'KB45_GTDB'),
-  `RefSeq: Sourmash – Kraken 0.45` = c('SM_RefSeq_20250528', 'KB45'),
-  `MetaPhlAn 2023 – mOTUs` = c('MPA_db2023', 'MOTUS'),
-  `MetaPhlAn: 2022 – 2023` = c('MPA_db2022', 'MPA_db2023')
+db_pairs_eval <- list(
+  `A. Kraken 0.45 :\nGTDB 220 – RefSeq` = c('KB45_GTDB', 'KB45'),
+  `B. Sourmash :\nGTDB 220 – RefSeq` = c('SM_gtdb-rs220-rep', 'SM_RefSeq_20250528'),
+  `C. Sourmash GTDB 220 –\n Kraken RefSeq` = c('SM_gtdb-rs220-rep', 'KB45'),
+  `D. Kraken GTDB 220 –\n Sourmash RefSeq` = c('KB45_GTDB', 'SM_RefSeq_20250528'),
+  `E. GTDB 220 :\nSourmash – Kraken 0.45` = c('SM_gtdb-rs220-rep', 'KB45_GTDB'),
+  `F. RefSeq :\nSourmash – Kraken 0.45` = c('SM_RefSeq_20250528', 'KB45'),
+  `G. DNA-to-Marker tools :\nmOTUs3 – MetaPhlAn 2023` = c('MOTUS', 'MPA_db2023')
+)
+
+db_pairs_ctrl <- list(
+  `A. Sourmash\nGTDB220 – GTDB214` = c('SM_gtdb-rs220-rep', 'SM_gtdb-rs214-rep'),
+  `B. MetaPhlAn versions\n2023 – 2022` = c('MPA_db2023', 'MPA_db2022'),
+  `C. GTDB taxonomy\n214 Full – 214 Reps` = c('SM_gtdb-rs214-full','SM_gtdb-rs214-rep'),
+  `D. NCBI taxonomy\nGenbank – RefSeq` = c('SM_genbank-2022.03', 'SM_RefSeq_20250528')
 )
 
 # Iterate over pairs of interest
 pairwise_dist_gap.df <- imap(
-  database_pairs_of_interest,
+  c(db_pairs_eval,db_pairs_ctrl),
   function(tool_pair, pair_name){
     compute_distance_differences(pairwise_distances, 
                                  tool_pair[1], tool_pair[2]) %>% 
@@ -569,43 +631,90 @@ pairwise_dist_gap.df <- imap(
         Pair_name = pair_name
       )
   }) %>% list_rbind %>% 
-  mutate(Pair_name = factor(Pair_name, levels = names(database_pairs_of_interest)))
+  mutate(
+    Pair_name = factor(Pair_name, 
+                       levels = names(c(db_pairs_eval,db_pairs_ctrl))))
+
+pw_dist_gap_eval.df <- pairwise_dist_gap.df %>% 
+  filter(Dist == 'bray'
+         & Dataset != 'Olive'
+         & Pair_name %in% names(db_pairs_eval)
+  )
+
+pw_dist_gap_ctrl.df <- pairwise_dist_gap.df %>% 
+  filter(Dist == 'bray'
+         & Dataset != 'Olive'
+         & Pair_name %in% names(db_pairs_ctrl)
+  )
 
 # Summary
-pairwise_dist_gap.df %>% 
-  filter(Dist == 'bray' 
-         #& Dataset == 'AD_Skin'
-  ) %>% 
+pairwise_dist_summary <- 
+  rbind(pw_dist_gap_eval.df, pw_dist_gap_ctrl.df) %>% 
   group_by(Pair_name, Dataset) %>% 
-  summarise(mean_diff = mean(abs_diff),
-            sd_diff = sd(abs_diff),
-            median_diff = median(abs_diff),
-            min_diff = min(abs_diff),
-            max_diff = max(abs_diff)
-  ) %>%
-  filter(Dataset == "P19_Gut")
+  summarise(#mean_diff = mean(dist_diff),
+    #sd_diff = sd(dist_diff),
+    median_diff = median(dist_diff),
+    mad_diff = mad(dist_diff),
+    min_diff = min(dist_diff),
+    max_diff = max(dist_diff)
+  ) 
+
+pairwise_dist_summary %>% 
+  mutate(Pair_name = str_replace(Pair_name, "\n", " / ")) %>% # prevents markdown pipes from being added
+  kable(align = "l") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
+  save_kable(paste0('Out/memoire/tables/beta_diffs.html'))
+
+# visualise cv
+pairwise_dist_summary %>% 
+  filter(!str_detect(Pair_name,"NCBI taxonomy") 
+         & Pair_name %in% names(db_pairs_eval)) %>% 
+  ggplot(aes(y = Pair_name)) +
+  geom_point(size = 3, aes(x = median_diff, fill = Dataset), shape = 23, colour = 'black') +
+  geom_point(size = 5, aes(x = mad_diff,colour = Dataset), shape = 4, stroke = 1)
+
+# Are my sets distributed normally?
+pw_dist_gap_eval.df %>% 
+  group_by(Dataset, Pair_name) %>% 
+  slice_sample(n = 5000, replace = FALSE) %>% 
+  shapiro_test(dist_diff) %>%
+  ggplot(aes(x = p, y = Pair_name, colour = Dataset)) +
+  geom_jitter(width = 0, height = 0.2)
+# Mostly no!
 
 # PLOT Boxplot with differences between pairs of interest
-pairwise_dist_gap.df %>% 
-  filter(Dist == 'bray') %>% 
-  ggplot(aes(x = Dataset, y = dist_diff, fill = Dataset)) +
-  geom_violin(linewidth = 0.2) +
-  facet_grid(.~Pair_name, scale = 'free') +
-  theme_bw() +
-  labs(y = 'Same-pair differences in dissimilarities',
-       fill = 'Dataset') +
-  theme(axis.title.x = element_blank(),
-        axis.text.x = element_blank(),
-        axis.ticks.x = element_blank(),
-        strip.text.x.top = element_text(angle = 0, hjust = 0.5, size = 7),
-        panel.grid.major.x = element_blank(),
-        legend.position = 'bottom') +
-  guides(
-    fill = guide_legend(nrow = 1))
-
-ggsave('Out/memoire/bray_diff.pdf', bg = 'white', width = 2500, height = 1200, 
+plot_dist_gap <- function(df){
+  
+  ggplot(df, aes(x = Dataset, y = dist_diff, fill = Dataset)) +
+    geom_hline(aes(yintercept = 0), 
+               color = "darkred", linewidth = 0.5, linetype = 'dashed') +
+    geom_violin(linewidth = 0.2, draw_quantiles = c(0.5)) +
+    facet_grid(.~Pair_name, scale = 'free') +
+    theme_bw() +
+    labs(y = 'Same-pair differences in dissimilarities',
+         fill = 'Dataset') +
+    theme(axis.title.x = element_blank(),
+          axis.text.x = element_blank(),
+          axis.ticks.x = element_blank(),
+          strip.text.x.top = element_text(
+            angle = 0, hjust = 0, size = 9),
+          panel.grid.major.x = element_blank(),
+          legend.position = c(0.5, 0.07),
+          legend.title.align = 0.5,
+          legend.background = element_rect(
+            fill = "white",        # White background
+            color = "black",       # Black border
+            linewidth = 0.3        # Border thickness
+          )) +
+    guides(fill = guide_legend(nrow = 1)) 
+}
+plot_dist_gap(pw_dist_gap_eval.df)
+ggsave('Out/memoire/beta_diff_bray.pdf', bg = 'white', width = 2600, height = 1200, 
        units = 'px', dpi = 200)
 
+plot_dist_gap(pw_dist_gap_ctrl.df)
+ggsave('Out/memoire/beta_diff_bray_ctrls.pdf', bg = 'white', width = 2500, height = 1200, 
+       units = 'px', dpi = 200)
 
 ### 2. HYPOTHESIS COMPARISONS
 # 2.1. PCoA comparison
@@ -656,7 +765,7 @@ permanova.ds <- imap(pcoa.ls, function(pcoa_ds.ls, dist) {
       
       # permanova
       res <- adonis2(formula = pcoa$dist.mx ~ Grouping_var, 
-                     permutations = 999,
+                     permutations = 9999,
                      data = samData,
                      na.action = na.exclude,
                      parallel = 8)
@@ -682,9 +791,9 @@ p_load(patchwork)
 p_value_lines <- function() {
   list(
     geom_vline(aes(xintercept = log10(0.05), linetype = "p = 0.05"), 
-               color = "red", linewidth = 0.3),
+               color = "red", linewidth = 0.2),
     geom_vline(aes(xintercept = log10(0.01), linetype = "p = 0.01"), 
-               color = "blue", linewidth = 0.3),
+               color = "blue", linewidth = 0.2),
     scale_linetype_manual(name = "p-value thresholds", 
                           values = c("p = 0.05" = "dashed", 
                                      "p = 0.01" = "dashed"))
@@ -693,7 +802,7 @@ p_value_lines <- function() {
 
 plot_permanova <- function(ds) {
   ggplot(ds, aes(y = R2, x = log10(p))) +
-    geom_point(shape = 4, alpha = 0.9, size = 3, stroke = 0.8,
+    geom_point(shape = 4,  size = 3, stroke = 0.8,
                aes(colour = Database),
                position = position_jitter(seed = 1, width = 0.01, height = 0)) +
     facet_grid(Dataset~., scales = 'free')  +
@@ -723,11 +832,11 @@ p2 <- permanova.ds %>%
 
 p1 + p2 + plot_layout(guides = 'collect')
 
-ggsave('Out/memoire/permanova_bray.pdf', bg = 'white', width = 2200, height = 1200, 
+ggsave('Out/memoire/beta_permanova_bray.pdf', bg = 'white', width = 2200, height = 1200, 
        units = 'px', dpi = 200)
 
 # descriptive Statistics
-permanova.ds %>% 
+beta_perm.tbl <- permanova.ds %>% 
   filter(Index == 'bray' & Database %in% these_databases) %>% 
   group_by(Dataset) %>% 
   summarise(
@@ -736,4 +845,8 @@ permanova.ds %>%
     n = n()
   ) %>% 
   mutate(range = maxR2 - minR2,
-         ratio = maxR2/minR2)
+         ratio = maxR2/minR2) %>% 
+  kable(align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")); beta_perm.tbl
+
+save_kable(beta_perm.tbl, 'Out/memoire/beta_perm_table.html')

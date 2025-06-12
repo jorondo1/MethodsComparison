@@ -1,0 +1,22 @@
+---
+title: "Multi-Table Report"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(knitr, kableExtra)
+```
+## Tables Report
+```{r test}
+for (i in seq_along(tables)) {
+  cat(paste0("
+### ", names(tables)[i], "
+
+"))
+  print(kable(tables[[i]], format = "html") %>% 
+    kable_styling())
+  cat("
+")
+}
+```

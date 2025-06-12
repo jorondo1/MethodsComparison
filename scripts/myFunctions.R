@@ -55,7 +55,7 @@ CCE_metadata <- tibble(
                   113104, 113211),
   plot_colour = c("goldenrod","green4","darkolivegreen",
                   "indianred1","orangered","violetred", 
-                  "indianred4", "orangered4", "violetred1",
+                  "indianred4", "darkorange2", "violetred1",
                   "purple3", 'lightsteelblue',
                   "navyblue", 'blue',
                   "royalblue", "skyblue3"),

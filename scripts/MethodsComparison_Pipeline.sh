@@ -123,6 +123,28 @@ rm  $DATASET_PATH/MOTUS/_profile.txt # not sure why that appears
 missing_motus=$(grep -n -v -f <(ls " $DATASET_PATH/MOTUS/"*_profile.txt | awk -F'/' '{print $3}' | sed 's/_profile\.txt//') "$(eval echo \$${dataset}_TSV)" | cut -f1 -d: | tr '\n' ','); echo "$missing_motus"
 sbatch --array="$missing_motus" $MC/scripts/motus_SLURM.sh  $DATASET_PATH "$(eval echo \$${dataset}_TSV)"
 
+# number of species in db
+motus_db='/home/def-ilafores/programs/motu-profiler_env/lib/python3.8/site-packages/motus/db_mOTU'
+cat $motus_db/db_mOTU_taxonomy_ref-mOTUs.tsv | cut -f9 | sort -u | wc
+cat $motus_db/db_mOTU_taxonomy_meta-mOTUs.tsv | cut -f8 | sort -u | wc
+
+mkdir -p Out/classification_rates
+cd $MC && find ./data/*/MOTUS* -name '*_profile.txt' -exec awk '
+FNR == 1 { assigned = 0; unassigned = 0 }
+/^#/ { next }
+/^unassigned/ { unassigned = $4; next }
+{ assigned += $4 }
+ENDFILE { 
+    total = unassigned + assigned;
+    if (total > 0) {
+        rate = unassigned / total;
+        printf "%s\t%.2f\t%.2f\t%.5f\n", FILENAME, assigned, unassigned, rate        
+    } else {
+        printf "%s\tNA\tNA\tNA\n", FILENAME
+    }
+}
+' {} + > Out/classification_rates/motus_classification_rate.tsv
+
 ####################
 # Kraken/bracken ###
 # on /fast2/ local #
@@ -196,8 +218,20 @@ database="MPA_db2023"
 missing_MPA=$(grep -n -v -f <(ls  $DATASET_PATH/$database/*/*_profile.txt | awk -F'/' '{print $3}' | sed 's/_profile\.txt//')  $DATASET_PATH/preproc/preprocessed_reads.sample.tsv | cut -f1 -d: | tr '\n' ','); echo $missing_MPA
 sbatch --array="$missing_MPA"  $DATASET_PATH/$database/metaphlan.slurm.sh  $DATASET_PATH "\$${dataset}_TSV"
 
+# number of species
+bzcat docs/mpa_vJun23_CHOCOPhlAnSGB_202307_species.txt.bz2 | cut -f2 | awk -F'|' '{print $7}' | sort -u | grep "s__" | wc
+bzcat docs/mpa_vJun23_CHOCOPhlAnSGB_202307_species.txt.bz2 | cut -f2 | awk -F'|' '{print $7}' | sort -u | grep "s__" | wc
 # Check completion status
 check_output 'MPA_db2022 MPA_db2023'  $DATASET_PATH _profile.txt
+
+cd $MC && find ./data/*/MPA* -name '*_profile.txt' -exec awk '
+/UNCLASSIFIED/ {
+    unclassified = $3;
+    classified = 100 - unclassified;
+    rate = classified / 100;
+    printf "%s\t%.2f\t%.2f\t%.5f\n", FILENAME, classified, unclassified, rate
+    }
+' {} + > Out/classification_rates/mpa_classification_rate.tsv
 
 # Remove bowtie indexes
 rm */MPA_db*/*/*.bowtie2.txt
@@ -232,7 +266,6 @@ done
 done
 
 # Compute classification rates from sourmash gather output : 
-mkdir -p Out/classification_rates
 cd $MC && find ./data/*/SM* -name '*_gather.csv' -exec awk -F',' '
   FNR == 1 {
       for (i=1; i<=NF; i++) {
