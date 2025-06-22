@@ -1,5 +1,6 @@
 library(pacman)
 p_load(tidyverse, slider)
+source("scripts/myFunctions.R")
 
 theme_set(theme_light())
 
@@ -39,26 +40,27 @@ rare.df %>%
 these_databases <- c('KB10', 'KB45', 'KB45_GTDB', 
                      'SM_gtdb-rs220-rep', 'SM_RefSeq_20250528', 
                      'MPA_db2023','MOTUS')
-these_datasets <- c('P19_Gut', 'P19_Saliva', 'PD','NAFLD') 
+these_datasets <- c('P19_Gut', 'P19_Saliva', 'PD','NAFLD','AD_Skin', 'Moss', 'Bee') 
 
 rare_plot.df <- rare.df %>% 
   group_by(sample, Database) %>% 
   mutate(z_score = scale(l2f_rate),  
-         is_outlier = abs(z_score) > 3
+         is_outlier = abs(z_score) > 1
   ) %>% 
   # Remove extreme values (l2f rate is extremely sensitive to 
   # rarefaction randomness, even very small drops in richness cause spikes)
-  filter(!is_outlier) %>%
-  select(-z_score, -is_outlier) %>% 
+  select(-z_score) %>% 
   ungroup() %>% 
-  filter(Dataset %in% these_datasets
-         & Database %in% these_databases) %>% 
+  filter(Database %in% these_databases
+         & Dataset %in% these_datasets
+         ) %>% 
   mutate(Database = factor(Database, levels = these_databases),
          Dataset = factor(Dataset, levels = these_datasets)) %>% 
    filter(norm_depth < 25)
 
 rare_plot.df %>% 
-  ggplot(aes(x = norm_depth, y = richness, colour = Database, group = interaction(sample,Database))) +
+  ggplot(aes(x = norm_depth, y = richness, colour = Database, 
+             group = interaction(sample,Database))) +
   geom_vline(aes(xintercept = 1), color = "black", linewidth = 0.3) +
   geom_line(size = 0.2) +
   # geom_point(size = 2, shape = 8, colour = 'black', alpha = 0.2)+
@@ -84,7 +86,7 @@ ggsave('Out/memoire/rarefaction_curves.pdf',
 
 # Estimate discovery rates at rarefaction depth
 rare_plot.df %>%
-  filter(!is.na(l2f_rate)) %>% 
+  filter(!is.na(l2f_rate) & !is_outlier)  %>% 
   # PLOT :
   ggplot(aes(x = norm_depth, y = l2f_rate, colour = Database, group = interaction(Dataset, sample))) +
   #geom_smooth(se = FALSE, linewidth = 0.2) +

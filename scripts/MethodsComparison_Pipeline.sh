@@ -125,8 +125,8 @@ sbatch --array="$missing_motus" $MC/scripts/motus_SLURM.sh  $DATASET_PATH "$(eva
 
 # number of species in db
 motus_db='/home/def-ilafores/programs/motu-profiler_env/lib/python3.8/site-packages/motus/db_mOTU'
-cat $motus_db/db_mOTU_taxonomy_ref-mOTUs.tsv | cut -f9 | sort -u | wc
-cat $motus_db/db_mOTU_taxonomy_meta-mOTUs.tsv | cut -f8 | sort -u | wc
+cat $motus_db/db_mOTU_taxonomy_ref-mOTUs.tsv | cut -f2 | sort -u | wc
+cat $motus_db/db_mOTU_taxonomy_meta-mOTUs.tsv | cut -f1 | sort -u | wc
 
 mkdir -p Out/classification_rates
 cd $MC && find ./data/*/MOTUS* -name '*_profile.txt' -exec awk '

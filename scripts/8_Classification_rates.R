@@ -12,6 +12,8 @@ class_rate_kb <- read_tsv('Out/classification_rates/kraken_classification_rate.t
   mutate(Database = case_when(str_detect(Methodology, "GTDB") ~ 'GTDB Rep.',
                               TRUE ~ 'RefSeq'),
          Methodology = str_remove(Methodology, '_GTDB'),
+         Database_version = case_when(str_detect(Methodology, "GTDB") ~ '220',
+                                      TRUE ~ '2024-12-28'),
          Tool = 'KB')
 
 class_rate_sm <- read_tsv('Out/classification_rates/sourmash_classification_rate.tsv',
@@ -38,10 +40,10 @@ class_rate_DNA <- rbind(
 )
 
 # Subset samples with both GTDB and RefSeq
-sample_subset <- class_rate %>% 
+sample_subset <- class_rate_DNA %>% 
   group_by(Dataset, Sample) %>% 
   summarise(n = n()) %>% 
-  filter(n > 8) # should have 10 entries per sample
+  filter(n == 11) # should have 10 entries per sample
 
 # Create a label for each dataset with n = sample_count
 Dataset_n_labels <- sample_subset %>% 
@@ -133,12 +135,12 @@ class_rate_motus <- read_tsv('Out/classification_rates/motus_classification_rate
 class_rate_markers <- rbind(
   class_rate_mpa ,
   class_rate_motus 
-) %>% select(-classified, -unclassified) %>% 
-  filter(!is.na(Rate))
+) %>%  filter(!is.na(Rate))
 
 class_rate_markers %>% 
   filter(Sample %in% pull(sample_subset, Sample)
-         & Dataset != 'Olive') %>% 
+         & Dataset != 'Olive' 
+         & classified>0) %>%
   ggplot(aes(x = NA, y = Rate, fill = Methodology)) +
   geom_violin(#scale = 'count', 
               linewidth = 0.2, alpha = 0.8) +

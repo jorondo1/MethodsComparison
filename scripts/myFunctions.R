@@ -54,8 +54,8 @@ CCE_metadata <- tibble(
                   85205, 85205, #GTDB full and rep have the same number of species, just more genomes
                   113104, 113211),
   plot_colour = c("goldenrod","green4","darkolivegreen",
-                  "indianred1","orangered","violetred", 
-                  "indianred4", "darkorange2", "violetred1",
+                  "indianred1","orangered","palevioletred1", 
+                  "indianred4", "darkorange2", "violetred3",
                   "purple3", 'lightsteelblue',
                   "navyblue", 'blue',
                   "royalblue", "skyblue3"),
@@ -81,6 +81,7 @@ CCE_metadata <- tibble(
             'GTDB_214', 'GTDB_214', 
             'GTDB_220', 'GTDB_214')
   )
+
 
 tooldb_colours <- CCE_metadata$plot_colour
 names(tooldb_colours) <- CCE_metadata$Database
@@ -252,7 +253,8 @@ extract_lowest_rank <- function(ps) {
 # 3. tool/database (db)
 # Generates a list with the same hierarchy with what func() returns as 
 # the lowest-level objects
-future::plan(multicore, workers = 9)
+
+# future::plan(multicore, workers = 9)
 compute_3_lvl <- function(ps.ls, func, ...){
   require('furrr') 
    # not sure if multicore is better 

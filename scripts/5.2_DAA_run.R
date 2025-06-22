@@ -1,3 +1,4 @@
+# module load StdEnv/2023 r/4.4.0
 library(pacman)
 p_load(magrittr, tidyverse, phyloseq,
        furrr, purrr, parallel,
@@ -6,7 +7,7 @@ p_load(magrittr, tidyverse, phyloseq,
 source('scripts/myFunctions.R')
 source('scripts/5.1_DAA_fun.R')
 
-ps.ls <- read_rds('Out/ps_full.ls.rds') 
+ps.ls <- read_rds('Out/ps_filt.ls.rds') 
 ps_rare.ls <- read_rds('Out/ps_rare.ls.rds')
 
 

@@ -72,8 +72,7 @@ tax_assign_sam.pdat %>%
   filter(!str_detect(Database, 'KB10')) %>% 
   ggplot(aes(y = "", x = Num_tax, fill = Database)) +
   geom_boxplot(outliers = FALSE, 
-               linewidth = 0.3,
-               width = ) + 
+               linewidth = 0.3) + 
   facet_wrap(.~Dataset, scales = 'free', ncol = 2) +
   scale_fill_manual(values = tooldb_colours, labels = CCE_names) +
   labs(y = 'Dataset', 
@@ -340,6 +339,12 @@ alpha_div %>% group_by(Database, Dataset, Taxonomy) %>%
 # | $$      | $$$$$$$$|  $$$$$$/   | $$         |  $$$$$$/
 # |__/      |________/ \______/    |__/          \______/ 
 
+axis_desc_tests <- c(
+  Richness = 'Species richness',
+  Shannon = "Shannon's diversity index",
+  Simpson = "Simpson's dominance index"
+)
+
 alpha_div_test <- read_rds('Out/_Rdata/alpha_div.RDS')[['wilcox_tests']] %>% # conservative
   mutate(p.signif = case_when(p < 0.001 ~ 'p < 0.001',
                               p < 0.01 ~ 'p < 0.01',
@@ -363,29 +368,38 @@ alpha_labels <- function(test_df, IDX) {
       label = paste0('p=',
                      ifelse(p < 0.01, 
                             format(p, scientific = TRUE, digits = 2), 
-                            round(p, 2))),            
-      hjust = 1.1, vjust = 1.5 # Adjust position
+                            round(p, 3)))
     )
 }
 
-imap(axis_desc, function(desc, idx) {
+imap(axis_desc_tests, function(desc, idx) {
   
-  alpha_labs <- alpha_labels(alpha_div_test, idx)
+  # Skip KB45 for Richness
+  database_subset <- if(idx == 'Richness') {
+    these_databases[!str_detect(these_databases, 'KB45')]
+  } else {these_databases}
   
+  # Set p value labels
+  alpha_labs <- alpha_div_test %>% 
+    filter(Database %in% database_subset) %>% 
+    alpha_labels(., idx)
+  
+  # Plot
   p <- alpha_div %>% 
     filter(Index == idx 
-           & Database %in% these_databases
+           & Database %in% database_subset
     ) %>% 
     left_join(alpha_labs, 
               by = c('Dataset', 'Database', 'Index')) %>% 
-    mutate(Database = factor(Database, levels = these_databases)) %>% 
+    mutate(Database = factor(Database, levels = database_subset)) %>% 
     ggplot(aes(x = Grouping_var, y = Index_value, fill = p.signif)) +
     geom_violin(linewidth =0.2, draw_quantiles = c(0.50)) +
     geom_text(
       data = alpha_labs,
-      aes(x = Inf, y = Inf, label = label, 
-          hjust = hjust, vjust = vjust),
-      size = 2, color = "black"
+      aes(x = 0.5, y = Inf, label = label, 
+          hjust = 0,
+          vjust = 15),
+      size = 3, color = "black"
     ) + # Show the mean too :
     # stat_summary(fun = mean, geom = "point", size = 2, shape = 3) +
     facet_grid(Dataset~Database, scales = 'free',
@@ -394,7 +408,7 @@ imap(axis_desc, function(desc, idx) {
                  setNames(CCE_metadata$MethodName, CCE_metadata$Database)
                ))) +
     labs(fill = 'p-value', x = 'Group', y = desc) +
-    scale_y_continuous(limits = c(0, NA)) +
+    #scale_y_continuous(limits = c(0, NA)) +
     theme(legend.position = c(0.9,0.75),
           legend.title = element_blank(),
           axis.text = element_text(size = 4),
@@ -405,9 +419,12 @@ imap(axis_desc, function(desc, idx) {
           )) 
   
   ggsave(plot = p, paste0('Out/memoire/alpha_',idx, '_tests.pdf'),
-         bg = 'white', width = 1800, height = 2400,
+         bg = 'white', width = 2000, height = 2400,
          units = 'px', dpi = 220)
 })
+
+# Power, p-values and n for each method
+
 
 ###################
 # Beta diversity ###
@@ -595,13 +612,14 @@ plot_permanova <- function(ds) {
     labs(x = expression("log"[10]*"(p-value)"), y = '', colour = 'Methodology')
 }
 
-these_databases <- c('KB45', 'KB90', 'SM_RefSeq_20250528', 
-                     'KB45_GTDB', 'KB90_GTDB', 'SM_gtdb-rs220-rep',
-                     'MPA_db2023','MOTUS')
+these_databases <- c('KB10', 'KB10_GTDB','KB45', 'KB90', 
+                     'KB45_GTDB', 'KB90_GTDB', 
+                     'SM_gtdb-rs214-rep', 'SM_gtdb-rs220-rep', 'SM_RefSeq_20250528', 
+                     'MPA_db2022','MPA_db2023','MOTUS')
 p1 <- permanova.ds %>% 
   filter(Index == 'bray'
          & Database %in% these_databases
-         & ! Dataset %in% c('Bee', 'Moss', 'Olive', 'AD_Skin')
+         & Dataset %in% c('P19_Saliva', 'P19_Gut', 'PD')
   ) %>% plot_permanova() +
   labs(y = expression("Proportion of inertia explained (R"^2*")"))
 
@@ -609,7 +627,7 @@ p1 <- permanova.ds %>%
 p2 <- permanova.ds %>% 
   filter(Index == 'bray'
          & Database %in% these_databases
-         & Dataset %in% c('Bee', 'Moss', 'Olive', 'AD_Skin')
+         & Dataset %in% c('NAFLD','Bee', 'Moss', 'AD_Skin')
   ) %>% plot_permanova()
 
 p1 + p2 + plot_layout(guides = 'collect')
@@ -631,7 +649,7 @@ beta_perm.tbl <- permanova.ds %>%
   kable(align = "c") %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")); beta_perm.tbl
 
-save_kable(beta_perm.tbl, 'Out/memoire/beta_perm_table.html')
+save_kable(beta_perm.tbl, 'Out/memoire/tables/beta_perm_table.html')
 
 ####XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX##########
 ### GRAVEYARD XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX##########
