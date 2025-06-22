@@ -2,26 +2,71 @@
 library(pacman)
 p_load(magrittr, tidyverse, phyloseq,
        furrr, purrr, parallel,
-       ANCOMBC, ALDEx2, corncob, radEmu, edgeR, DESeq2, Maaslin2, GUniFrac)
+       ANCOMBC, ALDEx2, corncob, radEmu, 
+       edgeR, DESeq2, Maaslin2, GUniFrac,
+       update = FALSE)
 
 source('scripts/myFunctions.R')
 source('scripts/5.1_DAA_fun.R')
+source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/tax_glom2.R')
+source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/rarefy_even_depth2.R')
 
-ps.ls <- read_rds('Out/ps_filt.ls.rds') 
-ps_rare.ls <- read_rds('Out/ps_rare.ls.rds')
+ps.ls.tmp <- read_rds('Out/_Rdata/ps_filt.ls.RDS') 
 
+ps.ls <- list()
+#ps.ls[['Species']] <- ps.ls.tmp
+for (taxRank in c('Genus', 'Family')) {
+  ps.ls[[taxRank]] <- lapply(ps.ls.tmp, function(ds) {
+    lapply(ds, function(db) {
+      tax_glom2(db, taxrank = taxRank)
+    })
+  })
+}
+
+# Rarefied dataset for MetaPhlAn
+ps_rare.ls <- lapply(ps.ls, function(taxRank) {
+  lapply(taxRank, function(ds) {
+    lapply(ds, function(db) {
+      rarefy_even_depth2(db, rngseed = 42, ncores = 24)
+    })
+  })
+})
+
+write_rds(ps.ls, 'Out/_Rdata/ps_taxranks.ls.RDS')
+write_rds(ps_rare.ls, 'Out/_Rdata/ps_rare_taxranks.ls.RDS')
+
+remove_databases <- function(ps.list, to_remove) {
+  lapply(ps.ls, function(taxRank) {
+    lapply(taxRank, function(ds){
+      imap(ds, function(dataset, db) {
+        if (db %in% to_remove) {
+          NULL  # Replace with NULL if name matches
+        } else {
+          dataset  # Keep if no match
+        }
+      }) %>% compact() #remove nulls 
+    })
+  }) 
+}
+
+ps.ls <- remove_databases(
+  read_rds('Out/_Rdata/ps_taxranks.ls.RDS'),
+  c("SM_genbank-2022.03", "KB10", "KB10_GTDB"))
+ps_rare.ls <- remove_databases(
+  read_rds('Out/_Rdata/ps_rare_taxranks.ls.RDS'),
+  c("SM_genbank-2022.03", "KB10", "KB10_GTDB"))
 
 # To work on a subset at whichever list level: 
 # ps.ls <- map(ps.ls, ~ .x["NAFLD"])
 # ps_rare.ls <- map(ps_rare.ls, ~ .x["NAFLD"])
 
-out_path <- 'Out/DAA_NAFLD_prevfilt'
+out_path <- 'Out/DAA'
 if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
 
-ncores <- detectCores() -1
-
+future::plan(multisession, workers = 6)
+ncores=6
 # Aldex2
 test_aldex <- compute_3_lvl(ps.ls, func = compute_aldex)
 compile_3_lvl(test_aldex, func = compile_aldex) %>% 
@@ -52,15 +97,15 @@ capture_Maaslin_stdout <- compute_3_lvl(ps_rare.ls, compute_Maaslin2, out_path =
 compile_Maaslin(res_path = paste0(out_path,'/Maaslin2/*/*/*/significant_results.tsv')) %>%
   write_tsv(paste0(out_path,'/Maaslin2.tsv'))
 
+# ZicoSeq ### RAREFIED
+test_ZicoSeq <- compute_3_lvl(ps_rare.ls, func = compute_ZicoSeq)
+compile_3_lvl(test_ZicoSeq, func = compile_ZicoSeq) %>% 
+  write_tsv(paste0(out_path,'/ZicoSeq.tsv'))
+
 # RadEmu
 test_radEmu <- compute_3_lvl(ps.ls, func = compute_radEmu)
 compile_3_lvl(test_radEmu, func = compile_radEmu) %>% 
   write_tsv(paste0(out_path,'/radEmu.tsv'))
-
-# ZicoSeq ### RAREFIED
-test_ZicoSeq <- compute_3_lvl(ps_rare.ls, func = compute_ZicoSeq)
-compile_3_lvl(test_ZicoSeq, func = compile_ZicoSeq) %>% 
-   write_tsv(paste0(out_path,'/ZicoSeq.tsv'))
 
 ### Parsing results
 rbind(

@@ -4,6 +4,7 @@ p_load(phyloseq, tidyverse, magrittr, doParallel, furrr)
 # functions
 source('scripts/myFunctions.R')
 source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/tax_glom2.R')
+source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/rarefy_even_depth2.R')
 source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/community_functions.R')
 
 # Import External data

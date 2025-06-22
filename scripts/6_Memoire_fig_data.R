@@ -68,19 +68,6 @@ write_rds(tax_assign_sam, 'Out/_Rdata/tax_assign_sam.RDS')
 # Alpha diversity ###
 ######################
 
-# For now we only use two-groups variables:
-grouping_variable <- c(
-  AD_Skin = 'Gender',
-  Moss = 'Compartment',
-  NAFLD = 'Group',
-  P19_Gut = 'diarr',
-  P19_Saliva = 'diarr',
-  RA_Gut = 'Group',
-  PD = 'Group',
-  Bee = 'Group',
-  Olive = 'Group'
-)
-
 # This function will recode them dynamically as A and B, simply 
 recode_factor_AB <- function(factor_var) {
   # Ensure variable has exactly 2 levels

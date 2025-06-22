@@ -1,5 +1,5 @@
 pval_cutoff <- 0.05
-ncores <- 7
+ncores <- 4
 
 # Prevalence filtering a phyloseq object
 ps_prevalence_filt <- function(ps, threshold) {
@@ -286,12 +286,12 @@ compute_ZicoSeq <- function(ps, samVar) {
   require('rlang')
   require('GUniFrac')
   
-  metadata <- ps %>% sample_data %>% 
-    as("data.frame") %>% as_tibble %>% # convert group var to binary
+  metadata <- ps %>% sample_data() %>% 
+    as("data.frame") %>% # convert group var to binary
     mutate(across({{ samVar }}, ~ as.numeric(fct_drop(as.factor(.))) - 1))
   
   result <- ZicoSeq(
-    feature.dat = ps %>% otu_table %>% as.matrix,
+    feature.dat = ps %>% otu_table() %>% as.matrix(),
     meta.dat = metadata,
     grp.name = samVar,
     feature.dat.type = 'count',

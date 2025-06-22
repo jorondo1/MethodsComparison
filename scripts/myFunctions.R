@@ -3,11 +3,18 @@ source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/main/phylose
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/psflashmelt.R'))
 my_datasets_factorlevels <- c('P19_Saliva', 'P19_Gut', 'RA_Gut', 'AD_Skin', 'Moss', 'NAFLD')
 
-group_vars <- c(
-  'NAFLD' = 'Group',
-  'AD_Skin' = 'Group',
-  'Moss' = 'Compartment'
+grouping_variable <- c(
+  AD_Skin = 'Gender',
+  Moss = 'Compartment',
+  NAFLD = 'Group',
+  P19_Gut = 'diarr',
+  P19_Saliva = 'diarr',
+  RA_Gut = 'Group',
+  PD = 'Group',
+  Bee = 'Group',
+  Olive = 'Group'
 )
+
 
 CCE_names <- c(
   'MOTUS' = 'mOTUs3',
@@ -254,7 +261,6 @@ extract_lowest_rank <- function(ps) {
 # Generates a list with the same hierarchy with what func() returns as 
 # the lowest-level objects
 
-# future::plan(multicore, workers = 9)
 compute_3_lvl <- function(ps.ls, func, ...){
   require('furrr') 
    # not sure if multicore is better 
@@ -264,7 +270,7 @@ compute_3_lvl <- function(ps.ls, func, ...){
    # if (taxRank != "Species") return(NULL)      # ! DEV !
     
     imap(taxRank.ls, function(ds.ls, ds) {
-      samVar <- group_vars[[ds]]               # Group variable to test 
+      samVar <- grouping_variable[[ds]]               # Group variable to test 
      # if (ds != "NAFLD") return(NULL)          # ! DEV !
       cat("Processing dataset:", ds, "...\n")
       
@@ -273,8 +279,13 @@ compute_3_lvl <- function(ps.ls, func, ...){
         message("Using database:", db, "...\n")
         
         # Collect all available arguments
-        all_args <- list(ps = db.ps, samVar = samVar, 
-                         taxRank = taxRank, ds = ds, db = db, out_path = out_path)
+        all_args <- list(ps = db.ps, 
+                         samVar = samVar, 
+                         taxRank = taxRank, 
+                         ds = ds, 
+                         db = db,
+                         out_path = out_path)
+        
         # keep required arguments only
         func_args <- all_args[names(all_args) %in% names(formals(func))]
         # Call computing function: 
