@@ -205,7 +205,7 @@ compute_Maaslin2 <- function(ps, samVar, taxRank, ds, db, out_path) {
     max_significance = 1,
     plot_heatmap = F, 
     plot_scatter = F,
-    cores = detectCores()-1
+    cores = detectCores()
   )
 }
 
