@@ -1,3 +1,29 @@
+# # This code was authored by Gemini 2.5 Pro
+# /// Prompt: 
+# here's a function I pass a R list to, as well as a function to be applied.
+# 
+# compute_3_lvl <- function(ps.ls, func, ...){
+#   require('furrr') 
+#  ... <function in scripts/myFunctions.R>
+# }
+# 
+# The function to be applied is the fololwing:
+#   compute_radEmu <- function(ps, samVar) {
+#  ... <function in scripts/myFunctions.R>
+#   }
+# so the call is 
+# test_radEmu <- compute_3_lvl(ps.ls, func = compute_radEmu)
+# # 
+# Now this function runs a very long time on a single core (or 2 i'm not sure). Usually I use 
+# future::plan(multisession, workers = 6)
+# ncores=12
+# (we have about 90 cores available)
+# 
+# However I'd like to run way more workers with only 2 cores each. The thing is, as you can see from the 3 level function, the physeq objects I'm using within the list are nested at the 3rd level of the list, e.g. ps.ls$Species$PD$MPA. My code structure can only paralellise the last-level of the imap loop. Since there are multiple sublists at each level, e.g. 
+# ps.ls$Genus$Moss$MPA. the current structure doesn't allow running multiple datasets in parallel outside of those nested in the last level of the list (e.g. all ps objects in $PD can be run in parallel, but not at the same time as the objects in $Moss). Maybe I'm wrong. But I'd like to be able to run all objects in parallel at once to saturate the workers (I have about 12 objects per last level, 8 dataset levels (e.g. Moss, PD) and two first level (Species, Genus). I could run with 36 workers at 2 cores each fdor example"
+# What would you do? We could either change the ps.ls structure, but I'm using the level names with imap to pass to the final output. Or we can create a new compute_3_lvl function...
+# \\\prompt
+
 library(purrr)
 library(dplyr)
 

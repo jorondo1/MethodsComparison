@@ -104,7 +104,8 @@ compile_3_lvl(test_ZicoSeq, func = compile_ZicoSeq) %>%
 
 ps.ls$Genus <- NULL
 # RadEmu
-test_radEmu <- compute_3_lvl(ps.ls, func = compute_radEmu)
+# test_radEmu <- compute_3_lvl(ps.ls, func = compute_radEmu)
+# Use 5.1_DAA_run_radEMU
 compile_3_lvl(test_radEmu, func = compile_radEmu) %>% 
   write_tsv(paste0(out_path,'/radEmu.tsv'))
 

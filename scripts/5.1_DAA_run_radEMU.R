@@ -1,3 +1,5 @@
+# This code was authored by Gemini 2.5 Pro
+
 source('scripts/5.1_DAA_fun_radEMU.R')
 
 # --- Assumed Setup ---
@@ -5,10 +7,8 @@ source('scripts/5.1_DAA_fun_radEMU.R')
 # grouping_variable <- list(PD = "Group", Moss = "Status", ...)
 
 # --- Configuration ---
-N_WORKERS <- 36      # Number of parallel jobs to run simultaneously
+N_WORKERS <- 40      # Number of parallel jobs to run simultaneously
 CORES_PER_JOB <- 2   # Number of cores for each job's mclapply
-
-# Total cores that will be used: 36 * 2 = 72. This is safe on your 90-core machine.
 
 # --- Execution ---
 
@@ -33,3 +33,5 @@ print(all_results_df)
 # You can now easily filter for failed jobs, for example:
 failed_jobs <- all_results_df %>% filter(is.na(results))
 print(failed_jobs)
+
+write_rds(all_results_df, 'Out/DAA/radEmu_tmp.RDS')

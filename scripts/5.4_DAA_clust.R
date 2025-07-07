@@ -16,17 +16,23 @@ num_DAA_tools <- DAA$DAA_tool %>% unique %>% length
 
 DAA_subset <- DAA %>% 
   filter(#!DAA_tool %in% c('edgeR', 'DESeq2') &
-    taxRank == 'Family' &
+    taxRank == 'Genus' &
       dataset == 'NAFLD' & 
-      database == 'MPA_db2023')
+      database == 'KB51')
 
-# Rank coefficients within each methodology
+DAA_subset %>% 
+  group_by(Taxon) %>% 
+  summarise(n = n()) %>% 
+  group_by(n) %>% summarise(n_n=n())
+
+# Keep taxa common to all
 which_taxa <- DAA_subset %>% 
   group_by(Taxon) %>% 
   summarise(n = n()) %>% 
-  filter(n >=5)  %>%  
+  filter(n >=5)  %>%
   pull(Taxon); length(which_taxa)
 
+# Rank coefficients within each methodology
 DAA_ranks <- DAA_subset %>% 
   filter(Taxon %in% which_taxa) %>% 
   group_by(# taxRank, dataset, 
@@ -37,13 +43,18 @@ DAA_ranks <- DAA_subset %>%
   ungroup() %>% 
   select(Taxon, AdjRank, DAA_tool, database)
 
+# Compute distance
 dist_man <- DAA_ranks %>% 
   pivot_wider(names_from = c('DAA_tool'), 
               values_from = 'AdjRank') %>% 
   select(where(is.numeric)) %>% t %>% 
   dist(method = 'manhattan')
 
-hc <- hclust(dist_man, method = "ward.D2")
+dist_man_scaled <- dist_man/max(dist_man)
+  
+
+# Cluster
+hc <- hclust(dist_man_scaled, method = "ward.D2")
 
 # Plot dendrogram
 plot(hc, main = "Hierarchical Clustering of Methods (Manhattan on Adjusted Ranks)")
