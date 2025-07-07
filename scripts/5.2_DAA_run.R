@@ -65,8 +65,8 @@ if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
 
-future::plan(multisession, workers = 14)
-ncores=6
+future::plan(multisession, workers = 6)
+ncores=12
 # Aldex2
 test_aldex <- compute_3_lvl(ps.ls, func = compute_aldex)
 compile_3_lvl(test_aldex, func = compile_aldex) %>% 

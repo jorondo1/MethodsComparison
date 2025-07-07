@@ -1,7 +1,7 @@
 library(pacman)
 p_load( magrittr, tidyverse, purrr, kableExtra, phyloseq, patchwork, beanplot, 
         rstatix, parallel, reshape2, vegan, RColorBrewer, ggridges, htmltools)
-ps_rare.ls <- read_rds('Out/ps_rare.ls.rds')
+ps_rare.ls <- read_rds('Out/_Rdata/ps_rare.ls.rds')
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/community_functions.R'))
 source("scripts/myFunctions.R")
 theme_set(theme_light())
@@ -216,18 +216,29 @@ imap(axis_desc, function(desc, idx) {
     geom_line(aes(group = Sample), alpha = 0.5, linewidth = 0.1) +
     facet_wrap(~Facet, scales = 'free') +
     scale_fill_manual(values = tool_colours) +
+    theme_bw() +
     theme(
       axis.text.x = element_blank(),
       panel.grid = element_blank(),
       legend.position = 'bottom',
+      legend.box.spacing = unit(-0.5, "lines"),
       strip.text.x.top = element_text(
         angle = 0, hjust = 0, size = 12),
+      legend.background = element_rect(
+        fill = "white",        # White background
+        color = "black",       # Black border
+        linewidth = 0.3        # Border thickness
+      )
     ) +
     scale_y_continuous(limits = c(0, NA)) +
-    labs(fill = 'Methodology', x = '', y = desc)
+    labs(fill = 'Tool', x = '', y = desc)
   
   ggsave(paste0('Out/memoire/alpha_',idx, '_comparison.pdf'),
          bg = 'white', width = 2200, height = 1600,
+         units = 'px', dpi = 220)
+  
+  ggsave(paste0('Out/ISMB2025/alpha_',idx, '_comparison.pdf'),
+         bg = 'white', width = 2300, height = 1500,
          units = 'px', dpi = 220)
 })
 
@@ -571,9 +582,14 @@ plot_dist_gap <- function(df){
           )) +
     guides(fill = guide_legend(nrow = 1)) 
 }
+
 plot_dist_gap(pw_dist_gap_eval.df)
 ggsave('Out/memoire/beta_diff_bray.pdf', 
        bg = 'white', width = 2600, height = 1200, 
+       units = 'px', dpi = 200)
+
+ggsave('Out/ISMB2025/beta_diff_bray.pdf', 
+       bg = 'white', width = 2800, height = 1200, 
        units = 'px', dpi = 200)
 
 plot_dist_gap(pw_dist_gap_ctrl.df)

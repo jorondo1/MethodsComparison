@@ -1,7 +1,7 @@
 library(pacman)
 p_load( magrittr, tidyverse, purrr,  phyloseq,
         rstatix, vegan)
-ps_rare.ls <- read_rds('Out/ps_rare.ls.rds')
+ps_rare.ls <- readRDS('Out/_Rdata/ps_rare.ls.rds')
 source("scripts/myFunctions.R")
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/community_functions.R'))
 
