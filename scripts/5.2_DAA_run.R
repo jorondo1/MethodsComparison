@@ -11,32 +11,32 @@ source('scripts/5.1_DAA_fun.R')
 source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/tax_glom2.R')
 source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/rarefy_even_depth2.R')
 
-ps.ls.tmp <- read_rds('Out/_Rdata/ps_filt.ls.RDS') 
+# ps.ls.tmp <- read_rds('Out/_Rdata/ps_filt.ls.RDS') 
 
-ps.ls <- list()
-#ps.ls[['Species']] <- ps.ls.tmp
-for (taxRank in c('Genus', 'Family')) {
-  ps.ls[[taxRank]] <- lapply(ps.ls.tmp, function(ds) {
-    lapply(ds, function(db) {
-      tax_glom2(db, taxrank = taxRank)
-    })
-  })
-}
-
-# Rarefied dataset for MetaPhlAn
-ps_rare.ls <- lapply(ps.ls, function(taxRank) {
-  lapply(taxRank, function(ds) {
-    lapply(ds, function(db) {
-      rarefy_even_depth2(db, rngseed = 42, ncores = 24)
-    })
-  })
-})
-
-write_rds(ps.ls, 'Out/_Rdata/ps_taxranks.ls.RDS')
-write_rds(ps_rare.ls, 'Out/_Rdata/ps_rare_taxranks.ls.RDS')
+# ps.ls <- list()
+# #ps.ls[['Species']] <- ps.ls.tmp
+# for (taxRank in c('Genus', 'Family')) {
+#   ps.ls[[taxRank]] <- lapply(ps.ls.tmp, function(ds) {
+#     lapply(ds, function(db) {
+#       tax_glom2(db, taxrank = taxRank)
+#     })
+#   })
+# }
+# 
+# # Rarefied dataset for MetaPhlAn
+# ps_rare.ls <- lapply(ps.ls, function(taxRank) {
+#   lapply(taxRank, function(ds) {
+#     lapply(ds, function(db) {
+#       rarefy_even_depth2(db, rngseed = 42, ncores = 24)
+#     })
+#   })
+# })
+# 
+# write_rds(ps.ls, 'Out/_Rdata/ps_taxranks.ls.RDS')
+# write_rds(ps_rare.ls, 'Out/_Rdata/ps_rare_taxranks.ls.RDS')
 
 remove_databases <- function(ps.list, to_remove) {
-  lapply(ps.ls, function(taxRank) {
+  lapply(ps.list, function(taxRank) {
     lapply(taxRank, function(ds){
       imap(ds, function(dataset, db) {
         if (db %in% to_remove) {
@@ -65,7 +65,7 @@ if (!dir.exists(out_path)) {
   dir.create(out_path, recursive = TRUE)
 }
 
-future::plan(multisession, workers = 6)
+future::plan(multisession, workers = 14)
 ncores=6
 # Aldex2
 test_aldex <- compute_3_lvl(ps.ls, func = compute_aldex)
@@ -102,6 +102,7 @@ test_ZicoSeq <- compute_3_lvl(ps_rare.ls, func = compute_ZicoSeq)
 compile_3_lvl(test_ZicoSeq, func = compile_ZicoSeq) %>% 
   write_tsv(paste0(out_path,'/ZicoSeq.tsv'))
 
+ps.ls$Genus <- NULL
 # RadEmu
 test_radEmu <- compute_3_lvl(ps.ls, func = compute_radEmu)
 compile_3_lvl(test_radEmu, func = compile_radEmu) %>% 

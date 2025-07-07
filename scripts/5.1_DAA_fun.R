@@ -27,14 +27,13 @@ ps_prevalence_filt <- function(ps, threshold) {
   return(res)
 }
 
-
 #############
 ### ALDEx2 ###
 ###############
 compute_aldex <- function(ps, samVar){
-  abund <- ps@otu_table %>% as.data.frame
-  conds <- ps@sam_data %>% as.data.frame %>% 
-    pull(!!sym(samVar)) %>% as.vector
+  abund <- ps@otu_table %>% as.data.frame()
+  conds <- ps@sam_data %>% as.data.frame() %>% 
+    pull(!!sym(samVar)) %>% as.vector()
   
   aldex(reads = abund, 
         conditions = conds,
@@ -165,7 +164,7 @@ compute_edgeR <- function(ps, samVar) {
                sort.by="PValue",
                p.value = 1)
   # Extract results
-  tt@.Data[[1]] %>% tibble()
+  tibble(tt@.Data[[1]])
 }
 
 compile_edgeR <- function(results, taxRank, db, ds) {
@@ -195,13 +194,14 @@ compute_Maaslin2 <- function(ps, samVar, taxRank, ds, db, out_path) {
   }
   
   out <- Maaslin2(
-    input_data = ps %>% otu_table %>% data.frame,
-    input_metadata = ps %>% sample_data %>% data.frame,
+    input_data = otu_table(ps) %>% data.frame(),
+    input_metadata = sample_data(ps) %>% data.frame(),
     output = maaslin_path,
     fixed_effects = samVar,
     min_prevalence = 0.1,
-    transform = 'AST',
+    transform = 'LOG',
     standardize = FALSE, 
+    normalization = "TSS",
     max_significance = 1,
     plot_heatmap = F, 
     plot_scatter = F,
@@ -268,7 +268,7 @@ compute_radEmu <- function(ps, samVar) {
 compile_radEmu <- function(results, taxRank, db, ds) {
   map_dfr(results, ~ .x$coef %>%
             dplyr::filter(!is.na(pval)) %>%
-            as_tibble) %>% 
+            as_tibble()) %>% 
     transmute(
       Taxon = category,
       coef = estimate,

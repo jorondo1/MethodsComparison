@@ -7,24 +7,25 @@ DAA <- rbind(
   read_tsv('Out/DAA_NAFLD/edgeR.tsv'), # Too many taxa, needs dealing with !
   read_tsv('Out/DAA_NAFLD/DESEq2.tsv'),
   read_tsv('Out/DAA_NAFLD/corncob.tsv'),
-  #read_tsv('Out/DAA_NAFLD/radEmu.tsv'),
-  read_tsv('Out/DAA_NAFLD/Aldex2.tsv')
-  #read_tsv('Out/DAA_NAFLD/ZicoSeq.tsv')
+  read_tsv('Out/DAA_NAFLD/radEmu.tsv'),
+  read_tsv('Out/DAA_NAFLD/Aldex2.tsv'),
+  read_tsv('Out/DAA_NAFLD/ZicoSeq.tsv')
 )
 
 num_DAA_tools <- DAA$DAA_tool %>% unique %>% length
 
 DAA_subset <- DAA %>% 
   filter(#!DAA_tool %in% c('edgeR', 'DESeq2') &
-    taxRank == 'Genus' &
-      dataset == 'NAFLD' &
-      database == 'KB20') 
+    taxRank == 'Family' &
+      dataset == 'NAFLD' & 
+      database == 'MPA_db2023')
 
 # Rank coefficients within each methodology
-
-which_taxa <- DAA_subset %>% group_by(Taxon) %>% 
+which_taxa <- DAA_subset %>% 
+  group_by(Taxon) %>% 
   summarise(n = n()) %>% 
-  filter(n == num_DAA_tools) %$% Taxon; length(which_taxa)
+  filter(n >=5)  %>%  
+  pull(Taxon); length(which_taxa)
 
 DAA_ranks <- DAA_subset %>% 
   filter(Taxon %in% which_taxa) %>% 
@@ -33,11 +34,11 @@ DAA_ranks <- DAA_subset %>%
   mutate(#methodology = paste0(database, '_', DAA_tool),
          Rank = rank(coef, ties.method = 'first'),
          AdjRank = Rank - (max(Rank) + 1) / 2) %>% # adjusted manhattan
-  ungroup %>% 
-  select(Taxon, AdjRank, DAA_tool)
+  ungroup() %>% 
+  select(Taxon, AdjRank, DAA_tool, database)
 
 dist_man <- DAA_ranks %>% 
-  pivot_wider(names_from = 'DAA_tool', 
+  pivot_wider(names_from = c('DAA_tool'), 
               values_from = 'AdjRank') %>% 
   select(where(is.numeric)) %>% t %>% 
   dist(method = 'manhattan')
