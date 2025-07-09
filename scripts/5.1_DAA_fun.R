@@ -62,7 +62,7 @@ compute_ancombc2 <- function(ps, samVar, taxRank) {
  result <- ancombc2(
     data = ps, 
 #    tax_level= taxRank,  # DON'T. Since our ps objects have the lowest taxrank as taxa names, we want ANCOM to use that for the output
-    prv_cut = 0.10, 
+    prv_cut = 0.0,  # input should already
     fix_formula = samVar,
     verbose = TRUE,
     n_cl = ncores)
@@ -198,11 +198,11 @@ compute_Maaslin2 <- function(ps, samVar, taxRank, ds, db, out_path) {
     input_metadata = sample_data(ps) %>% data.frame(),
     output = maaslin_path,
     fixed_effects = samVar,
-    min_prevalence = 0.1,
+    min_prevalence = 0, # input should already be filtered see 0_proc_data.R
     transform = 'LOG',
     standardize = FALSE, 
     normalization = "TSS",
-    max_significance = 1,
+    max_significance = Inf,
     plot_heatmap = F, 
     plot_scatter = F,
     cores = detectCores()
@@ -295,8 +295,8 @@ compute_ZicoSeq <- function(ps, samVar) {
     meta.dat = metadata,
     grp.name = samVar,
     feature.dat.type = 'count',
-    #mean.abund.filter = 0.001,
-    #prev.filter = 0.1,
+    mean.abund.filter = 0.00,
+    prev.filter = 0,
     perm.no = 999
   ) 
 }

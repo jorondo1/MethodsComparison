@@ -238,8 +238,8 @@ imap(axis_desc, function(desc, idx) {
          units = 'px', dpi = 220)
   
   ggsave(paste0('Out/ISMB2025/alpha_',idx, '_comparison.pdf'),
-         bg = 'white', width = 2300, height = 1500,
-         units = 'px', dpi = 220)
+         bg = 'white', width = 2300, height = 1200,
+         units = 'px', dpi = 230)
 })
 
 # Quantify those variations
@@ -492,6 +492,15 @@ db_pairs_eval <- list(
   `G. DNA-to-Marker tools :\nmOTUs3 – MetaPhlAn 2023` = c('MOTUS', 'MPA_db2023')
 )
 
+#ISMB:
+# db_pairs_eval <- list(
+#   `A. Kraken 0.45 :\nGTDB 220 – RefSeq` = c('KB45_GTDB', 'KB45'),
+#   `B. Sourmash :\nGTDB 220 – RefSeq` = c('SM_gtdb-rs220-rep', 'SM_RefSeq_20250528'),
+#   `C. GTDB 220 :\nSourmash – Kraken 0.45` = c('SM_gtdb-rs220-rep', 'KB45_GTDB'),
+#   `D. RefSeq :\nSourmash – Kraken 0.45` = c('SM_RefSeq_20250528', 'KB45'),
+#   `E. DNA-to-Marker tools :\nmOTUs3 – MetaPhlAn 2023` = c('MOTUS', 'MPA_db2023')
+# )
+
 db_pairs_ctrl <- list(
   `A. Sourmash\nGTDB220 – GTDB214` = c('SM_gtdb-rs220-rep', 'SM_gtdb-rs214-rep'),
   `B. MetaPhlAn versions\n2023 – 2022` = c('MPA_db2023', 'MPA_db2022'),
@@ -589,8 +598,8 @@ ggsave('Out/memoire/beta_diff_bray.pdf',
        units = 'px', dpi = 200)
 
 ggsave('Out/ISMB2025/beta_diff_bray.pdf', 
-       bg = 'white', width = 2800, height = 1200, 
-       units = 'px', dpi = 200)
+       bg = 'white', width = 2500, height = 1000, 
+       units = 'px', dpi = 250)
 
 plot_dist_gap(pw_dist_gap_ctrl.df)
 ggsave('Out/memoire/beta_diff_bray_ctrls.pdf', 

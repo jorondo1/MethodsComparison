@@ -181,6 +181,18 @@ filter_and_add_samData <- function(df, ds, Rank, ps_list) {
 ### General functions 
 ################
 
+# Recode a two-level factor as A and B
+recode_factor_AB <- function(factor_var) {
+  # Ensure variable has exactly 2 levels
+  if (nlevels(factor_var) != 2) {
+    stop("The input factor must have exactly 2 levels.")
+  }
+  
+  # Recode the factor to "A" and "B" based on level numbers
+  factor(as.numeric(factor_var), levels = 1:2, labels = c("A", "B"))
+}
+
+
 # Melt ps object list, agglomerate abundances to desired taxRank
 melt_ps_list_glom <- function(ps_list, taxRank) {
   map(names(ps_list), function(ds){ # first list level: apply to all dataset

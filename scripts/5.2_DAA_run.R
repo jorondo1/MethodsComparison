@@ -94,7 +94,7 @@ compile_3_lvl(test_edgeR, func = compile_edgeR) %>%
 
 # MaAsLin2 ### RAREFIED !!
 capture_Maaslin_stdout <- compute_3_lvl(ps_rare.ls, compute_Maaslin2, out_path = out_path)
-compile_Maaslin(res_path = paste0(out_path,'/Maaslin2/*/*/*/significant_results.tsv')) %>%
+compile_Maaslin(res_path = paste0(out_path,'/Maaslin2/*/*/*/all_results.tsv')) %>%
   write_tsv(paste0(out_path,'/Maaslin2.tsv'))
 
 # ZicoSeq ### RAREFIED

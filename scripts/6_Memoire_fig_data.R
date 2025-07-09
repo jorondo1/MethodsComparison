@@ -68,17 +68,6 @@ write_rds(tax_assign_sam, 'Out/_Rdata/tax_assign_sam.RDS')
 # Alpha diversity ###
 ######################
 
-# This function will recode them dynamically as A and B, simply 
-recode_factor_AB <- function(factor_var) {
-  # Ensure variable has exactly 2 levels
-  if (nlevels(factor_var) != 2) {
-    stop("The input factor must have exactly 2 levels.")
-  }
-  
-  # Recode the factor to "A" and "B" based on level numbers
-  factor(as.numeric(factor_var), levels = 1:2, labels = c("A", "B"))
-}
-
 alpha_div <- list()
 alpha_div[['plot_data']] <-  imap(ps_rare.ls, function(ps_dataset.ls, dataset){
   imap(ps_dataset.ls, function(ps, database){
@@ -94,7 +83,7 @@ alpha_div[['plot_data']] <-  imap(ps_rare.ls, function(ps_dataset.ls, dataset){
     samdat <- samdat_as_tibble(ps) %>% 
       # Recode the grouping variable as a A/B factor
       mutate(Grouping_var = !!sym(grouping_variable[dataset]) %>% 
-               as.factor %>% recode_factor_AB) %>% 
+               as.factor() %>% recode_factor_AB()) %>% 
       select(Sample, Grouping_var)
     
     tibble(
