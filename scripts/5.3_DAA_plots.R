@@ -3,53 +3,105 @@ p_load(magrittr, tidyverse,
        RColorBrewer, ggbeeswarm2, UpSetR, patchwork, cowplot)
 
 source('scripts/myFunctions.R')
-source('scripts/5_DAA_fun.R')
 
-# Full data
-DAA_files <- 'Out/DAA*/*.tsv'
-DAA <- Sys.glob(DAA_files) %>% map(read_tsv) %>% list_rbind
+###########################################################
+#
+#  /$$$$$$$  /$$        /$$$$$$  /$$$$$$$$         /$$  
+# | $$__  $$| $$       /$$__  $$|__  $$__/       /$$$$  
+# | $$  \ $$| $$      | $$  \ $$   | $$         |_  $$  
+# | $$$$$$$/| $$      | $$  | $$   | $$           | $$  
+# | $$____/ | $$      | $$  | $$   | $$           | $$  
+# | $$      | $$      | $$  | $$   | $$           | $$  
+# | $$      | $$$$$$$$|  $$$$$$/   | $$          /$$$$$$
+# |__/      |________/ \______/    |__/         |______/
+#
+# Taxon upset plot by DAA/db combination
+#
+###########################################################
 
-# NAFLD subset of significant taxa
-subset_DAA_05_NAFLD_F <- DAA %>% 
-   filter(taxRank == 'Family' &
-      dataset == 'NAFLD' &
-      adj.p <0.05) 
+######################
+### 1. Subset data ####
+########################
 
-#############################################
-### Taxon PA plot by DAA/db combination ######
-###############################################
+if(file.exists('Out/_Rdata/taxa_relAb_metrics.RDS')) {
+  taxa_relAb_metrics <- readRDS('Out/_Rdata/taxa_relAb_metrics.RDS')
+} else {
+  source('scripts/5.0_taxa_relab_metrics.R')
+}
 
-# tool_names <- subset_toolpairs %>% arrange(desc(DAA_tool)) %$% DAA_tool %>% unique
-tool_names <- c(#"radEmu", 
-                'corncob','MaAsLin2', 'Aldex2', 'ANCOMBC2', 'DESeq2', 'edgeR')
-#db_names <- subset_toolpairs %>%  arrange(desc(database)) %$% database %>% unique
-db_names <- c("KB20", "SM_gtdb-rs214-rep", "SM_genbank-2022.03", 
-              "MPA_db2023", "MPA_db2019" ,"MOTUS" )    
+# Import data
+DAA <- Sys.glob('Out/DAA/*.tsv') %>% 
+  map(read_tsv, show_col_types = FALSE) %>% 
+  list_rbind()
+
+# Data to subset
+which_tools <- c('DESeq2', 'edgeR', 'ZicoSeq', 'ANCOMBC2', 'radEMU', 'Aldex2','corncob','MaAsLin2')
+which_databases <- c('KB45', 'KB90', 'SM_RefSeq_20250528', 'KB45_GTDB', 'KB90_GTDB', 'SM_gtdb-rs220-rep', 
+              'MPA_db2023', 'MOTUS')
+
+# Subset to dataset + Taxon
+DAA_subset <- DAA %>% 
+  filter(taxRank == which_taxrank &
+           dataset == which_dataset) %>% 
+  select(-taxRank, -dataset)
 
 # Filter out some tools to alleviate the plot
-subset_toolpairs <- subset_DAA_05_NAFLD_F %>% 
-  filter(DAA_tool %in% tool_names &
-           database %in% db_names)
+subset_toolpairs <- DAA_subset %>% 
+  filter(DAA_tool %in% which_tools 
+         & database %in% which_databases
+  )
 
-### 1. CREATE PLOT DATASETS AND DEFINE FACTOR LEVELS ###
-# Top taxa presence across combinations
-top_taxa <- subset_toolpairs %>% 
+######################
+### 2. Select taxa ####
+######################## 
+# We want the most overall abundant taxa (across all CCE method) that have
+# been called significant by at least one tool. 
+
+# Taxa found significant in at least N methodologies
+p_threshold <- 0.01
+taxa_sig <- subset_toolpairs %>% 
+  filter(adj.p <= p_threshold) %>% 
+  group_by(Taxon) %>% 
+  summarise(n = n()) %>% 
+  filter(n >= 2) %>% 
+  pull(Taxon) %>% unique()
+
+# List taxa found by every CCE method
+taxa_in_all_db <- taxa_relAb_metrics %>% 
+  filter(database %in% which_databases
+         & Taxon %in% taxa_sig) %>% 
   group_by(Taxon) %>% 
   dplyr::summarise(n = n()) %>% 
-  filter(!str_detect(Taxon, '\\[')) %>% 
-  arrange(desc(n)) %>%
-  head(n = 20) %>% pull(Taxon)
+  arrange(desc(n)) %>% 
+  filter(n == length(which_databases)) %>% 
+  pull(Taxon)
+
+# List taxa by top overall mean relative abundance
+top_taxa <-  taxa_relAb_metrics %>% 
+  filter(Taxon %in% taxa_in_all_db) %>% # found by all CCE methods
+  group_by(Taxon) %>% 
+  summarise(overall_meanRelAb = mean(meanRelAb)) %>% 
+  arrange(desc(overall_meanRelAb)) %>% 
+  head(n = 25) %>% pull(Taxon)
+
+#################################
+### 3. Create plot dataframes ####
+###################################
+# For each database*DAA_tool combination, create a unique identifier
+# with both variables in other columns; the pair will serve as the x axis.
+# Then, generate the data for the main plot, with coefficients converted
+# to negative/positive binary.
 
 # Data for the bottom matrix, two lines per pair string
-tool_pairs <- expand_grid(tool_names, db_names) %>% 
-  mutate(pair = paste(tool_names, db_names, sep= '_')) %>% 
-  pivot_longer(cols = c('db_names', 'tool_names'), values_to = 'y') %>% 
-  mutate(y = factor(y, levels = c(tool_names, db_names))) 
+tool_pairs <- expand_grid(x = which_tools, y = which_databases) %>% 
+  mutate(pair = paste(x, y, sep= '_')) %>% 
+  mutate(y = factor(y, levels = which_databases),
+         x = factor(x, levels = which_tools))
 
 # Tool pair factors in order
-comb_factor <- tool_pairs %$% pair %>% unique %>% rev# %>% droplevels
+comb_factor <- rev(tool_pairs$pair) # %>% droplevels
 
-# Data for top plot matrix
+# Data for main plot matrix
 tax_tool_pairs <- subset_toolpairs %>% 
   filter(Taxon %in% top_taxa) %>% 
   mutate(pair = paste(DAA_tool, database, sep= '_')) %>% 
@@ -71,130 +123,119 @@ tool_pairs %<>%
   # Rename labels
   mutate(y = recode(y, !!!CCE_names_noreturn))
 
-### 2. Difference in mean group relative abundance per (top) taxon
-mean_taxa_ratios_groups <- function(ps) {
-  ps %>% psmelt %>% tibble %>% 
-    group_by(Sample) %>% 
-    dplyr::mutate(relAb = Abundance / sum(Abundance),
-                  Taxon = OTU) %>% 
-    dplyr::select(Sample, Taxon, relAb, Group) %>% 
-    group_by(Group, Taxon) %>% 
-    dplyr::summarise(meanRelAb = mean(relAb),
-                     sdRelAb = sd(relAb),
-                     prev = sum(relAb != 0),
-                     .groups = 'drop') %>% 
-    group_by(Taxon) %>% 
-    
-    # Ratios get tricky with low abundance taxa because quasi absence from a group inflates the ratios drastically (even log)
-    dplyr::summarise(scaled_diff =
-                       (max(meanRelAb[Group == "0"],
-                           meanRelAb[Group == "1"]) -
-                       min(meanRelAb[Group == "0"],
-                           meanRelAb[Group == "1"])) /
-                       max(meanRelAb[Group == "0"],
-                           meanRelAb[Group == "1"])
-                     )
-}
-
-abundance_ratios <- ps.ls$Family$NAFLD %>% 
-  imap(function(ps, database) {
-  mean_taxa_ratios_groups(ps) %>% 
-    mutate(# sd_mean_ratio = sdRelAb/meanRelAb,
-      database = database
-           )
-}) %>% list_rbind %>% 
-  dplyr::filter(Taxon %in% tax_levels) 
-
-# Add this to top plot dataframe
-top_plot_data <- tax_tool_pairs %>% 
-  left_join(abundance_ratios, by = c('Taxon', 'database')) %>% 
+# Build the real plot data tibble
+main_plot_data <- taxa_relAb_metrics %>%  # Add the scaled_diff and meanRelAb variables
+  dplyr::filter(Taxon %in% tax_levels) %>% 
+  left_join(tax_tool_pairs, ., 
+            by = c('Taxon', 'database')) %>% 
+  dplyr::filter(adj.p < p_threshold) %>% 
   mutate(pair = factor(pair, levels = comb_factor),
-         Taxon = factor(Taxon, levels = tax_levels))
+         Taxon = factor(Taxon, levels = tax_levels),
+         DAA_tool = factor(DAA_tool, levels = which_tools))
 
-### 2.. PLOT ###
-# Create striped background (vertical) from a set of unique factors (associated to the plot's x axis)
-striped_background <- function(pairs) {
-  # In case some levels don't have values for the plot :
-  n_lvl_pairs_x <- pairs %>% droplevels %>% levels %>% length
+###############
+### 4. PLOT ####
+#################
+
+# Dataframe-generating function for a striped background with facets
+striped_background_facet <- function(data, x_var, facet_var) {
+  background_data <- data %>%
+    distinct(.data[[facet_var]], .data[[x_var]]) %>%
+    group_by(.data[[facet_var]]) %>%
+    mutate(
+      x_index = row_number(),
+      fill_color = ifelse(x_index %% 2 == 1, "grey70", "white")
+    ) %>%
+    ungroup() # Good practice to ungroup after calculations
   
-  # Create df for striped bacground
-  x_axis_grep_alt <- data.frame(
-    xmin = seq(0.5, n_lvl_pairs_x - 0.5, by = 1),
-    xmax = seq(1.5, n_lvl_pairs_x + 0.5, by = 1),
-    fill = rep(c("gray90", "white"), length.out = n_lvl_pairs_x)  # Alternate colors
-  )
-  
-  # return a list of ggplot arguments for the background
+  # Return a list of ggplot layers
   list(
-  geom_rect(data = x_axis_grep_alt, 
-            aes(xmin = xmin, xmax = xmax, ymin = -Inf, ymax = Inf, fill = fill), 
-            inherit.aes = FALSE,
-            alpha = 0.5),
+    geom_rect(
+      data = background_data,
+      aes(
+        xmin = x_index - 0.5,
+        xmax = x_index + 0.5,
+        ymin = -Inf,
+        ymax = Inf,
+        fill = fill_color
+      ),
+      inherit.aes = FALSE,
+      alpha = 0.5
+    ),
     scale_fill_identity()
   )
 }
 
-top_plot <- top_plot_data %>% 
-  ggplot(aes(x = pair, y = Taxon)) +
-  striped_background(tool_pairs$pair) + # ensure the colours are interpreted for the background
-  geom_point(aes(colour = coef, size = scaled_diff)) +
-  scale_colour_manual(values = c('red3', "blue3"),
-                      labels = c('Negative', 'Positive')) +
-  scale_size_continuous(breaks = c(0.5, 0.7, 1), range = c(1,5)) +
-  theme_minimal() +
-  labs(colour = 'Taxon association', 
-       size = 'Scaled difference in mean\nabundance between groups')
-
-bottom_plot <- tool_pairs %>% 
+# Mapping plot
+top_plot <- tool_pairs %>% 
   ggplot(aes(x = pair, y = y)) +
-  striped_background(tool_pairs$pair) +
-  geom_hline(yintercept = match("edgeR", levels(tool_pairs$y)) + 0.5, 
-             color = "black", linewidth = 0.2, linetype = 'dotted') +
-  geom_line(aes(group = pair)) +
-  geom_point(aes(colour = name), size = 5, shape = 18) +
-  scale_colour_manual(values = c('orange2', 'purple2'), 
-                      labels = c('Community composition', 
-                                 'Differential abundance'))+
+  striped_background_facet(tool_pairs, 'pair', 'x') +
+  facet_grid(.~x, scales = 'free_x', space = 'free_x')+
+  geom_point(size = 3, shape = 18, colour = 'black') +
+  theme_light() +
   labs(colour = 'Tool type') +
-  theme_minimal() 
+  theme(
+    plot.margin = margin(b = 0, unit = "cm")
+  )
 
+# Main plot
+bottom_plot <- main_plot_data %>% 
+  ggplot(aes(x = pair, y = Taxon)) +
+  striped_background_facet(main_plot_data, 'pair', 'DAA_tool') +
+  geom_point(aes(colour = coef, size = scaled_diff)) +
+  facet_grid(.~DAA_tool, scales = 'free', space = 'free')+
+  scale_colour_manual(values = c('red3', "blue3"),
+                      labels = c('Group A', 'Group B')) +
+  scale_size_continuous(breaks = c(0.2, 0.7), range = c(0.2,4)) +
+  theme_minimal() +
+  labs(colour = 'Taxon association:', 
+       size = 'Scaled difference in mean abundance between groups:') +
+  theme(strip.background = element_blank(),
+        strip.text.x = element_blank(),
+        plot.margin = margin(t = 0, unit = "cm") ,
+        plot.title = element_text(margin = margin(b = 0)) 
+  ) 
 (top_plot / bottom_plot) +
   plot_layout(guides = "collect",
-              heights = c(length(tax_levels),
-                          length(c(tool_names, db_names)))) &
+              heights = c(length(which_tools),
+                          length(tax_levels))) &
   theme(panel.grid = element_blank(),
         axis.title = element_blank(),
         axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
         legend.position = "bottom",
         legend.justification = 'left',
-        legend.title.position = 'top') 
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 10),
+        panel.spacing.x = unit(0, "lines"),
+        panel.border = element_blank()
+  )
 
-ggsave('Out/CSHL_poster/DAA_Story.pdf', bg = 'white', width = 2000, height = 1600, units = 'px', dpi = 180)
+ggsave('Out/ISMB2025/DAA_Story_Genus.pdf', bg = 'white', width = 2000, height = 1400, units = 'px', dpi = 180)
 
 #################
 ## Clustering ####
 ###################
 
 # Add unique tool-set variable
-subset_DAA_05_NAFLD_F %<>% 
+DAA_subset %<>% 
   dplyr::mutate(present = 1,
                 tool_set = paste0(DAA_tool, '__', database)) 
 
 # Some contradictions exist (taxa as DAA with different signs) so 
 # we remove those taxa when they exist (will underestimate dissimilarity)
-subset_no_contradiction <- subset_DAA_05_NAFLD_F %>% 
+subset_no_contradiction <- DAA_subset %>% 
   group_by(Taxon) %>% 
   filter(!(any(coef > 0) & any(coef < 0))) %>% 
   ungroup()
-  
-  
+
 # PA matrix
 PA <- subset_no_contradiction %>% 
-  filter(DAA_tool %in% tool_names ) %>% 
+  filter(DAA_tool %in% which_tools ) %>% 
   dplyr::select(Taxon, tool_set, present) %>% 
   pivot_wider(names_from = tool_set, values_from = present, values_fill = 0) %>% 
   column_to_rownames('Taxon') %>% t 
- ###### Subset to taxa common across db ??
+###### Subset to taxa common across db ??
 
 # Bray-curtis on PA = Sørenson dice (more weight to common)
 dist <- PA %>% vegdist(method = 'bray')
@@ -208,9 +249,9 @@ tool_sets_meta <- subset_no_contradiction %>%
   dplyr::select(tool_set, DAA_tool, database) %>% 
   distinct %>% 
   inner_join(scores(pcoa_res)$sites[,1:2] %>% 
-              as.data.frame %>% 
-              rownames_to_column('tool_set'),
-            by = 'tool_set') %>% 
+               as.data.frame %>% 
+               rownames_to_column('tool_set'),
+             by = 'tool_set') %>% 
   left_join(CCE_metadata, by = 'database') %>% 
   left_join(DAA_metadata, by = 'DAA_tool') %>% 
   mutate(DAA_tool = factor(DAA_tool, levels = names(tool_vars)),
@@ -224,9 +265,9 @@ approach_text <- tibble(
 
 tool_sets_meta %>% 
   ggplot(aes(x = MDS1, y = MDS2)) +
-   # stat_ellipse(level=0.7, geom = "polygon", alpha = 0.1, aes(colour = CCE_approach), fill = NA) + 
+  # stat_ellipse(level=0.7, geom = "polygon", alpha = 0.1, aes(colour = CCE_approach), fill = NA) + 
   ggbeeswarm2::geom_beeswarm(aes(colour = database, shape = DAA_tool), 
-                size = 4, stroke = 1.5, method = 'swarm2', spacing = 1.5) +
+                             size = 4, stroke = 1.5, method = 'swarm2', spacing = 1.5) +
   scale_shape_manual(values = setNames(DAA_metadata$plot_shape, DAA_metadata$DAA_tool)) +
   scale_colour_manual(values = tool_colours, labels = CCE_names) +
   theme_light() +
@@ -243,7 +284,7 @@ tool_sets_meta %>%
     legend.justification = "left",                # Align the legend to the left
     legend.background = element_rect(fill = "white", color = "black", size = 0.5)
   )
- 
+
 
 ggsave('Out/CSHL_poster/pcoa_tool_sets.pdf', bg = 'white',
        width = 2400, height = 2400, units = 'px', dpi = 260)
@@ -253,14 +294,14 @@ adonis2(formula = dist ~ taxonomy + CCE_approach + Taxon_bias,
         permutations = 999,
         data = tool_sets_meta,
         by = 'margin',
-      #  na.action = na.exclude,
+        #  na.action = na.exclude,
         parallel = 8)
 
 
 # Long DF with every possible tool combination for each taxon
 # 
 # # P/A matrix for datadases 
-# wide_db <- subset_DAA_05_NAFLD_F %>% 
+# wide_db <- DAA_subset %>% 
 #   dplyr::select(Taxon, database) %>% 
 #   distinct() %>% 
 #   mutate(present = 1) %>% 
@@ -271,7 +312,7 @@ adonis2(formula = dist ~ taxonomy + CCE_approach + Taxon_bias,
 # wide_full$comb <- apply(wide_full[,-1], 1, paste, collapse = "")
 # 
 # wide_pairs <- rowwise(wide_full) %>%
-#   filter(sum(c_across(all_of(tool_names))) == 1 &
+#   filter(sum(c_across(all_of(which_tools))) == 1 &
 #            sum(c_across(all_of(db_names))) == 1) %>%
 #   ungroup()
 # 
