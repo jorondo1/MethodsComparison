@@ -142,24 +142,24 @@ ps_raw.ls[['Bee']] <- meta_parsing('Bee', Bee_meta)
 ps_raw.ls[['Olive']] <- meta_parsing('Olive', Olive_meta)
 ps_raw.ls[['PD']] <- meta_parsing('PD', PD_meta)
 
-write_rds(ps_raw.ls, "Out/ps_raw.ls.RDS")
+write_rds(ps_raw.ls, "Out/_Rdata/ps_raw.ls.RDS")
 
 # Prevalence+Abundance filtering, currently hardcoded in filter_low_prevalence()
 
 ps_filt.ls <- lapply(ps_raw.ls, function(ds) {
   lapply(ds, filter_low_prevalence, minPrev = 0.10, minAbund = 0)
 })
-write_rds(ps_filt.ls, "Out/ps_filt.ls.RDS")
+write_rds(ps_filt.ls, "Out/_Rdata/ps_filt.ls.RDS")
 
 ps_rare.ls <- list()
 ps_rare.ls <- lapply(ps_raw.ls, function(ds) {
   lapply(ds, function(db) {
     rarefy_even_depth2(db, rngseed = 1234, 
-                       verbose = TRUE, ncores = 6)
+                       verbose = TRUE, ncores = 8)
   })
 })
 
-write_rds(ps_rare.ls, "Out/ps_rare.ls.RDS")
+write_rds(ps_rare.ls, "Out/_Rdata/ps_rare.ls.RDS")
 
 
 # ps_rare.ls <- lapply(ps_raw.ls, function(sublist) {

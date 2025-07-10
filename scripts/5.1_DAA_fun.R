@@ -1,32 +1,6 @@
 pval_cutoff <- 0.05
 ncores <- 4
 
-# Prevalence filtering a phyloseq object
-ps_prevalence_filt <- function(ps, threshold) {
-  require(phyloseq)
-  require(magrittr)
-  require(dplyr)
-  
-  counts.tab <- otu_table(ps)
-  
-  # Number of samples required to meet threshold
-  numSam <- ceiling(threshold * phyloseq::nsamples(ps))
-  
-  ## Transpose OTU table (species should be arranged by rows)
-  if(taxa_are_rows(ps) == FALSE){
-    counts.tab <- t(counts.tab)
-  }
-  
-  # Compute taxa prevalence
-  keep_taxa <- rowSums(counts.tab != 0) %>% 
-    data.frame(count = .) %>% 
-    rownames_to_column('taxa') %>% View
-    filter(count >= numSam) %$% taxa
-  
-  res <- phyloseq::prune_taxa(keep_taxa, ps)
-  return(res)
-}
-
 #############
 ### ALDEx2 ###
 ###############
@@ -227,7 +201,7 @@ compile_Maaslin <- function(res_path) {
     mutate(
       Taxon = str_remove(Taxon, "^\\."),             # 1. Remove leading dot
       Taxon = str_replace(Taxon, "\\.", " "),         # 2. Swap the first dot with a space
-      Taxon = str_to_sentence(Taxon),                 # 3. Capitalize the first letter
+     # Taxon = str_to_sentence(Taxon),                 # 3. Capitalize the first letter #NOOOOOOOOOOOOOOOOPPE
       Taxon = str_replace_all(Taxon, " sp..", " sp. ")   # 4. Replace '..' with '.'
     ) %>% tibble()
 }
