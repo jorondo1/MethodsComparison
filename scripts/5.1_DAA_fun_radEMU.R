@@ -26,6 +26,8 @@
 
 library(purrr)
 library(dplyr)
+library(furrr)
+library(future)
 
 # Flatten the ps.ls list
 
@@ -60,11 +62,14 @@ create_job_tibble <- function(ps.ls, grouping_variable) {
 # Have radEmu accept core_per_job
 compute_radEmu_v2 <- function(ps, samVar, taxRank, ds, db, cores_per_job = 2) {
   
+  if(!dir.exists('./rademu_tmp')) {
+    dir.create('./rademu_tmp')
+  }
+  
   # You can use taxRank, ds, db here for logging or custom file paths
   message(sprintf("STARTING JOB: TaxRank=%s, Dataset=%s, DB=%s on %d cores", 
                   taxRank, ds, db, cores_per_job))
   
-  # compute fit:
   my_formula <- as.formula(paste('~', samVar))
   
   # It's good practice to wrap in a tryCatch to prevent one failure from
@@ -106,12 +111,9 @@ compute_radEmu_v2 <- function(ps, samVar, taxRank, ds, db, cores_per_job = 2) {
                     taxRank, ds, db, e$message))
     return(NA) # Return NA or an error object on failure
   })
-  
+  saveRDS(result, paste0('./rademu_tmp/fit_',taxRank,'_',ds,'_',db,'.rds'))
   return(result)
 }
-
-library(furrr)
-library(future)
 
 #' Run a function in parallel over a flattened job tibble.
 #'
