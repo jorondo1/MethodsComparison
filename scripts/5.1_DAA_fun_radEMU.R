@@ -66,52 +66,59 @@ compute_radEmu_v2 <- function(ps, samVar, taxRank, ds, db, cores_per_job = 2) {
     dir.create('./rademu_tmp')
   }
   
-  # You can use taxRank, ds, db here for logging or custom file paths
-  message(sprintf("STARTING JOB: TaxRank=%s, Dataset=%s, DB=%s on %d cores", 
-                  taxRank, ds, db, cores_per_job))
+  tmp_out <- paste0('./rademu_tmp/fit_',taxRank,'_',ds,'_',db,'.rds')
   
-  my_formula <- as.formula(paste('~', samVar))
-  
-  # It's good practice to wrap in a tryCatch to prevent one failure from
-  # stopping the entire parallel run.
-  result <- tryCatch({
-    ch_fit <- radEmu::emuFit(formula = my_formula, 
-                             Y = ps, run_score_tests = FALSE) 
+  if(file.exists(tmp_out)) {
+    result <- readRDS(tmp_out)
+  } else {
     
-    cutoff <- 0
-    to_test <- which(abs(ch_fit$coef$estimate) > cutoff)
+    # logging
+    message(sprintf("STARTING JOB: TaxRank=%s, Dataset=%s, DB=%s on %d cores", 
+                    taxRank, ds, db, cores_per_job))
     
-    if (length(to_test) == 0) {
-      message("No features to test. Skipping parallel score tests.")
-      return(list(fit = ch_fit, scores = NULL))
-    }
+    my_formula <- as.formula(paste('~', samVar))
     
-    # Test function for parallelization
-    emuTest <- function(category) {
-      # This function will run inside mclapply, so it needs radEmu
-      radEmu::emuFit(
-        formula = my_formula,
-        Y = ps,
-        fitted_model = ch_fit,
-        refit = FALSE,
-        run_score_tests = TRUE,
-        test_kj = data.frame(k = 2, j = category)
-      )
-    }
-    
-    # Run in parallel, using the provided number of cores
-    score_results <- parallel::mclapply(to_test, emuTest, mc.cores = cores_per_job)
-    
-    message(sprintf("COMPLETED JOB: TaxRank=%s, Dataset=%s, DB=%s", taxRank, ds, db))
-    
-    list(fit = ch_fit, scores = score_results)
-    
-  }, error = function(e) {
-    message(sprintf("ERROR in JOB: TaxRank=%s, Dataset=%s, DB=%s. Error: %s", 
-                    taxRank, ds, db, e$message))
-    return(NA) # Return NA or an error object on failure
-  })
-  saveRDS(result, paste0('./rademu_tmp/fit_',taxRank,'_',ds,'_',db,'.rds'))
+    # It's good practice to wrap in a tryCatch to prevent one failure from
+    # stopping the entire parallel run.
+    result <- tryCatch({
+      ch_fit <- radEmu::emuFit(formula = my_formula, 
+                               Y = ps, run_score_tests = FALSE) 
+      
+      cutoff <- 0
+      to_test <- which(abs(ch_fit$coef$estimate) > cutoff)
+      
+      if (length(to_test) == 0) {
+        message("No features to test. Skipping parallel score tests.")
+        return(list(fit = ch_fit, scores = NULL))
+      }
+      
+      # Test function for parallelization
+      emuTest <- function(category) {
+        # This function will run inside mclapply, so it needs radEmu
+        radEmu::emuFit(
+          formula = my_formula,
+          Y = ps,
+          fitted_model = ch_fit,
+          refit = FALSE,
+          run_score_tests = TRUE,
+          test_kj = data.frame(k = 2, j = category)
+        )
+      }
+      
+      # Run in parallel, using the provided number of cores
+      score_results <- parallel::mclapply(to_test, emuTest, mc.cores = cores_per_job)
+      
+      message(sprintf("COMPLETED JOB: TaxRank=%s, Dataset=%s, DB=%s", taxRank, ds, db))
+      
+      list(fit = ch_fit, scores = score_results)
+      
+    }, error = function(e) {
+      message(sprintf("ERROR in JOB: TaxRank=%s, Dataset=%s, DB=%s. Error: %s", 
+                      taxRank, ds, db, e$message))
+      return(NA) # Return NA or an error object on failure
+    })
+    saveRDS(result, tmp_out)
+  }
   return(result)
 }
 

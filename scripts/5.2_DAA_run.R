@@ -34,12 +34,15 @@ source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/
 # 
 # write_rds(ps.ls, 'Out/_Rdata/ps_taxranks.ls.RDS')
 # write_rds(ps_rare.ls, 'Out/_Rdata/ps_rare_taxranks.ls.RDS')
+to_keep <- c('KB45', 'KB90', 'SM_RefSeq_20250528', 
+                     'KB45_GTDB', 'KB90_GTDB', 'SM_gtdb-rs220-rep', 
+                     'MPA_db2023', 'MOTUS')
 
-remove_databases <- function(ps.list, to_remove) {
+remove_databases <- function(ps.list, to_keep) {
   lapply(ps.list, function(taxRank) {
     lapply(taxRank, function(ds){
       imap(ds, function(dataset, db) {
-        if (db %in% to_remove) {
+        if (!db %in% to_keep) {
           NULL  # Replace with NULL if name matches
         } else {
           dataset  # Keep if no match
@@ -51,10 +54,17 @@ remove_databases <- function(ps.list, to_remove) {
 
 ps.ls <- remove_databases(
   read_rds('Out/_Rdata/ps_taxranks.ls.RDS'),
-  c("SM_genbank-2022.03", "KB10", "KB10_GTDB"))
+  to_keep)
 ps_rare.ls <- remove_databases(
   read_rds('Out/_Rdata/ps_rare_taxranks.ls.RDS'),
-  c("SM_genbank-2022.03", "KB10", "KB10_GTDB"))
+  to_keep)
+
+# tmp local rademu run: 
+# ps.ls <- remove_databases(
+#   ps.ls,
+#    c('KB90','KB45',  'SM_RefSeq_20250528',
+#                        'SM_gtdb-rs220-rep', 'KB45_GTDB', 'KB90_GTDB',
+#                        'MPA_db2023', 'MOTUS'))
 
 # To work on a subset at whichever list level: 
 # ps.ls <- map(ps.ls, ~ .x["NAFLD"])

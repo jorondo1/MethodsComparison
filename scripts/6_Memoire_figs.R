@@ -213,15 +213,18 @@ imap(axis_desc, function(desc, idx) {
     geom_violin(aes(fill = Tool), 
                 linewidth = 0.3,
                 draw_quantiles = 0.5) + 
-    geom_line(aes(group = Sample), alpha = 0.5, linewidth = 0.1) +
+    geom_line(aes(group = Sample), alpha = 0.5, linewidth = 0.08) +
     facet_wrap(~Facet, scales = 'free') +
     scale_fill_manual(values = tool_colours) +
-    theme_bw() +
+    theme_light() +
     theme(
       axis.text.x = element_blank(),
       panel.grid = element_blank(),
       legend.position = 'bottom',
+      legend.text = element_text(size = 12),
+      legend.title = element_text(size = 12),
       legend.box.spacing = unit(-0.5, "lines"),
+      strip.background = element_rect(fill = 'grey50'),
       strip.text.x.top = element_text(
         angle = 0, hjust = 0, size = 12),
       legend.background = element_rect(
@@ -492,14 +495,14 @@ db_pairs_eval <- list(
   `G. DNA-to-Marker tools :\nmOTUs3 – MetaPhlAn 2023` = c('MOTUS', 'MPA_db2023')
 )
 
-#ISMB:
-# db_pairs_eval <- list(
-#   `A. Kraken 0.45 :\nGTDB 220 – RefSeq` = c('KB45_GTDB', 'KB45'),
-#   `B. Sourmash :\nGTDB 220 – RefSeq` = c('SM_gtdb-rs220-rep', 'SM_RefSeq_20250528'),
-#   `C. GTDB 220 :\nSourmash – Kraken 0.45` = c('SM_gtdb-rs220-rep', 'KB45_GTDB'),
-#   `D. RefSeq :\nSourmash – Kraken 0.45` = c('SM_RefSeq_20250528', 'KB45'),
-#   `E. DNA-to-Marker tools :\nmOTUs3 – MetaPhlAn 2023` = c('MOTUS', 'MPA_db2023')
-# )
+## ISMB:
+db_pairs_eval <- list(
+  `A. Kraken 0.45 :\nGTDB 220 – RefSeq` = c('KB45_GTDB', 'KB45'),
+  `B. Sourmash :\nGTDB 220 – RefSeq` = c('SM_gtdb-rs220-rep', 'SM_RefSeq_20250528'),
+  `C. GTDB 220 :\nSourmash – Kraken 0.45` = c('SM_gtdb-rs220-rep', 'KB45_GTDB'),
+  `D. RefSeq :\nSourmash – Kraken 0.45` = c('SM_RefSeq_20250528', 'KB45'),
+  `E. DNA-to-Marker tools :\nmOTUs3 – MetaPhlAn 2023` = c('MOTUS', 'MPA_db2023')
+)
 
 db_pairs_ctrl <- list(
   `A. Sourmash\nGTDB220 – GTDB214` = c('SM_gtdb-rs220-rep', 'SM_gtdb-rs214-rep'),
@@ -524,7 +527,10 @@ pairwise_dist_gap.df <- imap(
       levels = names(c(db_pairs_eval,db_pairs_ctrl))))
 
 pw_dist_gap_eval.df <- pairwise_dist_gap.df %>% 
-  filter(Pair_name %in% names(db_pairs_eval))
+  filter(Pair_name %in% names(db_pairs_eval)) %>% 
+  mutate(Dataset = factor(Dataset, 
+                          levels = c('P19_Saliva', 'P19_Gut', 'NAFLD',  'PD',  'AD_Skin','Moss','Bee')
+))
 
 pw_dist_gap_ctrl.df <- pairwise_dist_gap.df %>% 
   filter(Pair_name %in% names(db_pairs_ctrl))
@@ -570,20 +576,25 @@ plot_dist_gap <- function(df){
   
   ggplot(df, aes(x = Dataset, y = dist_diff, fill = Dataset)) +
     geom_hline(aes(yintercept = 0), 
-               color = "darkred", linewidth = 0.5, linetype = 'dashed') +
+               color = "black", linewidth = 0.5, linetype = 'dashed') +
     geom_violin(linewidth = 0.2, draw_quantiles = c(0.5)) +
     facet_grid(.~Pair_name, scale = 'free') +
-    theme_bw() +
+    theme_light() +
+    scale_fill_manual(values= c("#b86092",  "#a40000", "#16317d", "#de722a", "#00b7a7", "#007e2f", "#ffcd12"),
+                      labels = dataset_names)+ 
     labs(y = 'Same-pair differences in dissimilarities',
          fill = 'Dataset') +
     theme(axis.title.x = element_blank(),
           axis.text.x = element_blank(),
           axis.ticks.x = element_blank(),
+          strip.background = element_rect(fill = 'grey50'),
           strip.text.x.top = element_text(
-            angle = 0, hjust = 0, size = 9),
+            angle = 0, hjust = 0, size = 12),
+          legend.text = element_text(size = 12),
+          legend.title = element_text(size = 12, hjust = 0.5),
           panel.grid.major.x = element_blank(),
           legend.position = c(0.5, 0.07),
-          legend.title = element_text(hjust = 0.5),
+          legend.title.position = 'left',
           legend.background = element_rect(
             fill = "white",        # White background
             color = "black",       # Black border
@@ -599,7 +610,7 @@ ggsave('Out/memoire/beta_diff_bray.pdf',
 
 ggsave('Out/ISMB2025/beta_diff_bray.pdf', 
        bg = 'white', width = 2500, height = 1000, 
-       units = 'px', dpi = 250)
+       units = 'px', dpi = 200)
 
 plot_dist_gap(pw_dist_gap_ctrl.df)
 ggsave('Out/memoire/beta_diff_bray_ctrls.pdf', 

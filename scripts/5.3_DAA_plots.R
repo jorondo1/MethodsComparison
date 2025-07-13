@@ -23,11 +23,10 @@ source('scripts/myFunctions.R')
 ### 1. Subset data ####
 ########################
 
-if(file.exists('Out/_Rdata/taxa_relAb_metrics.RDS')) {
-  taxa_relAb_metrics <- readRDS('Out/_Rdata/taxa_relAb_metrics.RDS')
-} else {
-  source('scripts/5.0_taxa_relab_metrics.R')
+if(!file.exists('Out/_Rdata/taxa_relAb_metrics_flat.RDS')) {
+  source('scripts/5.0_taxa_relAb_metrics_flat.R')
 }
+taxa_relAb_metrics <- readRDS('Out/_Rdata/taxa_relAb_metrics.RDS')
 
 # Import data
 DAA <- Sys.glob('Out/DAA/*.tsv') %>% 
@@ -36,10 +35,15 @@ DAA <- Sys.glob('Out/DAA/*.tsv') %>%
 
 # Data to subset
 which_tools <- c('DESeq2', 'edgeR', 'ZicoSeq', 'ANCOMBC2', 'radEMU', 'Aldex2','corncob','MaAsLin2')
-which_databases <- c('KB45', 'KB90', 'SM_RefSeq_20250528', 'KB45_GTDB', 'KB90_GTDB', 'SM_gtdb-rs220-rep', 
-              'MPA_db2023', 'MOTUS')
+which_databases <- c('KB90','KB45',  'SM_RefSeq_20250528', 
+                     'SM_gtdb-rs220-rep', 'KB45_GTDB', 'KB90_GTDB', 
+                      'MPA_db2023', 'MOTUS')
 
 # Subset to dataset + Taxon
+which_taxrank <- 'Genus'
+which_dataset <- 'PD'
+taxa_relAb_metrics_flat <- taxa_relAb_metrics[[which_taxrank]][[which_dataset]]
+
 DAA_subset <- DAA %>% 
   filter(taxRank == which_taxrank &
            dataset == which_dataset) %>% 
@@ -63,26 +67,28 @@ taxa_sig <- subset_toolpairs %>%
   filter(adj.p <= p_threshold) %>% 
   group_by(Taxon) %>% 
   summarise(n = n()) %>% 
-  filter(n >= 2) %>% 
+  filter(n >= 3) %>% 
   pull(Taxon) %>% unique()
 
 # List taxa found by every CCE method
-taxa_in_all_db <- taxa_relAb_metrics %>% 
+taxa_in_all_db <- taxa_relAb_metrics_flat %>% 
   filter(database %in% which_databases
          & Taxon %in% taxa_sig) %>% 
   group_by(Taxon) %>% 
   dplyr::summarise(n = n()) %>% 
   arrange(desc(n)) %>% 
   filter(n == length(which_databases)) %>% 
+#  filter(n >=2) %>% 
   pull(Taxon)
 
 # List taxa by top overall mean relative abundance
-top_taxa <-  taxa_relAb_metrics %>% 
+top_taxa <-  taxa_relAb_metrics_flat %>% 
   filter(Taxon %in% taxa_in_all_db) %>% # found by all CCE methods
   group_by(Taxon) %>% 
   summarise(overall_meanRelAb = mean(meanRelAb)) %>% 
   arrange(desc(overall_meanRelAb)) %>% 
-  head(n = 25) %>% pull(Taxon)
+ # head(n = 30) %>% 
+  pull(Taxon)
 
 #################################
 ### 3. Create plot dataframes ####
@@ -124,7 +130,7 @@ tool_pairs %<>%
   mutate(y = recode(y, !!!CCE_names_noreturn))
 
 # Build the real plot data tibble
-main_plot_data <- taxa_relAb_metrics %>%  # Add the scaled_diff and meanRelAb variables
+main_plot_data <- taxa_relAb_metrics_flat %>%  # Add the scaled_diff and meanRelAb variables
   dplyr::filter(Taxon %in% tax_levels) %>% 
   left_join(tax_tool_pairs, ., 
             by = c('Taxon', 'database')) %>% 
@@ -138,17 +144,19 @@ main_plot_data <- taxa_relAb_metrics %>%  # Add the scaled_diff and meanRelAb va
 #################
 
 # Dataframe-generating function for a striped background with facets
-striped_background_facet <- function(data, x_var, facet_var) {
-  background_data <- data %>%
-    distinct(.data[[facet_var]], .data[[x_var]]) %>%
+set_background_alpha <- 0.4
+striped_background_facet <- function(data_pairs, x_var, facet_var) {
+  background_data <- data_pairs %>%
+    distinct(.data[[facet_var]], .data[[x_var]], database) %>%
+    left_join(CCE_metadata %>% select(Database, plot_colour),
+              by = c('database' = 'Database')) %>%
     group_by(.data[[facet_var]]) %>%
     mutate(
-      x_index = row_number(),
-      fill_color = ifelse(x_index %% 2 == 1, "grey70", "white")
+      x_index = match(database, rev(which_databases))
     ) %>%
-    ungroup() # Good practice to ungroup after calculations
-  
-  # Return a list of ggplot layers
+    ungroup() 
+
+  #Return a list of ggplot layers
   list(
     geom_rect(
       data = background_data,
@@ -157,61 +165,88 @@ striped_background_facet <- function(data, x_var, facet_var) {
         xmax = x_index + 0.5,
         ymin = -Inf,
         ymax = Inf,
-        fill = fill_color
+        fill = plot_colour
       ),
       inherit.aes = FALSE,
-      alpha = 0.5
+      alpha = set_background_alpha
     ),
     scale_fill_identity()
   )
 }
 
-# Mapping plot
-top_plot <- tool_pairs %>% 
-  ggplot(aes(x = pair, y = y)) +
-  striped_background_facet(tool_pairs, 'pair', 'x') +
-  facet_grid(.~x, scales = 'free_x', space = 'free_x')+
-  geom_point(size = 3, shape = 18, colour = 'black') +
-  theme_light() +
-  labs(colour = 'Tool type') +
-  theme(
-    plot.margin = margin(b = 0, unit = "cm")
-  )
+# PLOT !
 
-# Main plot
-bottom_plot <- main_plot_data %>% 
+main_plot <- main_plot_data %>% 
   ggplot(aes(x = pair, y = Taxon)) +
   striped_background_facet(main_plot_data, 'pair', 'DAA_tool') +
-  geom_point(aes(colour = coef, size = scaled_diff)) +
+  geom_point(aes(shape = coef), size = 1.8, colour = 'grey10') +
   facet_grid(.~DAA_tool, scales = 'free', space = 'free')+
-  scale_colour_manual(values = c('red3', "blue3"),
+  scale_shape_manual(values = c(1,19),
                       labels = c('Group A', 'Group B')) +
-  scale_size_continuous(breaks = c(0.2, 0.7), range = c(0.2,4)) +
-  theme_minimal() +
-  labs(colour = 'Taxon association:', 
+  #scale_fill_manual(values = c('grey','black'))+
+  #scale_size_continuous(breaks = c(0.2, 0.7), range = c(0.2,4)) +
+  theme_light() +
+  labs(shape = 'Taxon association', 
        size = 'Scaled difference in mean abundance between groups:') +
-  theme(strip.background = element_blank(),
-        strip.text.x = element_blank(),
-        plot.margin = margin(t = 0, unit = "cm") ,
-        plot.title = element_text(margin = margin(b = 0)) 
-  ) 
-(top_plot / bottom_plot) +
-  plot_layout(guides = "collect",
-              heights = c(length(which_tools),
-                          length(tax_levels))) &
-  theme(panel.grid = element_blank(),
+  theme(plot.margin = margin(t = 0, unit = "cm") ,
+        strip.text = element_text(size = 12),
+        strip.background = element_rect(fill = 'grey50'),
+        plot.title = element_text(margin = margin(b = 0)) ,
+        panel.grid = element_blank(),
         axis.title = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks = element_blank(),
         legend.position = "bottom",
         legend.justification = 'left',
+        legend.title.position = 'top',
         legend.text = element_text(size = 10),
-        legend.title = element_text(size = 10),
+        legend.title = element_text(size = 12, face = "bold"),
         panel.spacing.x = unit(0, "lines"),
-        panel.border = element_blank()
-  )
+        legend.margin = margin(0,0,0,0)
+       # panel.border = element_blank()
+  ); main_plot
 
-ggsave('Out/ISMB2025/DAA_Story_Genus.pdf', bg = 'white', width = 2000, height = 1400, units = 'px', dpi = 180)
+ggsave(plot = main_plot, 'Out/ISMB2025/DAA_Story_Genus.pdf', 
+       bg = 'white', width = 2000, height = 1400, units = 'px', dpi = 180)
+
+# Dummy legend
+plot_colours_df <- CCE_metadata %>% 
+  filter(Database %in% which_databases) %>% 
+  select(Database, plot_colour, MethodName) %>% 
+  mutate(Database = factor(Database, levels = rev(which_databases)))
+
+db_colours <- plot_colours_df %>% select(Database, plot_colour) %>% deframe()
+
+p_legend_dummy <- plot_colours_df %>% 
+  ggplot(aes(x = 1, y = 1, fill = Database)) +
+  geom_tile(width = 0.1, height = 0.1, alpha = set_background_alpha) + # A tiny geom to trick ggplot into making a legend
+  scale_fill_manual(
+    name = 'Community Composition Estimation Methodology',
+    values = db_colours,
+    labels = CCE_names
+  ) +
+  theme_void() + # Remove all plot elements (axes, titles, background, etc.)
+  theme(
+    legend.position = 'bottom', # Position for the extracted legend
+    legend.direction = "horizontal",
+    legend.text = element_text(size = 12),
+    legend.title = element_text(size = 15, face = "bold"),
+    legend.title.position = 'top',
+    legend.key.size = unit(0.7, "cm") # Adjust the size of the legend keys
+  ) +
+  guides(fill = guide_legend(nrow = 2)) # Ensure legend squares are opaque, not alpha=0.5
+
+ggsave(plot = p_legend_dummy, 'Out/ISMB2025/DAA_Story_Genus_legend.pdf', 
+       bg = 'white', width = 1550, height = 170, units = 'px', dpi = 180)
+
+
+
+
+
+
+
+
+
 
 #################
 ## Clustering ####

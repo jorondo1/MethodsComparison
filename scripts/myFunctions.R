@@ -9,10 +9,18 @@ grouping_variable <- c(
   NAFLD = 'Group',
   P19_Gut = 'diarr',
   P19_Saliva = 'diarr',
-  RA_Gut = 'Group',
   PD = 'Group',
-  Bee = 'Group',
-  Olive = 'Group'
+  Bee = 'Group'
+  )
+
+dataset_names <- c(
+  AD_Skin = 'AD Skin',
+  Moss = 'Moss',
+  NAFLD = 'NAFLD Gut',
+  P19_Gut = 'P19 Gut',
+  P19_Saliva = 'P19 Saliva',
+  PD = 'PD Gut',
+  Bee = 'Bee'
 )
 
 
@@ -60,12 +68,13 @@ CCE_metadata <- tibble(
                   62052, 27285,#Genbank has >1M genomes, but only that many bacterial and archeal species
                   85205, 85205, #GTDB full and rep have the same number of species, just more genomes
                   113104, 113211),
-  plot_colour = c("goldenrod","green4","darkolivegreen",
-                  "indianred1","orangered","palevioletred1", 
-                  "indianred4", "darkorange2", "violetred3",
-                  "purple3", 'lightsteelblue',
+  
+  plot_colour = c("#FDBF6F","green4","#3d8f58",
+                  "indianred1","#c196d6","#fa817f", 
+                  "indianred4", "#b41f1f", "#6A3D9A",
+                  "purple3", '#87c1e0',
                   "navyblue", 'blue',
-                  "royalblue", "skyblue3"),
+                  "#1F78B4", "skyblue3"),
   Tool = c('mOTUs3', 'MetaPhlAn4','MetaPhlAn4',
            rep('Kraken2+Bracken', 6),
            rep('Sourmash gather',6)),
@@ -94,10 +103,10 @@ tooldb_colours <- CCE_metadata$plot_colour
 names(tooldb_colours) <- CCE_metadata$Database
 
 tool_colours <- c(
-  'mOTUs3' = "goldenrod", 
-  'MetaPhlAn4'= "green4",
-  'Kraken2+Bracken' = "orangered3",
-  'Sourmash gather' = "royalblue" 
+  'mOTUs3' = "#FDBF6F", 
+  'MetaPhlAn4'= "#00A759",
+  'Kraken2+Bracken' = "#b41f1f",
+  'Sourmash gather' = "#1F78B4" 
 )
 
 tool_vars <- tibble(

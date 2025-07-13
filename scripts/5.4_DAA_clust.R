@@ -162,9 +162,10 @@ split_tibList_by_samVar <- function(a_tibble_list,
     avg_spearman <- Reduce('+', spearman_list) / length(spearman_list)
     
     # Reorder them
+    min_spearman <- min(avg_spearman)
     #avg_spearman <- avg_spearman[which_tools,which_tools]
-    col_ramp <- colorRamp2(c(min(avg_spearman), (1+min(avg_spearman))/2.2, 1.0), 
-                           c("#b45e2f", "#e4e8e1", "#00A759"))
+    col_ramp <- colorRamp2(c(min_spearman, min_spearman+(1-min_spearman)/3, 1.0), 
+                           c("#b45e2f", "#e4e8e1", "#0BA759"))
     # Plot
     heatmap_plot <- Heatmap(
       avg_spearman,
@@ -172,6 +173,7 @@ split_tibList_by_samVar <- function(a_tibble_list,
       show_heatmap_legend = FALSE, 
       row_names_gp = gpar(fontsize = 10),
       cluster_rows = TRUE,
+      column_dend_height = unit(5, "mm"),
       cluster_columns = TRUE,
       show_column_names = FALSE,  
       show_row_dend = FALSE,
