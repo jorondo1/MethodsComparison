@@ -10,7 +10,10 @@ grouping_variable <- c(
   P19_Gut = 'diarr',
   P19_Saliva = 'diarr',
   PD = 'Group',
-  Bee = 'Group'
+  Bee = 'Group',
+  Olive = NA,
+  RA_Gut = NA
+  
   )
 
 dataset_names <- c(
@@ -20,7 +23,9 @@ dataset_names <- c(
   P19_Gut = 'P19 Gut',
   P19_Saliva = 'P19 Saliva',
   PD = 'PD Gut',
-  Bee = 'Bee'
+  Bee = 'Bee',
+  Olive = NA,
+  RA_Gut = NA
 )
 
 
@@ -62,13 +67,18 @@ CCE_metadata <- tibble(
                  'SM GenBank', 'SM RefSeq',
                  'SM GTDB Full', 'SM GTDB Rep.',
                  'SM GTDB Rep.', 'SM GTDB Rep.+ MAGs'),
+  MethodNameParam = c('mOTUs', 'MetaPhlAn', 'MetaPhlAn',
+                  'Kraken 0.10', 'Kraken 0.45', 'Kraken 0.90',
+                  'Kraken 0.10', 'Kraken 0.45', 'Kraken 0.90',
+                  'Sourmash', 'Sourmash',
+                  'Sourmash', 'Sourmash',
+                  'Sourmash', 'Sourmash'),
   Num_species_in_db = c(25314, 30094, 36333,
                   rep(27285,3),
                   rep(113104,3),
                   62052, 27285,#Genbank has >1M genomes, but only that many bacterial and archeal species
                   85205, 85205, #GTDB full and rep have the same number of species, just more genomes
                   113104, 113211),
-  
   plot_colour = c("#FDBF6F","green4","#3d8f58",
                   "indianred1","#c196d6","#fa817f", 
                   "indianred4", "#b41f1f", "#6A3D9A",
@@ -137,21 +147,6 @@ plot_theme <- function() {
     scale_colour_manual(values = tool_colours)
   )
 }
-
-filter_low_prevalence <- function(ps, minPrev = 0.05, minAbund = 0.0001) {
-  # Taxa prevalence
-  prev <- apply(otu_table(ps), 1, function(x) sum(x > 0)) / nsamples(ps)
-  
-  # Convert to relative abundance
-  rel_abund <- apply(otu_table(ps), 2, function(x) x / sum(x))
-  
-  # Keep taxa with prevalence above threshold
-  keepTaxa <- names(prev[prev >= minPrev & apply(rel_abund, 1, max) >= minAbund])
-  
-  # Subset phyloseq object
-  prune_taxa(keepTaxa, ps) %>% return
-}
-
 
 # Compute sparseness (proportion of 0 in abundance matrix)
 compile_sparseness <- function(ps_list) {

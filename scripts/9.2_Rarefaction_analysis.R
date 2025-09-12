@@ -4,7 +4,7 @@ source("scripts/myFunctions.R")
 
 theme_set(theme_light())
 
-rare.df <- readRDS('Out/Rarefaction.rds') %>% 
+rare.df <- readRDS('Out/_Rdata/Rarefaction.rds') %>% 
   filter(depth != 0) %>% 
   # Compute first and second derivatives 
   group_by(Database, sample) %>% 
@@ -67,7 +67,7 @@ rare_plot.df %>%
   facet_grid(Database ~Dataset, scales = 'free') +
   scale_colour_manual(values = tooldb_colours, labels = CCE_names,
                       guide = guide_legend(override.aes = list(linewidth = 2))) +
-  labs(x = 'Ratio de profondeur par rapport au plus petit échantillon') +
+  labs(x = 'Downsampling depth ratio to the smallest sample') +
   theme(legend.position = c(1.04,.5),
         panel.spacing = unit(0.2,'cm'),
         strip.text.y = element_blank(),

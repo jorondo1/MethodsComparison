@@ -1,6 +1,8 @@
 library(pacman)
-p_load( magrittr, tidyverse, purrr, kableExtra, phyloseq, patchwork, beanplot, 
-        rstatix, parallel, reshape2, vegan, RColorBrewer, ggridges, htmltools)
+p_load( magrittr, tidyverse, purrr, kableExtra, phyloseq, patchwork, beanplot,
+        gghalves,
+        rstatix, parallel, reshape2, vegan, RColorBrewer, ggridges, htmltools,
+        update = FALSE)
 ps_rare.ls <- read_rds('Out/_Rdata/ps_rare.ls.rds')
 source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/community_functions.R'))
 source("scripts/myFunctions.R")
@@ -57,9 +59,9 @@ tax_assign_ds.pdat %>%
     panel.grid = element_blank(),
     axis.ticks.y = element_blank(),
     legend.background = element_rect(
-      fill = "white",        # White background
-      color = "black",       # Black border
-      linewidth = 0.5        # Border thickness
+      fill = "white",    
+      color = "black",   
+      linewidth = 0.5    
     )
   ) 
 
@@ -154,8 +156,10 @@ alpha_div <- read_rds('Out/_Rdata/alpha_div.RDS')[['plot_data']] %>%
 # |__/      |________/ \______/    |__/         |________/
 
 # PLOT hill_1 variation for methods most equivalent in terms of number of species
-these_databases <- c('KB45', 'KB45_GTDB', 'SM_gtdb-rs220-rep', 'SM_RefSeq_20250528',
-                     'MPA_db2023', 'MOTUS')
+these_databases <- c('MPA_db2023', 'MOTUS', 
+                     'KB45', 'KB45_GTDB', 
+                     'SM_gtdb-rs220-rep', 'SM_RefSeq_20250528'
+                     )
 
 axis_desc <- c(
   Richness = 'Hill number of order 0 (Number of species)',
@@ -197,9 +201,10 @@ keep_paired_samples <- function(df, idx) {
   sample_subset %>% 
     mutate(
       Facet = case_when(
-        Taxonomy == 'GTDB' ~ paste0('A. GTDB 220 (n = ', counts['GTDB'], ')'),
-        Taxonomy == 'NCBI' ~ paste0('B. RefSeq 2024-12-28 (n = ', counts['NCBI'], ')'),
-        Taxonomy == 'Tool-specific' ~ paste0('C. DNA-to-marker methods (n = ', counts['Tool-specific'], ')'))
+        Taxonomy == 'Tool-specific' ~ paste0('A. DNA-to-marker methods (n = ', counts['Tool-specific'], ')'),
+        Taxonomy == 'GTDB' ~ paste0('B. GTDB 220 (n = ', counts['GTDB'], ')'),
+        Taxonomy == 'NCBI' ~ paste0('C. RefSeq 2024-12-28 (n = ', counts['NCBI'], ')'))
+        
     )
 }
 
@@ -210,12 +215,21 @@ imap(axis_desc, function(desc, idx) {
     keep_paired_samples(idx = idx) %>% 
     filter(Index == idx) %>% 
     ggplot(aes(x = Database, y = Index_value)) +
-    geom_violin(aes(fill = Tool), 
-                linewidth = 0.3,
-                draw_quantiles = 0.5) + 
+    geom_half_violin(
+      data = . %>% filter(str_detect(Database, 'KB') | str_detect(Database, 'MPA')),
+      aes(fill = Tool), 
+      linewidth = 0.3,
+      side = 'l',
+      draw_quantiles = 0.5) + 
+    geom_half_violin(
+      data = . %>% filter(str_detect(Database, 'SM') | str_detect(Database, 'MOTUS')),
+      aes(fill = Tool), 
+      linewidth = 0.3,
+      side = 'r',
+      draw_quantiles = 0.5) + 
     geom_line(aes(group = Sample), alpha = 0.5, linewidth = 0.08) +
     facet_wrap(~Facet, scales = 'free') +
-    scale_fill_manual(values = tool_colours) +
+    scale_fill_manual(values = tool_colours, breaks = c('MetaPhlAn4', 'mOTUs3', 'Kraken2+Bracken', 'Sourmash gather')) +
     theme_light() +
     theme(
       axis.text.x = element_blank(),
@@ -269,10 +283,10 @@ quantify_div_variation <- function(df, ds1, ds2, idx) {
     lapply(function(df) {
       summarise(
         df,
-        median_change = median(change),
+        median_change = abs(median(change)),
         mad_c = mad(change),
-        min_c = min(change),
-        max_c = max(change),
+        min_c = min(abs(change)),
+        max_c = max(abs(change)),
         rcv_c = mad_c/median_change,
         n = n(), .groups = 'drop')
     }
@@ -292,6 +306,11 @@ quantify_div_variation <- function(df, ds1, ds2, idx) {
 for (idx in c('Richness', 'Hill_1', 'Hill_2')) {
   quantify_div_variation(
     alpha_div, idx = idx,
+    'KB10_GTDB', 'SM_gtdb-rs220-rep') %>% 
+    save_kable(paste0('Out/memoire/tables/alpha_', idx,'_GTDB10.html'))
+
+    quantify_div_variation(
+    alpha_div, idx = idx,
     'KB45_GTDB', 'SM_gtdb-rs220-rep') %>% 
     save_kable(paste0('Out/memoire/tables/alpha_', idx,'_GTDB45.html'))
   
@@ -299,6 +318,11 @@ for (idx in c('Richness', 'Hill_1', 'Hill_2')) {
     alpha_div, idx = idx,
     'KB90_GTDB', 'SM_gtdb-rs220-rep') %>% 
     save_kable(paste0('Out/memoire/tables/alpha_', idx,'_GTDB90.html'))
+  
+  quantify_div_variation(
+    alpha_div, idx = idx,
+    'KB10', 'SM_RefSeq_20250528') %>% 
+    save_kable(paste0('Out/memoire/tables/alpha_', idx,'_RefSeq10.html'))
   
   quantify_div_variation(
     alpha_div, idx = idx,
@@ -386,6 +410,7 @@ alpha_labels <- function(test_df, IDX) {
     )
 }
 
+# Plot and save :
 imap(axis_desc_tests, function(desc, idx) {
   
   # Skip KB45 for Richness
@@ -459,13 +484,15 @@ imap(axis_desc_tests, function(desc, idx) {
 # | $$      | $$$$$$$$|  $$$$$$/   | $$               | $$
 # |__/      |________/ \______/    |__/               |__/
 
+these_datasets <- c('Moss', 'NAFLD', 'P19_Gut', 'P19_Saliva', 'PD', 'Bee', 'AD_Skin')
+
 pairwise_distances <- read_rds('Out/_Rdata/pairwise_dist.RDS') %>% 
   left_join(CCE_metadata, 
             by = 'Database') %>% 
   filter(Dist == 'bray' 
          #& Database %in% these_databases
          & Dataset %in% these_datasets
-  )
+  ) %>% select(-Dist)
 
 # Or a 
 compute_distance_differences <- function(df, tool1, tool2) {
@@ -475,7 +502,7 @@ compute_distance_differences <- function(df, tool1, tool2) {
     mutate(Pair = ifelse(Sample1 < Sample2, 
                          paste(Sample1, Sample2, sep = "_"),
                          paste(Sample2, Sample1, sep = "_"))) %>%
-    select(Database, Dist, Dataset, Pair, Distance) %>%
+    select(Database, Dataset, Pair, Distance) %>%
     # Pivot wide to manually compute difference
     pivot_wider(names_from = Database, values_from = Distance) %>%
     filter(complete.cases(.)) %>%
@@ -492,23 +519,23 @@ db_pairs_eval <- list(
   `D. Kraken GTDB 220 –\n Sourmash RefSeq` = c('KB45_GTDB', 'SM_RefSeq_20250528'),
   `E. GTDB 220 :\nSourmash – Kraken 0.45` = c('SM_gtdb-rs220-rep', 'KB45_GTDB'),
   `F. RefSeq :\nSourmash – Kraken 0.45` = c('SM_RefSeq_20250528', 'KB45'),
-  `G. DNA-to-Marker tools :\nmOTUs3 – MetaPhlAn 2023` = c('MOTUS', 'MPA_db2023')
+  `G. DNA-to-Marker :\nmOTUs3 – MetaPhlAn4` = c('MOTUS', 'MPA_db2023')
 )
 
 ## ISMB:
-db_pairs_eval <- list(
-  `A. Kraken 0.45 :\nGTDB 220 – RefSeq` = c('KB45_GTDB', 'KB45'),
-  `B. Sourmash :\nGTDB 220 – RefSeq` = c('SM_gtdb-rs220-rep', 'SM_RefSeq_20250528'),
-  `C. GTDB 220 :\nSourmash – Kraken 0.45` = c('SM_gtdb-rs220-rep', 'KB45_GTDB'),
-  `D. RefSeq :\nSourmash – Kraken 0.45` = c('SM_RefSeq_20250528', 'KB45'),
-  `E. DNA-to-Marker tools :\nmOTUs3 – MetaPhlAn 2023` = c('MOTUS', 'MPA_db2023')
-)
+# db_pairs_eval <- list(
+#   `A. Kraken 0.45 :\nGTDB 220 – RefSeq` = c('KB45_GTDB', 'KB45'),
+#   `B. Sourmash :\nGTDB 220 – RefSeq` = c('SM_gtdb-rs220-rep', 'SM_RefSeq_20250528'),
+#   `C. GTDB 220 :\nSourmash – Kraken 0.45` = c('SM_gtdb-rs220-rep', 'KB45_GTDB'),
+#   `D. RefSeq :\nSourmash – Kraken 0.45` = c('SM_RefSeq_20250528', 'KB45'),
+#   `E. DNA-to-Marker tools :\nmOTUs3 – MetaPhlAn 2023` = c('MOTUS', 'MPA_db2023')
+# )
 
 db_pairs_ctrl <- list(
   `A. Sourmash\nGTDB220 – GTDB214` = c('SM_gtdb-rs220-rep', 'SM_gtdb-rs214-rep'),
   `B. MetaPhlAn versions\n2023 – 2022` = c('MPA_db2023', 'MPA_db2022'),
-  `C. GTDB taxonomy\n214 Full – 214 Reps` = c('SM_gtdb-rs214-full','SM_gtdb-rs214-rep'),
-  `D. NCBI taxonomy\nGenbank – RefSeq` = c('SM_genbank-2022.03', 'SM_RefSeq_20250528')
+  `C. GTDB taxonomy\n214 Full – 214 Reps (using Sourmash)` = c('SM_gtdb-rs214-full','SM_gtdb-rs214-rep'),
+  `D. NCBI taxonomy\nGenbank – RefSeq (using Sourmash)` = c('SM_genbank-2022.03', 'SM_RefSeq_20250528')
 )
 
 # Iterate over pairs of interest
@@ -543,13 +570,15 @@ pairwise_dist_summary <-
     #sd_diff = sd(dist_diff),
     median_diff = median(dist_diff),
     mad_diff = mad(dist_diff),
-    min_diff = min(dist_diff),
+   # min_diff = min(dist_diff),
     max_diff = max(dist_diff),
+  #  rcv_diff = mad_diff/median_diff,
     .groups = 'drop'
-  ) 
+  ) %>% 
+  mutate(across(where(is.numeric), ~round(.x, 3)))
 
 pairwise_dist_summary %>% 
-  mutate(Pair_name = str_replace(Pair_name, "\n", " / ")) %>% # prevents markdown pipes from being added
+  mutate(Pair_name = str_replace(Pair_name, "\n", " ")) %>% # prevents markdown pipes from being added
   kable(align = "l") %>%
   kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
   save_kable(paste0('Out/memoire/tables/beta_diffs.html'))
@@ -593,7 +622,7 @@ plot_dist_gap <- function(df){
           legend.text = element_text(size = 12),
           legend.title = element_text(size = 12, hjust = 0.5),
           panel.grid.major.x = element_blank(),
-          legend.position = c(0.5, 0.07),
+          legend.position = c(0.5, 0.04),
           legend.title.position = 'left',
           legend.background = element_rect(
             fill = "white",        # White background
@@ -605,7 +634,7 @@ plot_dist_gap <- function(df){
 
 plot_dist_gap(pw_dist_gap_eval.df)
 ggsave('Out/memoire/beta_diff_bray.pdf', 
-       bg = 'white', width = 2600, height = 1200, 
+       bg = 'white', width = 2900, height = 1200, 
        units = 'px', dpi = 200)
 
 ggsave('Out/ISMB2025/beta_diff_bray.pdf', 
@@ -787,3 +816,59 @@ pcoa.ds %>%
                level=0.95 , geom = "polygon", alpha = 0.18) +
   # theme(legend.position = c(0.47,0.7)) +
   labs(fill = 'Grouping', colour = 'Grouping')
+
+
+############
+# ratio aitchison demo ----------------------------------------------------
+# fully generated by Gemini 2.5 Pro
+library(patchwork) # For combining plots
+library(tidyverse)
+# --- Data for the 'Total bacteria' plot ---
+total_data <- data.frame(
+  Condition = factor(c("1", "1", "2", "2", "3", "3"), levels = c("1", "2", "3")),
+  Type = c(rep(c("Microbe 1", "Microbe 2"),3)),
+  Value = c(3, 1, 1/3, 1, 1, 3) # Estimated heights for A and B
+)
+
+proportion_data <- data.frame(
+  Condition = factor(c("1", "1", "2 ou 3", "2 ou 3"), levels = c("1", "2 ou 3")),
+  Type = c(rep(c("Microbe 1", "Microbe 2"),2)),
+  Value = c(0.75, 0.25, 1/4, 3/4) # Estimated proportions for A and B
+)
+
+total_data_B_labels <- total_data %>%
+  group_by(Condition) %>%
+  mutate(y_pos_B = ifelse(Type == "Microbe 2", sum(Value[Type == "Microbe 1"]) + Value[Type == "Microbe 2"] / 2, NA)) %>%
+  filter(Type == "Microbe 2")
+
+# --- Simplified 'Total bacteria' plot (p1) ---
+p1 <- ggplot(total_data, aes(x = Condition, y = Value, fill = Type)) +
+  geom_bar(stat = "identity", color = "black", width = 0.6) +
+  scale_fill_manual(values = c("Microbe 1" = "grey", "Microbe 2" = "red")) +
+  labs(y = "Bactéries totales", x = "") + # Simplified Y-axis label
+  theme_minimal() +
+  labs(tag = 'A') +
+  theme(
+    axis.title.y = element_text(angle = 90, size = 12, margin = margin(r = 10)),
+    axis.text.x = element_text(size = 14, face = "bold"))
+
+# --- Simplified 'Proportion bacteria' plot (p2) ---
+p2 <- ggplot(proportion_data, aes(x = Condition, y = Value, fill = Type)) +
+  geom_bar(stat = "identity", color = "black", width = 0.6) +
+  scale_fill_manual(values = c("Microbe 1" = "grey", "Microbe 2" = "red")) +
+  labs(y = "Proportion de bactéries", x = "") + # Simplified Y-axis label
+  theme_minimal() +
+  labs(tag = 'B') +
+  theme(
+    axis.title.y = element_text(angle = 90, size = 12, margin = margin(r = 10)),
+    axis.text.x = element_text(size = 14, face = "bold")) +
+  scale_y_continuous(breaks = c(0, 1)) # Show 0 and 1 on Y-axis
+
+
+# Combine plots using patchwork (optional, but good for side-by-side)
+p1 / p2 + plot_layout(guides = 'collect')# Stacks the plots vertically
+
+ggsave('Out/memoire/coda.png', bg = 'white', 
+       width = 1800, height = 1400, 
+       units = 'px', dpi = 220)
+

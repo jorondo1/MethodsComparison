@@ -136,8 +136,6 @@ run_parallel_jobs <- function(job_df, func, n_workers, cores_per_job, ...) {
   # IMPORTANT: Setup the parallel backend.
   # 'multicore' is best here because your inner task uses mclapply (forking).
   # Total cores used = n_workers * cores_per_job.
-  # Make sure this doesn't exceed your machine's capacity.
-  # e.g., 36 workers * 2 cores/job = 72 cores.
   plan(multicore, workers = n_workers)
   
   message(sprintf("Starting parallel execution with %d workers, each using %d cores.",
@@ -146,7 +144,6 @@ run_parallel_jobs <- function(job_df, func, n_workers, cores_per_job, ...) {
   # We use future_pmap to iterate over the rows of the tibble.
   # pmap passes the columns of job_df as named arguments to the function.
   # We also need to pass 'cores_per_job' and any other arguments.
-  
   all_results <- future_pmap(
     .l = job_df, 
     .f = func,
@@ -161,7 +158,8 @@ run_parallel_jobs <- function(job_df, func, n_workers, cores_per_job, ...) {
   )
   
   # Add the job specifications to the results for easy identification
-  results_with_specs <- bind_cols(job_df %>% select(-ps), tibble(results = all_results))
+  results_with_specs <- bind_cols(job_df %>% select(-ps), 
+                                  tibble(results = all_results))
   
   return(results_with_specs)
 }

@@ -1,4 +1,4 @@
-# This code was authored by Gemini 2.5 Pro
+# This code was mostly authored by Gemini 2.5 Pro
 library(pacman)
 p_load(magrittr, phyloseq,
        furrr, purrr, parallel,
