@@ -10,8 +10,6 @@
 #SBATCH -A def-ilafores
 #SBATCH -J motus4
 
-module load StdEnv/2020 apptainer/1.1.5
-
 export OUT_DIR=${PWD}/"${1}"/MOTUS4
 export SAM_LIST=$ANCHOR/"${2}"
 export SAM_NUM=$(awk "NR==$SLURM_ARRAY_TASK_ID" ${SAM_LIST})
@@ -32,6 +30,8 @@ echo "processing $SAM_ID files:\
 	$FQ_U2"
 
 mkdir -p $OUT_DIR
+
+module load StdEnv/2020 apptainer/1.1.5
 
 singularity exec --writable-tmpfs -e \
 -B $SLURM_TMPDIR:$SLURM_TMPDIR \
