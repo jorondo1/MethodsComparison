@@ -38,7 +38,7 @@ meta_parsing <- function(dsName, samData) {
       assemble_phyloseq(samData)
   }
   
-  # MOTUS
+  # MOTUS #########################
   message(paste('Parsing', 'MOTUS', '...'))
   ps[['MOTUS']] <- parse_MPA(
     MPA_files = file.path('data', dsName,"MOTUS/*_profile.txt"), 
@@ -46,7 +46,7 @@ meta_parsing <- function(dsName, samData) {
     mOTUs_data = TRUE) %>% 
     assemble_phyloseq(samData)
   
-  # Kraken-bracken (using default headers from parse_MPA function)
+  # KRAKEN (using default headers from parse_MPA function) ########3
   kbdirs <- list.dirs(file.path('data',dsName), recursive = FALSE) %>% 
     .[grep("/KB[^/]*$", .)] %>% basename # List all KB dirs
   

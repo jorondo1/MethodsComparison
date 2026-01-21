@@ -1,15 +1,15 @@
 library(pacman)
 p_load( magrittr, tidyverse, purrr, kableExtra, phyloseq, patchwork, beanplot,
-        gghalves,
+        gghalves,ggh4x,ggridges,
         rstatix, parallel, reshape2, vegan, RColorBrewer, ggridges, htmltools,
         update = FALSE)
 ps_rare.ls <- read_rds('Out/_Rdata/ps_rare.ls.rds')
-source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/community_functions.R'))
+library(mgx.tools) # devtools::install_github("jorondo1/mgx.tools")
 source("scripts/myFunctions.R")
 theme_set(theme_light())
 
 ################################
-# Taxonomic assignment table ####
+# Taxonomic assignment plot ####
 ##################################
 
 # Prepare plot data
@@ -30,14 +30,6 @@ tax_assign_sam.pdat <- read_rds('Out/_Rdata/tax_assign_sam.RDS') %>%
            Dataset %in% these_datasets) %>% 
   mutate(Prop_db = Num_tax / Num_species_in_db)
 
-#  /$$$$$$$  /$$        /$$$$$$  /$$$$$$$$         /$$  
-# | $$__  $$| $$       /$$__  $$|__  $$__/       /$$$$  
-# | $$  \ $$| $$      | $$  \ $$   | $$         |_  $$  
-# | $$$$$$$/| $$      | $$  | $$   | $$           | $$  
-# | $$____/ | $$      | $$  | $$   | $$           | $$  
-# | $$      | $$      | $$  | $$   | $$           | $$  
-# | $$      | $$$$$$$$|  $$$$$$/   | $$          /$$$$$$
-# |__/      |________/ \______/    |__/         |______/
 
 # Number of Species per datase
 tax_assign_ds.pdat %>% 
@@ -146,14 +138,14 @@ alpha_div <- read_rds('Out/_Rdata/alpha_div.RDS')[['plot_data']] %>%
 
 ### 1. TECHNICAL COMPARISON
 
-#  /$$$$$$$  /$$        /$$$$$$  /$$$$$$$$        /$$$$$$ 
-# | $$__  $$| $$       /$$__  $$|__  $$__/       /$$__  $$
-# | $$  \ $$| $$      | $$  \ $$   | $$         |__/  \ $$
-# | $$$$$$$/| $$      | $$  | $$   | $$           /$$$$$$/
-# | $$____/ | $$      | $$  | $$   | $$          /$$____/ 
-# | $$      | $$      | $$  | $$   | $$         | $$      
-# | $$      | $$$$$$$$|  $$$$$$/   | $$         | $$$$$$$$
-# |__/      |________/ \______/    |__/         |________/
+#   $$\ $$\         $$$$$$$$\ $$$$$$\  $$$$$$\              $$\   
+#   $$ \$$ \        $$  _____|\_$$  _|$$  __$$\           $$$$ |  
+# $$$$$$$$$$\       $$ |        $$ |  $$ /  \__|          \_$$ |  
+# \_$$  $$   |      $$$$$\      $$ |  $$ |$$$$\             $$ |  
+# $$$$$$$$$$\       $$  __|     $$ |  $$ |\_$$ |            $$ |  
+# \_$$  $$  _|      $$ |        $$ |  $$ |  $$ |            $$ |  
+#   $$ |$$ |        $$ |      $$$$$$\ \$$$$$$  |$$\       $$$$$$\ 
+#   \__|\__|        \__|      \______| \______/ \__|      \______|
 
 # PLOT hill_1 variation for methods most equivalent in terms of number of species
 these_databases <- c('MPA_db2023', 'MOTUS', 
@@ -208,12 +200,15 @@ keep_paired_samples <- function(df, idx) {
     )
 }
 
-# PLOT ! Subset, save
-imap(axis_desc, function(desc, idx) {
+# PANEL 1 : distribution of index values
+
+alpha_plots <- imap(axis_desc, function(desc, idx) {
   
-  div_comparison.pdat %>% 
+  dat <- div_comparison.pdat %>% 
     keep_paired_samples(idx = idx) %>% 
-    filter(Index == idx) %>% 
+    filter(Index == idx)
+  
+  dat %>% 
     ggplot(aes(x = Database, y = Index_value)) +
     geom_half_violin(
       data = . %>% filter(str_detect(Database, 'KB') | str_detect(Database, 'MPA')),
@@ -250,13 +245,73 @@ imap(axis_desc, function(desc, idx) {
     scale_y_continuous(limits = c(0, NA)) +
     labs(fill = 'Tool', x = '', y = desc)
   
-  ggsave(paste0('Out/memoire/alpha_',idx, '_comparison.pdf'),
-         bg = 'white', width = 2200, height = 1600,
+})
+
+# PANEL 2 : distribution of differences
+centered_differences <- div_comparison.pdat %>% 
+  keep_paired_samples(idx = "Hill_1") %>% 
+  filter(Index == "Hill_1") %>% 
+#  group_by(Facet) %>% 
+#  mutate(Centered_value = Index_value - median(Index_value)) %>% 
+  group_by(Taxonomy, Dataset, Facet, Sample) %>%
+#  summarise(differences = last(Centered_value)-first(Centered_value),
+  summarise(differences = (last(Index_value)-first(Index_value))/last(Index_value),
+            .groups = 'drop') %>%
+  group_by(Facet) %>% 
+  mutate(centered_diffs = differences - median(differences)
+         ) %>% 
+  ungroup()
+
+centered_differences %>% 
+#  filter(centered_diffs<2) %>% 
+  
+  ggplot(aes(x = centered_diffs, fill = Facet)) +
+  geom_density(alpha = 0.4) +
+  labs(x = "Median-centered changes in Hill diversity (order 1)") +
+  theme(
+    legend.position = 'bottom'
+  )
+
+# Variances
+centered_differences %>% 
+  group_by(Facet) %>% 
+  summarise(var_cdiff = var(centered_diffs)) 
+
+centered_differences %>% 
+  group_by(Facet) %>% 
+  mutate(squared_dev = (differences - median(differences))^2) %>% 
+  ungroup() %>% 
+  arrange(Sample) %>% 
+  wilcox_test(squared_dev~Facet)
+
+
+# Signed rank test on square deviations from the median
+# suggested by https://claude.ai/chat/55cf7920-1402-4e40-85ba-074270266e55
+centered_differences %>% 
+  # only keep samples evaluated by all 3 pairs
+  group_by(Sample) %>% 
+  #filter(n()==3) %>%
+  filter(Taxonomy != 'Tool-specific') %>% 
+  filter(n()==2) %>% 
+  group_by(Facet) %>% 
+  mutate(squared_dev = (differences - median(differences))^2) %>% 
+  ungroup() %>% 
+  arrange(Sample) %>% 
+  wilcox_test(squared_dev~Facet, paired = TRUE)
+
+# SAVE PLOTS
+imap(alpha_plots, function(plot, idx) {
+  
+  ggsave(plot = plot, 
+         paste0('Out/memoire/alpha_',idx, '_comparison.pdf'),
+         bg = 'white', width = 2200, height = 1400,
          units = 'px', dpi = 220)
   
-  ggsave(paste0('Out/ISMB2025/alpha_',idx, '_comparison.pdf'),
+  ggsave(plot = plot, 
+         paste0('Out/ISMB2025/alpha_',idx, '_comparison.pdf'),
          bg = 'white', width = 2300, height = 1200,
          units = 'px', dpi = 230)
+  
 })
 
 # Quantify those variations
@@ -389,8 +444,13 @@ alpha_div_test <- read_rds('Out/_Rdata/alpha_div.RDS')[['wilcox_tests']] %>% # c
                               p < 0.05 ~ 'p < 0.05',
                               TRUE ~ 'p ≥ 0.05')) %>% 
   select(Dataset, Database, Index, p, p.signif) %>% 
-  mutate(p.signif = factor(p.signif, levels = c('p ≥ 0.05', 'p < 0.05', 'p < 0.01', 'p < 0.001'
-  )))
+  mutate(p.signif = factor(p.signif, 
+                           levels = c('p ≥ 0.05', 'p < 0.05', 'p < 0.01', 'p < 0.001' )),
+         Methode = case_when(str_detect(Database, 'KB') | str_detect(Database, 'SM') ~ 'DNA-to-DNA',
+                             str_detect(Database, 'MPA') | str_detect(Database, 'MOTUS') ~ 'DNA-to-marker'),
+         RefDB = case_when(str_detect(Database, regex("GTDB", ignore_case = TRUE)) ~'GTDB',
+                           Methode == 'DNA-to-marker'  ~ ' ',
+                           TRUE ~ "RefSeq"))
 
 these_databases <- c('KB45', 'KB90', 'SM_RefSeq_20250528', 
                      'KB45_GTDB', 'KB90_GTDB', 'SM_gtdb-rs220-rep',
@@ -437,20 +497,23 @@ imap(axis_desc_tests, function(desc, idx) {
       data = alpha_labs,
       aes(x = 0.5, y = Inf, label = label, 
           hjust = 0,
-          vjust = 15),
+          vjust = 14), # controls (weirdly) the y position of text label
       size = 3, color = "black"
-    ) + # Show the mean too :
-    # stat_summary(fun = mean, geom = "point", size = 2, shape = 3) +
-    facet_grid(Dataset~Database, scales = 'free',
-               # Relabel facets :
-               labeller = labeller(Database = as_labeller(
-                 setNames(CCE_metadata$MethodName, CCE_metadata$Database)
-               ))) +
+    ) + 
+    facet_nested(Dataset~Methode+RefDB+Database, scales = 'free',
+                 # Relabel facets :
+                 labeller = labeller(Database = as_labeller(
+                   setNames(CCE_metadata$MethodNameParam, CCE_metadata$Database)
+                 ))) +
     labs(fill = 'p-value', x = 'Group', y = desc) +
-    #scale_y_continuous(limits = c(0, NA)) +
+    scale_fill_manual(values = c("#b7cdd0",
+                                 "#3ba7e5",
+                                 "#8d74ce",
+                                 "#83ab56")) +
     theme(legend.position = c(0.9,0.75),
           legend.title = element_blank(),
-          axis.text = element_text(size = 4),
+          strip.background = element_rect(fill = 'grey50'),
+          axis.text = element_text(size = 8),
           legend.background = element_rect(
             fill = "white",        # White background
             color = "black",       # Black border
@@ -674,7 +737,10 @@ plot_permanova <- function(ds) {
     scale_colour_manual(values = tooldb_colours, labels = CCE_names) +
     expand_limits(y = 0) +  
     scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
-    labs(x = expression("log"[10]*"(p-value)"), y = '', colour = 'Methodology')
+    labs(x = expression("log"[10]*"(p-value)"), y = '', colour = 'Methodology') +
+    theme(
+      strip.background = element_rect(fill = 'grey50')
+    )
 }
 
 these_databases <- c('KB10', 'KB10_GTDB','KB45', 'KB90', 

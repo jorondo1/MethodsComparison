@@ -136,25 +136,13 @@ for (dist_metric in c('bray', 'robust.aitchison')) {
 
 write_rds(pcoa.ls, 'Out/_Rdata/pcoa_noVST.ls.RDS')
 
-# Function to extract unique distances for each pair as long df
-compile_pair_distances <- function(dist.mx) {
-  dist_matrix <- as.matrix(dist.mx)
-  
-  upper_indices <- which(upper.tri(dist_matrix), arr.ind = TRUE)
-  
-  data.frame(
-    Sample1 = rownames(dist_matrix)[upper_indices[, 1]],
-    Sample2 = colnames(dist_matrix)[upper_indices[, 2]],
-    Distance = dist_matrix[upper_indices]
-  )
-}
 
 # Iterate over all pcoa
 pairwise_distances <- imap(pcoa.ls, function(dist.ls, dist) {
   imap(dist.ls, function(dataset.ls, dataset) {
     imap(dataset.ls, function(database.ls, database) {
       
-      compile_pair_distances(database.ls[['dist.mx']]) %>% 
+      compile_dist_pairs(database.ls[['dist.mx']]) %>% 
         mutate(Dist = dist, 
                Dataset = dataset,
                Database = database) 
