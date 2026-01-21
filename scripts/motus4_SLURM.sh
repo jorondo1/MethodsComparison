@@ -23,7 +23,7 @@ for var in FQ_P1 FQ_P2 FQ_U1 FQ_U2; do
     fi
 done
 
-cp $ANCHOR/jbod2/def-ilafores/programs/ILL_pipelines/containers/mOTUs_v4.0.4.sif $SLURMTMPDIR
+cp $ANCHOR/jbod2/def-ilafores/programs/ILL_pipelines/containers/mOTUs_v4.0.4.sif $SLURM_TMPDIR
 
 echo "processing $SAM_ID files:\
 	$FQ_P1 \
@@ -34,8 +34,8 @@ echo "processing $SAM_ID files:\
 mkdir -p $OUT_DIR
 
 singularity exec --writable-tmpfs -e \
--B $SLURMTMPDIR:$SLURMTMPDIR \
+-B $SLURM_TMPDIR:$SLURM_TMPDIR \
 -B ${OUT_DIR}:${OUT_DIR} \
--B $ANCHOR:$ANCHOR $SLURMTMPDIR/mOTUs_v4.0.4.sif \
+-B $ANCHOR:$ANCHOR $SLURM_TMPDIR/mOTUs_v4.0.4.sif \
 motus profile -f $FQ_P1 -r $FQ_P2 -s $FQ_U1 -s $FQ_U2 -n $SAM_ID \
 	-t $SLURM_NTASKS -o ${OUT_DIR}/${SAM_ID}_profile.txt

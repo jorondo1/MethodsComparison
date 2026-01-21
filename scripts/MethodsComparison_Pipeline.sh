@@ -15,8 +15,6 @@ dataset_variables "Bee" "$MC/data/Bee/preproc/preprocessed_reads.sample.tsv"
 dataset_variables "Olive" "$MC/data/Olive/preproc/preprocessed_reads.sample.tsv"
 dataset_variables "RA_Gut" "$MC/data/RA_Gut/preproc/preprocessed_reads.sample.tsv"
 
-cp 
-
 ######################
 # QC #################
 ######################
@@ -124,7 +122,7 @@ done
 ################
 
 # Custom SLURM script
-sbatch --array=1-"$N_SAMPLES" $MC/scripts/motus_SLURM.sh  $DATASET_PATH $TSV.fast
+sbatch --array=1-"$N_SAMPLES" ${ANCHOR}${MC}/scripts/motus4_SLURM.sh ${DATASET_PATH} $TSV
 
 # Check completion status
 check_output 'MOTUS'  $DATASET_PATH _profile.txt
