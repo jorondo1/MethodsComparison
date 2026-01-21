@@ -10,6 +10,8 @@
 #SBATCH -A def-ilafores
 #SBATCH -J motus4
 
+echo "initializing variables..."
+
 export OUT_DIR=${PWD}/"${1}"/MOTUS4
 export SAM_LIST=$ANCHOR/"${2}"
 export SAM_NUM=$(awk "NR==$SLURM_ARRAY_TASK_ID" ${SAM_LIST})
@@ -21,21 +23,24 @@ for var in FQ_P1 FQ_P2 FQ_U1 FQ_U2; do
     fi
 done
 
-cp $ANCHOR/jbod2/def-ilafores/programs/ILL_pipelines/containers/mOTUs_v4.0.4.sif $SLURM_TMPDIR
-
-echo "processing $SAM_ID files:\
+echo "$SAM_ID files will be processed:\
 	$FQ_P1 \
 	$FQ_P2 \
 	$FQ_U1 \
 	$FQ_U2"
 
+echo "copying mOTUs container..."
+cp $ANCHOR/jbod2/def-ilafores/programs/ILL_pipelines/containers/mOTUs_v4.0.4.sif $SLURM_TMPDIR
+
 mkdir -p $OUT_DIR
+echo "output will be stored in $OUT_DIR"
+echo "executing mOTUs..."
 
 module load StdEnv/2020 apptainer/1.1.5
 
 singularity exec --writable-tmpfs -e \
 -B $SLURM_TMPDIR:$SLURM_TMPDIR \
 -B ${OUT_DIR}:${OUT_DIR} \
--B $ANCHOR:$ANCHOR $SLURM_TMPDIR/mOTUs_v4.0.4.sif \
+$SLURM_TMPDIR/mOTUs_v4.0.4.sif \
 motus profile -f $FQ_P1 -r $FQ_P2 -s $FQ_U1 -s $FQ_U2 -n $SAM_ID \
-	-t $SLURM_NTASKS -o ${OUT_DIR}/${SAM_ID}_profile.txt
+-t $SLURM_NTASKS -o ${OUT_DIR}/${SAM_ID}_profile.txt

@@ -122,7 +122,7 @@ done
 ################
 
 # Custom SLURM script
-sbatch --array=1-"$N_SAMPLES" ${ANCHOR}${MC}/scripts/motus4_SLURM.sh ${DATASET_PATH} $TSV
+sbatch --array=1-"$N_SAMPLES"%10 ${ANCHOR}${MC}/scripts/motus4_SLURM.sh ${DATASET_PATH} $TSV
 
 # Check completion status
 check_output 'MOTUS'  $DATASET_PATH _profile.txt
