@@ -17,30 +17,41 @@ export SAM_LIST=$ANCHOR/"${2}"
 export SAM_NUM=$(awk "NR==$SLURM_ARRAY_TASK_ID" ${SAM_LIST})
 IFS=$'\t' read -r SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2 <<< "$SAM_NUM" # array it up
 export SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2
-for var in FQ_P1 FQ_P2 FQ_U1 FQ_U2; do
-    if [[ "${!var}" != ${ANCHOR}/* && "${!var}" != /nfs3_ib/* ]]; then
-        declare "$var"="${ANCHOR}/${!var}"
-    fi
-done
 
-echo "$SAM_ID files will be processed:\
+echo "Copying $SAM_ID files :\
 	$FQ_P1 \
 	$FQ_P2 \
 	$FQ_U1 \
 	$FQ_U2"
 
+# Sorts fasta and removes the /1 suffix from Kneaddata. mOTUs4 is pickier than v3...
+ml seqkit
+for var in FQ_P1 FQ_P2 FQ_U1 FQ_U2; do
+    if [[ "${!var}" != ${ANCHOR}/* && "${!var}" != /nfs3_ib/* ]]; then
+        export "$var"="${ANCHOR}/${!var}"
+    fi
+    seqkit sort -n -j $SLURM_NTASKS "${!var}" | \
+    seqkit replace -p '\/[12]$' -r '' \
+    > "${SLURM_TMPDIR}/$(basename ${!var} .gz)"
+    export "$var"="${SLURM_TMPDIR}/$(basename ${!var} .gz)"
+done
+
 echo "copying mOTUs container..."
-cp $ANCHOR/jbod2/def-ilafores/programs/ILL_pipelines/containers/mOTUs_v4.0.4.sif $SLURM_TMPDIR
+cp $ANCHOR/jbod2/def-ilafores/programs/ILL_pipelines/containers/mOTUs_v4.0.4.mp2.sif $SLURM_TMPDIR
 
 mkdir -p $OUT_DIR
 echo "output will be stored in $OUT_DIR"
 echo "executing mOTUs..."
 
-module load StdEnv/2020 apptainer/1.1.5
+module load StdEnv/2020 apptainer/1.1.5 
 
 singularity exec --writable-tmpfs -e \
 -B $SLURM_TMPDIR:$SLURM_TMPDIR \
 -B ${OUT_DIR}:${OUT_DIR} \
-$SLURM_TMPDIR/mOTUs_v4.0.4.sif \
-motus profile -f $FQ_P1 -r $FQ_P2 -s $FQ_U1 -s $FQ_U2 -n $SAM_ID \
--t $SLURM_NTASKS -o ${OUT_DIR}/${SAM_ID}_profile.txt
+-B ${ANCHOR}/home:${ANCHOR}/home \
+$SLURM_TMPDIR/mOTUs_v4.0.4.mp2.sif \
+motus profile -f $FQ_P1 -r $FQ_P2 \
+-s $FQ_U1 -s $FQ_U2 \
+-n $SAM_ID \
+-t $SLURM_NTASKS \
+-o ${OUT_DIR}/${SAM_ID}_profile.txt

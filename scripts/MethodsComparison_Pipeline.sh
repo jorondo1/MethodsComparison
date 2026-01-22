@@ -118,8 +118,33 @@ sed -i 's|/net/nfs-ip34/home|/net/nfs-ip34/jbod2|g' $tsv
 done
 
 ################
-# mOTUs ########
+# mOTUs4 [on NARVAL] ########
 ################
+
+## ship to narval, migrate samples + preproc tsv 
+awk '{print $2"\n"$3"\n"$4"\n"$5}' $TSV | cat - <(echo "$ANCHOR$TSV") | \
+rsync -av --no-relative --files-from=- / \
+ronj2303@narval.alliancecan.ca:/project/def-ilafores/ronj2303/$DATASET
+
+# on narval, the TSV needs to be edited with new paths
+# we use the sample identifier to relpace the base path
+for DATASET in P19_Saliva P19_Gut Moss PD NAFLD AD_Skin Bee; do
+TSV=$(ls ${DATASET}/*.tsv)
+awk -v new_path="/project/def-ilafores/ronj2303/$DATASET" '
+    BEGIN { FS=OFS="\t" }
+    {
+        for (i=2; i<=NF; i++) {
+            # 1. Isolate the filename by removing the old path
+            # ".*" is greedy, so ".*\/" matches everything up to the LAST slash.
+            sub(/.*\//, "", $i)
+
+            # 2. Prepend the new path to the isolated filename
+            $i = new_path "/" $i
+        }
+        print
+    }
+' "$TSV" > "$TSV".narval
+done 
 
 # Custom SLURM script
 sbatch --array=1-"$N_SAMPLES"%10 ${ANCHOR}${MC}/scripts/motus4_SLURM.sh ${DATASET_PATH} $TSV
