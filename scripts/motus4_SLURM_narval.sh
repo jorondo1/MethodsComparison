@@ -50,4 +50,6 @@ motus profile -f $FQ_P1 -r $FQ_P2 \
 -s $FQ_U1 -s $FQ_U2 \
 -n $SAM_ID \
 -t $SLURM_NTASKS \
--o ${OUT_DIR}/${SAM_ID}_profile.txt
+-o ${SLURM_TMPDIR}/${SAM_ID}_profile.txt
+
+cp ${SLURM_TMPDIR}/${SAM_ID}_profile.txt ${OUT_DIR}/${SAM_ID}_profile.txt
