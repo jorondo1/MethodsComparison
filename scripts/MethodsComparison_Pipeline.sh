@@ -138,7 +138,8 @@ source $MC/scripts/myFunctions.sh
 # different subdir names...
 cd $MC
 dataset_variables "P19_Saliva" "$PWD/data/P19_Saliva/preproc/preprocessed_reads.sample.tsv"
-dataset_variables "P19_Gut" "$PR19/data/P19_Gut/preproc/preprocessed_reads.sample.tsv"
+dataset_variables "P19_Gut" "$PWD/data/P19_Gut/preproc/preprocessed_reads.sample.tsv"
+dataset_variables "Moss" "$PWD/data/Moss/preproc/preprocessed_reads.sample.tsv"
 
 # the TSV needs to be edited with new paths
 # we use the sample identifier to relpace the base path
@@ -158,11 +159,13 @@ awk -v new_path="$MC/data/${DATASET}/preproc" '
         print
     }
 ' "$TSV" > "$TSV".narval
+sed -i 's|.fastq.gz|.fastq|g' "$TSV".narval
+sed -i 's|.fastq|.fastq.gz|g' "$TSV".narval
 done 
 
 # Custom SLURM script
 mkdir -p $MC/logs
-sbatch --array=1-"$N_SAMPLES"%10 ${MC}/scripts/motus4_SLURM.sh ${DATASET_PATH} ${TSV}.narval
+sbatch --array=1-"$N_SAMPLES"%10 ${MC}/scripts/motus4_SLURM_narval.sh ${DATASET_PATH} ${TSV}.narval
 
 # Check completion status
 check_output 'MOTUS'  $DATASET_PATH _profile.txt

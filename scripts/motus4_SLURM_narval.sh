@@ -33,6 +33,10 @@ for var in FQ_P1 FQ_P2 FQ_U1 FQ_U2; do
     export "$var"="${SLURM_TMPDIR}/$(basename ${!var} .gz)"
 done
 
+# concatenate unaligned files
+export FQ_U=${SLURM_TMPDIR}/FQ_U.fasta
+cat $FQ_U1 $FQ_U2 > $FQ_U 
+
 echo "copying mOTUs container..."
 cp /scratch/ronj2303/ILL_pipelines/containers/mOTUs_v4.0.4.sif $SLURM_TMPDIR
 
@@ -46,10 +50,8 @@ singularity exec --writable-tmpfs -e \
 -B $SLURM_TMPDIR:$SLURM_TMPDIR \
 -B /scratch/ronj2303:/scratch/ronj2303 \
 $SLURM_TMPDIR/mOTUs_v4.0.4.sif \
-motus profile -f $FQ_P1 -r $FQ_P2 \
--s $FQ_U1 -s $FQ_U2 \
--n $SAM_ID \
--t $SLURM_NTASKS \
+motus profile -f $FQ_P1 -r $FQ_P2 -s ${FQ_U} \
+-n $SAM_ID -t $SLURM_NTASKS \
 -o ${SLURM_TMPDIR}/${SAM_ID}_profile.txt
 
 cp ${SLURM_TMPDIR}/${SAM_ID}_profile.txt ${OUT_DIR}/${SAM_ID}_profile.txt
