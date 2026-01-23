@@ -44,13 +44,12 @@ dataset_variables() {
 
 if [[ $(hostname) == "narval1" ]]; then
 
-export ILAFORES= /scratch/ronj2303
+export ILAFORES=/scratch/ronj2303
 export ILL_PIPELINES=/scratch/ronj2303/ILL_pipelines
 
 export MC=$ILAFORES/MethodsComparison
 export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6
 export MOSS=$MC/data/Moss
 export PR19=$MC/data
-export PLD=$ILAFORES/analysis/PROVID-LD
 
 fi

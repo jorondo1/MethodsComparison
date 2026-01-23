@@ -124,16 +124,27 @@ done
 # mOTUs4 [on NARVAL] ########
 ################
 
-## ship to narval, migrate samples + preproc tsv 
-awk '{print $2"\n"$3"\n"$4"\n"$5}' $TSV | cat - <(echo "$ANCHOR$TSV") | \
+## ON IP34 
+# ship to narval, migrate samples + preproc tsv 
+awk '{print $2"\n"$3"\n"$4"\n"$5}' $TSV | while read file; do
+  [ -f "$file" ] && echo "$file"
+done | cat - <(echo "$ANCHOR$TSV") | \
 rsync -av --no-relative --files-from=- / \
-ronj2303@narval.alliancecan.ca:/project/def-ilafores/ronj2303/$DATASET
+ronj2303@narval.alliancecan.ca:/scratch/ronj2303/MethodsComparison/data/$DATASET/preproc
 
-# on narval, the TSV needs to be edited with new paths
+# ON NARVAL, 
+#initiate variables
+source $MC/scripts/myFunctions.sh
+# different subdir names...
+cd $MC
+dataset_variables "P19_Saliva" "$PWD/data/P19_Saliva/preproc/preprocessed_reads.sample.tsv"
+dataset_variables "P19_Gut" "$PR19/data/P19_Gut/preproc/preprocessed_reads.sample.tsv"
+
+# the TSV needs to be edited with new paths
 # we use the sample identifier to relpace the base path
 for DATASET in P19_Saliva P19_Gut Moss PD NAFLD AD_Skin Bee; do
-TSV=$(ls ${DATASET}/*.tsv)
-awk -v new_path="/project/def-ilafores/ronj2303/$DATASET" '
+TSV=$(ls data/${DATASET}/preproc/*.tsv)
+awk -v new_path="$MC/data/${DATASET}/preproc" '
     BEGIN { FS=OFS="\t" }
     {
         for (i=2; i<=NF; i++) {
@@ -150,7 +161,8 @@ awk -v new_path="/project/def-ilafores/ronj2303/$DATASET" '
 done 
 
 # Custom SLURM script
-sbatch --array=1-"$N_SAMPLES"%10 ${ANCHOR}${MC}/scripts/motus4_SLURM.sh ${DATASET_PATH} $TSV
+mkdir -p $MC/logs
+sbatch --array=1-"$N_SAMPLES"%10 ${MC}/scripts/motus4_SLURM.sh ${DATASET_PATH} ${TSV}.narval
 
 # Check completion status
 check_output 'MOTUS'  $DATASET_PATH _profile.txt

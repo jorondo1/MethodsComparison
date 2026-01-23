@@ -1,6 +1,5 @@
 #!/bin/bash
 
-#SBATCH --mail-type=END,FAIL
 #SBATCH -D /scratch/ronj2303/MethodsComparison
 #SBATCH -o /scratch/ronj2303/MethodsComparison/logs/mOTU-%A_%a.slurm.out
 #SBATCH --time=24:00:00
@@ -13,7 +12,7 @@
 echo "initializing variables..."
 
 export OUT_DIR="${1}"/MOTUS4
-export SAM_LIST="${2}".narval
+export SAM_LIST="${2}"
 export SAM_NUM=$(awk "NR==$SLURM_ARRAY_TASK_ID" ${SAM_LIST})
 IFS=$'\t' read -r SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2 <<< "$SAM_NUM" # array it up
 export SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2
