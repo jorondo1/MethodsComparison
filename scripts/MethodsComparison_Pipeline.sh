@@ -109,6 +109,9 @@ END {
     }
 }' $MC/Out/stats/all_read_counts.tsv > $MC/Out/stats/sample_count_summary.tsv
 
+# gzip all, except if gz already there
+find $(dirname $TSV) -type f -name '*fastq' -print0 | xargs -0 -P 8 -I {} bash -c 'if [ ! -f "{}.gz" ]; then pigz -k "{}"; fi'
+
 # Replace all .fastq by .fastq.gz in tsv
 for tsv in $(find $ILAFORES/analysis/ -maxdepth 5 -readable -name "preprocessed_reads.sample.tsv" 2>/dev/null); do
 sed -i 's|.fastq.gz|.fastq|g' $tsv
