@@ -8,7 +8,7 @@
 #SBATCH -n 8
 #SBATCH -A def-ilafores
 #SBATCH -J motus4
-
+sleep 
 echo "initializing variables..."
 
 export OUT_DIR="${1}"/MOTUS4
@@ -22,6 +22,8 @@ echo "Copying $SAM_ID files :\
 	$FQ_P2 \
 	$FQ_U1 \
 	$FQ_U2"
+
+if [[ ! -f ${OUT_DIR}/${SAM_ID}_profile.txt ]]; then
 
 # Sorts fasta and removes the /1 suffix from Kneaddata. mOTUs4 is pickier than v3...
 ml seqkit
@@ -55,3 +57,4 @@ motus profile -f $FQ_P1 -r $FQ_P2 -s ${FQ_U} \
 -o ${SLURM_TMPDIR}/${SAM_ID}_profile.txt
 
 cp ${SLURM_TMPDIR}/${SAM_ID}_profile.txt ${OUT_DIR}/${SAM_ID}_profile.txt
+fi
