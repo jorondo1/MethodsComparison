@@ -165,15 +165,13 @@ done
 
 # Custom SLURM script
 mkdir -p $MC/logs
-sbatch --array=1-"$N_SAMPLES"%10 ${MC}/scripts/motus4_SLURM_narval.sh ${DATASET_PATH} ${TSV}.narval
+sbatch --array=1-"$N_SAMPLES" ${MC}/scripts/motus4_SLURM_narval.sh ${DATASET_PATH} ${TSV}.narval
 
 # Check completion status
-check_output 'MOTUS'  $DATASET_PATH _profile.txt
+check_output 'MOTUS4'  $DATASET_PATH _profile.txt
  
 # Rerun missing MOTUS
-rm  $DATASET_PATH/MOTUS/_profile.txt # not sure why that appears
-missing_motus=$(grep -n -v -f <(ls " $DATASET_PATH/MOTUS/"*_profile.txt | awk -F'/' '{print $3}' | sed 's/_profile\.txt//') "$(eval echo \$${dataset}_TSV)" | cut -f1 -d: | tr '\n' ','); echo "$missing_motus"
-sbatch --array="$missing_motus" $MC/scripts/motus_SLURM.sh  $DATASET_PATH "$(eval echo \$${dataset}_TSV)"
+sbatch --array="$FOUND" ${MC}/scripts/motus4_SLURM_narval.sh ${DATASET_PATH} ${TSV}.narval
 
 # number of species in db
 motus_db='/jbod2/def-ilafores/programs/motu-profiler_env/lib/python3.8/site-packages/motus/db_mOTU'
