@@ -1,75 +1,27 @@
 library(pacman)
-p_load( magrittr, tidyverse, purrr,  phyloseq,
-        rstatix, vegan)
+p_load( 
+  mgx.tools, # devtools::install_github("jorondo1/mgx.tools", force = TRUE)
+  magrittr, tidyverse, 
+  purrr, parallel, furrr, future,
+  phyloseq,
+  rstatix, vegan)
+
 ps_rare.ls <- readRDS('Out/_Rdata/ps_rare.ls.rds')
+ps_rare.ls$Olive <- NULL
+ps_rare.ls %<>% purrr::compact()
+
 source("scripts/myFunctions.R")
-source(url('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/community_functions.R'))
+source("scripts/0_Config.R")
 
 # Work from the species-level table
 taxRanks <- c("Phylum", "Class", "Order", "Family", "Genus", "Species")
 
-################################
-# Taxonomic assignment table ####
-##################################
 
-# Number of taxa by taxrank at the dataset level
-tax_assign_ds <- imap(ps_rare.ls, function(ps_dataset.ls, dataset){
-  imap(ps_dataset.ls, function(ps, database){
-    tax_count <- ps %>% tax_table() %>% data.frame() %>% tibble()
-    
-    # Iterate over taxRanks
-    map_dfr(taxRanks, function(rank) {
-      
-      num_tax <- tax_count %>%
-        filter(!is.na(!!sym(rank))) %>%
-        pull(!!sym(rank)) %>%
-        unique() %>%
-        length()
-      
-      tibble(
-        Dataset = dataset,
-        Database = database,
-        Rank = rank,
-        Num_tax = num_tax
-      ) 
-    })
-  }) %>% bind_rows() 
-}) %>% bind_rows()  %>% 
-  mutate(Rank = factor(Rank, levels = taxRanks),
-         Database = factor(Database, names(tooldb_colours))) %>% 
-  left_join(CCE_metadata, by = 'Database')
-
-write_rds(tax_assign_ds, 'Out/_Rdata/tax_assign_ds.RDS')
-
-# Alt: Number of species by sample
-tax_assign_sam <- imap(ps_rare.ls, function(ps_dataset.ls, dataset){
-  imap(ps_dataset.ls, function(ps, database){
-    
-    # Species per sample
-    psflashmelt(ps) %>% 
-      filter(Abundance > 0) %>% 
-      select(Sample, Species) %>% 
-      distinct() %>% 
-      group_by(Sample) %>% 
-      summarise(Num_tax = n()) %>% 
-      mutate(
-        Dataset = dataset,
-        Database = database
-      )
-  }) %>% bind_rows() 
-}) %>% bind_rows()  %>% 
-  mutate(Database = factor(Database, names(tooldb_colours))) %>% 
-  left_join(CCE_metadata, by = 'Database')
-
-write_rds(tax_assign_sam, 'Out/_Rdata/tax_assign_sam.RDS')
-
-
-####################
-# Alpha diversity ###
-######################
+# 1. Alpha diversity ---------------------------------------------------------
 
 alpha_div <- list()
 alpha_div[['plot_data']] <-  imap(ps_rare.ls, function(ps_dataset.ls, dataset){
+  
   imap(ps_dataset.ls, function(ps, database){
     #Estimate indices
     richness <- estimate_diversity(ps, 'Richness')
@@ -114,74 +66,102 @@ alpha_div[['wilcox_tests']] <- alpha_div[['plot_data']] %>%
               p.adjust.method = NULL) %>%  # because we want to see what happens when you do only one
   add_significance()
 
-write_rds(alpha_div, 'Out/_Rdata/alpha_div.RDS')
+write_rds(alpha_div, 'Out/_Rdata/alpha_div.RDS', compress = 'gz')
 
 
-###################
-# Beta diversity ###
-#####################
+# 2. Beta Diversity ----------------------------------------------------------
 
-# using collapsed pairwise matrices (BC and rAitchison):
-# Sample_pair, Dataset, idx, idx_value, CCE, Approach
+# 2.1. Compute bray-curtis PCoA :
 
-# pcoa.ls <- read_rds('Out/pcoa_noVST.ls.RDS')
 pcoa.ls <- list()
-for (dist_metric in c('bray', 'robust.aitchison')) {
-  pcoa.ls[[dist_metric]] <- lapply(ps_rare.ls, function(ps.ls) {
-    mclapply(ps.ls, mc.cores = 7, function(ps) {
-      compute_pcoa(ps, dist = dist_metric)
-    })
-  })
-}
+future::plan(multicore, workers = detectCores())
 
-write_rds(pcoa.ls, 'Out/_Rdata/pcoa_noVST.ls.RDS')
+pcoa.ls <- map(ps_rare.ls, function(ps.ls) {
+  future_map(ps.ls, 
+             ~mgx.tools::compute_pcoa(., dist = 'bray', all_coordinates = TRUE), 
+             .options = furrr_options(packages = c("phyloseq", "mgx.tools")))
+}); plan(sequential)
 
+write_rds(pcoa.ls, 'Out/_Rdata/pcoa_noVST.ls.RDS', compress = 'gz')
 
-# Iterate over all pcoa
-pairwise_distances <- imap(pcoa.ls, function(dist.ls, dist) {
-  imap(dist.ls, function(dataset.ls, dataset) {
-    imap(dataset.ls, function(database.ls, database) {
-      
-      compile_dist_pairs(database.ls[['dist.mx']]) %>% 
-        mutate(Dist = dist, 
-               Dataset = dataset,
-               Database = database) 
-      
-    }) %>% list_rbind()
+# ompile pairwise distances in a long dataset
+pairwise_distances <- imap(pcoa.ls, function(dataset.ls, dataset) {
+  imap(dataset.ls, function(database.ls, database) {
+    
+    compile_dist_pairs(database.ls[['dist.mx']]) %>% 
+      mutate(Dataset = dataset,
+             Database = database) 
+    
   }) %>% list_rbind()
-}) %>% list_rbind() # Add metadata
+}) %>% list_rbind() 
 
-write_rds(pairwise_distances, 'Out/_Rdata/pairwise_dist.RDS')
+write_rds(pairwise_distances, 'Out/_Rdata/pairwise_dist.RDS', compress = 'gz' )
 
-# Procruste comparison of pcoas ?
+
+# 2.2. Procrustes analyses
+
+num_k <- 3
+
+plan(multisession, workers = detectCores())
+procrustes_tests <- imap(pcoa.ls, function(dataset.ls, dataset) {
+  
+  # Create all db combinations
+  databases <- names(dataset.ls)
+  database_pairs <- expand.grid(databases, databases) %>% 
+    filter(Var1 != Var2)
+  
+  # Parallelized version using future_pmap
+  future_pmap(database_pairs, function(Var1, Var2){
+    # Extract coordinates
+    ds1 <- dataset.ls[[Var1]]$coordinates[,1:num_k]
+    ds2 <- dataset.ls[[Var2]]$coordinates[,1:num_k]
+    
+    # Order / subset samples
+    samples_to_keep <- intersect(rownames(ds1), rownames(ds2))
+    
+    # Procruste test
+    test <- protest(ds1[samples_to_keep,], ds2[samples_to_keep,])
+    
+    # Output 
+    tibble(
+      ds = dataset,
+      db1 = Var1,
+      db2 = Var2,
+      cor = test$scale,
+      pval = test$signif
+    )
+  }, .options = furrr_options(seed = TRUE)) %>% list_rbind()
+  
+}) %>% list_rbind(); plan('sequential')
+
+write_rds(procrustes_tests, 'Out/_Rdata/procrustes.RDS',compress = 'gz')
+
 # permanova.ds <- read_rds('Out/permanova.ds.RDS')
 
-# 2.2. perMANOVA
-permanova.ds <- imap(pcoa.ls, function(pcoa_ds.ls, dist) {
-  imap(pcoa_ds.ls, function(pcoa_db.ls, ds) {
-    imap(pcoa_db.ls, function(pcoa, db) { # iterate over distances
-      
-      samData <- pcoa$metadata %>% 
-        mutate(Grouping_var = factor(!!sym(grouping_variable[[ds]]), 
-                                     labels = c("Group 1", "Group 2")))
-      
-      # permanova
-      res <- adonis2(formula = pcoa$dist.mx ~ Grouping_var, 
-                     permutations = 9999,
-                     data = samData,
-                     na.action = na.exclude,
-                     parallel = 8)
-      
-      # parse r2 and p for each explanatory variable 
-      tibble(
-        Dataset = ds,
-        Database = db,       
-        Index = dist,
-        R2 = res$R2[1],   
-        p = res$`Pr(>F)`[1]
-      ) %>% return()
-      
-    }) %>% list_rbind()
+# 2.3. perMANOVA
+permanova.ds <- imap(pcoa.ls, function(pcoa_db.ls, ds) {
+  imap(pcoa_db.ls, function(pcoa, db) { # iterate over distances
+    
+    samData <- pcoa$metadata %>% 
+      mutate(Grouping_var = factor(!!sym(grouping_variable[[ds]]), 
+                                   labels = c("Group 1", "Group 2")))
+    
+    # permanova
+    res <- adonis2(formula = pcoa$dist.mx ~ Grouping_var, 
+                   permutations = 9999,
+                   data = samData,
+                   na.action = na.exclude,
+                   parallel = 8)
+    
+    # parse r2 and p for each explanatory variable 
+    tibble(
+      Dataset = ds,
+      Database = db,       
+      Index = dist,
+      R2 = res$R2[1],   
+      p = res$`Pr(>F)`[1]
+    ) %>% return()
+    
   }) %>% list_rbind()
 }) %>% list_rbind() %>% 
   left_join(CCE_metadata, by = 'Database')

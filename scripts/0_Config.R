@@ -1,3 +1,6 @@
+rstudioapi::applyTheme("Idle Fingers") 
+ggplot2::theme_set(ggplot2::theme_light())
+
 my_datasets_factorlevels <- c('P19_Saliva', 'P19_Gut', 'RA_Gut', 'AD_Skin', 'Moss', 'NAFLD')
 
 grouping_variable <- c(

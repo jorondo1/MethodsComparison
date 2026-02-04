@@ -3,12 +3,12 @@
 #SBATCH -D /scratch/ronj2303/MethodsComparison
 #SBATCH -o /scratch/ronj2303/MethodsComparison/logs/mOTU-%A_%a.slurm.out
 #SBATCH --time=24:00:00
-#SBATCH --mem=31G
+#SBATCH --mem=64G
 #SBATCH -N 1
 #SBATCH -n 8
 #SBATCH -A def-ilafores
 #SBATCH -J motus4
-sleep 
+
 echo "initializing variables..."
 
 export OUT_DIR="${1}"/MOTUS4
@@ -26,19 +26,27 @@ echo "Copying $SAM_ID files :\
 if [[ ! -f ${OUT_DIR}/${SAM_ID}_profile.txt ]]; then
 
 # Sorts fasta and removes the /1 suffix from Kneaddata. mOTUs4 is pickier than v3...
+# After seqkit processing, unload the module to free memory
 ml seqkit
 for var in FQ_P1 FQ_P2 FQ_U1 FQ_U2; do
-    export "$var"="${!var}"
+    OUTFILE="${SLURM_TMPDIR}/$(basename ${!var} .gz)"
     seqkit sort -n -j $SLURM_NTASKS "${!var}" | \
-    seqkit replace -p '\/[12]$' -r '' \
-    > "${SLURM_TMPDIR}/$(basename ${!var} .gz)"
-    export "$var"="${SLURM_TMPDIR}/$(basename ${!var} .gz)"
+    seqkit replace -p '\/[12]$' -r '' > "${OUTFILE}"
+    export "$var"="${OUTFILE}"
 done
 
-# concatenate unaligned files
-export FQ_U=${SLURM_TMPDIR}/FQ_U.fasta
-cat $FQ_U1 $FQ_U2 > $FQ_U 
+export FQ_U=${SLURM_TMPDIR}/FQ_U.fastq
+cat $FQ_U1 $FQ_U2 > $FQ_U
 
+# Unload seqkit to free any cached memory
+module unload seqkit
+
+#  Debugging:
+echo "File sizes before mOTUs:"
+ls -lh $FQ_P1 $FQ_P2 $FQ_U
+head -n 4 $FQ_P1  # Show first read to verify format
+
+# Now run mOTUs with clean memory
 echo "copying mOTUs container..."
 cp /scratch/ronj2303/ILL_pipelines/containers/mOTUs_v4.0.4.sif $SLURM_TMPDIR
 

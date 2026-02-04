@@ -1,11 +1,10 @@
 library(pacman)
 p_load(magrittr, mgx.tools, # devtools::install_github("jorondo1/mgx.tools")
        tidyverse, kableExtra,
+       igraph, ggraph, patchwork, pheatmap,
        rstatix)
 
-ps_rare.ls <- read_rds('Out/_Rdata/ps_rare.ls.rds')
 source("scripts/0_Config.R")
-theme_set(theme_light())
 
 
 #   $$\ $$\         $$$$$$$$\ $$$$$$\  $$$$$$\             $$$$$$\  
@@ -18,14 +17,194 @@ theme_set(theme_light())
 #   \__|\__|        \__|      \______| \______/ \__|      \________|
 #                         
 
-###################
-# Beta diversity ###
-#####################
+##################################
+# PCoA procrustes visualisation ###
+####################################
+
+ps_rare.ls <- read_rds('Out/_Rdata/ps_rare.ls.rds')
+procrustes_tests <- read_rds('Out/_Rdata/procrustes.RDS')
+these_databases <- c('MPA_db2023', 'MOTUS', 
+                     'KB45', 'KB45_GTDB', 'KB90', 'KB90_GTDB',
+                     'SM_gtdb-rs220-rep', 'SM_RefSeq_20250528')
+
+these_datasets <- c('Moss', 'NAFLD', 'P19_Gut', 'P19_Saliva', 'PD', 'Bee','AD_Skin')
+#these_datasets <- c("NAFLD")
+# Heatmap with hclust ------------------------------------------------------
+
+db_pairs <- procrustes_tests %>%
+  filter(db1 %in% these_databases
+         & db2 %in% these_databases
+         & ds %in% these_datasets) %>% 
+  group_by(db1, db2) %>%
+  summarise(
+    mean_cor = mean(cor),
+    sd_cor = sd(cor),
+    n_datasets = n(),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(mean_cor))
+
+# long format
+plot_data <- db_pairs %>%
+  # unique database names
+  bind_rows(
+    db_pairs %>% 
+      select(db1 = db2, db2 = db1, mean_cor, sd_cor, n_datasets)
+  ) %>%
+  distinct() # no need for a diagonal, we want it to be NA
+
+# clustering matrix
+all_dbs <- sort(unique(c(plot_data$db1, plot_data$db2)))
+cor_matrix <- matrix(
+  1, 
+  nrow = length(all_dbs), 
+  ncol = length(all_dbs),
+  dimnames = list(all_dbs, all_dbs))
+
+for(i in 1:nrow(plot_data)) {
+  db1 <- as.character(plot_data$db1[i])
+  db2 <- as.character(plot_data$db2[i])
+  if(!is.na(plot_data$mean_cor[i])) {
+    cor_matrix[db1, db2] <- plot_data$mean_cor[i]
+  }
+}
+
+# hierarchical clustering
+hclust_result <- hclust(as.dist(1 - cor_matrix))
+ordered_dbs <- all_dbs[hclust_result$order]
+
+# reorder factors
+plot_data %<>%
+  mutate(
+    db1 = factor(db1, levels = ordered_dbs),
+    db2 = factor(db2, levels = ordered_dbs)
+  ) 
 
 
-# Procruste analysis ------------------------------------------------------
+# PLOT 
+plot_data %>% 
+  ggplot(aes(x = db1, y = db2, fill = mean_cor)) +
+  geom_tile(color = "white", linewidth = 0.5) +
+  geom_text(
+    aes(label = sprintf("%.2f", mean_cor),
+        color = is.na(mean_cor)), 
+    size = 3) +
+  scale_color_manual(values = c("TRUE" = "white", "FALSE" = "black"), 
+                     guide = "none")+
+  scale_fill_gradient2(
+    low = "#d73027", 
+    mid = "#fee090", 
+    high = "#1a9850",
+    midpoint = median(plot_data$mean_cor),
+    #limits = c(0.6, 1),
+    name = "Mean\nprocrustes\ncorrelation",
+    na.value = "white"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 9),
+    panel.grid = element_blank(),
+    axis.title = element_blank(),
+    aspect.ratio = 1
+  ) +
+  coord_equal()
+
+ggsave('Out/Manuscript/procrustes_heatmap.pdf',
+       bg = 'white', width = 2000, height = 2500, 
+       units = 'px', dpi = 260)
 
 
+# Network -----------------------------------------------------------------
+
+
+# network_data <- procrustes_tests %>%
+#   group_by(db1, db2) %>%
+#   summarise(mean_cor = mean(cor), .groups = "drop") %>% 
+#   filter(!(db1 %in% exclude_dbs 
+#            | db2 %in% exclude_dbs ))
+
+plot_protest_network <- function(protests, dataset_name){
+  
+  network_data <- protests %>%
+    filter(!(db1 %in% exclude_dbs 
+             | db2 %in% exclude_dbs ))
+  
+  # Create network
+  g <- graph_from_data_frame(
+    network_data, 
+    directed = FALSE
+  )
+  
+  # Set edge weights using correlation
+  E(g)$weight <- network_data$cor
+  
+  # Plot
+  ggraph(g, layout = "fr") +
+    geom_edge_link(aes(
+      width = weight,
+      color = weight,
+      alpha = weight
+    )) +
+    geom_node_point(size = 3, color = "steelblue") +
+    geom_node_text(aes(label = name), repel = TRUE, size = 3) +
+    scale_edge_width(range = c(0.2, 2), name = "Mean\nCorrelation") +
+    scale_edge_alpha(range = c(0.3, 1), guide = "none") +
+    labs(title = dataset_name) +
+    theme_graph() +
+    theme(legend.position = "right") +
+    scale_edge_color_gradient2(
+      low = "#d73027",
+      mid = "#fee090", 
+      high = "#1a9850",
+      midpoint = median(protests$cor),
+      name = "Mean\nCorrelation"
+    ) 
+}
+
+
+plots <- map(unique(procrustes_tests$ds), function(dataset){
+  
+  plot <- procrustes_tests %>% 
+    filter(ds == dataset) %>% 
+    select(-ds) %>% 
+    plot_protest_network(dataset_name = dataset)
+  plot
+  
+})
+names(plots) <- unique(procrustes_tests$ds)
+plots$PD
+
+### Grouped boxplots
+these_databases <- c('KB10', 'KB10_GTDB','KB45', 'KB90', 
+                     'KB45_GTDB', 'KB90_GTDB', 
+                     'SM_gtdb-rs214-rep', 'SM_gtdb-rs220-rep', 'SM_RefSeq_20250528', 
+                     'MPA_db2022','MPA_db2023','MOTUS')
+
+procrustes_tests %>%
+  filter(db1 %in% these_databases
+         & db2 %in% these_databases) %>% 
+  mutate(
+    db1_char = as.character(db1),
+    db2_char = as.character(db2),
+    pair = paste(pmin(db1_char, db2_char), pmax(db1_char, db2_char), sep = " vs ")
+  ) %>%
+  group_by(pair) %>%
+  mutate(median_cor = median(cor)) %>%
+  ungroup() %>%
+  ggplot(aes(x = fct_reorder(pair, median_cor), y = cor)) +
+  geom_boxplot(outlier.shape = NA, fill = "lightblue", alpha = 0.6) +
+  geom_jitter(aes(color = ds), width = 0.2, size = 2, alpha = 0.7) +
+  coord_flip() +
+  labs(
+    title = "Distribution of Procrustes Correlations by Database Pair",
+    x = "Database Pair",
+    y = "Procrustes Correlation",
+    color = "Dataset"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom", 
+        legend.)
 
 # Another way of looking at it :  -----------------------------------------
 # This is the first way I came up with, before being told that
@@ -96,8 +275,8 @@ pairwise_dist_gap.df <- imap(
     Pair_name = factor(
       Pair_name, 
       levels = names(c(db_pairs_eval,db_pairs_ctrl))
-      )
     )
+  )
 
 # Filter pairs, set factor levels
 pw_dist_gap_eval.df <- pairwise_dist_gap.df %>% 
