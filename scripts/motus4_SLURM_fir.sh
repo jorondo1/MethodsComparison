@@ -2,7 +2,7 @@
 #SBATCH -D /project/def-ilafores/ronj2303/MethodsComparison
 #SBATCH -o /project/def-ilafores/ronj2303/MethodsComparison/logs/mOTU-%A_%a.slurm.out
 #SBATCH --time=24:00:00
-#SBATCH --mem=46G
+#SBATCH --mem=180G
 #SBATCH -N 1
 #SBATCH -c 48
 #SBATCH -A def-ilafores
