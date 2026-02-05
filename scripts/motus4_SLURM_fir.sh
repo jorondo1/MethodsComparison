@@ -5,7 +5,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --mem=46G
 #SBATCH -N 1
-#SBATCH -n 192
+#SBATCH -n 12
 #SBATCH -A def-ilafores
 #SBATCH -J motus4
 
@@ -31,7 +31,7 @@ if [[ ! -f ${OUT_DIR}/${SAM_ID}_profile.txt ]]; then
 ml seqkit
 for var in FQ_P1 FQ_P2 FQ_U1 FQ_U2; do
     OUTFILE="${SLURM_TMPDIR}/$(basename ${!var} .gz)"
-    seqkit sort -n -j $SLURM_NTASKS "${!var}" | \
+    seqkit sort -n -j 8 "${!var}" | \
     seqkit replace -p '\/[12]$' -r '' > "${OUTFILE}"
     export "$var"="${OUTFILE}"
 done
