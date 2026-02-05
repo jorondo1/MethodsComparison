@@ -25,7 +25,8 @@ check_output() {
 		echo "$num_found $db output for $DATASET found, $N_SAMPLES expected."
 		
 		if [ "$num_found" -lt "$N_SAMPLES" ]; then 
-			grep -nv -E "${found}" "$TSV" | cut -d: -f1| paste -s -d,
+			export FOUND=$(grep -nv -E "${found}" "$TSV" | cut -d: -f1| paste -s -d,)
+			echo $FOUND
 		fi
 	done
 }
@@ -42,4 +43,14 @@ dataset_variables() {
     echo "\$DATASET_PATH evaluates to $DATASET_PATH"
 }
 
+if [[ $(hostname) == "narval1" ]]; then
 
+export ILAFORES=/scratch/ronj2303
+export ILL_PIPELINES=/scratch/ronj2303/ILL_pipelines
+
+export MC=$ILAFORES/MethodsComparison
+export MUGQIC_INSTALL_HOME=/cvmfs/soft.mugqic/CentOS6
+export MOSS=$MC/data/Moss
+export PR19=$MC/data
+
+fi

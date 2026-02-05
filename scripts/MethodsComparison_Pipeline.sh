@@ -109,6 +109,9 @@ END {
     }
 }' $MC/Out/stats/all_read_counts.tsv > $MC/Out/stats/sample_count_summary.tsv
 
+# gzip all, except if gz already there
+find $(dirname $TSV) -type f -name '*fastq' -print0 | xargs -0 -P 8 -I {} bash -c 'if [ ! -f "{}.gz" ]; then pigz -k "{}"; fi'
+
 # Replace all .fastq by .fastq.gz in tsv
 for tsv in $(find $ILAFORES/analysis/ -maxdepth 5 -readable -name "preprocessed_reads.sample.tsv" 2>/dev/null); do
 sed -i 's|.fastq.gz|.fastq|g' $tsv
@@ -121,16 +124,28 @@ done
 # mOTUs4 [on NARVAL] ########
 ################
 
-## ship to narval, migrate samples + preproc tsv 
-awk '{print $2"\n"$3"\n"$4"\n"$5}' $TSV | cat - <(echo "$ANCHOR$TSV") | \
+## ON IP34 
+# ship to narval, migrate samples + preproc tsv 
+awk '{print $2"\n"$3"\n"$4"\n"$5}' $TSV | while read file; do
+  [ -f "$file" ] && echo "$file"
+done | cat - <(echo "$ANCHOR$TSV") | \
 rsync -av --no-relative --files-from=- / \
-ronj2303@narval.alliancecan.ca:/project/def-ilafores/ronj2303/$DATASET
+ronj2303@narval.alliancecan.ca:/scratch/ronj2303/MethodsComparison/data/$DATASET/preproc
 
-# on narval, the TSV needs to be edited with new paths
+# ON NARVAL, 
+#initiate variables
+source $MC/scripts/myFunctions.sh
+# different subdir names...
+cd $MC
+dataset_variables "P19_Saliva" "$PWD/data/P19_Saliva/preproc/preprocessed_reads.sample.tsv"
+dataset_variables "P19_Gut" "$PWD/data/P19_Gut/preproc/preprocessed_reads.sample.tsv"
+dataset_variables "Moss" "$PWD/data/Moss/preproc/preprocessed_reads.sample.tsv"
+
+# the TSV needs to be edited with new paths
 # we use the sample identifier to relpace the base path
 for DATASET in P19_Saliva P19_Gut Moss PD NAFLD AD_Skin Bee; do
-TSV=$(ls ${DATASET}/*.tsv)
-awk -v new_path="/project/def-ilafores/ronj2303/$DATASET" '
+TSV=$(ls data/${DATASET}/preproc/*.tsv)
+awk -v new_path="$MC/data/${DATASET}/preproc" '
     BEGIN { FS=OFS="\t" }
     {
         for (i=2; i<=NF; i++) {
@@ -144,18 +159,19 @@ awk -v new_path="/project/def-ilafores/ronj2303/$DATASET" '
         print
     }
 ' "$TSV" > "$TSV".narval
+sed -i 's|.fastq.gz|.fastq|g' "$TSV".narval
+sed -i 's|.fastq|.fastq.gz|g' "$TSV".narval
 done 
 
 # Custom SLURM script
-sbatch --array=1-"$N_SAMPLES"%10 ${ANCHOR}${MC}/scripts/motus4_SLURM.sh ${DATASET_PATH} $TSV
+mkdir -p $MC/logs
+sbatch --array=1-"$N_SAMPLES" ${MC}/scripts/motus4_SLURM_narval.sh ${DATASET_PATH} ${TSV}.narval
 
 # Check completion status
-check_output 'MOTUS'  $DATASET_PATH _profile.txt
+check_output 'MOTUS4'  $DATASET_PATH _profile.txt
  
 # Rerun missing MOTUS
-rm  $DATASET_PATH/MOTUS/_profile.txt # not sure why that appears
-missing_motus=$(grep -n -v -f <(ls " $DATASET_PATH/MOTUS/"*_profile.txt | awk -F'/' '{print $3}' | sed 's/_profile\.txt//') "$(eval echo \$${dataset}_TSV)" | cut -f1 -d: | tr '\n' ','); echo "$missing_motus"
-sbatch --array="$missing_motus" $MC/scripts/motus_SLURM.sh  $DATASET_PATH "$(eval echo \$${dataset}_TSV)"
+sbatch --array="$FOUND" ${MC}/scripts/motus4_SLURM_narval.sh ${DATASET_PATH} ${TSV}.narval
 
 # number of species in db
 motus_db='/jbod2/def-ilafores/programs/motu-profiler_env/lib/python3.8/site-packages/motus/db_mOTU'
