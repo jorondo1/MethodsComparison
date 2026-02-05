@@ -11,6 +11,7 @@
 
 echo "initializing variables..."
 
+export HOME_DIR=/project/def-ilafores/ronj2303
 export OUT_DIR="${1}"/MOTUS4
 export SAM_LIST="${2}"
 export SAM_NUM=$(awk "NR==$SLURM_ARRAY_TASK_ID" ${SAM_LIST})
@@ -47,7 +48,7 @@ ls -lh $FQ_P1 $FQ_P2 $FQ_U
 j
 # Now run mOTUs with clean memory
 echo "copying mOTUs container..."
-cp /scratch/ronj2303/ILL_pipelines/containers/mOTUs_v4.0.4.sif $SLURM_TMPDIR
+cp $HOME_DIR/ILL_pipelines/containers/mOTUs_v4.0.4.sif $SLURM_TMPDIR
 
 mkdir -p $OUT_DIR
 echo "output will be stored in $OUT_DIR"
@@ -57,7 +58,7 @@ module load StdEnv/2020 apptainer/1.1.5
 
 singularity exec --writable-tmpfs -e \
 -B $SLURM_TMPDIR:$SLURM_TMPDIR \
--B /scratch/ronj2303:/scratch/ronj2303 \
+-B $HOME_DIR:$HOME_DIR \
 $SLURM_TMPDIR/mOTUs_v4.0.4.sif \
 motus profile -f $FQ_P1 -r $FQ_P2 -s ${FQ_U} \
 -n $SAM_ID -t $SLURM_NTASKS \
