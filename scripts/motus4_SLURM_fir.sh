@@ -86,4 +86,8 @@ motus profile -f $FQ_P1 -r $FQ_P2 -s ${FQ_U} \
 
 echo "mOTUs complete at $(date)"
 cp ${SLURM_TMPDIR}/${SAM_ID}_profile.txt ${OUT_DIR}/${SAM_ID}_profile.txt
+else
+echo "Output already found!"
+
 fi
+echo "Done!"
