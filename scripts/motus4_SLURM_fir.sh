@@ -4,7 +4,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --mem=46G
 #SBATCH -N 1
-#SBATCH -c 48  # More realistic for this workload
+#SBATCH -c 48
 #SBATCH -A def-ilafores
 #SBATCH -J motus4
 
@@ -24,36 +24,21 @@ echo "Copying $SAM_ID files :\
 
 if [[ ! -f ${OUT_DIR}/${SAM_ID}_profile.txt ]]; then
 
-# Process files in parallel using GNU parallel or background jobs
 ml seqkit
 
-# Option A: Process all 4 files simultaneously (recommended)
-process_file() {
-    local input="$1"
-    local output="$2"
-    seqkit sort -n -j $((SLURM_CPUS_PER_TASK / 4)) "${input}" | \
-    seqkit replace -p '\/[12]$' -r '' > "${output}"
-}
+# Use 8 cores per seqkit job (1 CCD), process files sequentially
+SEQKIT_THREADS=8
 
-export -f process_file
-export SLURM_CPUS_PER_TASK
+for var in FQ_P1 FQ_P2 FQ_U1 FQ_U2; do
+    OUTFILE="${SLURM_TMPDIR}/$(basename ${!var} .gz)"
+    echo "Processing ${var}: $(basename ${!var})"
+    seqkit sort -n -j $SEQKIT_THREADS "${!var}" | \
+    seqkit replace -p '\/[12]$' -r '' > "${OUTFILE}"
+    export "$var"="${OUTFILE}"
+done
 
-OUTFILE_P1="${SLURM_TMPDIR}/$(basename ${FQ_P1} .gz)"
-OUTFILE_P2="${SLURM_TMPDIR}/$(basename ${FQ_P2} .gz)"
-OUTFILE_U1="${SLURM_TMPDIR}/$(basename ${FQ_U1} .gz)"
-OUTFILE_U2="${SLURM_TMPDIR}/$(basename ${FQ_U2} .gz)"
-
-# Process in parallel
-process_file "$FQ_P1" "$OUTFILE_P1" &
-process_file "$FQ_P2" "$OUTFILE_P2" &
-process_file "$FQ_U1" "$OUTFILE_U1" &
-process_file "$FQ_U2" "$OUTFILE_U2" &
-wait
-
-export FQ_P1="$OUTFILE_P1"
-export FQ_P2="$OUTFILE_P2"
 export FQ_U=${SLURM_TMPDIR}/FQ_U.fastq
-cat "$OUTFILE_U1" "$OUTFILE_U2" > $FQ_U
+cat $FQ_U1 $FQ_U2 > $FQ_U
 
 module unload seqkit
 
