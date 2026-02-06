@@ -8,14 +8,14 @@ check_output() {
 	        return 1  # Exit the function with a non-zero status
 	fi
 	
-    if [[ -z "$DATASET" || -z "$TSV" ]]; then
-		echo "\$DATASET or \$TSV not set. Run dataset_variables <DATASET> <TSV> to declare variables."
-		return 1
-	fi
-	
 	DATABASES="$1"
 	DATASET_PATH="$2"
 	filename_suffix="$3"
+	
+    if [[ -z "$DATASET_PATH" || -z "$TSV" ]]; then
+		echo "\$DATASET_PATH or \$TSV not set. Run dataset_variables <DATASET_PATH> <TSV> to declare variables."
+		return 1
+	fi
 
 	for db in $DATABASES; do
 		
