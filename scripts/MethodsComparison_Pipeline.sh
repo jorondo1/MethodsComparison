@@ -5,19 +5,19 @@ source scripts/myFunctions.sh
 
 # Create <dataset>_TSV and NUM_<dataset> variables
 # Choose the one to work with :
-dataset_variables "P19_Saliva" "$PR19/Saliva/preproc/preprocessed_reads.sample.tsv"
-dataset_variables "P19_Gut" "$PR19/Feces/preproc/preprocessed_reads.sample.tsv"
-dataset_variables "Moss" "$MOSS/preproc/preprocessed_reads.sample.tsv"
-dataset_variables "NAFLD" "$MC/data/NAFLD/preproc/preprocessed_reads.sample.tsv"
-dataset_variables "AD_Skin" "$MC/data/AD_Skin/preproc/preprocessed_reads.sample.tsv"
-dataset_variables "PD" "$MC/data/PD/preproc/preprocessed_reads.sample.tsv"
-dataset_variables "Bee" "$MC/data/Bee/preproc/preprocessed_reads.sample.tsv"
-dataset_variables "Olive" "$MC/data/Olive/preproc/preprocessed_reads.sample.tsv"
-dataset_variables "RA_Gut" "$MC/data/RA_Gut/preproc/preprocessed_reads.sample.tsv"
+dataset_variables "P19_Saliva" "$PR19/Saliva/preproc/preprocessed_reads.sample.tsv" # 
+dataset_variables "P19_Gut" "$PR19/Feces/preproc/preprocessed_reads.sample.tsv" # √
+dataset_variables "Moss" "$MOSS/preproc/preprocessed_reads.sample.tsv" # √
+dataset_variables "NAFLD" "$MC/data/NAFLD/preproc/preprocessed_reads.sample.tsv" #
+dataset_variables "AD_Skin" "$MC/data/AD_Skin/preproc/preprocessed_reads.sample.tsv" # √
+dataset_variables "PD" "$MC/data/PD/preproc/preprocessed_reads.sample.tsv" # 47-655
+dataset_variables "Bee" "$MC/data/Bee/preproc/preprocessed_reads.sample.tsv" 
+dataset_variables "Olive" "$MC/data/Olive/preproc/preprocessed_reads.sample.tsv" #XXX
+dataset_variables "RA_Gut" "$MC/data/RA_Gut/preproc/preprocessed_reads.sample.tsv" 
 
-######################
+################################################################################################################
 # QC #################
-######################
+################################################################################################################
 
 mkdir -p  $DATASET_PATH/raw
 
@@ -42,7 +42,7 @@ bash $ANCHOR/$ILAFORES/programs/ILL_pipelines/generateslurm_preprocess.kneaddata
 	--trimmomatic_options "SLIDINGWINDOW:4:20 MINLEN:50" \
 	--db $FAST/host_genomes/GRCh38_index/grch38_1kgmaj \
 	--slurm_mem 30G --slurm_threads 24
-	
+
 # correct script as the shell command needs to be anchored!
 cp -r /fast2/def-ilafores/$DATASET/preproc/*  $DATASET_PATH/preproc/
 
@@ -51,64 +51,6 @@ missing_samples=$(grep -n -v -f <(ls  $DATASET_PATH/preproc/*/*_1.fastq.gz | awk
 
 rm -r  $DATASET_PATH/preproc/.throttle
 sbatch --array="$missing_samples" /nfs3_ib/nfs-ip34/jbod2/def-ilafores/analysis/MethodsComparison/PD/preproc/preprocess.kneaddata.slurm.sh
-
-# Sequence counts by sample
-ml seqkit 
-:>$MC/Out/stats/all_read_counts_raw.tsv
-
-fastq_files=($(find ./Bee/preproc -maxdepth 2 -type f -name "*paired_1.fastq*"))
-total_files=${#fastq_files[@]}
-
-start=0
-chunk_size=40
-
-while [ $start -lt $total_files ]; do
-    seqkit stats ${fastq_files[@]:$start:$chunk_size} --threads $chunk_size --skip-err >> $MC/Out/stats/all_read_counts_raw.tsv
-    start=$((start + chunk_size))
-done
-
-grep DNA $MC/Out/stats/all_read_counts_raw.tsv | sponge $MC/Out/stats/all_read_counts_raw.tsv
-
-# Replace first column with dataset and sample IDs :
-awk '{
-    path = $1;
-    rest = substr($0, length(path) + 2);
-    split(path, parts, "/");
-    group = parts[2];
-    sample = parts[4];
-    print group " " sample " " rest;
-}' OFS='\t' $MC/Out/stats/all_read_counts_raw.tsv > $MC/Out/stats/all_read_counts.tsv
-
-# Summarise mean ± SD by dataset in awk lol just do R gobless deepseek
-awk -F' ' '
-{
-    gsub(/,/, "", $5);  # Remove commas from the fifth column
-    group = $1;
-    value = $5 + 0;
-    
-    # Initialize min/max for new groups
-    if (!(group in count)) {
-        min[group] = value;
-        max[group] = value;
-    }
-    
-    # Update min/max
-    if (value < min[group]) min[group] = value;
-    if (value > max[group]) max[group] = value;
-    
-    # Track sum and sumsq for mean/stddev
-    count[group]++;
-    sum[group] += value;
-    sumsq[group] += value * value;
-}
-END {
-    for (g in count) {
-        mean = sum[g] / count[g];
-        stddev = sqrt((sumsq[g] - sum[g]^2 / count[g]) / count[g]);
-        printf "%s\t%.2f ± %.2f [%d, %d]\n", g, mean, stddev, min[g], max[g];
-    }
-}' $MC/Out/stats/all_read_counts.tsv > $MC/Out/stats/sample_count_summary.tsv
-
 # gzip all, except if gz already there
 find $(dirname $TSV) -type f -name '*fastq' -print0 | xargs -0 -P 8 -I {} bash -c 'if [ ! -f "{}.gz" ]; then pigz -k "{}"; fi'
 
@@ -120,21 +62,35 @@ sed -i 's|/nfs3_ib/nfs-ip34/home|/net/nfs-ip34/jbod2|g' $tsv
 sed -i 's|/net/nfs-ip34/home|/net/nfs-ip34/jbod2|g' $tsv
 done
 
-################
-# mOTUs4 [on NARVAL] ########
-################
+################################################################################################################
+# mOTUs4 [on FIR] ########
+################################################################################################################
 
 ## ON IP34 
-# ship to narval, migrate samples + preproc tsv 
-awk '{print $2"\n"$3"\n"$4"\n"$5}' $TSV | while read file; do
-  [ -f "$file" ] && echo "$file"
-done | cat - <(echo "$ANCHOR$TSV") | \
-rsync -av --no-relative --files-from=- / \
-ronj2303@narval.alliancecan.ca:/scratch/ronj2303/MethodsComparison/data/$DATASET/preproc
+# ship to fir, migrate samples + preproc tsv 
+# First, sync only the TSV
+rsync -avr --no-relative \
+$MC/data/*/preproc/preprocessed_reads.sample.tsv \
+$PR19/*/preproc/preprocessed_reads.sample.tsv \
+$MOSS/preproc/preprocessed_reads.sample.tsv \
+ronj2303@fir.alliancecan.ca:/scratch/ronj2303/MethodsComparison/data/$DATASET/preproc/
 
-# ON NARVAL, 
+rsync -avr "$TSV" \
+ronj2303@fir.alliancecan.ca:/scratch/ronj2303/MethodsComparison/data/$DATASET/preproc/
+
+rsync -avr "$ILL_PIPELINES/containers/mOTUs_v4.0.4.sif" \
+ronj2303@fir.alliancecan.ca:/scratch/ronj2303/ILL_pipelines/containers
+
+# Then sync the other files
+awk '{print $2"\n"$3"\n"$4"\n"$5}' "$TSV" | tac | while read file; do 
+    [ -f "$file" ] && echo "$file"
+done | rsync -avr --no-relative --files-from=- / \
+ronj2303@fir.alliancecan.ca:/scratch/ronj2303/MethodsComparison/data/$DATASET/preproc/
+
+# ON FIR #####
 #initiate variables
 source $MC/scripts/myFunctions.sh
+
 # different subdir names...
 cd $MC
 dataset_variables "P19_Saliva" "$PWD/data/P19_Saliva/preproc/preprocessed_reads.sample.tsv"
@@ -158,20 +114,20 @@ awk -v new_path="$MC/data/${DATASET}/preproc" '
         }
         print
     }
-' "$TSV" > "$TSV".narval
-sed -i 's|.fastq.gz|.fastq|g' "$TSV".narval
-sed -i 's|.fastq|.fastq.gz|g' "$TSV".narval
+' "$TSV" > "$TSV".fir
+sed -i 's|.fastq.gz|.fastq|g' "$TSV".fir
+sed -i 's|.fastq|.fastq.gz|g' "$TSV".fir
 done 
 
 # Custom SLURM script
 mkdir -p $MC/logs
-sbatch --array=1-"$N_SAMPLES" ${MC}/scripts/motus4_SLURM_narval.sh ${DATASET_PATH} ${TSV}.narval
+sbatch --array=1-"$N_SAMPLES" ${MC}/scripts/motus4_SLURM_fir.sh ${DATASET_PATH} ${TSV}.fir
 
 # Check completion status
 check_output 'MOTUS4'  $DATASET_PATH _profile.txt
  
 # Rerun missing MOTUS
-sbatch --array="$FOUND" ${MC}/scripts/motus4_SLURM_narval.sh ${DATASET_PATH} ${TSV}.narval
+sbatch --array="$FOUND" ${MC}/scripts/motus4_SLURM_fir.sh ${DATASET_PATH} ${TSV}.fir
 
 # number of species in db
 motus_db='/jbod2/def-ilafores/programs/motu-profiler_env/lib/python3.8/site-packages/motus/db_mOTU'
@@ -196,12 +152,13 @@ ENDFILE {
 }
 ' {} + > Out/classification_rates/motus_classification_rate.tsv
 
-################
+################################################################################################################
 # MetaPhlAn4 ###
-################
+################################################################################################################
 
+cd $ILL_PIPELINES; git checkout kraken_light; cd $MC
 metaphlan="bash $ANCHOR/$ILL_PIPELINES/generateslurm_taxonomic_abundance.metaphlan.sh \
-	--slurm_log $ANCHOR/$MC/logs --slurm_walltime 24:00:00 --slurm_threads 24 --slurm_mem 30G"
+	--slurm_log $ANCHOR/$MC/logs --slurm_walltime 24:00:00 --slurm_threads 24 --slurm_mem 120G"
 
 # Generate SLURM scripts https://github.com/jflucier/ILL_pipelines/blob/main/generateslurm_taxonomic_abundance.metaphlan.sh
 # 2022 database
@@ -221,7 +178,7 @@ sbatch --array=1-"$N_SAMPLES" ${ANCHOR}${DATASET_PATH}/MPA_db2025/metaphlan.slur
 # Rerun missing MPA
 database="MPA_db2025"
 missing_MPA=$(grep -n -v -f <(ls $DATASET_PATH/$database/*/*_profile.txt | xargs -I {} basename {} | sed 's/_profile\.txt//') $DATASET_PATH/preproc/preprocessed_reads.sample.tsv | cut -f1 -d: | tr '\n' ','); echo $missing_MPA
-sbatch --array="$missing_MPA"  $DATASET_PATH/$database/metaphlan.slurm.sh  $DATASET_PATH "\$${dataset}_TSV"
+sbatch --array="$missing_MPA" ${ANCHOR}${DATASET_PATH}/MPA_db2025/metaphlan.slurm.sh
 
 # number of species
 bzcat $FAST/metaphlan4_db/2022/mpa_vOct22_CHOCOPhlAnSGB_202212_species.txt.bz2 | cut -f2 | awk -F'|' '{print $7}' | sort -u | grep "s__" | wc
@@ -245,10 +202,10 @@ rm */MPA_db*/*/*.bowtie2.txt
 rm */*/.throttle -r
 
 
-####################
+################################################################################################################
 # Kraken/bracken ###
 # on /fast2/ local #
-####################
+################################################################################################################
 
 
 # Copy fastqs to /fast2
@@ -299,9 +256,9 @@ sbatch --array="$missing_KB"  $DATASET_PATH/$database/taxonomic_profile.samples.
 rm */KB*/*/*_taxonomy_nt */KB*/*/*/*.bracken */KB*/*/*bugs_list.MPA.TXT */KB*/*/*/*_temp.MPA.TXT */KB*/*/*/*_bracken_[^S].MPA.TXT -r */KB*/*/*_kronagrams -r */*/.throttle/
 
 
-#####################
+################################################################################################################
 # Sourmash gather ###
-#####################
+################################################################################################################
 
 sbatch --mem=120G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "genbank-2022.03"
 sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "gtdb-rs214-rep"
@@ -342,9 +299,14 @@ cd $MC && find ./data/*/SM* -name '*_gather.csv' -exec awk -F',' '
   END { if (col) printf "%s\t%.5f\n", FILENAME, sum }
 ' {} \; > Out/classification_rates/sourmash_classification_rate.tsv
 
-################################################################
-# #### GRAVEYARD ###############################################
-################################################################
+################################################################################################################
+#################################################################################################
+################################################################################
+# ####  GRAVEYARD  #####  GRAVEYARD  ###########################
+################################################################################
+#################################################################################################
+################################################################################################################
+
 ## surplus taxa in sourmash rs220 index
 mkdir tmp
 cat $MC/data/P19_Gut/Sourmash/*rs220*_gather.csv | cut -d, -f10 | tail -n+2 | \
