@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH -D /project/def-ilafores/ronj2303/MethodsComparison
-#SBATCH -o /project/def-ilafores/ronj2303/MethodsComparison/logs/mOTU-%A_%a.slurm.out
+#SBATCH -D /scratch/ronj2303/MethodsComparison
+#SBATCH -o /scratch/ronj2303/MethodsComparison/logs/mOTU-%A_%a.slurm.out
 #SBATCH --time=4:00:00
 #SBATCH --mem=180G
 #SBATCH -N 1
@@ -9,7 +9,7 @@
 #SBATCH -J motus4
 
 echo "initializing variables..."
-export HOME_DIR=/project/def-ilafores/ronj2303
+export HOME_DIR=/scratch/ronj2303
 export OUT_DIR="${1}"/MOTUS4
 export SAM_LIST="${2}"
 export SAM_NUM=$(awk "NR==$SLURM_ARRAY_TASK_ID" ${SAM_LIST})
