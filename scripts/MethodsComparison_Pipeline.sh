@@ -93,8 +93,8 @@ source $MC/scripts/myFunctions.sh
 
 # different subdir names...
 cd $MC
-dataset_variables "P19_Saliva" "$PWD/data/P19_Saliva/preproc/preprocessed_reads.sample.tsv"
-dataset_variables "P19_Gut" "$PWD/data/P19_Gut/preproc/preprocessed_reads.sample.tsv"
+dataset_variables "P19_Saliva" "$PWD/data/P19_Saliva/preproc/preprocessed_reads.sample.tsv" #√
+dataset_variables "P19_Gut" "$PWD/data/P19_Gut/preproc/preprocessed_reads.sample.tsv"#√
 dataset_variables "Moss" "$PWD/data/Moss/preproc/preprocessed_reads.sample.tsv"
 
 # the TSV needs to be edited with new paths
@@ -298,61 +298,3 @@ cd $MC && find ./data/*/SM* -name '*_gather.csv' -exec awk -F',' '
   { sum += $col }
   END { if (col) printf "%s\t%.5f\n", FILENAME, sum }
 ' {} \; > Out/classification_rates/sourmash_classification_rate.tsv
-
-################################################################################################################
-#################################################################################################
-################################################################################
-# ####  GRAVEYARD  #####  GRAVEYARD  ###########################
-################################################################################
-#################################################################################################
-################################################################################################################
-
-## surplus taxa in sourmash rs220 index
-mkdir tmp
-cat $MC/data/P19_Gut/Sourmash/*rs220*_gather.csv | cut -d, -f10 | tail -n+2 | \
-	awk '{print $1}' | sed 's/"//' | sort -u > tmp/found_taxa.tsv # 8070 taxa
-
-# of which 1191 are not in the species reps lineage file
-grep -v -f <(cut -f1 $ILAFORES/ref_dbs/sourmash_db/bac120_taxonomy_r220.tsv | sed 's/^[^_]*_//' | sort -u) tmp/found_taxa.tsv | wc
-
-## Remove and Redownload corrupted samples:
-remove_these=($(sed -n "$(echo $missing_samples | sed 's/,/p;/g' | sed 's/;$//')"  $DATASET_PATH/preproc/preprocessed_reads.sample.tsv | awk '{print $1}' ))
-for sample in "${remove_these[@]}"; do
-	rm data/PD/raw/${sample}_?.fastq.gz
-done
-# download!
-cd data/PD/raw
-grep -f <(printf "%s\n" "${remove_these[@]}") "../ena-file-download-read_run-PRJNA834801-fastq_ftp-20250310-1443.sh" | bash
-cd ../../
-
-# Find missing line numbers
-grep -n -v -f <(ls NAFLD/SM_genbank_202203/ | sed 's/_.*//' | sort | uniq) NAFLD/preproc/preprocessed_reads.sample.tsv | awk -F: '{print $1}' | paste -sd,
-
-:>$MC/NAFLD/raw/samples_to_process.tsv
-while read -r p; do 
-SRR=$(echo $p | awk '{print $1}')
-f1=$(find NAFLD/raw -type f -name "${SRR}_1.fastq*" -exec realpath {} \;)
-f2=$(find NAFLD/raw -name "${SRR}_2.fastq*" -exec realpath {} \;)
-SAM=$(echo $p | awk '{print $14}')
-if [ ! -z "$f1" ]; then 
-	echo -e "$SAM\t$f1\t$f2" >> $MC/NAFLD/raw/samples_to_process.tsv
-fi; done < NAFLD/raw/ENA_report.tsv 
-
-
-:> $MC/NAFLD/raw/samples_to_process.tsv
-while read p; do 
-SAM=$(echo $p | cut -f1 -d' ')
-if [[ "$SAM" == "run_accession" ]]; then 
-continue
-fi
-f1=$(find $MC/NAFLD/raw -name "${SAM}_1.fastq.gz")
-f2=$(find $MC/NAFLD/raw -name "${SAM}_2.fastq.gz")
-echo -e "$SAM\t${f1}\t${f2}" >> $MC/NAFLD/raw/samples_to_process.tsv
-done < $MC/NAFLD/raw/metadata.tsv 
-
-
-### Update kraken db
-bracken="bash $ILL_PIPELINES/generateslurm_taxonomic_profile.sample.sh \
-	--kraken_db $ILAFORES/ref_dbs/kraken2_dbs/kraken2_PlusPFP_202202 \
-	--slurm_log $MC/logs --slurm_walltime 72:00:00 --slurm_threads 48 --slurm_mem 250G"
-

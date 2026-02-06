@@ -14,12 +14,12 @@ check_output() {
 	fi
 	
 	DATABASES="$1"
-	DATASET="$2"
+	DATASET_PATH="$2"
 	filename_suffix="$3"
 
 	for db in $DATABASES; do
 		
-		found=$(find $DATASET/*$db -type f -name "*$filename_suffix" -exec basename {} \; | sed "s/${filename_suffix}//" | sed "s/_${db}//")
+		found=$(find $DATASET_PATH/*$db -type f -name "*$filename_suffix" -exec basename {} \; | sed "s/${filename_suffix}//" | sed "s/_${db}//")
 		
 		num_found=$(echo $found | wc -w)
 		echo "$num_found $db output for $DATASET found, $N_SAMPLES expected."
