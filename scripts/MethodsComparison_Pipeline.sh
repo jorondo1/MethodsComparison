@@ -5,7 +5,7 @@ source scripts/myFunctions.sh
 
 # Create <dataset>_TSV and NUM_<dataset> variables
 # Choose the one to work with :
-dataset_variables "P19_Saliva" "$PR19/Saliva/preproc/preprocessed_reads.sample.tsv" # 
+dataset_variables "P19_Saliva" "$PR19/Saliva/preproc/preprocessed_reads.sample.tsv" # √
 dataset_variables "P19_Gut" "$PR19/Feces/preproc/preprocessed_reads.sample.tsv" # √
 dataset_variables "Moss" "$MOSS/preproc/preprocessed_reads.sample.tsv" # √
 dataset_variables "NAFLD" "$MC/data/NAFLD/preproc/preprocessed_reads.sample.tsv" #
@@ -94,8 +94,7 @@ source $MC/scripts/myFunctions.sh
 # different subdir names...
 cd $MC
 dataset_variables "P19_Saliva" "$PWD/data/P19_Saliva/preproc/preprocessed_reads.sample.tsv" #√
-dataset_variables "P19_Gut" "$PWD/data/P19_Gut/preproc/preprocessed_reads.sample.tsv"#√
-dataset_variables "Moss" "$PWD/data/Moss/preproc/preprocessed_reads.sample.tsv"
+dataset_variables "P19_Gut" "$PWD/data/P19_Gut/preproc/preprocessed_reads.sample.tsv" #√
 
 # the TSV needs to be edited with new paths
 # we use the sample identifier to relpace the base path
@@ -122,13 +121,16 @@ done
 # Custom SLURM script
 mkdir -p $MC/logs
 sbatch --array=1-"$N_SAMPLES" ${MC}/scripts/motus4_SLURM_fir.sh ${DATASET_PATH} ${TSV}.fir
-
+# RA_Gut jobID 22101727
+# Bee jobID 22101809
 # Check completion status
 check_output 'MOTUS4'  $DATASET_PATH _profile.txt
  
 # Rerun missing MOTUS
 sbatch --array="$FOUND" ${MC}/scripts/motus4_SLURM_fir.sh ${DATASET_PATH} ${TSV}.fir
-
+sbatch --array="$FOUND" --mem 300G -c 64 ${MC}/scripts/motus4_SLURM_fir.sh ${DATASET_PATH} ${TSV}.fir
+#PD : jobid 22101634
+# NAFLD jobid: 22102067
 # number of species in db
 motus_db='/jbod2/def-ilafores/programs/motu-profiler_env/lib/python3.8/site-packages/motus/db_mOTU'
 cat $motus_db/db_mOTU_taxonomy_ref-mOTUs.tsv | cut -f2 | sort -u | wc
@@ -179,6 +181,7 @@ sbatch --array=1-"$N_SAMPLES" ${ANCHOR}${DATASET_PATH}/MPA_db2025/metaphlan.slur
 database="MPA_db2025"
 missing_MPA=$(grep -n -v -f <(ls $DATASET_PATH/$database/*/*_profile.txt | xargs -I {} basename {} | sed 's/_profile\.txt//') $DATASET_PATH/preproc/preprocessed_reads.sample.tsv | cut -f1 -d: | tr '\n' ','); echo $missing_MPA
 sbatch --array="$missing_MPA" ${ANCHOR}${DATASET_PATH}/MPA_db2025/metaphlan.slurm.sh
+# Bee missing: jobid 71631
 
 # number of species
 bzcat $FAST/metaphlan4_db/2022/mpa_vOct22_CHOCOPhlAnSGB_202212_species.txt.bz2 | cut -f2 | awk -F'|' '{print $7}' | sort -u | grep "s__" | wc
@@ -201,15 +204,17 @@ cd $MC && find ./data/*/MPA* -name '*_profile.txt' -exec awk '
 rm */MPA_db*/*/*.bowtie2.txt
 rm */*/.throttle -r
 
-
+# Post-process to keep only species lines and headers
+find "$MC"/data/*/MPA_* -type f -name "*_profile.txt" | \
+  parallel -j 24 'grep -E "s__|#" {} > {}.temp && mv {}.temp {}'
+  
 ################################################################################################################
 # Kraken/bracken ###
 # on /fast2/ local #
 ################################################################################################################
 
-
 # Copy fastqs to /fast2
-for dir in $(find $MC/data -maxdepth 3 -type d -name 'preproc'); do 
+for dir in $(find $MC/data/$DATASET -maxdepth 3 -type d -name 'preproc'); do 
 nice -n10 ionice -c2 -n7 rclone copy $dir /fast2/def-ilafores/preproc --transfers 16 --checkers 4 --modify-window 5s --fast-list --no-update-modtime --retries 3 --retries-sleep 30s --low-level-retries 1 -v -L --size-only --exclude "*contam*";
 done
 for dir in /jbod2/def-ilafores/analysis/projet_PROVID19/Feces/preproc /jbod2/def-ilafores/analysis/projet_PROVID19/Saliva/preproc/jbod2/def-ilafores/analysis/boreal_moss/preproc; do
@@ -217,14 +222,14 @@ nice -n10 ionice -c2 -n7 rclone copy $dir /fast2/def-ilafores/preproc --transfer
 done
 
 # rearrange tsvs to point to new path and remove anchors 
-for tsv in $(find $ILAFORES/analysis/ -maxdepth 5 -readable -name "preprocessed_reads.sample.tsv" 2>/dev/null); do
-	dir=$(dirname $tsv)
-	sed "s|/nfs3_ib/nfs-ip34||g" ${tsv} > ${tsv}.fast
-	sed -i "s|/net/nfs-ip34||g" ${tsv}.fast
-	sed -i "s|${dir}|/fast2/def-ilafores/preproc|g" ${tsv}.fast
-done
+DIR=$(dirname $TSV)
+sed "s|/nfs3_ib/nfs-ip34||g" ${TSV} > ${TSV}.fast
+sed -i "s|/net/nfs-ip34||g" ${TSV}.fast
+sed -i "s|${DIR}|/fast2/def-ilafores/preproc|g" ${TSV}.fast
 
-ml apptainer
+rsync -avr $ILAFORES/ref_dbs/kraken2_dbs/k2_standard_20241228 /dev/shm/
+rsync -avr  $ILAFORES/ref_dbs/kraken2_dbs/k2_gtdb_genome_reps_20241109 /dev/shm/
+
 k2_std=/dev/shm/k2_standard_20241228 
 k2_gtdb=/dev/shm/k2_gtdb_genome_reps_20241109
 k2_local=$MC/scripts/kraken_local.sh
@@ -261,15 +266,14 @@ rm */KB*/*/*_taxonomy_nt */KB*/*/*/*.bracken */KB*/*/*bugs_list.MPA.TXT */KB*/*/
 ################################################################################################################
 
 sbatch --mem=120G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "genbank-2022.03"
-sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "gtdb-rs214-rep"
-sbatch --mem=80G -n 16 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "gtdb-rs214-full"
+sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/jbod2/def-ilafores/ref_dbs/sourmash_db/gtdb-rs214-reps.k31.zip"
+sbatch --mem=80G -n 16 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/jbod2/def-ilafores/ref_dbs/sourmash_db/gtdb-rs214-full.k31.zip"
 sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/jbod2/def-ilafores/ref_dbs/sourmash_db/gtdb-rs220-reps-k31.zip"
-sbatch --mem=120G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/fast2/def-ilafores/refseq_genomes/all_sig_refseq-09-April-2025.zip"
-sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/jbod2/def-ilafores/analysis/boreal_moss/genome_sketches/gtdb-rs214-rep-MAGs.sbt.zip"
-sbatch --mem=31G -n 1 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "$ILAFORES/ref_dbs/sourmash_db/RefSeq_20250528.k31.sbt.zip" # Here using 1 see gather_SLURM_fast.sh script; pending sourmash 4.9 update to remove 
+sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" ${ANCHOR}$MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/jbod2/def-ilafores/analysis/boreal_moss/genome_sketches/gtdb-rs214-rep-MAGs.sbt.zip"
+sbatch --mem=31G -n 1 --array=1-"$N_SAMPLES" ${ANCHOR}$MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "$ILAFORES/ref_dbs/sourmash_db/RefSeq_20250528.k31.sbt.zip" # Here using 1 see gather_SLURM_fast.sh script; pending sourmash 4.9 update to remove 
 
 # Check completion status
-check_output 'RefSeq_20250528' $DATASET _gather.csv
+check_output 'RefSeq_20250528' $DATASET_PATH _gather.csv
 
 # Extract Sourmash lineage subset
 for i in P19_Saliva P19_Gut PD AD_Skin Moss RA_Gut Bee Olive NAFLD; do

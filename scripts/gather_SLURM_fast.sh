@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #SBATCH --mail-type=END,FAIL
-#SBATCH -D /net/nfs-ip34/home/def-ilafores/analysis/MethodsComparison
-#SBATCH -o /net/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/logs/sourmash-%A_%a.slurm.out
-#SBATCH -e /net/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/logs/sourmash-%A_%a.slurm.err
+#SBATCH -D /net/nfs-ip34/jbod2/def-ilafores/analysis/MethodsComparison
+#SBATCH -o /net/nfs-ip34/jbod2/def-ilafores/analysis/MethodsComparison/logs/sourmash-%A_%a.slurm.out
+#SBATCH -e /net/nfs-ip34/jbod2/def-ilafores/analysis/MethodsComparison/logs/sourmash-%A_%a.slurm.err
 #SBATCH --time=6:00:00
 #SBATCH -N 1
 #SBATCH -n 24
@@ -12,6 +12,7 @@
 start_time=$(date +%s)
 
 export ILAFORES=$ANCHOR/$ILAFORES
+
 # Load sourmash
 module load StdEnv/2020 apptainer/1.1.5
 
