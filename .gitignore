@@ -14,9 +14,9 @@ logs/
 *.log
 archive/
 *.fa
-*.fastq
-*.fastq.gz
-*.fq.gz
+*.fastq*
+*.fastq.gz*
+*.fq.gz*
 *.sig
 *.bowtie2.txt
 *.tar.gz
