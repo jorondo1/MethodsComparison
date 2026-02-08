@@ -1,10 +1,11 @@
 library(pacman)
-p_load(phyloseq, tidyverse, magrittr, doParallel, furrr)
+p_load(phyloseq,mgx.tools, # unloadNamespace("mgx.tools"); devtools::install_github("jorondo1/mgx.tools", force = TRUE); library(mgx.tools)
+       tidyverse, magrittr, doParallel, furrr)
 
 # functions
 source('scripts/myFunctions.R')
-source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/tax_glom2.R')
-source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/rarefy_even_depth2.R')
+#source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/tax_glom2.R')
+#source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/rarefy_even_depth2.R')
 source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/community_functions.R')
 
 # Import External data
@@ -17,6 +18,20 @@ moss.ps <-readRDS(url('https://github.com/jorondo1/borealMoss/raw/main/data/R_ou
 # with general structure List$Dataset$Database.ps
 meta_parsing <- function(dsName, samData) {
   ps <- list()
+  
+  # MOTUS #########################
+  message(paste('Parsing', 'MOTUS', '...'))
+  ps[['MOTUS3']] <- parse_MPA(
+    MPA_files = file.path('data', dsName,"MOTUS/*_profile.txt"), 
+    column_names = c('mOTU', 'Taxonomy', 'NCBI', 'Abundance'),
+    mOTUs_data = TRUE) %>% 
+    assemble_phyloseq(samData, seqdepth_plot = FALSE)
+  
+  ps[['MOTUS4']] <- parse_MPA(
+    MPA_files = file.path('data', dsName,"MOTUS4/*_profile.txt"), 
+    column_names = c('mOTU', 'Taxonomy', 'Abundance'),
+    mOTUs_data = TRUE) %>% 
+    assemble_phyloseq(samData, seqdepth_plot = FALSE)
   
   # SOURMASH #####################
   SM_dirs <- list.dirs(file.path('data',dsName), recursive = FALSE) %>% 
@@ -35,18 +50,10 @@ meta_parsing <- function(dsName, samData) {
       },
       by = 'genome'
     ) %>% species_glom() %>%
-      assemble_phyloseq(samData)
+      assemble_phyloseq(samData, seqdepth_plot = FALSE)
   }
   
-  # MOTUS #########################
-  message(paste('Parsing', 'MOTUS', '...'))
-  ps[['MOTUS']] <- parse_MPA(
-    MPA_files = file.path('data', dsName,"MOTUS/*_profile.txt"), 
-    column_names = c('mOTU', 'Taxonomy', 'NCBI', 'Abundance'),
-    mOTUs_data = TRUE) %>% 
-    assemble_phyloseq(samData)
-  
-  # KRAKEN (using default headers from parse_MPA function) ########3
+  # KRAKEN (using default headers from parse_MPA function) ###############
   kbdirs <- list.dirs(file.path('data',dsName), recursive = FALSE) %>% 
     .[grep("/KB[^/]*$", .)] %>% basename # List all KB dirs
   
@@ -54,7 +61,7 @@ meta_parsing <- function(dsName, samData) {
     message(paste('Parsing', db, '...'))
     ps[[db]] <- parse_MPA(
       MPA_files = file.path('data', dsName, db, '*/*_bracken/*_bracken_S.MPA.TXT')) %>% 
-      assemble_phyloseq(samData)
+      assemble_phyloseq(samData, seqdepth_plot = FALSE)
   }
   
 
@@ -68,7 +75,7 @@ meta_parsing <- function(dsName, samData) {
       MPA_files = file.path('data', dsName, db, '*/*_profile.txt'),
       column_names = c('Taxonomy', 'NCBI','Abundance', 'Void'),
       convert_to_counts = TRUE) %>% 
-      assemble_phyloseq(samData)
+      assemble_phyloseq(samData, seqdepth_plot = FALSE)
   }
   return(ps)
 }
@@ -137,7 +144,7 @@ ps_raw.ls$Moss$KB90 <- NULL
 ps_raw.ls$Moss$MOTUS <- NULL
 ps_raw.ls[['NAFLD']] <- meta_parsing('NAFLD', NAFLD_meta)
 ps_raw.ls[['AD_Skin']] <- meta_parsing('AD_Skin', AD_skin_meta)
-#ps_raw.ls[['RA_Gut']] <- meta_parsing('RA_Gut', RA_meta)
+ps_raw.ls[['RA_Gut']] <- meta_parsing('RA_Gut', RA_meta)
 ps_raw.ls[['Bee']] <- meta_parsing('Bee', Bee_meta)
 ps_raw.ls[['Olive']] <- meta_parsing('Olive', Olive_meta)
 ps_raw.ls[['PD']] <- meta_parsing('PD', PD_meta)

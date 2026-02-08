@@ -121,8 +121,7 @@ done
 # Custom SLURM script
 mkdir -p $MC/logs
 sbatch --array=1-"$N_SAMPLES" ${MC}/scripts/motus4_SLURM_fir.sh ${DATASET_PATH} ${TSV}.fir
-# RA_Gut jobID 22101727
-# Bee jobID 22101809
+# Bee jobID 22105037
 # Check completion status
 check_output 'MOTUS4'  $DATASET_PATH _profile.txt
  
@@ -130,7 +129,6 @@ check_output 'MOTUS4'  $DATASET_PATH _profile.txt
 sbatch --array="$FOUND" ${MC}/scripts/motus4_SLURM_fir.sh ${DATASET_PATH} ${TSV}.fir
 sbatch --array="$FOUND" --mem 300G -c 64 ${MC}/scripts/motus4_SLURM_fir.sh ${DATASET_PATH} ${TSV}.fir
 #PD : jobid 22101634
-# NAFLD jobid: 22102067
 # number of species in db
 motus_db='/jbod2/def-ilafores/programs/motu-profiler_env/lib/python3.8/site-packages/motus/db_mOTU'
 cat $motus_db/db_mOTU_taxonomy_ref-mOTUs.tsv | cut -f2 | sort -u | wc
@@ -235,9 +233,9 @@ k2_gtdb=/dev/shm/k2_gtdb_genome_reps_20241109
 k2_local=$MC/scripts/kraken_local.sh
 
 # RUN KRAKEN ON /fast2/
-bash $k2_local --tsv ${TSV}.fast --confidence 0.10 --output  $DATASET_PATH/KB10 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${TSV}.fast --confidence 0.45 --output  $DATASET_PATH/KB45 --kraken_db $k2_std --threads 24
-bash $k2_local --tsv ${TSV}.fast --confidence 0.90 --output  $DATASET_PATH/KB90 --kraken_db $k2_std --threads 24
+bash $k2_local --tsv ${TSV}.fast --confidence 0.10 --output  $DATASET_PATH/KB10 --kraken_db $k2_std --threads 36
+bash $k2_local --tsv ${TSV}.fast --confidence 0.45 --output  $DATASET_PATH/KB45 --kraken_db $k2_std --threads 36
+bash $k2_local --tsv ${TSV}.fast --confidence 0.90 --output  $DATASET_PATH/KB90 --kraken_db $k2_std --threads 36
 bash $k2_local --tsv ${TSV}.fast --confidence 0.10 --output  $DATASET_PATH/KB10_GTDB --kraken_db $k2_gtdb --threads 24
 bash $k2_local --tsv ${TSV}.fast --confidence 0.45 --output  $DATASET_PATH/KB45_GTDB --kraken_db $k2_gtdb --threads 24
 bash $k2_local --tsv ${TSV}.fast --confidence 0.90 --output  $DATASET_PATH/KB90_GTDB --kraken_db $k2_gtdb --threads 24
@@ -258,18 +256,19 @@ missing_KB=$(grep -n -v -f <(ls  $DATASET_PATH/$database/*/*/*_bracken_S.MPA.TXT
 sbatch --array="$missing_KB"  $DATASET_PATH/$database/taxonomic_profile.samples.slurm.sh  $DATASET_PATH "\$${dataset}_TSV"
 
 # Once completely done, remove heavy files from kraken out 
-rm */KB*/*/*_taxonomy_nt */KB*/*/*/*.bracken */KB*/*/*bugs_list.MPA.TXT */KB*/*/*/*_temp.MPA.TXT */KB*/*/*/*_bracken_[^S].MPA.TXT -r */KB*/*/*_kronagrams -r */*/.throttle/
-
+cd data
+rm -r */KB*/*/*_taxonomy_nt */KB*/*/*/*.bracken */KB*/*/*bugs_list.MPA.TXT */KB*/*/*/*_temp.MPA.TXT */KB*/*/*/*.kreport */KB*/*/*_kronagrams */*/.throttle/
+cd $MC
 
 ################################################################################################################
 # Sourmash gather ###
 ################################################################################################################
 
-sbatch --mem=120G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "genbank-2022.03"
-sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/jbod2/def-ilafores/ref_dbs/sourmash_db/gtdb-rs214-reps.k31.zip"
-sbatch --mem=80G -n 16 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/jbod2/def-ilafores/ref_dbs/sourmash_db/gtdb-rs214-full.k31.zip"
-sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/jbod2/def-ilafores/ref_dbs/sourmash_db/gtdb-rs220-reps-k31.zip"
-sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" ${ANCHOR}$MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/jbod2/def-ilafores/analysis/boreal_moss/genome_sketches/gtdb-rs214-rep-MAGs.sbt.zip"
+sbatch --mem=120G -n 24 --array=1-"$N_SAMPLES" ${ANCHOR}$MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "genbank-2022.03"
+sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" ${ANCHOR}$MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/jbod2/def-ilafores/ref_dbs/sourmash_db/gtdb-rs214-reps.k31.zip"
+sbatch --mem=80G -n 16 --array=1-"$N_SAMPLES" ${ANCHOR}$MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/jbod2/def-ilafores/ref_dbs/sourmash_db/gtdb-rs214-full.k31.zip"
+sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" ${ANCHOR}$MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/jbod2/def-ilafores/ref_dbs/sourmash_db/gtdb-rs220-reps-k31.zip"
+# sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" ${ANCHOR}$MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/jbod2/def-ilafores/analysis/boreal_moss/genome_sketches/gtdb-rs214-rep-MAGs.sbt.zip"
 sbatch --mem=31G -n 1 --array=1-"$N_SAMPLES" ${ANCHOR}$MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "$ILAFORES/ref_dbs/sourmash_db/RefSeq_20250528.k31.sbt.zip" # Here using 1 see gather_SLURM_fast.sh script; pending sourmash 4.9 update to remove 
 
 # Check completion status
@@ -277,6 +276,7 @@ check_output 'RefSeq_20250528' $DATASET_PATH _gather.csv
 
 # Extract Sourmash lineage subset
 for i in P19_Saliva P19_Gut PD AD_Skin Moss RA_Gut Bee Olive NAFLD; do
+# i=RA_Gut
 for j in $(find data/$i -maxdepth 1 -type d -name 'SM_*'); do
 	db_name=$(basename $j)
 	db=$(echo "$db_name" | cut -d'_' -f2 | cut -d'-' -f1,2)
