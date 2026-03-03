@@ -162,7 +162,6 @@ centered_differences <- div_comparison.pdat %>%
 
 centered_differences %>% 
   #  filter(centered_diffs<2) %>% 
-  
   ggplot(aes(x = centered_diffs, fill = Facet)) +
   geom_density(alpha = 0.4) +
   labs(x = "Median-centered changes in Hill diversity (order 1)") +

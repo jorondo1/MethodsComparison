@@ -166,10 +166,10 @@ metaphlan="bash $ANCHOR/$ILL_PIPELINES/generateslurm_taxonomic_abundance.metaphl
 $metaphlan --sample_tsv $ANCHOR/$TSV --db $FAST/metaphlan3_db/mpa_v30_CHOCOPhlAn_201901 --out $ANCHOR/$DATASET_PATH/MPA_db2019
 sbatch --array=1-"$N_SAMPLES" ${ANCHOR}${DATASET_PATH}/MPA_db2019/metaphlan.slurm.sh
 
-$metaphlan --sample_tsv $ANCHOR/$TSV --db $FAST/metaphlan4_db/2022/mpa_vOct22_CHOCOPhlAnSGB_202212 --out $ANCHOR/$DATASET_PATH/MPA_db2022
+$metaphlan --sample_tsv ${ANCHOR}$TSV --db $FAST/metaphlan4_db/2022/mpa_vOct22_CHOCOPhlAnSGB_202212 --out ${ANCHOR}$DATASET_PATH/MPA_db2022
 sbatch --array=1-"$N_SAMPLES" ${ANCHOR}${DATASET_PATH}/MPA_db2022/metaphlan.slurm.sh
 
-$metaphlan --sample_tsv $ANCHOR/$TSV --db $FAST/metaphlan4_db/2023/mpa_vJun23_CHOCOPhlAnSGB_202307 --out $ANCHOR/$DATASET_PATH/MPA_db2023
+$metaphlan --sample_tsv ${ANCHOR}$TSV --db $FAST/metaphlan4_db/2023/mpa_vJun23_CHOCOPhlAnSGB_202307 --out ${ANCHOR}$DATASET_PATH/MPA_db2023
 sbatch --array=1-"$N_SAMPLES" ${ANCHOR}${DATASET_PATH}/MPA_db2023/metaphlan.slurm.sh
 
 $metaphlan --sample_tsv ${ANCHOR}${TSV} --db $FAST/metaphlan4_db/2025/mpa_vJan25_CHOCOPhlAnSGB_202503 --out ${ANCHOR}${DATASET_PATH}/MPA_db2025

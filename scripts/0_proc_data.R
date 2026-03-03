@@ -25,13 +25,13 @@ meta_parsing <- function(dsName, samData) {
     MPA_files = file.path('data', dsName,"MOTUS/*_profile.txt"), 
     column_names = c('mOTU', 'Taxonomy', 'NCBI', 'Abundance'),
     mOTUs_data = TRUE) %>% 
-    assemble_phyloseq(samData, seqdepth_plot = FALSE)
+    assemble_phyloseq(samData, seqdepth_plot = FALSE, onlySpecies = TRUE)
   
   ps[['MOTUS4']] <- parse_MPA(
     MPA_files = file.path('data', dsName,"MOTUS4/*_profile.txt"), 
     column_names = c('mOTU', 'Taxonomy', 'Abundance'),
     mOTUs_data = TRUE) %>% 
-    assemble_phyloseq(samData, seqdepth_plot = FALSE)
+    assemble_phyloseq(samData, seqdepth_plot = FALSE, onlySpecies = TRUE)
   
   # SOURMASH #####################
   SM_dirs <- list.dirs(file.path('data',dsName), recursive = FALSE) %>% 
@@ -50,7 +50,7 @@ meta_parsing <- function(dsName, samData) {
       },
       by = 'genome'
     ) %>% species_glom() %>%
-      assemble_phyloseq(samData, seqdepth_plot = FALSE)
+      assemble_phyloseq(samData, seqdepth_plot = FALSE, onlySpecies = TRUE)
   }
   
   # KRAKEN (using default headers from parse_MPA function) ###############
@@ -61,10 +61,10 @@ meta_parsing <- function(dsName, samData) {
     message(paste('Parsing', db, '...'))
     ps[[db]] <- parse_MPA(
       MPA_files = file.path('data', dsName, db, '*/*_bracken/*_bracken_S.MPA.TXT')) %>% 
-      assemble_phyloseq(samData, seqdepth_plot = FALSE)
+      assemble_phyloseq(samData, seqdepth_plot = FALSE, onlySpecies = TRUE)
   }
   
-
+  
   # METAPHLAN ######################
   mpadirs <- list.dirs(file.path('data',dsName), recursive = FALSE) %>% 
     .[grep("/MPA_[^/]*$", .)] %>% basename
@@ -74,8 +74,8 @@ meta_parsing <- function(dsName, samData) {
     ps[[db]] <- parse_MPA(
       MPA_files = file.path('data', dsName, db, '*/*_profile.txt'),
       column_names = c('Taxonomy', 'NCBI','Abundance', 'Void'),
-      convert_to_counts = TRUE) %>% 
-      assemble_phyloseq(samData, seqdepth_plot = FALSE)
+      MPA_data = TRUE) %>% # this switch normalises MPA abundances to 100, see https://forum.biobakery.org/t/metaphlan-genus-level-relative-abundance-not-summing-up-to-100-and-possible-database-problem/5630/6
+      assemble_phyloseq(samData, seqdepth_plot = FALSE, onlySpecies = TRUE)
   }
   return(ps)
 }
@@ -146,44 +146,31 @@ ps_raw.ls[['NAFLD']] <- meta_parsing('NAFLD', NAFLD_meta)
 ps_raw.ls[['AD_Skin']] <- meta_parsing('AD_Skin', AD_skin_meta)
 ps_raw.ls[['RA_Gut']] <- meta_parsing('RA_Gut', RA_meta)
 ps_raw.ls[['Bee']] <- meta_parsing('Bee', Bee_meta)
-ps_raw.ls[['Olive']] <- meta_parsing('Olive', Olive_meta)
+#ps_raw.ls[['Olive']] <- meta_parsing('Olive', Olive_meta)
 ps_raw.ls[['PD']] <- meta_parsing('PD', PD_meta)
 
-write_rds(ps_raw.ls, "Out/_Rdata/ps_raw.ls.RDS", compress = 'gz')
+write_rds(ps_raw.ls, "Out/_Rdata/ps_raw.ls.RDS", compress = 'bz2')
 
 # Prevalence+Abundance filtering, currently hardcoded in filter_low_prevalence()
 
 ps_filt.ls <- lapply(ps_raw.ls, function(ds) {
   lapply(ds, filter_low_prevalence, minPrev = 0.10, minAbund = 0)
 })
-write_rds(ps_filt.ls, "Out/_Rdata/ps_filt.ls.RDS", compress = 'gz')
+write_rds(ps_filt.ls, "Out/_Rdata/ps_filt.ls.RDS", compress = 'bz2')
 
-ps_rare.ls <- list()
-ps_rare.ls <- lapply(ps_raw.ls, function(ds) {
-  lapply(ds, function(db) {
-    rarefy_even_depth2(db, rngseed = 1234, 
-                       verbose = TRUE, ncores = 8)
+ps_rare.ls <- map(ps_raw.ls, function(ds) {
+  imap(ds, function(db, database_name) {
+    if (str_detect(database_name, "^MPA_")) {
+      message(paste("Skipping rarefaction for:", database_name))
+      return(db)
+    } else {
+      rarefy_even_depth2(
+        db, rngseed = 1234, 
+        verbose = TRUE, ncores = 7) %>% 
+        return()
+    }
   })
 })
 
-write_rds(ps_rare.ls, "Out/_Rdata/ps_rare.ls.RDS", compress = 'gz')
+write_rds(ps_rare.ls, "Out/_Rdata/ps_rare.ls.RDS", compress = 'bz2')
 
-
-# ps_rare.ls <- lapply(ps_raw.ls, function(sublist) {
-#   lapply(sublist, rarefy_even_depth2, rngseed = 1234)
-# })
-# 
-# # Genus level phyloseq objects, with prevalence filtering
-# ps_rare_genus.ls <- lapply(ps_raw.ls, function(ds) {
-#   lapply(ds, function(db) {
-#     tax_glom2(db, taxrank = "Genus") %>% 
-#       rarefy_even_depth2(rngseed = 1234, verbose = TRUE)
-#     })
-# })
-# 
-# ps_rare_family.ls <- lapply(ps_raw.ls, function(ds) {
-#   lapply(ds, function(db) {
-#     tax_glom2(db, taxrank = "Family") %>% 
-#       rarefy_even_depth2(rngseed = 1234)
-#   })
-# })
