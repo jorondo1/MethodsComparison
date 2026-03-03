@@ -50,7 +50,10 @@ meta_parsing <- function(dsName, samData) {
       },
       by = 'genome'
     ) %>% species_glom() %>%
-      assemble_phyloseq(samData, seqdepth_plot = FALSE, onlySpecies = TRUE)
+      assemble_phyloseq(
+        samData, 
+        seqdepth_plot = FALSE, 
+        onlySpecies = TRUE)
   }
   
   # KRAKEN (using default headers from parse_MPA function) ###############
@@ -61,7 +64,10 @@ meta_parsing <- function(dsName, samData) {
     message(paste('Parsing', db, '...'))
     ps[[db]] <- parse_MPA(
       MPA_files = file.path('data', dsName, db, '*/*_bracken/*_bracken_S.MPA.TXT')) %>% 
-      assemble_phyloseq(samData, seqdepth_plot = FALSE, onlySpecies = TRUE)
+      assemble_phyloseq(
+        samData, 
+        seqdepth_plot = FALSE, 
+        onlySpecies = TRUE)
   }
   
   
@@ -75,7 +81,12 @@ meta_parsing <- function(dsName, samData) {
       MPA_files = file.path('data', dsName, db, '*/*_profile.txt'),
       column_names = c('Taxonomy', 'NCBI','Abundance', 'Void'),
       MPA_data = TRUE) %>% # this switch normalises MPA abundances to 100, see https://forum.biobakery.org/t/metaphlan-genus-level-relative-abundance-not-summing-up-to-100-and-possible-database-problem/5630/6
-      assemble_phyloseq(samData, seqdepth_plot = FALSE, onlySpecies = TRUE)
+      assemble_phyloseq(
+        samData, 
+        min_sample_size = 0, # because MPA is proportions
+        min_taxa_count = 0, #because MPA is proportions
+        seqdepth_plot = FALSE, 
+        onlySpecies = TRUE)
   }
   return(ps)
 }
@@ -158,12 +169,13 @@ ps_filt.ls <- lapply(ps_raw.ls, function(ds) {
 })
 write_rds(ps_filt.ls, "Out/_Rdata/ps_filt.ls.RDS", compress = 'bz2')
 
-ps_rare.ls <- map(ps_raw.ls, function(ds) {
+ps_rare.ls <- imap(ps_raw.ls, function(ds, dataset_name) {
   imap(ds, function(db, database_name) {
     if (str_detect(database_name, "^MPA_")) {
-      message(paste("Skipping rarefaction for:", database_name))
+      message(paste("Skipping rarefaction for:", dataset_name, database_name))
       return(db)
     } else {
+      message(paste("Rarefying:",dataset_name,  database_name))
       rarefy_even_depth2(
         db, rngseed = 1234, 
         verbose = TRUE, ncores = 7) %>% 
