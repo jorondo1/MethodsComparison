@@ -3,7 +3,6 @@ p_load( magrittr, mgx.tools, # devtools::install_github("jorondo1/mgx.tools")
         tidyverse, kableExtra, gghalves,
         rstatix)
 
-ps_rare.ls <- read_rds('Out/_Rdata/ps_rare.ls.rds')
 source("scripts/0_Config.R")
 theme_set(theme_light())
 
@@ -16,12 +15,14 @@ theme_set(theme_light())
 #   $$ |$$ |        $$ |      $$$$$$\ \$$$$$$  |$$\       $$$$$$\ 
 #   \__|\__|        \__|      \______| \______/ \__|      \______|
 
+# TEST_STARTPOINT for dropout tests
+
 ####################
 # Alpha diversity ###
 ######################
 
 # Reorder factors, filter for datasets
-these_datasets <- c('Moss', 'NAFLD', 'P19_Gut', 'P19_Saliva', 'PD', 'Bee', 'AD_Skin')
+these_datasets <- c('Moss', 'NAFLD', 'P19_Gut', 'P19_Saliva', 'PD', 'Bee', 'AD_Skin', 'RA_Gut')
 
 alpha_div <- read_rds('Out/_Rdata/alpha_div.RDS')[['plot_data']] %>% 
   filter(Dataset %in% these_datasets) %>% 
@@ -29,14 +30,17 @@ alpha_div <- read_rds('Out/_Rdata/alpha_div.RDS')[['plot_data']] %>%
   left_join(CCE_metadata, by = 'Database')
 
 # PLOT hill_1 variation for methods most equivalent in terms of number of species
-these_databases <- c('MPA_db2023', 'MOTUS', 
+these_databases <- c('MPA_db2025', 'MOTUS4', 
                      'KB45', 'KB45_GTDB', 
                      'SM_gtdb-rs220-rep', 'SM_RefSeq_20250528')
 
 axis_desc <- c(
   Richness = 'Hill number of order 0 (Number of species)',
+  Shannon = 'Shannon entropy',
   Hill_1 = 'Hill number of order 1 (effective number of equally abundant species)',
-  Hill_2 = 'Hill number of order 2 (effective number of dominant species)'
+  Simpson = 'Simpson index',
+  Hill_2 = 'Hill number of order 2 (effective number of dominant species)',
+  Tail = 'Tail statistic (rank-based diversity)'
 )
 
 div_comparison.pdat <- alpha_div %>% 
@@ -69,26 +73,31 @@ keep_paired_samples <- function(df, idx) {
     summarise(n = n()/2) %>% 
     deframe() # make it a named vector
   
-  # Add sample count by facet
   sample_subset %>% 
     mutate(
-      Facet = case_when(
-        Taxonomy == 'Tool-specific' ~ paste0('A. DNA-to-marker methods (n = ', counts['Tool-specific'], ')'),
-        Taxonomy == 'GTDB' ~ paste0('B. GTDB 220 (n = ', counts['GTDB'], ')'),
-        Taxonomy == 'NCBI' ~ paste0('C. RefSeq 2024-12-28 (n = ', counts['NCBI'], ')'))
+      paired_N = counts[Taxonomy]
     )
+  
 }
+
+alpha_paired <- map(names(axis_desc), function(idx) {
+  div_comparison.pdat %>% 
+    keep_paired_samples(idx = idx)
+}) %>% setNames(names(axis_desc))
 
 
 # PANEL 1 : distribution of index values ----------------------------------
 
-alpha_plots <- imap(axis_desc, function(desc, idx) {
-  
-  dat <- div_comparison.pdat %>% 
-    keep_paired_samples(idx = idx) %>% 
-    filter(Index == idx)
+alpha_distr.plots <- imap(alpha_paired, function(dat, idx) {
   
   dat %>% 
+    mutate(
+      Facet = case_when(
+        Taxonomy == 'Tool-specific' ~ paste0('A. DNA-to-marker methods (n = ', paired_N, ')'),
+        Taxonomy == 'GTDB' ~ paste0('B. GTDB 220 (n = ', paired_N, ')'),
+        Taxonomy == 'NCBI' ~ paste0('C. RefSeq 2024-12-28 (n = ', paired_N, ')'))
+    ) %>% 
+    # Plot :
     ggplot(aes(x = Database, y = Index_value)) +
     geom_half_violin(
       data = . %>% filter(str_detect(Database, 'KB') | str_detect(Database, 'MPA')),
@@ -104,7 +113,7 @@ alpha_plots <- imap(axis_desc, function(desc, idx) {
       draw_quantiles = 0.5) + 
     geom_line(aes(group = Sample), alpha = 0.5, linewidth = 0.08) +
     facet_wrap(~Facet, scales = 'free') +
-    scale_fill_manual(values = tool_colours, breaks = c('MetaPhlAn4', 'mOTUs3', 'Kraken2+Bracken', 'Sourmash gather')) +
+    scale_fill_manual(values = tool_colours, breaks = c('MetaPhlAn4', 'mOTUs4', 'Kraken2+Bracken', 'Sourmash gather')) +
     theme_light() +
     theme(
       axis.text.x = element_blank(),
@@ -117,85 +126,166 @@ alpha_plots <- imap(axis_desc, function(desc, idx) {
       strip.text.x.top = element_text(
         angle = 0, hjust = 0, size = 12),
       legend.background = element_rect(
-        fill = "white",        # White background
-        color = "black",       # Black border
-        linewidth = 0.3        # Border thickness
+        fill = "white",    
+        color = "black",   
+        linewidth = 0.3    
       )
     ) +
     scale_y_continuous(limits = c(0, NA)) +
-    labs(fill = 'Tool', x = '', y = desc)
+    labs(fill = 'Tool', x = '', y = axis_desc[idx])
   
 })
 
 
 # SAVE PLOTS
-imap(alpha_plots, function(plot, idx) {
+imap(alpha_distr.plots, function(plot, idx) {
   
   ggsave(plot = plot, 
-         paste0('Out/memoire/alpha_',idx, '_comparison.pdf'),
+         paste0('Out/Manuscript/alpha_',idx, '_comparison.pdf'),
          bg = 'white', width = 2200, height = 1400,
-         units = 'px', dpi = 220)
-  
-  ggsave(plot = plot, 
-         paste0('Out/ISMB2025/alpha_',idx, '_comparison.pdf'),
-         bg = 'white', width = 2300, height = 1200,
-         units = 'px', dpi = 230)
+         units = 'px', dpi = 210)
+  # 
+  # ggsave(plot = plot, 
+  #        paste0('Out/ISMB2025/alpha_',idx, '_comparison.pdf'),
+  #        bg = 'white', width = 2300, height = 1200,
+  #        units = 'px', dpi = 230)
   
 })
 
-
 # PANEL 2 : distribution of differences -----------------------------------
+# Intéressant : encore plus variable/prononcé avec Hill_2
 
-centered_differences <- div_comparison.pdat %>% 
-  keep_paired_samples(idx = "Hill_1") %>% 
-  filter(Index == "Hill_1") %>% 
-  #  group_by(Facet) %>% 
-  #  mutate(Centered_value = Index_value - median(Index_value)) %>% 
-  group_by(Taxonomy, Dataset, Facet, Sample) %>%
-  #  summarise(differences = last(Centered_value)-first(Centered_value),
-  summarise(differences = (last(Index_value)-first(Index_value))/last(Index_value),
-            .groups = 'drop') %>%
-  group_by(Facet) %>% 
-  mutate(centered_diffs = differences - median(differences)
+alpha_diff.pdat <- map(alpha_paired, function(dat) {
+  
+  dat %>% 
+    # Text for legend titles presented differently:
+    mutate(
+      Facet = case_when(
+        Taxonomy == 'Tool-specific' ~ paste0('MetaPhlAn4 (2025) vs. mOTUs4 (n = ', paired_N, ')'),
+        Taxonomy == 'GTDB' ~ paste0('Kraken vs. Sourmash (GTDB 220; n = ', paired_N, ')'),
+        Taxonomy == 'NCBI' ~ paste0('Kraken vs. Sourmash (RefSeq 2024-12-28; n = ', paired_N, ')'))
+    ) %>% 
+    select(Taxonomy, Dataset, Database, Facet, Sample, Index_value) %>% 
+    
+    # Scale indices (median/mad) within dataset/database combo:
+    group_by(Dataset, Database) %>% 
+    mutate(scaled_index = (Index_value-median(Index_value))/mad(Index_value)) %>% 
+    ungroup() %>% 
+    
+    # Pairwise differences in scaled diversity :
+    group_by(Taxonomy, Dataset, Facet, Sample) %>%
+    
+    # each group will have 2 by design (see these_databases vector)
+    # so we can subtract the first one from the last one within group
+    # if they are ordered :
+    arrange(Taxonomy, Dataset, Facet, Sample) %>% 
+    summarise(differences = first(scaled_index)-last(scaled_index),
+              .groups = 'drop') 
+}) 
+
+distr_alpha_diffs.plots <- imap(alpha_diff.pdat, function(plot.dat, plot_name){
+  
+  plot.dat %>% 
+    # Format facet labels with sample counts 
+    #  filter(centered_diffs<2) %>% 
+    ggplot(aes(x = differences, fill = Facet)) +
+    geom_density(alpha = 0.4, linewidth = 0.2) +
+    theme(
+      legend.position = 'bottom'
+    ) +
+    labs(subtitle = paste0(LETTERS[which(names(alpha_diff.pdat) == plot_name)], ": ", plot_name),
+         fill = "Tool pair comparison") +
+    theme(plot.caption = element_text(hjust = 0),
+          axis.title = element_blank()) 
+  
+})
+
+# Combine in 2 columns
+wrap_plots(distr_alpha_diffs.plots, ncol = 2) +
+  plot_layout(guides = "collect") & 
+  theme(legend.position = 'bottom',
+        legend.title = element_blank()) &
+  plot_annotation(title = "Density of changes in scaled diversity indices")
+
+ggsave(paste0('Out/Manuscript/alpha_diff_distribution.pdf'),
+       bg = 'white', width = 2500, height = 1400,
+       units = 'px', dpi = 260)
+# 
+# # Variances
+# centered_differences %>% 
+#   group_by(Facet) %>% 
+#   summarise(var_cdiff = var(differences)) 
+# 
+# # Do variances differ significantly?
+# centered_differences %>% 
+#   group_by(Facet) %>% 
+#   mutate(squared_dev = (differences - median(differences))^2) %>% 
+#   ungroup() %>% 
+#   arrange(Sample) %>% 
+#   wilcox_test(squared_dev~Facet)
+
+# Spearman correlation of ranks -------------------------------------------
+
+spearman.raw <- imap(alpha_paired, function(dat, idx) {
+  
+  dat %>% 
+    select(Taxonomy, Database, Sample, Index_value) %>% 
+    group_split(Taxonomy) %>%
+    map_dfr(function(x) {
+      x %>%
+        pivot_wider(names_from = Database, values_from = Index_value) %>%
+        select(-Sample, -Taxonomy) %>% 
+        cor_test(vars = everything(), method = "spearman")  %>%
+        transmute(
+          Taxonomy = unique(x$Taxonomy),
+          Index = idx,
+          cor = cor,
+          p = p)
+    })
+}) %>% list_rbind() 
+
+spearman.table <- spearman.raw %>% 
+  # hill numbers are monotonic transformations, hence redundant
+  filter(!Index %in% c("Hill_1", "Hill_2")) %>% 
+  mutate(
+    Approach = case_when(
+      Taxonomy == 'Tool-specific' ~ paste0('MetaPhlAn4 (2025) vs. mOTUs4'),
+      Taxonomy == 'GTDB' ~ paste0('Kraken vs. Sourmash (GTDB 220)'),
+      Taxonomy == 'NCBI' ~ paste0('Kraken vs. Sourmash (RefSeq 2024-12-28)')),
+    .keep = 'unused', .after = Index
   ) %>% 
-  ungroup()
+  pivot_wider(names_from = Index, values_from = cor, id_cols = Approach) %>% 
+  kable() #%>% 
+  #kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 
-centered_differences %>% 
-  #  filter(centered_diffs<2) %>% 
-  ggplot(aes(x = centered_diffs, fill = Facet)) +
-  geom_density(alpha = 0.4) +
-  labs(x = "Median-centered changes in Hill diversity (order 1)") +
-  theme(
-    legend.position = 'bottom'
-  )
+#save_kable(spearman.table, 'Out/Manuscript/alpha_corr.html')
 
-# Variances
-centered_differences %>% 
-  group_by(Facet) %>% 
-  summarise(var_cdiff = var(centered_diffs)) 
+# Drop-out test PD --------------------------------------------------------
 
-centered_differences %>% 
-  group_by(Facet) %>% 
-  mutate(squared_dev = (differences - median(differences))^2) %>% 
-  ungroup() %>% 
-  arrange(Sample) %>% 
-  wilcox_test(squared_dev~Facet)
+# >>>> TEST_BREAKPOINT # used to subset the script (stops here)
+# save current script 
+rstudioapi::documentSave()
 
+# Current script name:
+script_path <- this.path::this.path()
 
-# Signed rank test on square deviations from the median
-# suggested by https://claude.ai/chat/55cf7920-1402-4e40-85ba-074270266e55
-centered_differences %>% 
-  # only keep samples evaluated by all 3 pairs
-  group_by(Sample) %>% 
-  #filter(n()==3) %>%
-  filter(Taxonomy != 'Tool-specific') %>% 
-  filter(n()==2) %>% 
-  group_by(Facet) %>% 
-  mutate(squared_dev = (differences - median(differences))^2) %>% 
-  ungroup() %>% 
-  arrange(Sample) %>% 
-  wilcox_test(squared_dev~Facet, paired = TRUE)
+# Load current script
+lines <- readLines(script_path, warn = FALSE)
 
+# Find the breakpoint line in current script
+startpoint_line <- grep("TEST_STARTPOINT", lines)[1]
+breakpoint_line <- grep("TEST_BREAKPOINT", lines)[1]
+
+# Remove all instances of "'PD',"
+lines <- gsub("'Bee',", "", lines, fixed = TRUE)
+
+# Replace all instances of another string (example: replace "old" with "new")
+lines <- gsub("Manuscript", "Manuscript/dropout", lines, fixed = TRUE)
+
+# Remove everything after breakpoint
+truncated_lines <- lines[startpoint_line:breakpoint_line]
+
+source(textConnection(truncated_lines))
 
 
 # Sample diversity variations tables --------------------------------------
@@ -247,50 +337,51 @@ for (idx in c('Richness', 'Hill_1', 'Hill_2')) {
   quantify_div_variation(
     alpha_div, idx = idx,
     'KB10_GTDB', 'SM_gtdb-rs220-rep') %>% 
-    save_kable(paste0('Out/memoire/tables/alpha_', idx,'_GTDB10.html'))
+    save_kable(paste0('Out/Manuscript/tables/alpha_', idx,'_GTDB10.html'))
   
   quantify_div_variation(
     alpha_div, idx = idx,
     'KB45_GTDB', 'SM_gtdb-rs220-rep') %>% 
-    save_kable(paste0('Out/memoire/tables/alpha_', idx,'_GTDB45.html'))
+    save_kable(paste0('Out/Manuscript/tables/alpha_', idx,'_GTDB45.html'))
   
   quantify_div_variation(
     alpha_div, idx = idx,
     'KB90_GTDB', 'SM_gtdb-rs220-rep') %>% 
-    save_kable(paste0('Out/memoire/tables/alpha_', idx,'_GTDB90.html'))
+    save_kable(paste0('Out/Manuscript/tables/alpha_', idx,'_GTDB90.html'))
   
   quantify_div_variation(
     alpha_div, idx = idx,
     'KB10', 'SM_RefSeq_20250528') %>% 
-    save_kable(paste0('Out/memoire/tables/alpha_', idx,'_RefSeq10.html'))
+    save_kable(paste0('Out/Manuscript/tables/alpha_', idx,'_RefSeq10.html'))
   
   quantify_div_variation(
     alpha_div, idx = idx,
     'KB90', 'SM_RefSeq_20250528') %>% 
-    save_kable(paste0('Out/memoire/tables/alpha_', idx,'_RefSeq90.html'))
+    save_kable(paste0('Out/Manuscript/tables/alpha_', idx,'_RefSeq90.html'))
   
   quantify_div_variation(
     alpha_div, idx = idx,
     'KB45', 'SM_RefSeq_20250528') %>% 
-    save_kable(paste0('Out/memoire/tables/alpha_', idx,'_RefSeq45.html'))
+    save_kable(paste0('Out/Manuscript/tables/alpha_', idx,'_RefSeq45.html'))
   
   quantify_div_variation(
     alpha_div, idx = idx,
-    'MPA_db2023', 'MOTUS') %>% 
-    save_kable(paste0('Out/memoire/tables/alpha_', idx,'_Markers.html'))
+    'MPA_db2025', 'MOTUS4') %>% 
+    save_kable(paste0('Out/Manuscript/tables/alpha_', idx,'_Markers.html'))
   
   quantify_div_variation(
     alpha_div, idx = idx,
     'SM_gtdb-rs220-rep', 'SM_RefSeq_20250528') %>% 
-    save_kable(paste0('Out/memoire/tables/alpha_', idx,'_SM.html'))
+    save_kable(paste0('Out/Manuscript/tables/alpha_', idx,'_SM.html'))
   
   quantify_div_variation(
     alpha_div, idx = idx,
     'KB45_GTDB', 'KB45') %>% 
-    save_kable(paste0('Out/memoire/tables/alpha_', idx,'_KB.html'))
+    save_kable(paste0('Out/Manuscript/tables/alpha_', idx,'_KB.html'))
 }
 
 # Mean Dataset alphadiv range across methods
+# Valid? ??
 alpha_div %>% group_by(Database, Dataset, Taxonomy) %>% 
   filter(Index %in% c('Hill_1')
          & Database %in% these_databases) %>%
@@ -303,3 +394,6 @@ alpha_div %>% group_by(Database, Dataset, Taxonomy) %>%
   mutate(fold_increase = max / min) %>% 
   summarise(mean_fold = mean(fold_increase),
             sd_fold = sd(fold_increase))
+
+
+

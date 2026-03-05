@@ -49,9 +49,10 @@ alpha_div[['plot_data']] <-  imap(ps_rare.ls, function(ps_dataset.ls, dataset){
       Tail = tail,
       Simpson = simpson
     ) %>% # Pivot longer for ggplot 
-      pivot_longer(cols = c('Richness', 'Shannon', 'Tail', 'Simpson', 'Hill_1', 'Hill_2'),
-                   names_to = 'Index',
-                   values_to = 'Index_value') %>% 
+      pivot_longer(
+        cols = c('Richness', 'Shannon', 'Tail', 'Simpson', 'Hill_1', 'Hill_2'),
+        names_to = 'Index',
+        values_to = 'Index_value') %>% 
       left_join( # Add grouping variable
         samdat, by = 'Sample'
       )
@@ -82,7 +83,7 @@ pcoa.ls <- map(ps_rare.ls, function(ps.ls) {
              .options = furrr_options(packages = c("phyloseq", "mgx.tools")))
 }); plan(sequential)
 
-write_rds(pcoa.ls, 'Out/_Rdata/pcoa_noVST.ls.RDS', compress = 'gz')
+write_rds(pcoa.ls, 'Out/_Rdata/pcoa_noVST.ls.RDS', compress = 'bz2')
 
 # ompile pairwise distances in a long dataset
 pairwise_distances <- imap(pcoa.ls, function(dataset.ls, dataset) {
@@ -95,7 +96,7 @@ pairwise_distances <- imap(pcoa.ls, function(dataset.ls, dataset) {
   }) %>% list_rbind()
 }) %>% list_rbind() 
 
-write_rds(pairwise_distances, 'Out/_Rdata/pairwise_dist.RDS', compress = 'gz' )
+write_rds(pairwise_distances, 'Out/_Rdata/pairwise_dist.RDS', compress = 'bz2' )
 
 
 # 2.2. Procrustes analyses
@@ -157,7 +158,6 @@ permanova.ds <- imap(pcoa.ls, function(pcoa_db.ls, ds) {
     tibble(
       Dataset = ds,
       Database = db,       
-      Index = dist,
       R2 = res$R2[1],   
       p = res$`Pr(>F)`[1]
     ) %>% return()
@@ -166,5 +166,5 @@ permanova.ds <- imap(pcoa.ls, function(pcoa_db.ls, ds) {
 }) %>% list_rbind() %>% 
   left_join(CCE_metadata, by = 'Database')
 
-write_rds(permanova.ds, 'Out/_Rdata/permanova.ds.RDS')
+write_rds(permanova.ds, 'Out/_Rdata/permanova.ds.RDS',compress = 'gz')
 
