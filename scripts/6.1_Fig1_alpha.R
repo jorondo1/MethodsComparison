@@ -1,7 +1,8 @@
 library(pacman)
 p_load( magrittr, mgx.tools, # devtools::install_github("jorondo1/mgx.tools")
         tidyverse, kableExtra, gghalves,
-        rstatix)
+        patchwork,
+        rstatix, PairedData)
 
 source("scripts/0_Config.R")
 theme_set(theme_light())
@@ -59,7 +60,7 @@ keep_paired_samples <- function(df, idx) {
     group_by(Taxonomy, Sample) %>% 
     summarise(n = n(), .groups = 'drop') %>% 
     filter(n == 2) %>% 
-    select(-n)
+    dplyr::select(-n)
   
   sample_subset <- left_join(
     x = sample_db_sets,
@@ -124,12 +125,7 @@ alpha_distr.plots <- imap(alpha_paired, function(dat, idx) {
       legend.box.spacing = unit(-0.5, "lines"),
       strip.background = element_rect(fill = 'grey50'),
       strip.text.x.top = element_text(
-        angle = 0, hjust = 0, size = 12),
-      legend.background = element_rect(
-        fill = "white",    
-        color = "black",   
-        linewidth = 0.3    
-      )
+        angle = 0, hjust = 0, size = 12)
     ) +
     scale_y_continuous(limits = c(0, NA)) +
     labs(fill = 'Tool', x = '', y = axis_desc[idx])
@@ -141,7 +137,7 @@ alpha_distr.plots <- imap(alpha_paired, function(dat, idx) {
 imap(alpha_distr.plots, function(plot, idx) {
   
   ggsave(plot = plot, 
-         paste0('Out/Manuscript/alpha_',idx, '_comparison.pdf'),
+         paste0('Out/Manuscript/1.1.alpha_',idx, '.pdf'),
          bg = 'white', width = 2200, height = 1400,
          units = 'px', dpi = 210)
   # 
@@ -152,10 +148,48 @@ imap(alpha_distr.plots, function(plot, idx) {
   
 })
 
+
+# Spearman correlation of ranks -------------------------------------------
+
+spearman.raw <- imap(alpha_paired, function(dat, idx) {
+  
+  dat %>% 
+    dplyr::select(Taxonomy, Database, Sample, Index_value) %>% 
+    group_split(Taxonomy) %>%
+    map_dfr(function(x) {
+      x %>%
+        pivot_wider(names_from = Database, values_from = Index_value) %>%
+        dplyr::select(-Sample, -Taxonomy) %>% 
+        cor_test(vars = everything(), method = "spearman")  %>%
+        transmute(
+          Taxonomy = unique(x$Taxonomy),
+          Index = idx,
+          cor = cor,
+          p = p)
+    })
+}) %>% list_rbind() 
+
+spearman.table <- 
+  spearman.raw %>% 
+  # hill numbers are monotonic transformations, hence redundant
+  filter(!Index %in% c("Hill_1", "Hill_2")) %>% 
+  mutate(
+    Approach = case_when(
+      Taxonomy == 'Tool-specific' ~ paste0('MetaPhlAn4 (2025) vs. mOTUs4'),
+      Taxonomy == 'GTDB' ~ paste0('Kraken vs. Sourmash (GTDB 220)'),
+      Taxonomy == 'NCBI' ~ paste0('Kraken vs. Sourmash (RefSeq 2024-12-28)')),
+    .keep = 'unused', .after = Index
+  ) %>% 
+  pivot_wider(names_from = Index, values_from = cor, id_cols = Approach) %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+save_kable(spearman.table, 'Out/Manuscript/alpha_corr.html')
+
 # PANEL 2 : distribution of differences -----------------------------------
 # Intéressant : encore plus variable/prononcé avec Hill_2
 
-alpha_diff.pdat <- map(alpha_paired, function(dat) {
+alpha_diff.fun <- function(dat) {
   
   dat %>% 
     # Text for legend titles presented differently:
@@ -165,7 +199,7 @@ alpha_diff.pdat <- map(alpha_paired, function(dat) {
         Taxonomy == 'GTDB' ~ paste0('Kraken vs. Sourmash (GTDB 220; n = ', paired_N, ')'),
         Taxonomy == 'NCBI' ~ paste0('Kraken vs. Sourmash (RefSeq 2024-12-28; n = ', paired_N, ')'))
     ) %>% 
-    select(Taxonomy, Dataset, Database, Facet, Sample, Index_value) %>% 
+    dplyr::select(Taxonomy, Dataset, Database, Facet, Sample, Index_value) %>% 
     
     # Scale indices (median/mad) within dataset/database combo:
     group_by(Dataset, Database) %>% 
@@ -181,9 +215,14 @@ alpha_diff.pdat <- map(alpha_paired, function(dat) {
     arrange(Taxonomy, Dataset, Facet, Sample) %>% 
     summarise(differences = first(scaled_index)-last(scaled_index),
               .groups = 'drop') 
-}) 
+}
 
-distr_alpha_diffs.plots <- imap(alpha_diff.pdat, function(plot.dat, plot_name){
+alpha_diff.pdat <- alpha_paired %>% 
+  keep_at(c('Richness', 'Shannon', 'Simpson', 'Tail')) %>% 
+  map(alpha_diff.fun)
+
+
+distr_alpha_diffs.fun <- function(plot.dat, plot_name){
   
   plot.dat %>% 
     # Format facet labels with sample counts 
@@ -198,8 +237,24 @@ distr_alpha_diffs.plots <- imap(alpha_diff.pdat, function(plot.dat, plot_name){
     theme(plot.caption = element_text(hjust = 0),
           axis.title = element_blank()) 
   
-})
+}
+distr_alpha_diffs.plots <- alpha_diff.pdat %>% 
+  imap(distr_alpha_diffs.fun)
 
+distr_alpha_diffs.plots$Shannon +
+  labs(subtitle = "")+
+  theme(
+    legend.position = c(0.3,0.5),
+    legend.background = element_rect(
+      fill = 'white',
+      colour = 'black'
+    )
+  )
+
+ggsave(paste0('Out/Manuscript/1.2.alpha_diff_Shannon.pdf'),
+       bg = 'white', width = 2500, height = 1200,
+       units = 'px', dpi = 260)
+# 
 # Combine in 2 columns
 wrap_plots(distr_alpha_diffs.plots, ncol = 2) +
   plot_layout(guides = "collect") & 
@@ -207,92 +262,111 @@ wrap_plots(distr_alpha_diffs.plots, ncol = 2) +
         legend.title = element_blank()) &
   plot_annotation(title = "Density of changes in scaled diversity indices")
 
-ggsave(paste0('Out/Manuscript/alpha_diff_distribution.pdf'),
+ggsave(paste0('Out/Manuscript/1.2.alpha_diff_all.pdf'),
        bg = 'white', width = 2500, height = 1400,
        units = 'px', dpi = 260)
-# 
-# # Variances
-# centered_differences %>% 
-#   group_by(Facet) %>% 
-#   summarise(var_cdiff = var(differences)) 
-# 
-# # Do variances differ significantly?
-# centered_differences %>% 
-#   group_by(Facet) %>% 
-#   mutate(squared_dev = (differences - median(differences))^2) %>% 
-#   ungroup() %>% 
-#   arrange(Sample) %>% 
-#   wilcox_test(squared_dev~Facet)
 
-# Spearman correlation of ranks -------------------------------------------
+# Pitman-Morgan test of differences in variance (paired) ------------------
 
-spearman.raw <- imap(alpha_paired, function(dat, idx) {
+paired_variance_tests <- function(df, name) {
   
-  dat %>% 
-    select(Taxonomy, Database, Sample, Index_value) %>% 
-    group_split(Taxonomy) %>%
-    map_dfr(function(x) {
-      x %>%
-        pivot_wider(names_from = Database, values_from = Index_value) %>%
-        select(-Sample, -Taxonomy) %>% 
-        cor_test(vars = everything(), method = "spearman")  %>%
-        transmute(
-          Taxonomy = unique(x$Taxonomy),
-          Index = idx,
-          cor = cor,
-          p = p)
-    })
-}) %>% list_rbind() 
+  # Pivot to wide: one row per sample, one column per group
+  wide <- df %>%
+    dplyr::select(Sample, Facet, differences) %>%
+    pivot_wider(
+      names_from  = Facet,
+      values_from = differences
+    )
+  
+  # Find all pairs:
+  groups <- df %>% pull(Facet) %>% unique() %>% sort()
+  pairs  <- combn(groups, 2, simplify = FALSE)
+  
+  # Over all pairs:
+  map_dfr(pairs, function(pair) {
+    g1 <- as.character(pair[1])
+    g2 <- as.character(pair[2])
+    
+    sub <- wide %>% dplyr::select(all_of(c(g1, g2))) %>% drop_na()
+    
+    test <- pitman.morgan.test.default(sub[[g1]], sub[[g2]])
+    
+    tibble(
+      group_1 = g1,
+      group_2 = g2,
+      n_pairs = nrow(sub),
+      var_1   = var(sub[[g1]]),
+      var_2   = var(sub[[g2]]),
+      t_stat  = unname(test$statistic),
+      df      = unname(test$parameter),
+      p = test$p.value
+    )
+  }) %>% 
+    mutate(
+      Index = name, .keep = 'unused'
+    )
+}
 
-spearman.table <- spearman.raw %>% 
-  # hill numbers are monotonic transformations, hence redundant
-  filter(!Index %in% c("Hill_1", "Hill_2")) %>% 
-  mutate(
-    Approach = case_when(
-      Taxonomy == 'Tool-specific' ~ paste0('MetaPhlAn4 (2025) vs. mOTUs4'),
-      Taxonomy == 'GTDB' ~ paste0('Kraken vs. Sourmash (GTDB 220)'),
-      Taxonomy == 'NCBI' ~ paste0('Kraken vs. Sourmash (RefSeq 2024-12-28)')),
-    .keep = 'unused', .after = Index
-  ) %>% 
-  pivot_wider(names_from = Index, values_from = cor, id_cols = Approach) %>% 
-  kable() #%>% 
-  #kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+# Cute table
+pitman_all_indices <- imap(alpha_diff.pdat, paired_variance_tests) %>% 
+  list_rbind() %>% 
+  mutate(p_adj = p.adjust(p, method = 'holm')) 
 
-#save_kable(spearman.table, 'Out/Manuscript/alpha_corr.html')
+pitman_all_indices %>%
+  dplyr::select(group_1, group_2, Index, var_1, var_2, p_adj)
+
+
+# P values: One pair per row, indices as columns
+pitman_all_indices %>%
+  dplyr::select(group_1, group_2, p_adj, Index) %>% 
+  pivot_wider(
+    id_cols = c('group_1', 'group_2'),
+    names_from = 'Index',
+    values_from = p_adj) %>% 
+  kable(format = "simple", digits = 3) %T>% 
+  print() %>% 
+  writeLines("Out/Manuscript/1.2.alpha_diff_pitmanMorganTest.txt")
+
 
 # Drop-out test PD --------------------------------------------------------
 
 # >>>> TEST_BREAKPOINT # used to subset the script (stops here)
 # save current script 
-rstudioapi::documentSave()
 
-# Current script name:
-script_path <- this.path::this.path()
+dropout_fun <- function(dataset){
+  rstudioapi::documentSave()
+  
+  # Current script name:
+  script_path <- this.path::this.path()
+  
+  # Load current script
+  lines <- readLines(script_path, warn = FALSE)
+  
+  # Find the breakpoint line in current script
+  startpoint_line <- grep("TEST_STARTPOINT", lines)[1]
+  breakpoint_line <- grep("TEST_BREAKPOINT", lines)[1]
+  
+  # Remove all instances of "'PD',"
+  dataset_pattern <- paste0("'", dataset, "',")
+  lines <- gsub(dataset_pattern, "", lines, fixed = TRUE)
+  
+  # Replace all instances of another string (example: replace "old" with "new")
+  lines <- gsub("Manuscript", paste0("Manuscript/dropout_",dataset), lines, fixed = TRUE)
+  
+  # Remove everything after breakpoint
+  truncated_lines <- lines[startpoint_line:breakpoint_line]
+  
+  source(textConnection(truncated_lines), local = TRUE)
+}
 
-# Load current script
-lines <- readLines(script_path, warn = FALSE)
-
-# Find the breakpoint line in current script
-startpoint_line <- grep("TEST_STARTPOINT", lines)[1]
-breakpoint_line <- grep("TEST_BREAKPOINT", lines)[1]
-
-# Remove all instances of "'PD',"
-lines <- gsub("'Bee',", "", lines, fixed = TRUE)
-
-# Replace all instances of another string (example: replace "old" with "new")
-lines <- gsub("Manuscript", "Manuscript/dropout", lines, fixed = TRUE)
-
-# Remove everything after breakpoint
-truncated_lines <- lines[startpoint_line:breakpoint_line]
-
-source(textConnection(truncated_lines))
-
+dropout_fun('Bee')
+dropout_fun('PD')
 
 # Sample diversity variations tables --------------------------------------
 
 quantify_div_variation <- function(df, ds1, ds2, idx) {
   dir_change <- df %>% 
-    select(Sample, Database, Index_value, Dataset, Index) %>% 
+    dplyr::select(Sample, Database, Index_value, Dataset, Index) %>% 
     filter(Database %in% c(ds1,ds2)
            & Index == idx) %>% 
     pivot_wider(names_from = Database,
@@ -381,19 +455,19 @@ for (idx in c('Richness', 'Hill_1', 'Hill_2')) {
 }
 
 # Mean Dataset alphadiv range across methods
-# Valid? ??
-alpha_div %>% group_by(Database, Dataset, Taxonomy) %>% 
-  filter(Index %in% c('Hill_1')
-         & Database %in% these_databases) %>%
-  # Mean tool div by dataset
-  summarise(mean = mean(Index_value), .groups = 'drop') %>% 
-  # Mean 
-  group_by(Dataset, Taxonomy) %>% 
-  summarise(min = min(mean), max = max(mean), .groups = 'drop') %>% 
-  group_by(Taxonomy) %>% 
-  mutate(fold_increase = max / min) %>% 
-  summarise(mean_fold = mean(fold_increase),
-            sd_fold = sd(fold_increase))
-
-
-
+# # Valid? ??
+# alpha_div %>% group_by(Database, Dataset, Taxonomy) %>% 
+#   filter(Index %in% c('Hill_1')
+#          & Database %in% these_databases) %>%
+#   # Mean tool div by dataset
+#   summarise(mean = mean(Index_value), .groups = 'drop') %>% 
+#   # Mean 
+#   group_by(Dataset, Taxonomy) %>% 
+#   summarise(min = min(mean), max = max(mean), .groups = 'drop') %>% 
+#   group_by(Taxonomy) %>% 
+#   mutate(fold_increase = max / min) %>% 
+#   summarise(mean_fold = mean(fold_increase),
+#             sd_fold = sd(fold_increase))
+# 
+# 
+# 

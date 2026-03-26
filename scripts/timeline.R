@@ -34,6 +34,7 @@ category.lvls = c(
   'Formation' = "#007e2f",
   'Enseignement' = "#16317d",
   'Présentations orales' = "#00b7a7",
+  'Supervision stage' = "yellow3",
   'Autre' = "#b86092")
 
 # Reorder factor in the order above:
@@ -218,5 +219,5 @@ ggplot(timeline_data) +
     )
   ) + labs(color = '') 
 
-ggsave('Out/comite2/timeline.pdf', bg = 'white', width = 1800, height = 2200, 
+ggsave('Out/comite2/timeline.pdf', bg = 'white', width = 1800, height = 2400, 
        units = 'px', dpi = 220)

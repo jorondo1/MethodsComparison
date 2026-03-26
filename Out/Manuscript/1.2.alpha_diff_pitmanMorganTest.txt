@@ -1,0 +1,5 @@
+group_1                                             group_2                                              Richness   Shannon   Simpson    Tail
+--------------------------------------------------  --------------------------------------------------  ---------  --------  --------  ------
+Kraken vs. Sourmash (GTDB 220; n = 1207)            Kraken vs. Sourmash (RefSeq 2024-12-28; n = 1209)           0     0.234     0.016   0.000
+Kraken vs. Sourmash (GTDB 220; n = 1207)            MetaPhlAn4 (2025) vs. mOTUs4 (n = 1035)                     0     0.000     0.000   0.109
+Kraken vs. Sourmash (RefSeq 2024-12-28; n = 1209)   MetaPhlAn4 (2025) vs. mOTUs4 (n = 1035)                     0     0.000     0.000   0.000

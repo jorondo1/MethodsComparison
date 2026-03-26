@@ -16,8 +16,9 @@ source("scripts/0_Config.R")
 #   $$ |$$ |        $$ |      $$$$$$\ \$$$$$$  |$$\       $$$$$$$$\ 
 #   \__|\__|        \__|      \______| \______/ \__|      \________|
 #                         
-
-##################################
+///--- ajouter deux pcoa: une très stable et une très instable
+avec le heatmap @!
+  ##################################
 # PCoA procrustes visualisation ###
 ####################################
 
@@ -31,9 +32,9 @@ these_datasets <- c('Moss', 'NAFLD','PD', 'Bee','AD_Skin', 'RA_Gut',
                     'P19_Gut', 'P19_Saliva')
 
 # Heatmap with hclust ------------------------------------------------------
+# One heatmap for all datasets
 
-# Inspect higher pvalues
-# we expect significant correlations between all datasets
+# Inspect higher pvalues; we expect significant between all datasets
 procrustes_subset <- procrustes_tests %>%
   filter(db1 %in% these_databases,
          db2 %in% these_databases,
@@ -61,8 +62,9 @@ plot_data <- db_pairs %>%
   # unique database names
   bind_rows(
     db_pairs %>% 
-      select(db1 = db2, db2 = db1, 
-             cor_tendency, cor_dispersion, n_datasets)
+      dplyr::select(
+        db1 = db2, db2 = db1, 
+        cor_tendency, cor_dispersion, n_datasets)
   ) %>%
   distinct() # no need for a diagonal, we want it to be NA
 
@@ -79,7 +81,7 @@ hclust_by_col <- function(data, colname){
     1, 
     nrow = length(all_dbs), 
     ncol = length(all_dbs),
-    dimnames = list(all_dbs, all_dbs))
+    dimnames = list(all_dbs, rev(all_dbs)))
   
   # Fill it
   for(i in 1:nrow(data)) {
@@ -136,12 +138,12 @@ cor_tendency_hclust.pdat %>%
   ) +
   coord_equal()
 
-ggsave('Out/Manuscript/procrustes_tendency_heatmap.pdf',
+ggsave('Out/Manuscript/2.1.procrustes_tendency_heatmap.pdf',
        bg = 'white', width = 2400, height = 2000, 
        units = 'px', dpi = 260)
 
 
-# PLOT Dispersion
+# --- PLOT Dispersion ---
 cor_tendency_hclust.pdat %>% 
   ggplot(aes(x = db1, y = db2, fill = cor_dispersion)) +
   geom_tile(color = "white", linewidth = 0.5) +
@@ -171,286 +173,200 @@ cor_tendency_hclust.pdat %>%
   ) +
   coord_equal()
 
-ggsave('Out/Manuscript/procrustes_disp_heatmap.pdf',
-       bg = 'white', width = 2000, height = 2000, 
+ggsave('Out/Manuscript/2.2.procrustes_disp_heatmap.pdf',
+       bg = 'white', width = 2400, height = 2000, 
        units = 'px', dpi = 260)
 
 
-# Correlations into interpretable groups  ----------------------------------
 
-cor_tendency_hclust.pdat %>% 
+# Ordination of correlations ----------------------------------------------
+
+procruste.list <- procrustes_subset %>% 
+  group_by(ds) %>% 
+  (\(d) setNames(group_split(d, .keep = FALSE), 
+                 group_keys(d) %>% pull(1)))()
+
+# --- matrix building helper function ---
+matrix_builder <- function(procrustes, db1, db2, colname) {
+  all_dbs <- sort(unique(c(
+    as.character(procrustes[[db1]]),
+    as.character(procrustes[[db2]])
+  )))
+  n <- length(all_dbs)
   
+  cor_matrix <- matrix(1, nrow = n, ncol = n,
+                       dimnames = list(all_dbs, all_dbs))
   
+  for (i in 1:nrow(procrustes)) {
+    v1  <- as.character(procrustes[[db1]][i])
+    v2  <- as.character(procrustes[[db2]][i])
+    val <- procrustes[[colname]][i]
+    if (!is.na(val)) {
+      cor_matrix[v1, v2] <- val
+      cor_matrix[v2, v1] <- val   # symmetric fill
+    }
+  }
+  return(cor_matrix)
+}
+
+# testing
+matrix_builder(procruste.list$AD_Skin, 'db1', 'db2', 'cor')
+
+# --- PCoA wrapper ---
+pcoa_from_cor <- function(cor_mat, ds_name) {
   
+  dist_mat <- as.dist(1 - cor_mat) # correlation = distance
+  pcoa <- cmdscale(dist_mat, k = 2, eig = TRUE)
   
-  # Network -----------------------------------------------------------------
+  tibble(
+    Database = rownames(cor_mat),
+    PC1 = pcoa$points[, 1],
+    PC2 = pcoa$points[, 2],
+    ds = ds_name,
+    var_PC1 = pcoa$eig[1] / sum(pcoa$eig[pcoa$eig > 0]) * 100,
+    var_PC2 = pcoa$eig[2] / sum(pcoa$eig[pcoa$eig > 0]) * 100
+  )
+}
+
+# Run over all datasets 
+pcoa_results <- imap_dfr(procruste.list, function(df, ds_name) {
+  mat <- matrix_builder(df, "db1", "db2", "cor")
+  pcoa_from_cor(mat, ds_name)
+})
+
+# Pull and define palettes by ref db
+all_refdbs <- CCE_metadata %>%
+  filter(Database %in% these_databases) %>%
+  pull(short_alpha_2) %>% unique() %>% sort()
+
+refdb_colors <- setNames(
+  RColorBrewer::brewer.pal(n = length(all_refdbs), "Set2"),
+  all_refdbs
+)
+
+# --- Per-dataset PCoA plots ---
+plot_list <- pcoa_results %>%
+  group_by(ds) %>%
+  group_split() %>%
+  setNames(pcoa_results %>% pull(ds) %>% unique() %>% sort()) %>%
+  imap(function(df, ds_name) {
+    
+    # Per-facet axis labels with % variance explained
+    x_lab <- sprintf("PC1 [%.1f%%]", df$var_PC1[1])
+    y_lab <- sprintf("PC2 [%.1f%%]", df$var_PC2[1])
+    
+    df %>%
+      left_join(CCE_metadata, by = "Database") %>%
+      # Force all levels present in every plot — required for legend merging
+      mutate(short_alpha_2 = factor(short_alpha_2, levels = all_refdbs)) %>%
+      ggplot(aes(PC1, PC2, colour = short_alpha_2, label = MethodName)) +
+      ggrepel::geom_label_repel(
+        size = 2.5, max.overlaps = 20,
+        fill = NA,        # suppress label background (avoids ggrepel registering its own fill scale)
+        label.size = NA,  # suppress label border
+        colour = "black"
+      ) +
+      geom_point(size = 2) +
+      # Suppress legend: a single shared legend is added manually below.
+      # guides = "collect" in patchwork was unreliable when guide objects differed
+      # subtly across plots, producing duplicate legends.
+      scale_colour_manual(values = refdb_colors, drop = FALSE, guide = "none") +
+      labs(subtitle = ds_name, x = x_lab, y = y_lab) +
+      theme_bw() + 
+      theme(
+        axis.title = element_text(size = 9),
+        axis.text = element_blank()
+      )
+  })
+
+# --- Standalone legend ---
+# Some datasets are missing a few tools and that messes with patchwork's handling
+# of legend collection. Bild dummy plot to guarantee a single legend.
+# Horizontal layout with nrow = 1 enforced before extraction.
+
+legend_plot <- ggplot(
+  data.frame(short_alpha_2 = factor(all_refdbs, levels = all_refdbs)),
+  aes(x = 1, y = short_alpha_2, fill = short_alpha_2)) +
+  geom_point(size = 3, shape = 21, colour = "black") +
+  scale_fill_manual(values = refdb_colors, name = "Reference database") +
+  guides(fill = guide_legend(nrow = 1)) +
+  theme_void() +
+  theme(legend.position = "bottom", legend.direction = "horizontal")
+
+# extract legend
+legend_only <- cowplot::get_legend(legend_plot)
 
 
-# network_data <- procrustes_tests %>%
-#   group_by(db1, db2) %>%
-#   summarise(cor_tendency = mean(cor), .groups = "drop") %>% 
-#   filter(!(db1 %in% exclude_dbs 
-#            | db2 %in% exclude_dbs ))
-# 
-# plot_protest_network <- function(protests, dataset_name){
-#   
-#   network_data <- protests %>%
-#     filter(!(db1 %in% exclude_dbs 
-#              | db2 %in% exclude_dbs ))
-#   
-#   # Create network
-#   g <- graph_from_data_frame(
-#     network_data, 
-#     directed = FALSE
-#   )
-#   
-#   # Set edge weights using correlation
-#   E(g)$weight <- network_data$cor
-#   
-#   # Plot
-#   ggraph(g, layout = "fr") +
-#     geom_edge_link(aes(
-#       width = weight,
-#       color = weight,
-#       alpha = weight
-#     )) +
-#     geom_node_point(size = 3, color = "steelblue") +
-#     geom_node_text(aes(label = name), repel = TRUE, size = 3) +
-#     scale_edge_width(range = c(0.2, 2), name = "Mean\nCorrelation") +
-#     scale_edge_alpha(range = c(0.3, 1), guide = "none") +
-#     labs(title = dataset_name) +
-#     theme_graph() +
-#     theme(legend.position = "right") +
-#     scale_edge_color_gradient2(
-#       low = "#d73027",
-#       mid = "#fee090", 
-#       high = "#1a9850",
-#       midpoint = median(protests$cor),
-#       name = "Mean\nCorrelation"
-#     ) 
-# }
-# 
-# 
-# plots <- map(unique(procrustes_tests$ds), function(dataset){
-#   
-#   plot <- procrustes_tests %>% 
-#     filter(ds == dataset) %>% 
-#     select(-ds) %>% 
-#     plot_protest_network(dataset_name = dataset)
-#   plot
-#   
-# })
-# names(plots) <- unique(procrustes_tests$ds)
-# plots$PD
-# 
-# ### Grouped boxplots
-# these_databases <- c('KB10', 'KB10_GTDB','KB45', 'KB90', 
-#                      'KB45_GTDB', 'KB90_GTDB', 
-#                      'SM_gtdb-rs214-rep', 'SM_gtdb-rs220-rep', 'SM_RefSeq_20250528', 
-#                      'MPA_db2022','MPA_db2023','MOTUS')
-# 
-# procrustes_tests %>%
-#   filter(db1 %in% these_databases
-#          & db2 %in% these_databases) %>% 
-#   mutate(
-#     db1_char = as.character(db1),
-#     db2_char = as.character(db2),
-#     pair = paste(pmin(db1_char, db2_char), pmax(db1_char, db2_char), sep = " vs ")
-#   ) %>%
-#   group_by(pair) %>%
-#   mutate(median_cor = median(cor)) %>%
-#   ungroup() %>%
-#   ggplot(aes(x = fct_reorder(pair, median_cor), y = cor)) +
-#   geom_boxplot(outlier.shape = NA, fill = "lightblue", alpha = 0.6) +
-#   geom_jitter(aes(color = ds), width = 0.2, size = 2, alpha = 0.7) +
-#   coord_flip() +
-#   labs(
-#     title = "Distribution of Procrustes Correlations by Database Pair",
-#     x = "Database Pair",
-#     y = "Procrustes Correlation",
-#     color = "Dataset"
-#   ) +
-#   theme_minimal() +
-#   theme(legend.position = "bottom", 
-#         legend.)
-# 
-# # Another way of looking at it :  -----------------------------------------
-# # This is the first way I came up with, before being told that
-# # procrustes would be better
-# 
-# 
-# 
-# # using collapsed pairwise matrices (BC and rAitchison):
-# # Sample_pair, Dataset, idx, idx_value, CCE, Approach
-# 
-# these_datasets <- c('Moss', 'NAFLD', 'P19_Gut', 'P19_Saliva', 'PD', 'Bee', 'AD_Skin')
-# 
-# # Define list of pairs of interest, with names used for facet_grid
-# db_pairs_eval <- list(
-#   `A. Kraken 0.45 :\nGTDB 220 – RefSeq` = c('KB45_GTDB', 'KB45'),
-#   `B. Sourmash :\nGTDB 220 – RefSeq` = c('SM_gtdb-rs220-rep', 'SM_RefSeq_20250528'),
-#   `C. Sourmash GTDB 220 –\n Kraken RefSeq` = c('SM_gtdb-rs220-rep', 'KB45'),
-#   `D. Kraken GTDB 220 –\n Sourmash RefSeq` = c('KB45_GTDB', 'SM_RefSeq_20250528'),
-#   `E. GTDB 220 :\nSourmash – Kraken 0.45` = c('SM_gtdb-rs220-rep', 'KB45_GTDB'),
-#   `F. RefSeq :\nSourmash – Kraken 0.45` = c('SM_RefSeq_20250528', 'KB45'),
-#   `G. DNA-to-Marker :\nmOTUs3 – MetaPhlAn4` = c('MOTUS', 'MPA_db2023')
-# )
-# 
-# db_pairs_ctrl <- list(
-#   `A. Sourmash\nGTDB220 – GTDB214` = c('SM_gtdb-rs220-rep', 'SM_gtdb-rs214-rep'),
-#   `B. MetaPhlAn versions\n2023 – 2022` = c('MPA_db2023', 'MPA_db2022'),
-#   `C. GTDB taxonomy\n214 Full – 214 Reps (using Sourmash)` = c('SM_gtdb-rs214-full','SM_gtdb-rs214-rep'),
-#   `D. NCBI taxonomy\nGenbank – RefSeq (using Sourmash)` = c('SM_genbank-2022.03', 'SM_RefSeq_20250528')
-# )
-# 
-# # Load data 
-# pairwise_distances <- read_rds('Out/_Rdata/pairwise_dist.RDS') %>% 
-#   left_join(CCE_metadata, 
-#             by = 'Database') %>% 
-#   filter(Dist == 'bray' 
-#          #& Database %in% these_databases
-#          & Dataset %in% these_datasets
-#   ) %>% select(-Dist)
-# 
-# # Function to compute differences in pairwise distances between two tools 
-# compute_distance_differences <- function(df, tool1, tool2) {
-#   df %>%
-#     filter(Database %in% c(tool1, tool2)) %>%
-#     #Create sample pair ID with consistence and uniqueness
-#     mutate(Pair = ifelse(Sample1 < Sample2, 
-#                          paste(Sample1, Sample2, sep = "_"),
-#                          paste(Sample2, Sample1, sep = "_"))) %>%
-#     select(Database, Dataset, Pair, Distance) %>%
-#     # Pivot wide to manually compute difference
-#     pivot_wider(names_from = Database, values_from = Distance) %>%
-#     filter(complete.cases(.)) %>%
-#     mutate(abs_diff = abs(.[[tool1]] - .[[tool2]]),
-#            dist_diff = .[[tool1]] - .[[tool2]]) %>% # instead of !!sym() , thanks deepseek
-#     select(-all_of(c(tool1, tool2)))
-# }
-# 
-# # Iterate over pairs of interest
-# pairwise_dist_gap.df <- imap(
-#   c(db_pairs_eval,db_pairs_ctrl),
-#   function(tool_pair, pair_name){
-#     compute_distance_differences(pairwise_distances, 
-#                                  tool_pair[1], tool_pair[2]) %>% 
-#       mutate(
-#         Pair_name = pair_name
-#       )
-#   }) %>% list_rbind() %>% 
-#   mutate(
-#     Pair_name = factor(
-#       Pair_name, 
-#       levels = names(c(db_pairs_eval,db_pairs_ctrl))
-#     )
-#   )
-# 
-# # Filter pairs, set factor levels
-# pw_dist_gap_eval.df <- pairwise_dist_gap.df %>% 
-#   filter(Pair_name %in% names(db_pairs_eval)) %>% 
-#   mutate(Dataset = factor(Dataset, 
-#                           levels = c('P19_Saliva', 'P19_Gut', 'NAFLD',  'PD',  'AD_Skin','Moss','Bee')
-#   ))
-# # Same for controls: 
-# pw_dist_gap_ctrl.df <- pairwise_dist_gap.df %>% 
-#   filter(Pair_name %in% names(db_pairs_ctrl))
-# 
-# # Summary
-# pairwise_dist_summary <- 
-#   rbind(pw_dist_gap_eval.df, pw_dist_gap_ctrl.df) %>% 
-#   group_by(Pair_name, Dataset) %>% 
-#   summarise(#mean_diff = mean(dist_diff),
-#     #sd_diff = sd(dist_diff),
-#     median_diff = median(dist_diff),
-#     mad_diff = mad(dist_diff),
-#     # min_diff = min(dist_diff),
-#     max_diff = max(dist_diff),
-#     #  rcv_diff = mad_diff/median_diff,
-#     .groups = 'drop'
-#   ) %>% 
-#   mutate(across(where(is.numeric), ~round(.x, 3)))
-# 
-# # Output summary table
-# pairwise_dist_summary %>% 
-#   mutate(Pair_name = str_replace(Pair_name, "\n", " ")) %>% # prevents markdown pipes from being added
-#   kable(align = "l") %>%
-#   kable_styling(bootstrap_options = c("striped", "hover", "responsive")) %>% 
-#   save_kable(paste0('Out/Manuscrit/tables/beta_diffs.html'))
-# 
-# # PLOT Boxplot with differences between pairs of interest
-# plot_dist_gap <- function(df){
-#   
-#   ggplot(df, aes(x = Dataset, y = dist_diff, fill = Dataset)) +
-#     geom_hline(aes(yintercept = 0), 
-#                color = "black", linewidth = 0.5, linetype = 'dashed') +
-#     geom_violin(linewidth = 0.2, draw_quantiles = c(0.5)) +
-#     facet_grid(.~Pair_name, scale = 'free') +
-#     theme_light() +
-#     scale_fill_manual(values= c("#b86092",  "#a40000", "#16317d", "#de722a", "#00b7a7", "#007e2f", "#ffcd12"),
-#                       labels = dataset_names)+ 
-#     labs(y = 'Same-pair differences in dissimilarities',
-#          fill = 'Dataset') +
-#     theme(axis.title.x = element_blank(),
-#           axis.text.x = element_blank(),
-#           axis.ticks.x = element_blank(),
-#           strip.background = element_rect(fill = 'grey50'),
-#           strip.text.x.top = element_text(
-#             angle = 0, hjust = 0, size = 12),
-#           legend.text = element_text(size = 12),
-#           legend.title = element_text(size = 12, hjust = 0.5),
-#           panel.grid.major.x = element_blank(),
-#           legend.position = c(0.5, 0.04),
-#           legend.title.position = 'left',
-#           legend.background = element_rect(
-#             fill = "white",        # White background
-#             color = "black",       # Black border
-#             linewidth = 0.3        # Border thickness
-#           )) +
-#     guides(fill = guide_legend(nrow = 1)) 
-# }
-# 
-# plot_dist_gap(pw_dist_gap_eval.df)
-# 
-# ggsave('Out/Manuscrit/beta_diff_bray.pdf', 
-#        bg = 'white', width = 2900, height = 1200, 
-#        units = 'px', dpi = 200)
-# 
-# ggsave('Out/ISMB2025/beta_diff_bray.pdf', 
-#        bg = 'white', width = 2500, height = 1000, 
-#        units = 'px', dpi = 200)
-# 
-# plot_dist_gap(pw_dist_gap_ctrl.df)
-# ggsave('Out/Manuscrit/beta_diff_bray_ctrls.pdf', 
-#        bg = 'white', width = 2600, height = 1200, 
-#        units = 'px', dpi = 200)
-# 
-# 
-# 
-# ## ISMB:
-# # db_pairs_eval <- list(
-# #   `A. Kraken 0.45 :\nGTDB 220 – RefSeq` = c('KB45_GTDB', 'KB45'),
-# #   `B. Sourmash :\nGTDB 220 – RefSeq` = c('SM_gtdb-rs220-rep', 'SM_RefSeq_20250528'),
-# #   `C. GTDB 220 :\nSourmash – Kraken 0.45` = c('SM_gtdb-rs220-rep', 'KB45_GTDB'),
-# #   `D. RefSeq :\nSourmash – Kraken 0.45` = c('SM_RefSeq_20250528', 'KB45'),
-# #   `E. DNA-to-Marker tools :\nmOTUs3 – MetaPhlAn 2023` = c('MOTUS', 'MPA_db2023')
-# # )
-# 
-# 
-# 
-# # visualise cv
-# pairwise_dist_summary %>% 
-#   filter(!str_detect(Pair_name,"NCBI taxonomy") 
-#          & Pair_name %in% names(db_pairs_eval)) %>% 
-#   ggplot(aes(y = Pair_name)) +
-#   geom_point(size = 3, aes(x = median_diff, fill = Dataset), shape = 23, colour = 'black') +
-#   geom_point(size = 5, aes(x = mad_diff,colour = Dataset), shape = 4, stroke = 1)
-# 
-# # Are my sets distributed normally?
-# pw_dist_gap_eval.df %>% 
-#   group_by(Dataset, Pair_name) %>% 
-#   slice_sample(n = 5000, replace = FALSE) %>% 
-#   shapiro_test(dist_diff) %>%
-#   ggplot(aes(x = p, y = Pair_name, colour = Dataset)) +
-#   geom_jitter(width = 0, height = 0.2)
-# # Mostly no!
+# --- Patchwork ---
+# Parentheses required: without them plot_layout() attaches only to legend_row
+(wrap_plots(plot_list, ncol = 4)) /
+  wrap_elements(full = legend_only) +
+  plot_layout(heights = c(20, 1))
+
+ggsave('Out/Manuscript/2.3.procrustes_ordination.pdf',
+       bg = 'white', width = 2800, height = 1600, 
+       units = 'px', dpi = 200)
+
+
+# Correlations into interpretable groups  ---------------------------------
+
+# Deduplicate procruste; needs some gymnastic because of floating point incosistencies;
+# procruses cor were computed twice per pair (AxB and BxA) and cor are slightly different
+procrustes_dedup <- procrustes_subset %>% 
+  rowwise() %>% 
+  mutate(unique_pair = paste(
+    min(as.character(db1), as.character(db2)), 
+    max(as.character(db1), as.character(db2)))
+  ) %>% 
+  group_by(ds, unique_pair) %>% 
+  slice(1) %>% 
+  ungroup()
+
+
+# Median Correlation when db1 and db2 are the same tool, but different database
+
+procrustes_subset %>% 
+  filter(
+    str_detect(db1, "KB") & str_detect(db2, "KB")
+  )
+
+# join to procruste data
+procrustes_classified <- procrustes_dedup %>%
+  # Add metadata to tool 1
+  left_join(CCE_metadata, by = c("db1" = "Database")) %>%
+  rename(method1 = CCE_approach, family1 = tool_family, database1 = refdb, taxonomy1 = Taxonomy) %>%
+  dplyr::select(ds, db1, db2, cor, pval, unique_pair, method1, family1, database1, taxonomy1) %>%
+  # add metadata to tool 2
+  left_join(CCE_metadata, by = c("db2" = "Database")) %>%
+  rename(method2 = CCE_approach, family2 = tool_family, database2 = refdb, taxonomy2 = Taxonomy) %>%
+  dplyr::select(ds, db1, db2, cor, pval, unique_pair,
+                method1, family1, database1, taxonomy1,
+                method2, family2, database2, taxonomy2) %>%
+  # Classify comparison types
+  mutate(comparison_type = case_when(
+    family1 == family2 & database1 == database2 ~ "Within tool, across parameter or database version",
+    family1 == family2 & database1 != database2 ~ "Same tool, different database (DNA-to-DNA only)",
+    method1 == method2 & family1 != family2 & database1 == database2 ~ "Same database, different tool (DNA-to-DNA only)",
+    method1 != method2 ~ "Cross-approach",
+    method1 == method2 & family1 != family2 ~ "Different tool & database (within approach)",
+    TRUE ~ "other [UNEXPECTED]"
+  ))
+
+procrustes_classified %>% 
+  distinct(comparison_type, family1, family2) %>% 
+  arrange(comparison_type)
+
+procrustes_classified %>%
+  group_by(comparison_type) %>%
+  summarise(
+    median_cor = median(cor),
+    MAD_cor = mad(cor, constant = 1),
+    n_pairs = n()
+  ) %>% 
+  arrange(median_cor)
+
+
+
+
+
+

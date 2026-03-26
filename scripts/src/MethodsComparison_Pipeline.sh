@@ -157,14 +157,11 @@ ENDFILE {
 ################################################################################################################
 
 cd $ILL_PIPELINES; git checkout kraken_light; cd $MC
-metaphlan="bash $ANCHOR/$ILL_PIPELINES/generateslurm_taxonomic_abundance.metaphlan.sh \
-	--slurm_log $ANCHOR/$MC/logs --slurm_walltime 24:00:00 --slurm_threads 24 --slurm_mem 120G"
+metaphlan="bash ${ANCHOR}$ILL_PIPELINES/generateslurm_taxonomic_abundance.metaphlan.4.2.4.sh \
+	--slurm_log ${ANCHOR}$MC/logs --slurm_walltime 24:00:00 --slurm_threads 24 --slurm_mem 120G"
 
 # Generate SLURM scripts https://github.com/jflucier/ILL_pipelines/blob/main/generateslurm_taxonomic_abundance.metaphlan.sh
 # 2022 database
-
-$metaphlan --sample_tsv $ANCHOR/$TSV --db $FAST/metaphlan3_db/mpa_v30_CHOCOPhlAn_201901 --out $ANCHOR/$DATASET_PATH/MPA_db2019
-sbatch --array=1-"$N_SAMPLES" ${ANCHOR}${DATASET_PATH}/MPA_db2019/metaphlan.slurm.sh
 
 $metaphlan --sample_tsv ${ANCHOR}$TSV --db $FAST/metaphlan4_db/2022/mpa_vOct22_CHOCOPhlAnSGB_202212 --out ${ANCHOR}$DATASET_PATH/MPA_db2022
 sbatch --array=1-"$N_SAMPLES" ${ANCHOR}${DATASET_PATH}/MPA_db2022/metaphlan.slurm.sh

@@ -60,12 +60,27 @@ alpha_div[['plot_data']] <-  imap(ps_rare.ls, function(ps_dataset.ls, dataset){
   }) %>% list_rbind()
 }) %>% list_rbind()
 
-# Wilcox test
-alpha_div[['wilcox_tests']] <- alpha_div[['plot_data']] %>% 
-  group_by(Dataset, Database, Index) %>% 
-  wilcox_test(as.formula("Index_value ~ Grouping_var"),
-              p.adjust.method = NULL) %>%  # because we want to see what happens when you do only one
-  add_significance()
+# WILCOX TESTS !
+# Set up parallel backend - detect available cores
+plan(multisession, workers = availableCores())
+
+alpha_div[['wilcox_tests']] <- alpha_div[['plot_data']] %>%
+  group_by(Dataset, Database, Index) %>%
+  group_split() %>%
+  future_map_dfr(function(df) {
+    grp <- df %>% distinct(Dataset, Database, Index)
+    
+    wt <- wilcox_test(df, as.formula("Index_value ~ Grouping_var"),
+                      p.adjust.method = NULL) %>%
+      add_significance()
+    
+    we <- wilcox_effsize(df, as.formula("Index_value ~ Grouping_var"))
+    
+    bind_cols(grp, wt, we %>% select(effsize, magnitude))
+  }, .options = furrr_options(seed = TRUE))
+
+# Reset to sequential when done
+plan(sequential)
 
 write_rds(alpha_div, 'Out/_Rdata/alpha_div.RDS', compress = 'gz')
 
