@@ -16,15 +16,15 @@ grouping_variable <- c(
 )
 
 dataset_names <- c(
-  AD_Skin = 'AD Skin',
+  PD = 'Gut PD',
+  RA_Gut = 'Gut RA',
+  NAFLD = 'Gut NAFLD',
+  P19_Gut = 'Gut COV',
+  P19_Saliva = 'Saliva COV',
+  AD_Skin = 'Skin AD',
   Moss = 'Moss',
-  NAFLD = 'NAFLD Gut',
-  P19_Gut = 'P19 Gut',
-  P19_Saliva = 'P19 Saliva',
-  PD = 'PD Gut',
   Bee = 'Bee',
-  Olive = NA,
-  RA_Gut = NA
+  Olive = NA
 )
 
 CCE_names <- c(
@@ -32,7 +32,7 @@ CCE_names <- c(
   'MOTUS4' = 'mOTUs4',
   'MPA_db2022' = 'Metaphlan4 (2022)',
   'MPA_db2023' = 'Metaphlan4 (2023)',
-  'MPA_db2025' = 'MetaPhlAn3 (2025)',
+  'MPA_db2025' = 'MetaPhlAn4 (2025)',
   'KB10' = 'Kraken 0.10 (RefSeq)',
   'KB45' = 'Kraken 0.45 (RefSeq)',
   'KB90' = 'Kraken 0.90 (RefSeq)',
@@ -54,24 +54,24 @@ Hill_numbers <- c(
 )
 
 CCE_metadata <- tribble(
-  ~Database,                ~plot_colour, ~MethodName,         ~MethodNameParam, ~Num_spec, ~Tool,                ~tool_family,  ~CCE_approach,      ~Taxonomy,       ~refdb,      ~short_alpha_2,      ~short_alpha_3,
-  "MOTUS3",                "orange",      "mOTUs 3",           "mOTUs",              25314, "mOTUs3",             "mOTUs",       "DNA-to-Marker",    "Tool-specific", "MOTUS",      "mOTUs",           "3.0",
-  "MOTUS4",                "#FDBF6F",     "mOTUs 4",           "mOTUs",             124296, "mOTUs4",             "mOTUs",       "DNA-to-Marker",    "Tool-specific", "MOTUS",      "mOTUs",           "4.0",
-  "MPA_db2022",            "green4",      "MPA 2022",          "MetaPhlAn",          30094, "MetaPhlAn4",         "MetaPhlAn",   "DNA-to-Marker",    "Tool-specific", "MPA",        "MetaPhlAn",       "2022-12",
-  "MPA_db2023",            "#3d8f58",     "MPA 2023",          "MetaPhlAn",          36333, "MetaPhlAn4",         "MetaPhlAn",   "DNA-to-Marker",    "Tool-specific", "MPA",        "MetaPhlAn",       "2023-07",
-  "MPA_db2025",            "palegreen3",  "MPA 2025",          "MetaPhlAn",          56335, "MetaPhlAn4",         "MetaPhlAn",   "DNA-to-Marker",    "Tool-specific", "MPA",        "MetaPhlAn",       "2025-03",
-  "KB10",                  "indianred1",  "KB10 RefSeq",       "Kraken 0.10",        27285, "Kraken2+Bracken",    "Kraken",      "DNA-to-DNA",       "NCBI",          "RefSeq",     "RefSeq 2024-12",  "Kraken 0.10",
-  "KB45",                  "#c196d6",     "KB45 RefSeq",       "Kraken 0.45",        27285, "Kraken2+Bracken",    "Kraken",      "DNA-to-DNA",       "NCBI",          "RefSeq",     "RefSeq 2024-12",  "Kraken 0.45",
-  "KB90",                  "#fa817f",     "KB90 RefSeq",       "Kraken 0.90",        27285, "Kraken2+Bracken",    "Kraken",      "DNA-to-DNA",       "NCBI",          "RefSeq",     "RefSeq 2024-12",  "Kraken 0.90",
-  "KB10_GTDB",             "indianred4",  "KB10 GTDB Rep.",    "Kraken 0.10",       113104, "Kraken2+Bracken",    "Kraken",      "DNA-to-DNA",       "GTDB",          "GTDB_220",   "GTDB 220",        "Kraken 0.10",
-  "KB45_GTDB",             "#b41f1f",     "KB45 GTDB Rep.",    "Kraken 0.45",       113104, "Kraken2+Bracken",    "Kraken",      "DNA-to-DNA",       "GTDB",          "GTDB_220",   "GTDB 220",        "Kraken 0.45",
-  "KB90_GTDB",             "#6A3D9A",     "KB90 GTDB Rep.",    "Kraken 0.90",       113104, "Kraken2+Bracken",    "Kraken",      "DNA-to-DNA",       "GTDB",          "GTDB_220",   "GTDB 220",        "Kraken 0.90",
-  "SM_genbank-2022.03",    "purple3",     "SM GenBank",        "Sourmash",           62052, "Sourmash gather",    "Sourmash",    "DNA-to-DNA",       "NCBI",          "GenBank",    "RefSeq 2024-12",  "Sourmash",   
-  "SM_RefSeq_20250528",    "#87c1e0",     "SM RefSeq",         "Sourmash",           27285, "Sourmash gather",    "Sourmash",    "DNA-to-DNA",       "NCBI",          "RefSeq",     "RefSeq 2024-12",  "Sourmash",   
-  "SM_gtdb-rs214-full",    "navyblue",    "SM GTDB Full",      "Sourmash",           85205, "Sourmash gather",    "Sourmash",    "DNA-to-DNA",       "GTDB",          "GTDB_214",   "GTDB 214",        "Sourmash",   
-  "SM_gtdb-rs214-rep",     "blue",        "SM GTDB Rep.",      "Sourmash",           85205, "Sourmash gather",    "Sourmash",    "DNA-to-DNA",       "GTDB",          "GTDB_214",   "GTDB 214",        "Sourmash",   
-  "SM_gtdb-rs220-rep",     "#1F78B4",     "SM GTDB Rep.",      "Sourmash",          113104, "Sourmash gather",    "Sourmash",    "DNA-to-DNA",       "GTDB",          "GTDB_220",   "GTDB 220",        "Sourmash",   
-  "SM_gtdb-rs214-rep_MAGs","skyblue3",    "SM GTDB Rep.+ MAGs","Sourmash",          113211, "Sourmash gather",    "Sourmash",    "DNA-to-DNA",       "GTDB",          "GTDB_214",   "GTDB 214",        "Sourmash"
+  ~Database,                ~plot_colour, ~MethodName,         ~MethodNameParam, ~Num_spec, ~Tool,        ~tool_family,  ~CCE_approach,      ~Taxonomy,       ~refdb,      ~short_alpha_2,      ~short_alpha_3,
+  "MOTUS3",                "orange",      "mOTUs 3",           "mOTUs",              25314, "mOTUs3",     "mOTUs",       "D2M",    "Tool-specific", "MOTUS",      "mOTUs",           "3.0",
+  "MOTUS4",                "#FDBF6F",     "mOTUs 4",           "mOTUs",             124296, "mOTUs4",     "mOTUs",       "D2M",    "Tool-specific", "MOTUS",      "mOTUs",           "4.0",
+  "MPA_db2022",            "green4",      "MPA 2022",          "MetaPhlAn",          30094, "MetaPhlAn4", "MetaPhlAn",   "D2M",    "Tool-specific", "MPA",        "MetaPhlAn",       "2022",
+  "MPA_db2023",            "#3d8f58",     "MPA 2023",          "MetaPhlAn",          36333, "MetaPhlAn4", "MetaPhlAn",   "D2M",    "Tool-specific", "MPA",        "MetaPhlAn",       "2023",
+  "MPA_db2025",            "#00A759",     "MPA 2025",          "MetaPhlAn",          56335, "MetaPhlAn4", "MetaPhlAn",   "D2M",    "Tool-specific", "MPA",        "MetaPhlAn",       "2025",
+  "KB10",                  "indianred1",  "KB10 RefSeq",       "Kraken 0.10",        27285, "Kraken2",    "Kraken",      "D2D",       "NCBI",          "RefSeq",     "RefSeq",  "KB 0.10",
+  "KB45",                  "indianred3",  "KB45 RefSeq",       "Kraken 0.45",        27285, "Kraken2",    "Kraken",      "D2D",       "NCBI",          "RefSeq",     "RefSeq",  "KB 0.45",
+  "KB90",                  "indianred4",  "KB90 RefSeq",       "Kraken 0.90",        27285, "Kraken2",    "Kraken",      "D2D",       "NCBI",          "RefSeq",     "RefSeq",  "KB 0.90",
+  "KB10_GTDB",             "purple",      "KB10 GTDB",         "Kraken 0.10",       113104, "Kraken2",    "Kraken",      "D2D",       "GTDB",          "GTDB_220",   "GTDB",        "KB 0.10",
+  "KB45_GTDB",             "purple2",     "KB45 GTDB",         "Kraken 0.45",       113104, "Kraken2",    "Kraken",      "D2D",       "GTDB",          "GTDB_220",   "GTDB",        "KB 0.45",
+  "KB90_GTDB",             "purple3",     "KB90 GTDB",         "Kraken 0.90",       113104, "Kraken2",    "Kraken",      "D2D",       "GTDB",          "GTDB_220",   "GTDB",        "KB 0.90",
+  "SM_genbank-2022.03",    "red2",        "SM GenBank",        "Sourmash",           62052, "Sourmash",   "Sourmash",    "D2D",       "NCBI",          "GenBank",    "RefSeq",  "SM",   
+  "SM_RefSeq_20250528",    "#b41f1f",     "SM RefSeq",         "Sourmash",           27285, "Sourmash",   "Sourmash",    "D2D",       "NCBI",          "RefSeq",     "RefSeq",  "SM",   
+  "SM_gtdb-rs214-full",    "navyblue",    "SM GTDB 214 Full",  "Sourmash",           85205, "Sourmash",   "Sourmash",    "D2D",       "GTDB",          "GTDB_214",   "GTDB",        "SM",   
+  "SM_gtdb-rs214-rep",     "blue",        "SM GTDB 214",       "Sourmash",           85205, "Sourmash",   "Sourmash",    "D2D",       "GTDB",          "GTDB_214",   "GTDB",        "SM",   
+  "SM_gtdb-rs220-rep",     "#1F78B4",     "SM GTDB 220",       "Sourmash",          113104, "Sourmash",   "Sourmash",    "D2D",       "GTDB",          "GTDB_220",   "GTDB",        "SM",   
+  "SM_gtdb-rs214-rep_MAGs","skyblue3",    "SM GTDB 214 + MAGs","Sourmash",          113211, "Sourmash",   "Sourmash",    "D2D",       "GTDB",          "GTDB_214",   "GTDB",        "SM"
 )
 
 tooldb_colours <- CCE_metadata$plot_colour
@@ -81,8 +81,8 @@ tool_colours <- c(
   'mOTUs3' = "orange", 
   'mOTUs4' = "#FDBF6F", 
   'MetaPhlAn4'= "#00A759",
-  'Kraken2+Bracken' = "#b41f1f",
-  'Sourmash gather' = "#1F78B4" 
+  'Kraken2' = "#b41f1f",
+  'Sourmash' = "#1F78B4" 
 )
 
 tool_vars <- tibble(
@@ -103,4 +103,14 @@ DAA_metadata <- tibble(
   Taxon_bias = c(FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE),
   Target_ = c('RA', 'AA','AA','RA','RA','RA','RA'), # Absolute or relative abundance
   plot_shape = c(15, 19, 17, 18, 4, 3, 6)
+)
+
+strip_theme <- list(
+  strip.text = element_text(colour = 'grey20'),
+  strip.background = element_rect(
+    fill = 'grey90', colour = 'white', linewidth = 0.1),
+  panel.border = element_rect(colour = 'grey90'),
+  panel.grid = element_blank(),
+  panel.spacing = unit(0, "lines")   # default is 0.5, shrink gutters between panels
+  
 )

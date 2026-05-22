@@ -36,11 +36,11 @@ these_databases <- c('MPA_db2025', 'MOTUS4',
                      'SM_gtdb-rs220-rep', 'SM_RefSeq_20250528')
 
 axis_desc <- c(
-  Richness = 'Hill number of order 0 (Number of species)',
+  Richness = 'Richness (number of species detected)',
   Shannon = 'Shannon entropy',
   Hill_1 = 'Hill number of order 1 (effective number of equally abundant species)',
   Simpson = 'Simpson index',
-  Hill_2 = 'Hill number of order 2 (effective number of dominant species)',
+  Hill_2 = 'Inverse Simpson index',
   Tail = 'Tail statistic (rank-based diversity)'
 )
 
@@ -83,7 +83,13 @@ keep_paired_samples <- function(df, idx) {
 
 alpha_paired <- map(names(axis_desc), function(idx) {
   div_comparison.pdat %>% 
-    keep_paired_samples(idx = idx)
+    keep_paired_samples(idx = idx) %>% 
+    mutate(
+      Facet = case_when(
+        Taxonomy == 'Tool-specific' ~ paste0('A. D2M tools (n = ', paired_N, ')'),
+        Taxonomy == 'GTDB' ~ paste0('B. D2D tools + GTDB (n = ', paired_N, ')'),
+        Taxonomy == 'NCBI' ~ paste0('C. D2D tools + RefSeq (n = ', paired_N, ')'))
+    )
 }) %>% setNames(names(axis_desc))
 
 
@@ -92,12 +98,6 @@ alpha_paired <- map(names(axis_desc), function(idx) {
 alpha_distr.plots <- imap(alpha_paired, function(dat, idx) {
   
   dat %>% 
-    mutate(
-      Facet = case_when(
-        Taxonomy == 'Tool-specific' ~ paste0('A. DNA-to-marker methods (n = ', paired_N, ')'),
-        Taxonomy == 'GTDB' ~ paste0('B. GTDB 220 (n = ', paired_N, ')'),
-        Taxonomy == 'NCBI' ~ paste0('C. RefSeq 2024-12-28 (n = ', paired_N, ')'))
-    ) %>% 
     # Plot :
     ggplot(aes(x = Database, y = Index_value)) +
     geom_half_violin(
@@ -114,7 +114,7 @@ alpha_distr.plots <- imap(alpha_paired, function(dat, idx) {
       draw_quantiles = 0.5) + 
     geom_line(aes(group = Sample), alpha = 0.5, linewidth = 0.08) +
     facet_wrap(~Facet, scales = 'free') +
-    scale_fill_manual(values = tool_colours, breaks = c('MetaPhlAn4', 'mOTUs4', 'Kraken2+Bracken', 'Sourmash gather')) +
+    scale_fill_manual(values = tool_colours, breaks = c('MetaPhlAn4', 'mOTUs4', 'Kraken2', 'Sourmash')) +
     theme_light() +
     theme(
       axis.text.x = element_blank(),
@@ -132,74 +132,24 @@ alpha_distr.plots <- imap(alpha_paired, function(dat, idx) {
   
 })
 
-
-# SAVE PLOTS
-imap(alpha_distr.plots, function(plot, idx) {
-  
-  ggsave(plot = plot, 
-         paste0('Out/Manuscript/1.1.alpha_',idx, '.pdf'),
-         bg = 'white', width = 2200, height = 1400,
-         units = 'px', dpi = 210)
-  # 
-  # ggsave(plot = plot, 
-  #        paste0('Out/ISMB2025/alpha_',idx, '_comparison.pdf'),
-  #        bg = 'white', width = 2300, height = 1200,
-  #        units = 'px', dpi = 230)
-  
-})
-
-
-# Spearman correlation of ranks -------------------------------------------
-
-spearman.raw <- imap(alpha_paired, function(dat, idx) {
-  
-  dat %>% 
-    dplyr::select(Taxonomy, Database, Sample, Index_value) %>% 
-    group_split(Taxonomy) %>%
-    map_dfr(function(x) {
-      x %>%
-        pivot_wider(names_from = Database, values_from = Index_value) %>%
-        dplyr::select(-Sample, -Taxonomy) %>% 
-        cor_test(vars = everything(), method = "spearman")  %>%
-        transmute(
-          Taxonomy = unique(x$Taxonomy),
-          Index = idx,
-          cor = cor,
-          p = p)
-    })
-}) %>% list_rbind() 
-
-spearman.table <- 
-  spearman.raw %>% 
-  # hill numbers are monotonic transformations, hence redundant
-  filter(!Index %in% c("Hill_1", "Hill_2")) %>% 
-  mutate(
-    Approach = case_when(
-      Taxonomy == 'Tool-specific' ~ paste0('MetaPhlAn4 (2025) vs. mOTUs4'),
-      Taxonomy == 'GTDB' ~ paste0('Kraken vs. Sourmash (GTDB 220)'),
-      Taxonomy == 'NCBI' ~ paste0('Kraken vs. Sourmash (RefSeq 2024-12-28)')),
-    .keep = 'unused', .after = Index
-  ) %>% 
-  pivot_wider(names_from = Index, values_from = cor, id_cols = Approach) %>% 
-  kable() %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
-
-save_kable(spearman.table, 'Out/Manuscript/alpha_corr.html')
-
 # PANEL 2 : distribution of differences -----------------------------------
 # Intéressant : encore plus variable/prononcé avec Hill_2
 
 alpha_diff.fun <- function(dat) {
   
-  dat %>% 
+  out <- dat %>% 
     # Text for legend titles presented differently:
     mutate(
       Facet = case_when(
-        Taxonomy == 'Tool-specific' ~ paste0('MetaPhlAn4 (2025) vs. mOTUs4 (n = ', paired_N, ')'),
-        Taxonomy == 'GTDB' ~ paste0('Kraken vs. Sourmash (GTDB 220; n = ', paired_N, ')'),
-        Taxonomy == 'NCBI' ~ paste0('Kraken vs. Sourmash (RefSeq 2024-12-28; n = ', paired_N, ')'))
+        Taxonomy == 'GTDB' ~ 'D2D: Kraken vs. Sourmash (GTDB)',
+        Taxonomy == 'Tool-specific' ~ 'D2M: MetaPhlAn4 (2025) vs. mOTUs4',
+        Taxonomy == 'NCBI' ~ 'D2D: Kraken vs. Sourmash (RefSeq)'),
+      # Reorder facets manually by matching Taxonomy names
+      Facet = factor(Facet, levels = Facet[match(c('Tool-specific', 'GTDB', 'NCBI'), Taxonomy)]),
+      # All transparent except first level:
+      Alpha = ifelse(Taxonomy == 'Tool-specific', 1, 0.7)
     ) %>% 
-    dplyr::select(Taxonomy, Dataset, Database, Facet, Sample, Index_value) %>% 
+    dplyr::select(Dataset, Database, Facet, Sample, Index_value, Alpha) %>% 
     
     # Scale indices (median/mad) within dataset/database combo:
     group_by(Dataset, Database) %>% 
@@ -207,64 +157,118 @@ alpha_diff.fun <- function(dat) {
     ungroup() %>% 
     
     # Pairwise differences in scaled diversity :
-    group_by(Taxonomy, Dataset, Facet, Sample) %>%
+    group_by(Dataset, Facet, Sample, Alpha) %>%
     
     # each group will have 2 by design (see these_databases vector)
     # so we can subtract the first one from the last one within group
     # if they are ordered :
-    arrange(Taxonomy, Dataset, Facet, Sample) %>% 
+    arrange(Dataset, Facet, Sample, Alpha) %>% 
     summarise(differences = first(scaled_index)-last(scaled_index),
               .groups = 'drop') 
+  
+  return(out)
+  
 }
 
+these_indices <- c('Richness', 'Shannon', 'Hill_2', 'Tail')
+
 alpha_diff.pdat <- alpha_paired %>% 
-  keep_at(c('Richness', 'Shannon', 'Simpson', 'Tail')) %>% 
+  keep_at(these_indices) %>% 
   map(alpha_diff.fun)
 
+names(alpha_diff.pdat) <- c('Richness', 'Shannon', 'Inverse Simpson', 'Tail')
 
+# --- plotting function
 distr_alpha_diffs.fun <- function(plot.dat, plot_name){
   
   plot.dat %>% 
-    # Format facet labels with sample counts 
-    #  filter(centered_diffs<2) %>% 
-    ggplot(aes(x = differences, fill = Facet)) +
-    geom_density(alpha = 0.4, linewidth = 0.2) +
-    theme(
-      legend.position = 'bottom'
-    ) +
+    mutate(strip_label = 'D. Distribution of differences in scaled diversity') %>% 
+    # --- TRUNCATE X AXIS for lisibility :
+    filter(differences>-2.5, differences < 2.5) %>% 
+    ## --- !
+    ggplot(aes(x = differences, fill = Facet, alpha = Alpha)) +
+    geom_density(linewidth = 0.3) +
+    scale_fill_manual(values = c("#7FB364","#823D51","#515A82")) +
+    scale_alpha_identity() +
     labs(subtitle = paste0(LETTERS[which(names(alpha_diff.pdat) == plot_name)], ": ", plot_name),
-         fill = "Tool pair comparison") +
+         fill = "Methodology pairs comparison",
+         x = 'Differences in scaled diversity', y = 'Density') +
     theme(plot.caption = element_text(hjust = 0),
-          axis.title = element_blank()) 
-  
+          legend.position = 'bottom',
+          panel.grid = element_blank()) 
 }
+
 distr_alpha_diffs.plots <- alpha_diff.pdat %>% 
   imap(distr_alpha_diffs.fun)
 
-distr_alpha_diffs.plots$Shannon +
-  labs(subtitle = "")+
-  theme(
-    legend.position = c(0.3,0.5),
-    legend.background = element_rect(
-      fill = 'white',
-      colour = 'black'
+# Combo plot for paper ------------
+
+# Density distribution plots formatting
+distr_alpha_diffs_formatted.plots <- map(distr_alpha_diffs.plots, function(diff_plot){
+  
+  distr_diffs <- diff_plot +
+    facet_wrap(~strip_label) +
+    theme(
+      plot.subtitle = element_blank(),
+      legend.position = c(0.2,0.5),
+      strip.background = element_rect(fill = 'grey50'),
+      strip.text.x.top = element_text(angle = 0, hjust = 0, size = 12)
     )
-  )
+})
 
-ggsave(paste0('Out/Manuscript/1.2.alpha_diff_Shannon.pdf'),
-       bg = 'white', width = 2500, height = 1200,
-       units = 'px', dpi = 260)
-# 
-# Combine in 2 columns
+# Half-violin plots formatting
+alpha_distr_formatted.plots <- map(alpha_distr.plots, function(distr_plot){
+  distr_plot + 
+      facet_wrap(~Facet, scales = "free_x") +
+      theme(
+        axis.ticks.x = element_blank(),
+        legend.position = c(0.5,0),
+        legend.direction = 'horizontal',
+      )
+})
+
+# Figure 1 : Shannon plots patchwork
+alpha_distr_formatted.plots$Shannon / distr_alpha_diffs_formatted.plots$Shannon +
+    plot_layout(design = "
+              A
+              A
+              A
+              B
+              B") &
+    theme(legend.text = element_text(size = 10),
+          legend.background = element_rect(
+            linewidth = 0.1,
+            fill = 'white',
+            colour = 'black'))
+  
+ggsave(paste0('Out/Manuscript/1.1.alpha_diff_Shannon.pdf'),
+         bg = 'white', width = 2100, height = 2400,
+         units = 'px', dpi = 200)
+
+# Figure SUPP 1 : All distributions, 1 plot each
+# No facet grid, allow y axis to be free
+imap(alpha_distr.plots, function(distr_plot, idx_name){
+  
+  ggsave(paste0('Out/Manuscript/1.2.alpha_distr_',idx_name,'.pdf'),
+         plot=distr_plot,
+         bg = 'white', width = 2100, height = 1400,
+         units = 'px', dpi = 200)
+  
+})
+
+# Figure SUPP 2 : All difference distributions, in 2 columns -----------
 wrap_plots(distr_alpha_diffs.plots, ncol = 2) +
-  plot_layout(guides = "collect") & 
+  plot_layout(guides = "collect") &
   theme(legend.position = 'bottom',
-        legend.title = element_blank()) &
-  plot_annotation(title = "Density of changes in scaled diversity indices")
+        legend.text = element_text(size = 10),
+        strip.text = element_blank(),
+        axis.title = element_blank(),
+        panel.spacing = unit(0, "lines"),
+        legend.title = element_blank()) 
 
-ggsave(paste0('Out/Manuscript/1.2.alpha_diff_all.pdf'),
-       bg = 'white', width = 2500, height = 1400,
-       units = 'px', dpi = 260)
+ggsave(paste0('Out/Manuscript/1.3.alpha_diff_all.pdf'),
+       bg = 'white', width = 2100, height = 1400,
+       units = 'px', dpi = 200)
 
 # Pitman-Morgan test of differences in variance (paired) ------------------
 
@@ -289,7 +293,7 @@ paired_variance_tests <- function(df, name) {
     
     sub <- wide %>% dplyr::select(all_of(c(g1, g2))) %>% drop_na()
     
-    test <- pitman.morgan.test.default(sub[[g1]], sub[[g2]])
+    test <- Var.test(sub[[g1]], sub[[g2]], paired = TRUE)
     
     tibble(
       group_1 = g1,
@@ -297,6 +301,7 @@ paired_variance_tests <- function(df, name) {
       n_pairs = nrow(sub),
       var_1   = var(sub[[g1]]),
       var_2   = var(sub[[g2]]),
+      var_diff = var_2-var_1,
       t_stat  = unname(test$statistic),
       df      = unname(test$parameter),
       p = test$p.value
@@ -312,8 +317,15 @@ pitman_all_indices <- imap(alpha_diff.pdat, paired_variance_tests) %>%
   list_rbind() %>% 
   mutate(p_adj = p.adjust(p, method = 'holm')) 
 
-pitman_all_indices %>%
-  dplyr::select(group_1, group_2, Index, var_1, var_2, p_adj)
+pitman.table <- pitman_all_indices %>%
+  dplyr::select(group_1, group_2, Index, var_1, var_2, var_diff, p_adj) %>% 
+  mutate(across(c('var_1', 'var_2', 'var_diff'),~ round(.x, 3)),
+         p_adj = round(p_adj, 4)) %T>% 
+  print() %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+save_kable(pitman.table, 'Out/Manuscript/alpha_pitman.html')
 
 
 # P values: One pair per row, indices as columns
@@ -362,6 +374,46 @@ dropout_fun <- function(dataset){
 dropout_fun('Bee')
 dropout_fun('PD')
 
+
+# SAAAAAAAAAAANDBOX 
+
+# Spearman correlation of ranks -------------------------------------------
+
+spearman.raw <- imap(alpha_paired, function(dat, idx) {
+  
+  dat %>% 
+    dplyr::select(Taxonomy, Database, Sample, Index_value) %>% 
+    group_split(Taxonomy) %>%
+    map_dfr(function(x) {
+      x %>%
+        pivot_wider(names_from = Database, values_from = Index_value) %>%
+        dplyr::select(-Sample, -Taxonomy) %>% 
+        cor_test(vars = everything(), method = "spearman")  %>%
+        transmute(
+          Taxonomy = unique(x$Taxonomy),
+          Index = idx,
+          cor = cor,
+          p = p)
+    })
+}) %>% list_rbind() 
+
+spearman.table <- 
+  spearman.raw %>% 
+  # hill numbers are monotonic transformations, hence redundant
+  filter(!Index %in% c("Hill_1", "Hill_2")) %>% 
+  mutate(
+    Approach = case_when(
+      Taxonomy == 'Tool-specific' ~ paste0('MetaPhlAn4 (2025) vs. mOTUs4'),
+      Taxonomy == 'GTDB' ~ paste0('Kraken vs. Sourmash (GTDB)'),
+      Taxonomy == 'NCBI' ~ paste0('Kraken vs. Sourmash (RefSeq)')),
+    .keep = 'unused', .after = Index
+  ) %>% 
+  pivot_wider(names_from = Index, values_from = cor, id_cols = Approach) %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+save_kable(spearman.table, 'Out/Manuscript/alpha_corr.html')
+
 # Sample diversity variations tables --------------------------------------
 
 quantify_div_variation <- function(df, ds1, ds2, idx) {
@@ -407,7 +459,7 @@ quantify_div_variation <- function(df, ds1, ds2, idx) {
     kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) 
 }
 
-for (idx in c('Richness', 'Hill_1', 'Hill_2')) {
+for (idx in c('Richness', 'Shannon', 'Hill_2', 'Tail')) {
   quantify_div_variation(
     alpha_div, idx = idx,
     'KB10_GTDB', 'SM_gtdb-rs220-rep') %>% 
@@ -453,6 +505,8 @@ for (idx in c('Richness', 'Hill_1', 'Hill_2')) {
     'KB45_GTDB', 'KB45') %>% 
     save_kable(paste0('Out/Manuscript/tables/alpha_', idx,'_KB.html'))
 }
+
+
 
 # Mean Dataset alphadiv range across methods
 # # Valid? ??

@@ -1,6 +1,6 @@
 export MC=$ILAFORES/analysis/MethodsComparison
 cd $MC
-source scripts/myFunctions.sh
+source scripts/src/myFunctions.sh
 
 # Sequence counts by sample
 ml seqkit 
@@ -27,7 +27,7 @@ awk '{
     group = parts[2];
     sample = parts[4];
     print group " " sample " " rest;
-}' OFS='\t' $MC/Out/stats/all_read_counts_raw.tsv > $MC/Out/stats/all_read_counts.tsv
+}' OFS='\t' $MC/Out/stats/all_read_counts_raw.tsv > $MC/Out/stats/all_read_counts_RA_Gut.tsv
 
 # Summarise mean ± SD by dataset in awk lol just do R gobless deepseek
 awk -F' ' '
@@ -57,5 +57,5 @@ END {
         stddev = sqrt((sumsq[g] - sum[g]^2 / count[g]) / count[g]);
         printf "%s\t%.2f ± %.2f [%d, %d]\n", g, mean, stddev, min[g], max[g];
     }
-}' $MC/Out/stats/all_read_counts.tsv > $MC/Out/stats/sample_count_summary.tsv
+}' $MC/Out/stats/all_read_counts_RA_Gut.tsv >> $MC/Out/stats/sample_count_summary.tsv
 

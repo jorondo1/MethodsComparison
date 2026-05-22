@@ -24,7 +24,7 @@ theme_set(theme_light())
 these_databases <- c('KB10', 'KB10_GTDB','KB45', 'KB90', 
                      'KB45_GTDB', 'KB90_GTDB', 
                      'SM_gtdb-rs220-rep', 'SM_RefSeq_20250528', 
-                     'MPA_db2023', 'MPA_db2025',
+                     'MPA_db2022', 'MPA_db2023', 'MPA_db2025',
                      'MOTUS3', 'MOTUS4')
 
 # PCoA comparison
@@ -33,14 +33,13 @@ permanova.ds <- read_rds('Out/_Rdata/permanova.ds.RDS')%>%
   group_by(Dataset) %>%
   mutate(R2_scaled = (R2 - min(R2)) / (max(R2) - min(R2))) %>%
   ungroup() %>% 
-  mutate(R2 = round(R2, 3))
- 
+  mutate(R2_label = sprintf("%.3f", R2),
+         Dataset = recode(Dataset, !!!dataset_names))
 
-@@@ formater les décimales à 3
 permanova.ds %>% 
   ggplot(aes(x = Database, y = Dataset)) +
   geom_point(aes(size = R2, colour = p)) +
-  geom_text(aes(label = R2), colour = 'black', nudge_y = -0.4, size = 3) +
+  geom_text(aes(label = R2_label), colour = 'black', nudge_y = -0.4, size = 3) +
   facet_nested(Dataset ~ CCE_approach + short_alpha_2 + short_alpha_3, scales = 'free') +
   scale_colour_steps2(
     low = "#3d0173", mid = "#f0f0f0", high = "#cccccc",
@@ -57,16 +56,15 @@ permanova.ds %>%
   theme(
     axis.text = element_blank(),
     axis.ticks = element_blank(),
-    strip.background = element_rect(fill = 'grey50'),
     axis.title = element_blank(),
-    #panel.border = element_blank(),
-    panel.grid = element_blank(),
-    panel.spacing = unit(0, "lines"),   # default is 0.5, shrink gutters between panels
+    legend.position = 'bottom',
+    legend.key.width = unit(1, "cm"),
+    !!!strip_theme
   )
 
 ggsave(paste0('Out/Manuscript/4.beta_permanova.pdf'),
-       bg = 'white', width = 2600, height = 1400,
-       units = 'px', dpi = 210)
+       bg = 'white', width = 1300, height = 1100,
+       units = 'px', dpi = 150)
 
 
 # PLOT variance with p-values

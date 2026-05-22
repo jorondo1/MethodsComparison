@@ -36,7 +36,7 @@ alpha_div[['plot_data']] <-  imap(ps_rare.ls, function(ps_dataset.ls, dataset){
       # Recode the grouping variable as a A/B factor
       mutate(Grouping_var = !!sym(grouping_variable[dataset]) %>% 
                as.factor() %>% recode_factor_AB()) %>% 
-      select(Sample, Grouping_var)
+      dplyr::select(Sample, Grouping_var)
     
     tibble(
       Sample = names(richness),
@@ -76,7 +76,7 @@ alpha_div[['wilcox_tests']] <- alpha_div[['plot_data']] %>%
     
     we <- wilcox_effsize(df, as.formula("Index_value ~ Grouping_var"))
     
-    bind_cols(grp, wt, we %>% select(effsize, magnitude))
+    bind_cols(grp, wt, we %>% dplyr::select(effsize, magnitude))
   }, .options = furrr_options(seed = TRUE))
 
 # Reset to sequential when done
