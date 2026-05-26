@@ -17,7 +17,7 @@ source("scripts/0_Config.R")
 #   \__|\__|        \__|      \______| \______/ \__|      \________|
 #                         
 
-  ##################################
+##################################
 # PCoA procrustes visualisation ###
 ####################################
 
@@ -190,79 +190,6 @@ ggsave('Out/Manuscript/2.2.procrustes_disp_heatmap.pdf',
        bg = 'white', width = 2000, height = 2200, 
        units = 'px', dpi = 260)
 
-
-# Ordination of correlations ----------------------------------------------
-
-# Convert tibble to list by dataset and name list elements
-procruste.list <- procrustes_subset %>% 
-  group_by(ds) %>% 
-  # Set names dynamically:
-  (\(d) setNames(
-    group_split(d, .keep = FALSE), 
-    group_keys(d) %>% pull(1)))()
-
-# --- matrix building helper function ---
-matrix_builder <- function(procrustes, db1, db2, colname) {
-  all_dbs <- sort(unique(c(
-    as.character(procrustes[[db1]]),
-    as.character(procrustes[[db2]])
-  )))
-  
-  n <- length(all_dbs)
-  
-  # build correlation matrix
-  cor_matrix <- matrix(1, nrow = n, ncol = n,
-                       dimnames = list(all_dbs, all_dbs))
-  
-  for (i in 1:nrow(procrustes)) {
-    v1  <- as.character(procrustes[[db1]][i])
-    v2  <- as.character(procrustes[[db2]][i])
-    val <- procrustes[[colname]][i]
-    if (!is.na(val)) {
-      cor_matrix[v1, v2] <- val
-      cor_matrix[v2, v1] <- val   # symmetric fill
-    }
-  }
-  return(cor_matrix)
-}
-
-# testing
-matrix_builder(procruste.list$AD_Skin, 'db1', 'db2', 'cor')
-
-# --- PCoA wrapper ---
-pcoa_from_cor <- function(cor_mat, ds_name) {
-  
-  dist_mat <- as.dist(1 - cor_mat) # correlation = distance
-  pcoa <- cmdscale(dist_mat, k = 2, eig = TRUE)
-  
-  tibble(
-    Database = rownames(cor_mat),
-    PC1 = pcoa$points[, 1],
-    PC2 = pcoa$points[, 2],
-    ds = ds_name,
-    var_PC1 = pcoa$eig[1] / sum(pcoa$eig[pcoa$eig > 0]) * 100,
-    var_PC2 = pcoa$eig[2] / sum(pcoa$eig[pcoa$eig > 0]) * 100
-  )
-}
-
-# Run over all datasets 
-pcoa_results <- imap_dfr(procruste.list, function(df, ds_name) {
-  mat <- matrix_builder(df, "db1", "db2", "cor")
-  pcoa_from_cor(mat, ds_name)
-}) %>% 
-  # Set names & levels
-  mutate(ds = factor(recode(ds, !!!dataset_names), levels = dataset_names))
-
-# Pull and define palettes by ref db
-all_refdbs <- CCE_metadata %>%
-  filter(Database %in% these_databases) %>%
-  pull(short_alpha_2) %>% unique() %>% sort()
-
-refdb_colors <- setNames(
-  c("#823D51", tool_colours[['MetaPhlAn4']], tool_colours[['mOTUs4']], "#515A82"),
-  all_refdbs
-)
-
 # PCoA Examples -----------------------------------------------------------
 
 pcoa <- read_rds("Out/_Rdata/pcoa_noVST.ls.RDS")
@@ -344,8 +271,83 @@ ggsave(paste0('Out/Manuscript/2.4.pcoa_example.pdf'),
        units = 'px', dpi = 220)
 
 
+# Ordination of correlations ----------------------------------------------
 
-# Per-dataset PCoA plots ---------------------------------------
+# Convert tibble to list by dataset and name list elements
+procruste.list <- procrustes_subset %>% 
+  group_by(ds) %>% 
+  # Set names dynamically:
+  (\(d) setNames(
+    group_split(d, .keep = FALSE), 
+    group_keys(d) %>% pull(1)))()
+
+# --- matrix building helper function ---
+matrix_builder <- function(procrustes, db1, db2, colname) {
+  all_dbs <- sort(unique(c(
+    as.character(procrustes[[db1]]),
+    as.character(procrustes[[db2]])
+  )))
+  
+  n <- length(all_dbs)
+  
+  # build correlation matrix
+  cor_matrix <- matrix(1, nrow = n, ncol = n,
+                       dimnames = list(all_dbs, all_dbs))
+  
+  for (i in 1:nrow(procrustes)) {
+    v1  <- as.character(procrustes[[db1]][i])
+    v2  <- as.character(procrustes[[db2]][i])
+    val <- procrustes[[colname]][i]
+    if (!is.na(val)) {
+      cor_matrix[v1, v2] <- val
+      cor_matrix[v2, v1] <- val   # symmetric fill
+    }
+  }
+  return(cor_matrix)
+}
+
+# testing
+matrix_builder(procruste.list$AD_Skin, 'db1', 'db2', 'cor')
+
+# --- PCoA wrapper ---
+pcoa_from_cor <- function(cor_mat, ds_name) {
+  
+  dist_mat <- as.dist(1 - cor_mat) # correlation = distance
+  pcoa <- cmdscale(dist_mat, k = 2, eig = TRUE)
+  
+  tibble(
+    Database = rownames(cor_mat),
+    PC1 = pcoa$points[, 1],
+    PC2 = pcoa$points[, 2],
+    ds = ds_name,
+    var_PC1 = pcoa$eig[1] / sum(pcoa$eig[pcoa$eig > 0]) * 100,
+    var_PC2 = pcoa$eig[2] / sum(pcoa$eig[pcoa$eig > 0]) * 100
+  )
+}
+
+# Run over all datasets and add sample count
+dataset_names_n_lookup <- read_rds('Out/_Rdata/dataset_names_n_lookup_alphadiv.RDS')
+ds_name_n_lookup_oneline <- str_replace_all(dataset_names_n_lookup, '\n',' ')
+
+pcoa_results <- imap_dfr(procruste.list, function(df, ds_name) {
+  mat <- matrix_builder(df, "db1", "db2", "cor")
+  pcoa_from_cor(mat, ds_name)
+}) %>% 
+  # Set names & levels
+  mutate(ds = factor(recode(ds, !!!dataset_names), levels = dataset_names),
+         ds_n = ds_name_n_lookup_oneline[ds])
+
+# Pull and define palettes by ref db
+all_refdbs <- CCE_metadata %>%
+  filter(Database %in% these_databases) %>%
+  pull(short_alpha_2) %>% unique() %>% sort()
+
+refdb_colors <- setNames(
+  c("#823D51", tool_colours[['MetaPhlAn4']], tool_colours[['mOTUs4']], "#515A82"),
+  all_refdbs
+)
+
+
 plot_list <- pcoa_results %>%
   group_by(ds) %>%
   group_split() %>%
@@ -359,8 +361,10 @@ plot_list <- pcoa_results %>%
     df %>%
       left_join(CCE_metadata, by = "Database") %>%
       # Force all levels present in every plot — required for legend merging
-      mutate(short_alpha_2 = factor(short_alpha_2, levels = all_refdbs)) %>%
+      mutate(short_alpha_2 = factor(short_alpha_2, levels = all_refdbs),
+      ) %>%
       ggplot(aes(PC1, PC2, colour = short_alpha_2, label = MethodName)) +
+      facet_wrap(~ds) +
       ggrepel::geom_label_repel(
         size = 2.5, 
         label.padding = 0.1,
@@ -376,13 +380,12 @@ plot_list <- pcoa_results %>%
       # guides = "collect" in patchwork was unreliable when guide objects differed
       # subtly across plots, producing duplicate legends.
       scale_colour_manual(values = refdb_colors, drop = FALSE, guide = "none") +
-      labs(subtitle = ds_name, x = x_lab, y = y_lab) +
-      theme_bw() + 
+      labs(x = x_lab, y = y_lab) +
       theme(
         axis.title = element_text(size = 9),
         axis.text = element_blank(),
         axis.ticks = element_blank(),
-        panel.grid = element_blank()
+        !!!strip_theme
       )
   })
 
@@ -401,7 +404,11 @@ legend_plot <- ggplot(
   scale_fill_manual(values = refdb_colors, name = "Reference database") +
   guides(fill = guide_legend(nrow = 4)) +
   theme_void() +
-  theme(legend.position = "right", legend.direction = "vertical")
+  theme(legend.position = "right", 
+        legend.direction = "vertical",
+        legend.title = element_text(size = 14),
+        legend.text = element_text(size = 10)
+  )
 
 # extract legend
 plot_list$Legend <- cowplot::get_legend(legend_plot)
@@ -411,9 +418,37 @@ plot_list$Legend <- cowplot::get_legend(legend_plot)
 (wrap_plots(plot_list, ncol = 3)) 
 
 ggsave('Out/Manuscript/2.3.procrustes_ordination.pdf',
-       bg = 'white', width = 2200, height = 2200, 
+       bg = 'white', width = 2000, height = 2000, 
        units = 'px', dpi = 240)
 
+# --- ANCHOR poster
+plot_list_ANCHOR <- imap(plot_list, function(plot, plot_name){
+  if(plot_name=="Legend"){
+    return(plot)
+  } else {
+    plot + 
+      facet_wrap(~ds_n) +
+      labs(
+        x = gsub(".*\\[(.*)\\].*", "\\1", plot$labels$x),
+        y = gsub(".*\\[(.*)\\].*", "\\1", plot$labels$y)
+      ) +
+      theme_light() +
+      theme(
+        plot.subtitle = element_blank(),
+        panel.grid = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        axis.title = element_text(size = 10),
+        !!!strip_theme_dark
+      ) 
+  }
+})
+
+(wrap_plots(plot_list_ANCHOR, ncol = 3)) 
+
+ggsave('Out/Manuscript/2.3.procrustes_ordination_ANCHOR.pdf',
+       bg = 'white', width = 2000, height = 2000, 
+       units = 'px', dpi = 210)
 
 
 

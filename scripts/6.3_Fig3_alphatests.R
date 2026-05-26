@@ -43,23 +43,7 @@ alpha_div_test <- read_rds('Out/_Rdata/alpha_div.RDS')[['wilcox_tests']] %>% # c
       p.signif, 
       levels = c('p ≥ 0.05', 'p < 0.05', 'p < 0.01', 'p < 0.001' )))
 
-# dataset factor levels with n inside
-dataset_names_n_tibble <- alpha_div_test %>% 
-  distinct(Dataset, n) %>% 
-  group_by(Dataset) %>% 
-  filter(n==max(n)) %>% 
-  left_join(tibble(
-    Dataset = names(dataset_names),
-    Dataset_name = unname(dataset_names)
-  ), by = "Dataset") %>% 
-  mutate(Dataset_name_n = paste0(Dataset_name, "\n(n=",n,")" ))
-
-# values:
-dataset_names_n_lookup <- dataset_names_n_tibble$Dataset_name_n
-# add standard names:
-names(dataset_names_n_lookup) <- dataset_names_n_tibble$Dataset 
-# reorder and fluhs NAs
-dataset_names_n_lookup %<>% .[names(dataset_names)] %>% .[!is.na(.)]
+dataset_names_n_lookup <- read_rds('Out/_Rdata/dataset_names_n_lookup_alphadiv.RDS')
 
 which_indices <- c('Richness', 'Shannon', 'Hill_2', 'Tail')
 
@@ -152,7 +136,10 @@ Shannon_violin <- div.data %>%
   labs(y = 'Shannon index') +
   theme(axis.text.x = element_blank(),
         axis.title = element_blank(),
+        axis.ticks.x = element_blank(),
         legend.position = 'bottom',
+        legend.text.position = 'bottom',
+        
         legend.title.position = 'top',
         !!!strip_theme
   )
@@ -171,7 +158,7 @@ p_B <- ggdraw() +
   draw_label("B.", x = 0.0, y = 0.985, hjust = 0, vjust = 1,
              fontface = "bold", size = 14)
 
-# Assemble — AAAAABB = 5 units A, 2 units B
+# Assemble 
 plot_grid(
   p_A, p_B,
   ncol = 2,

@@ -27,15 +27,21 @@ these_databases <- c('KB10', 'KB10_GTDB','KB45', 'KB90',
                      'MPA_db2022', 'MPA_db2023', 'MPA_db2025',
                      'MOTUS3', 'MOTUS4')
 
+# dataset Ns 
+dataset_names_n_lookup <- read_rds('Out/_Rdata/dataset_names_n_lookup_alphadiv.RDS')
+
 # PCoA comparison
 permanova.ds <- read_rds('Out/_Rdata/permanova.ds.RDS')%>% 
+  left_join(CCE_metadata, by = 'Database') %>% 
   filter(Database %in% these_databases) %>% 
   group_by(Dataset) %>%
   mutate(R2_scaled = (R2 - min(R2)) / (max(R2) - min(R2))) %>%
   ungroup() %>% 
   mutate(R2_label = sprintf("%.3f", R2),
-         Dataset = recode(Dataset, !!!dataset_names))
-
+         Dataset = factor(recode(Dataset, !!!dataset_names_n_lookup), 
+                          levels = dataset_names_n_lookup),
+         CCE_approach = factor(CCE_approach, levels = c("D2M", "D2D")))
+                
 permanova.ds %>% 
   ggplot(aes(x = Database, y = Dataset)) +
   geom_point(aes(size = R2, colour = p)) +

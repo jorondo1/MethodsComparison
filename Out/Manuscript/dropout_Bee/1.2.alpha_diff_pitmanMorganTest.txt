@@ -1,5 +1,5 @@
 group_1                             group_2                              Richness   Shannon   Inverse Simpson    Tail
 ----------------------------------  ----------------------------------  ---------  --------  ----------------  ------
-D2M: MetaPhlAn4 (2025) vs. mOTUs4   D2D: Kraken vs. Sourmash (GTDB)             0     0.000             0.000   0.164
+D2M: MetaPhlAn4 (2025) vs. mOTUs4   D2D: Kraken vs. Sourmash (GTDB)             0     0.000             0.000   0.123
 D2M: MetaPhlAn4 (2025) vs. mOTUs4   D2D: Kraken vs. Sourmash (RefSeq)           0     0.000             0.000   0.000
-D2D: Kraken vs. Sourmash (GTDB)     D2D: Kraken vs. Sourmash (RefSeq)           0     0.468             0.866   0.000
+D2D: Kraken vs. Sourmash (GTDB)     D2D: Kraken vs. Sourmash (RefSeq)           0     0.123             0.793   0.000

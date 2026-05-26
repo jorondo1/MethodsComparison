@@ -84,6 +84,25 @@ plan(sequential)
 
 write_rds(alpha_div, 'Out/_Rdata/alpha_div.RDS', compress = 'gz')
 
+# N data naming for datasets (for figures)
+dataset_names_n_tibble <- alpha_div[['wilcox_tests']] %>% 
+  distinct(Dataset, n) %>% 
+  group_by(Dataset) %>% 
+  filter(n==max(n)) %>% 
+  left_join(tibble(
+    Dataset = names(dataset_names),
+    Dataset_name = unname(dataset_names)
+  ), by = "Dataset") %>% 
+  mutate(Dataset_name_n = paste0(Dataset_name, "\n(n=",n,")" ))
+
+# values:
+dataset_names_n_lookup <- dataset_names_n_tibble$Dataset_name_n
+# add standard names:
+names(dataset_names_n_lookup) <- dataset_names_n_tibble$Dataset 
+# reorder and flush NAs
+dataset_names_n_lookup %<>% .[names(dataset_names)] %>% .[!is.na(.)]
+write_rds(dataset_names_n_lookup, 'Out/_Rdata/dataset_names_n_lookup_alphadiv.RDS')
+
 
 # 2. Beta Diversity ----------------------------------------------------------
 
@@ -178,8 +197,7 @@ permanova.ds <- imap(pcoa.ls, function(pcoa_db.ls, ds) {
     ) %>% return()
     
   }) %>% list_rbind()
-}) %>% list_rbind() %>% 
-  left_join(CCE_metadata, by = 'Database')
+}) %>% list_rbind()
 
 write_rds(permanova.ds, 'Out/_Rdata/permanova.ds.RDS',compress = 'gz')
 

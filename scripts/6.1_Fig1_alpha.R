@@ -123,7 +123,7 @@ alpha_distr.plots <- imap(alpha_paired, function(dat, idx) {
       legend.text = element_text(size = 12),
       legend.title = element_text(size = 12),
       legend.box.spacing = unit(-0.5, "lines"),
-      strip.background = element_rect(fill = 'grey50'),
+      !!!strip_theme,
       strip.text.x.top = element_text(
         angle = 0, hjust = 0, size = 12)
     ) +
@@ -180,9 +180,12 @@ names(alpha_diff.pdat) <- c('Richness', 'Shannon', 'Inverse Simpson', 'Tail')
 
 # --- plotting function
 distr_alpha_diffs.fun <- function(plot.dat, plot_name){
+  # for anchor poslter figure:
+  i      <- match(plot_name, names(alpha_diff.pdat))
   
   plot.dat %>% 
-    mutate(strip_label = 'D. Distribution of differences in scaled diversity') %>% 
+    mutate(strip_label = 'D. Distribution of differences in scaled diversity',
+           strip_label_ANCHOR = paste0(LETTERS[i + 3], ". ", plot_name)) %>% 
     # --- TRUNCATE X AXIS for lisibility :
     filter(differences>-2.5, differences < 2.5) %>% 
     ## --- !
@@ -193,13 +196,14 @@ distr_alpha_diffs.fun <- function(plot.dat, plot_name){
     labs(subtitle = paste0(LETTERS[which(names(alpha_diff.pdat) == plot_name)], ": ", plot_name),
          fill = "Methodology pairs comparison",
          x = 'Differences in scaled diversity', y = 'Density') +
-    theme(plot.caption = element_text(hjust = 0),
-          legend.position = 'bottom',
-          panel.grid = element_blank()) 
+    theme(legend.position = 'bottom',
+          panel.grid = element_blank(),
+          !!!strip_theme,
+          axis.text.y = element_blank()) 
 }
 
 distr_alpha_diffs.plots <- alpha_diff.pdat %>% 
-  imap(distr_alpha_diffs.fun)
+  imap(distr_alpha_diffs.fun)  # no change to the call
 
 # Combo plot for paper ------------
 
@@ -211,39 +215,39 @@ distr_alpha_diffs_formatted.plots <- map(distr_alpha_diffs.plots, function(diff_
     theme(
       plot.subtitle = element_blank(),
       legend.position = c(0.2,0.5),
-      strip.background = element_rect(fill = 'grey50'),
-      strip.text.x.top = element_text(angle = 0, hjust = 0, size = 12)
-    )
+      strip.text.x.top = element_text(
+        angle = 0, hjust = 0, size = 12)
+    )    
 })
 
 # Half-violin plots formatting
 alpha_distr_formatted.plots <- map(alpha_distr.plots, function(distr_plot){
   distr_plot + 
-      facet_wrap(~Facet, scales = "free_x") +
-      theme(
-        axis.ticks.x = element_blank(),
-        legend.position = c(0.5,0),
-        legend.direction = 'horizontal',
-      )
+    facet_wrap(~Facet, scales = "free_x") +
+    theme(
+      axis.ticks.x = element_blank(),
+      legend.position = c(0.5,0),
+      legend.direction = 'horizontal',
+    )
 })
 
 # Figure 1 : Shannon plots patchwork
 alpha_distr_formatted.plots$Shannon / distr_alpha_diffs_formatted.plots$Shannon +
-    plot_layout(design = "
+  plot_layout(design = "
               A
               A
               A
               B
               B") &
-    theme(legend.text = element_text(size = 10),
-          legend.background = element_rect(
-            linewidth = 0.1,
-            fill = 'white',
-            colour = 'black'))
-  
+  theme(legend.text = element_text(size = 10),
+        legend.background = element_rect(
+          linewidth = 0.1,
+          fill = 'white',
+          colour = 'black'))
+
 ggsave(paste0('Out/Manuscript/1.1.alpha_diff_Shannon.pdf'),
-         bg = 'white', width = 2100, height = 2400,
-         units = 'px', dpi = 200)
+       bg = 'white', width = 2100, height = 2400,
+       units = 'px', dpi = 200)
 
 # Figure SUPP 1 : All distributions, 1 plot each
 # No facet grid, allow y axis to be free
@@ -257,7 +261,7 @@ imap(alpha_distr.plots, function(distr_plot, idx_name){
 })
 
 # Figure SUPP 2 : All difference distributions, in 2 columns -----------
-wrap_plots(distr_alpha_diffs.plots, ncol = 2) +
+all_distr_diffs <- wrap_plots(distr_alpha_diffs.plots, ncol = 2) +
   plot_layout(guides = "collect") &
   theme(legend.position = 'bottom',
         legend.text = element_text(size = 10),
@@ -267,6 +271,7 @@ wrap_plots(distr_alpha_diffs.plots, ncol = 2) +
         legend.title = element_blank()) 
 
 ggsave(paste0('Out/Manuscript/1.3.alpha_diff_all.pdf'),
+       plot = all_distr_diffs,
        bg = 'white', width = 2100, height = 1400,
        units = 'px', dpi = 200)
 
@@ -373,6 +378,55 @@ dropout_fun <- function(dataset){
 
 dropout_fun('Bee')
 dropout_fun('PD')
+
+
+# ANCHOR poster -----------------------------------------------------------
+
+# Density distribution plots formatting
+distr_alpha_diffs_formatted_ANCHOR.plots <- map(distr_alpha_diffs.plots, function(diff_plot){
+  
+  distr_diffs <- diff_plot +
+    facet_wrap(~strip_label_ANCHOR) +
+    theme(
+      legend.position = c(0.2,0.5),
+      plot.subtitle = element_blank(),
+      strip.background = element_rect(fill = 'grey50'),
+      strip.text.x.top = element_text(angle = 0, hjust = 0, size = 12)
+    )
+})
+
+
+# Wrap all density plots
+all_distr_diffs_ANCHOR <- wrap_plots(distr_alpha_diffs_formatted_ANCHOR.plots, ncol = 2) +
+  plot_layout(guides = "collect") +
+  plot_annotation(title = "Distribution of differences in scaled-centered diversity indices.") &
+  theme(legend.position = 'bottom',
+        legend.text = element_text(size = 10),
+        axis.title = element_blank(),
+        !!!strip_theme_dark,
+        
+        panel.spacing = unit(0, "lines"),
+        legend.title = element_blank()) 
+
+
+(alpha_distr_formatted.plots$Shannon + theme(!!!strip_theme_dark)) / 
+  wrap_elements(full = all_distr_diffs_ANCHOR) +
+  plot_layout(
+    design = "
+              A
+              A
+              B
+              B") &
+  theme(
+    legend.text = element_text(size = 10),
+    legend.background = element_rect(
+      linewidth = 0.1,
+      fill = 'white',
+      colour = 'black'))
+
+ggsave(paste0('Out/Manuscript/1.4.alpha_diff_Shannon_ANCHOR.pdf'),
+       bg = 'white', width = 2300, height = 2400,
+       units = 'px', dpi = 220)
 
 
 # SAAAAAAAAAAANDBOX 

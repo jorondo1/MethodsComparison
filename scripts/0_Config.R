@@ -54,15 +54,15 @@ Hill_numbers <- c(
 )
 
 CCE_metadata <- tribble(
-  ~Database,                ~plot_colour, ~MethodName,         ~MethodNameParam, ~Num_spec, ~Tool,        ~tool_family,  ~CCE_approach,      ~Taxonomy,       ~refdb,      ~short_alpha_2,      ~short_alpha_3,
-  "MOTUS3",                "orange",      "mOTUs 3",           "mOTUs",              25314, "mOTUs3",     "mOTUs",       "D2M",    "Tool-specific", "MOTUS",      "mOTUs",           "3.0",
-  "MOTUS4",                "#FDBF6F",     "mOTUs 4",           "mOTUs",             124296, "mOTUs4",     "mOTUs",       "D2M",    "Tool-specific", "MOTUS",      "mOTUs",           "4.0",
-  "MPA_db2022",            "green4",      "MPA 2022",          "MetaPhlAn",          30094, "MetaPhlAn4", "MetaPhlAn",   "D2M",    "Tool-specific", "MPA",        "MetaPhlAn",       "2022",
-  "MPA_db2023",            "#3d8f58",     "MPA 2023",          "MetaPhlAn",          36333, "MetaPhlAn4", "MetaPhlAn",   "D2M",    "Tool-specific", "MPA",        "MetaPhlAn",       "2023",
-  "MPA_db2025",            "#00A759",     "MPA 2025",          "MetaPhlAn",          56335, "MetaPhlAn4", "MetaPhlAn",   "D2M",    "Tool-specific", "MPA",        "MetaPhlAn",       "2025",
-  "KB10",                  "indianred1",  "KB10 RefSeq",       "Kraken 0.10",        27285, "Kraken2",    "Kraken",      "D2D",       "NCBI",          "RefSeq",     "RefSeq",  "KB 0.10",
-  "KB45",                  "indianred3",  "KB45 RefSeq",       "Kraken 0.45",        27285, "Kraken2",    "Kraken",      "D2D",       "NCBI",          "RefSeq",     "RefSeq",  "KB 0.45",
-  "KB90",                  "indianred4",  "KB90 RefSeq",       "Kraken 0.90",        27285, "Kraken2",    "Kraken",      "D2D",       "NCBI",          "RefSeq",     "RefSeq",  "KB 0.90",
+  ~Database,                ~plot_colour, ~MethodName,         ~MethodNameParam, ~Num_spec, ~Tool,        ~tool_family,  ~CCE_approach,   ~Taxonomy,       ~refdb,      ~short_alpha_2,      ~short_alpha_3,
+  "MOTUS3",                "orange",      "mOTUs 3",           "mOTUs",              25314, "mOTUs3",     "mOTUs",       "D2M",           "Tool-specific", "MOTUS",      "mOTUs",           "3.0",
+  "MOTUS4",                "#FDBF6F",     "mOTUs 4",           "mOTUs",             124296, "mOTUs4",     "mOTUs",       "D2M",           "Tool-specific", "MOTUS",      "mOTUs",           "4.0",
+  "MPA_db2022",            "green4",      "MPA 2022",          "MetaPhlAn",          30094, "MetaPhlAn4", "MetaPhlAn",   "D2M",           "Tool-specific", "MPA",        "MetaPhlAn",       "2022",
+  "MPA_db2023",            "#3d8f58",     "MPA 2023",          "MetaPhlAn",          36333, "MetaPhlAn4", "MetaPhlAn",   "D2M",           "Tool-specific", "MPA",        "MetaPhlAn",       "2023",
+  "MPA_db2025",            "#00A759",     "MPA 2025",          "MetaPhlAn",          56335, "MetaPhlAn4", "MetaPhlAn",   "D2M",           "Tool-specific", "MPA",        "MetaPhlAn",       "2025",
+  "KB10",                  "indianred1",  "KB10 RefSeq",       "Kraken 0.10",        27285, "Kraken2",    "Kraken",      "D2D",           "NCBI",          "RefSeq",     "RefSeq",  "KB 0.10",
+  "KB45",                  "indianred3",  "KB45 RefSeq",       "Kraken 0.45",        27285, "Kraken2",    "Kraken",      "D2D",           "NCBI",          "RefSeq",     "RefSeq",  "KB 0.45",
+  "KB90",                  "indianred4",  "KB90 RefSeq",       "Kraken 0.90",        27285, "Kraken2",    "Kraken",      "D2D",           "NCBI",          "RefSeq",     "RefSeq",  "KB 0.90",
   "KB10_GTDB",             "purple",      "KB10 GTDB",         "Kraken 0.10",       113104, "Kraken2",    "Kraken",      "D2D",       "GTDB",          "GTDB_220",   "GTDB",        "KB 0.10",
   "KB45_GTDB",             "purple2",     "KB45 GTDB",         "Kraken 0.45",       113104, "Kraken2",    "Kraken",      "D2D",       "GTDB",          "GTDB_220",   "GTDB",        "KB 0.45",
   "KB90_GTDB",             "purple3",     "KB90 GTDB",         "Kraken 0.90",       113104, "Kraken2",    "Kraken",      "D2D",       "GTDB",          "GTDB_220",   "GTDB",        "KB 0.90",
@@ -108,8 +108,19 @@ DAA_metadata <- tibble(
 strip_theme <- list(
   strip.text = element_text(colour = 'grey20'),
   strip.background = element_rect(
-    fill = 'grey90', colour = 'white', linewidth = 0.1),
+    fill = 'grey90', colour = 'grey90', linewidth = 0.1),
   panel.border = element_rect(colour = 'grey90'),
+  panel.grid = element_blank(),
+  panel.spacing = unit(0, "lines")   # default is 0.5, shrink gutters between panels
+  
+)
+
+
+strip_theme_dark <- list(
+  strip.text = element_text(colour = 'white'),
+  strip.background = element_rect(
+    fill = 'grey50', colour = 'grey50', linewidth = 0.1),
+  panel.border = element_rect(colour = 'grey50'),
   panel.grid = element_blank(),
   panel.spacing = unit(0, "lines")   # default is 0.5, shrink gutters between panels
   
