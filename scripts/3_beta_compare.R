@@ -270,6 +270,11 @@ ggsave(paste0('Out/Manuscript/2.4.pcoa_example.pdf'),
        bg = 'white', width = 2200, height = 1600,
        units = 'px', dpi = 220)
 
+ggsave('Out/Manuscript/PLOS/Fig2.eps',
+       bg = 'white', device = 'eps', # transparency warning ok !
+       width = 2800, height = 2000, units = 'px')
+
+
 
 # Ordination of correlations ----------------------------------------------
 
@@ -406,8 +411,8 @@ legend_plot <- ggplot(
   theme_void() +
   theme(legend.position = "right", 
         legend.direction = "vertical",
-        legend.title = element_text(size = 14),
-        legend.text = element_text(size = 10)
+        legend.title = element_text(size = 15),
+        legend.text = element_text(size = 13)
   )
 
 # extract legend
@@ -420,6 +425,10 @@ plot_list$Legend <- cowplot::get_legend(legend_plot)
 ggsave('Out/Manuscript/2.3.procrustes_ordination.pdf',
        bg = 'white', width = 2000, height = 2000, 
        units = 'px', dpi = 240)
+
+ggsave('Out/Manuscript/PLOS/Fig3.eps',
+       bg = 'white', device = 'eps',
+       width = 2500, height = 2500, units = 'px')
 
 # --- ANCHOR poster
 plot_list_ANCHOR <- imap(plot_list, function(plot, plot_name){

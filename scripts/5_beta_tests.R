@@ -58,20 +58,30 @@ permanova.ds %>%
   #scale_size_area(max_size = 10) +
   scale_size(range = c(3, 10)) +
   theme_light()+
-  labs(size = "R2", colour = 'p-value') +
+  labs(size = expression(R^2), colour = 'p-value') +
   theme(
     axis.text = element_blank(),
     axis.ticks = element_blank(),
     axis.title = element_blank(),
     legend.position = 'bottom',
+    legend.title.position = 'top',
     legend.key.width = unit(1, "cm"),
     !!!strip_theme
+  ) +
+  guides(
+    size = guide_legend(order = 1),   # appears first = leftmost
+    fill = guide_colorbar(order = 2)  # appears second = rightmost
   )
 
-ggsave(paste0('Out/Manuscript/4.beta_permanova.pdf'),
-       bg = 'white', width = 1300, height = 1100,
-       units = 'px', dpi = 150)
 
+ggsave(paste0('Out/Manuscript/4.beta_permanova.pdf'),
+       bg = 'white', width = 2900, height = 2320,
+       units = 'px', dpi = 300)
+
+
+ggsave('Out/Manuscript/PLOS/Fig5.eps',
+       bg = 'white', device = 'eps',
+       width = 2900, height = 2320, units = 'px')
 
 # PLOT variance with p-values
 # p_value_lines <- function() {
@@ -125,7 +135,7 @@ ggsave(paste0('Out/Manuscript/4.beta_permanova.pdf'),
 # 
 # p1 + p2 + plot_layout(guides = 'collect')
 # 
-# ggsave('Out/Manuscrit/beta_permanova_bray.pdf', bg = 'white', width = 2200, height = 1200, 
+# ggsave('Out/Manuscrit/beta_permanova_bray.eps', bg = 'white', width = 2200, height = 1200, 
 #        units = 'px', dpi = 200)
 # 
 # # descriptive Statistics

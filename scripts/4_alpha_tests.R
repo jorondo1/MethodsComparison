@@ -82,7 +82,11 @@ wilcox.plots <- imap(wilcox.pdat, function(wilcox.df, Index_name) {
       legend.position = 'bottom',
       legend.title.position = 'top',
       legend.key.width = unit(1, "cm"),
-      !!!strip_theme) 
+      !!!strip_theme)  +
+    guides(
+      size = guide_legend(order = 1)  # appears second = rightmost
+    )
+  
 
 })
 
@@ -168,83 +172,8 @@ plot_grid(
 ggsave(paste0('Out/Manuscript/3.2.alpha_wilcox_example.pdf'),
        bg = 'white', width = 2500, height = 2000,
        units = 'px', dpi = 260)
-# 
-# # Diversity indices
-# alpha_div <- read_rds('Out/_Rdata/alpha_div.RDS')[['plot_data']] %>% 
-#   filter(Dataset %in% these_datasets, Database %in% these_databases) %>% 
-#   left_join(CCE_metadata %>% select(Database, CCE_approach, short_alpha_2, short_alpha_3), by = 'Database') %>% 
-#   # add p values
-#   left_join(alpha_div_test, by = c('Dataset', 'Database', 'Index')) %>% 
-#   mutate(
-#     Database = factor(Database, levels = these_databases),
-#     label = paste0(
-#       'p=',
-#       ifelse(
-#         p < 0.01, 
-#         format(p, scientific = TRUE, digits = 2), 
-#         round(p, 3))
-#       )
-#     )
-# 
-# 
-# # Plot and save :
-# make_plots <- function(desc, idx) {
-#   
-#   # Skip KB45 for Richness
-#   database_subset <- if(idx %in% c('Richness', 'Tail') ){
-#     these_databases[which(!these_databases %in% c("KB45", "KB10", 'KB10_GTDB', 'KB45_GTDB'))]
-#   } else {these_databases}
-#   
-#   # Create one-row-per-facet label data
-#   alpha_div_labels <- alpha_div %>%
-#     filter(Index == idx, Database %in% database_subset) %>%
-#     distinct(Dataset, Database, CCE_approach, short_alpha_2, short_alpha_3, label, p.signif)
-#   
-#   alpha_div %>% 
-#     filter(Index == idx, Database %in% database_subset) %>%
-#     ggplot(aes(x = Grouping_var, y = Index_value, fill = p.signif)) +
-#     geom_violin(linewidth =0.2, draw_quantiles = c(0.50)) +
-#     facet_nested(Dataset ~ CCE_approach + short_alpha_2 + short_alpha_3, scales = 'free') +
-#     geom_text(
-#       data = alpha_div_labels,
-#       aes(x = 0.5, y = Inf, label = label),
-#       hjust = 0, vjust = 1.5,
-#       size = 3, color = "black",
-#       inherit.aes = FALSE
-#     )+
-#     labs(fill = 'p-value', x = 'Group', y = desc) +
-#     scale_fill_manual(values = c(
-#       "#b7cdd0",
-#       "#3ba7e5",
-#       "#8d74ce",
-#       "#83ab56")) +
-#     theme(
-#       legend.position = c(0.9,0.75),
-#       legend.title = element_blank(),
-#       strip.background = element_rect(fill = 'grey50'),
-#       axis.text = element_text(size = 8),
-#       legend.background = element_rect(
-#         fill = "white",        
-#         color = "black",       # border
-#         linewidth = 0.2        # Border
-#       )) 
-# }
-# 
-# axis_desc_tests <- c(
-#   Richness = 'Species richness',
-#   Shannon = "Shannon's diversity index",
-#   Simpson = "Simpson's dominance index",
-#   Tail = "Tau statistic"
-# )
-# 
-# plots <- imap(axis_desc_tests, make_plots)
-# 
-# imap(plots, function(p, idx) {
-#   ggsave(plot = p, paste0('Out/Manuscrit/alpha_',idx, '_tests.pdf'),
-#          bg = 'white', width = 2000, height = 2400,
-#          units = 'px', dpi = 220)
-# })
-# 
-# # Power, p-values and n for each method
-# 
-# alpha_div
+
+ggsave('Out/Manuscript/PLOS/Fig4.eps',
+       bg = 'white', device = 'eps',
+       width = 2900, height = 2320, units = 'px')
+

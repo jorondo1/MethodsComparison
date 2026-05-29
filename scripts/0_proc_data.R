@@ -2,10 +2,9 @@ library(pacman)
 p_load(phyloseq,mgx.tools, # unloadNamespace("mgx.tools"); devtools::install_github("jorondo1/mgx.tools", force = TRUE); library(mgx.tools)
        tidyverse, magrittr, doParallel, furrr)
 
+dir.create('Out/_Rdata', recursive = TRUE, showWarnings = FALSE)
+
 # functions
-source('scripts/myFunctions.R')
-#source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/tax_glom2.R')
-#source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/rarefy_even_depth2.R')
 source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/community_functions.R')
 
 # Import External data
@@ -122,21 +121,14 @@ RA_meta <- read.delim('data/RA_Gut/raw/metadata.tsv') %>%
   column_to_rownames('Sample')
 
 Bee_meta <- read_delim('data/Bee/raw/filereport_read_run_PRJNA685398_tsv.txt') %>% 
-  select(run_accession, library_name) %>% 
+  dplyr::select(run_accession, library_name) %>% 
   mutate(Group = as.factor(str_extract_all(library_name, "[A-Za-z]") %>% 
                              sapply(paste, collapse = "")),
          .keep = 'unused') %>% 
   column_to_rownames('run_accession')
 
-Olive_meta <- read_delim('data/Olive/raw/filereport_read_run_PRJNA629675_tsv.txt') %>% 
-  select(run_accession, library_name) %>% 
-  mutate(Group = as.factor(
-    str_extract(library_name, regex(paste(c('Kal', 'FS'), collapse = "|")))),
-    .keep = 'unused') %>% 
-  column_to_rownames('run_accession')
-
 PD_meta <- read_delim('data/PD/raw/filereport_read_run_PRJNA834801_tsv.txt') %>% 
-  select(run_accession, library_name) %>% 
+  dplyr::select(run_accession, library_name) %>% 
   mutate(Group = as.factor(
     str_extract(library_name, regex(paste(c('DP', 'DC'), collapse = "|")))),
     .keep = 'unused') %>% 
@@ -157,17 +149,9 @@ ps_raw.ls[['NAFLD']] <- meta_parsing('NAFLD', NAFLD_meta)
 ps_raw.ls[['AD_Skin']] <- meta_parsing('AD_Skin', AD_skin_meta)
 ps_raw.ls[['RA_Gut']] <- meta_parsing('RA_Gut', RA_meta)
 ps_raw.ls[['Bee']] <- meta_parsing('Bee', Bee_meta)
-#ps_raw.ls[['Olive']] <- meta_parsing('Olive', Olive_meta)
 ps_raw.ls[['PD']] <- meta_parsing('PD', PD_meta)
 
 write_rds(ps_raw.ls, "Out/_Rdata/ps_raw.ls.RDS", compress = 'bz2')
-
-# Prevalence+Abundance filtering, currently hardcoded in filter_low_prevalence()
-
-ps_filt.ls <- lapply(ps_raw.ls, function(ds) {
-  lapply(ds, filter_low_prevalence, minPrev = 0.10, minAbund = 0)
-})
-write_rds(ps_filt.ls, "Out/_Rdata/ps_filt.ls.RDS", compress = 'bz2')
 
 ps_rare.ls <- imap(ps_raw.ls, function(ds, dataset_name) {
   imap(ds, function(db, database_name) {
@@ -176,7 +160,7 @@ ps_rare.ls <- imap(ps_raw.ls, function(ds, dataset_name) {
       return(db)
     } else {
       message(paste("Rarefying:",dataset_name,  database_name))
-      rarefy_even_depth2(
+      mgx.tools::rarefy_even_depth2(
         db, rngseed = 1234, 
         verbose = TRUE, ncores = 7) %>% 
         return()
@@ -186,3 +170,11 @@ ps_rare.ls <- imap(ps_raw.ls, function(ds, dataset_name) {
 
 write_rds(ps_rare.ls, "Out/_Rdata/ps_rare.ls.RDS", compress = 'bz2')
 
+
+
+# For DA project
+# # Prevalence+Abundance filtering, currently hardcoded in filter_low_prevalence()
+# ps_filt.ls <- lapply(ps_raw.ls, function(ds) {
+#   lapply(ds, filter_low_prevalence, minPrev = 0.10, minAbund = 0)
+# })
+# write_rds(ps_filt.ls, "Out/_Rdata/ps_filt.ls.RDS", compress = 'bz2')

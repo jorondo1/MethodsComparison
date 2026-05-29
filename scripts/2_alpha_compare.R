@@ -125,7 +125,7 @@ alpha_distr.plots <- imap(alpha_paired, function(dat, idx) {
       legend.box.spacing = unit(-0.5, "lines"),
       !!!strip_theme,
       strip.text.x.top = element_text(
-        angle = 0, hjust = 0, size = 12)
+        angle = 0, hjust = 0, size = 10)
     ) +
     scale_y_continuous(limits = c(0, NA)) +
     labs(fill = 'Tool', x = '', y = axis_desc[idx])
@@ -216,7 +216,7 @@ distr_alpha_diffs_formatted.plots <- map(distr_alpha_diffs.plots, function(diff_
       plot.subtitle = element_blank(),
       legend.position = c(0.2,0.5),
       strip.text.x.top = element_text(
-        angle = 0, hjust = 0, size = 12)
+        angle = 0, hjust = 0, size = 10)
     )    
 })
 
@@ -239,15 +239,20 @@ alpha_distr_formatted.plots$Shannon / distr_alpha_diffs_formatted.plots$Shannon 
               A
               B
               B") &
-  theme(legend.text = element_text(size = 10),
+  theme(legend.text = element_text(size = 9),
         legend.background = element_rect(
           linewidth = 0.1,
           fill = 'white',
           colour = 'black'))
 
 ggsave(paste0('Out/Manuscript/1.1.alpha_diff_Shannon.pdf'),
-       bg = 'white', width = 2100, height = 2400,
-       units = 'px', dpi = 200)
+       bg = 'white', 
+       width = 2250, height = 2571, units = 'px', dpi = 300)
+
+ggsave('Out/Manuscript/PLOS/Fig1.tiff',
+       bg = 'white', device = 'tiff', compression = 'lzw',
+       width = 2250, height = 2571, units = 'px', dpi = 300)
+
 
 # Figure SUPP 1 : All distributions, 1 plot each
 # No facet grid, allow y axis to be free
@@ -255,8 +260,8 @@ imap(alpha_distr.plots, function(distr_plot, idx_name){
   
   ggsave(paste0('Out/Manuscript/1.2.alpha_distr_',idx_name,'.pdf'),
          plot=distr_plot,
-         bg = 'white', width = 2100, height = 1400,
-         units = 'px', dpi = 200)
+         bg = 'white', 
+         width = 2250, height = 2200, units = 'px', dpi = 280)
   
 })
 
