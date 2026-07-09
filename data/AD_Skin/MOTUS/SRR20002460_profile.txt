@@ -1,6 +1,0 @@
-# git tag version 3.1.0 |  motus version 3.1.0 | map_tax 3.1.0 | gene database: nr3.1.0 | calc_mgc 3.1.0 -y insert.scaled_counts -l 75 | calc_motu 3.1.0 -k mOTU -C no_CAMI -g 3 -c -p | taxonomy: ref_mOTU_3.1.0 meta_mOTU_3.1.0
-# call: python /nfs3_ib/nfs-ip34/home/def-ilafores/programs/motu-profiler_env/bin/motus profile -f /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/AD_Skin/preproc/SRR20002460/SRR20002460_paired_1.fastq -r /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/AD_Skin/preproc/SRR20002460/SRR20002460_paired_2.fastq -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/AD_Skin/preproc/SRR20002460/SRR20002460_unmatched_1.fastq -s /nfs3_ib/nfs-ip34/home/def-ilafores/analysis/MethodsComparison/AD_Skin/preproc/SRR20002460/SRR20002460_unmatched_2.fastq -n SRR20002460 -t 24 -c -p -k mOTU -q
-#mOTU	consensus_taxonomy	NCBI_tax_id	SRR20002460
-ref_mOTU_v31_00318	k__Bacteria|p__Firmicutes|c__Bacilli|o__Lactobacillales|f__Enterococcaceae|g__Enterococcus|s__Enterococcus faecalis	2|1239|91061|186826|81852|1350|1351	2
-ref_mOTU_v31_02801	k__Bacteria|p__Firmicutes|c__Bacilli|o__Bacillales|f__Staphylococcaceae|g__Staphylococcus|s__Staphylococcus warneri	2|1239|91061|1385|90964|1279|1292	2
-unassigned	unassigned	NA	5

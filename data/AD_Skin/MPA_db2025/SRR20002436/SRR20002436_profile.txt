@@ -1,7 +1,0 @@
-#mpa_vJan25_CHOCOPhlAnSGB_202503
-#/usr/local/bin/metaphlan -t rel_ab --input_type fastq --add_viruses --unclassified_estimation --offline --tmp_dir /localscratch/ronj2303.69325.0 --bowtie2db /net/nfs-ip34/fast/def-ilafores/metaphlan4_db/2025 -x mpa_vJan25_CHOCOPhlAnSGB_202503 --bowtie2out /localscratch/ronj2303.69325.0/SRR20002436.bowtie2.txt --nproc 24 -o /localscratch/ronj2303.69325.0/SRR20002436_profile.txt /localscratch/ronj2303.69325.0/all_reads.fastq
-#19431 reads processed
-#SampleID	Metaphlan_Analysis
-#clade_name	NCBI_tax_id	relative_abundance	additional_species
-k__Bacteria|p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Cutibacterium|s__Cutibacterium_acnes	2|201174|1760|85009|31957|1912216|1747	65.34725800762381	
-k__Bacteria|p__Actinomycetota|c__Actinomycetes|o__Propionibacteriales|f__Propionibacteriaceae|g__Cutibacterium|s__Cutibacterium_acnes|t__SGB16955	2|201174|1760|85009|31957|1912216|1747|	65.34725800762381	

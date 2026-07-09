@@ -1,7 +1,0 @@
-#mpa_vJan25_CHOCOPhlAnSGB_202503
-#/usr/local/bin/metaphlan -t rel_ab --input_type fastq --add_viruses --unclassified_estimation --offline --tmp_dir /localscratch/ronj2303.69368.0 --bowtie2db /net/nfs-ip34/fast/def-ilafores/metaphlan4_db/2025 -x mpa_vJan25_CHOCOPhlAnSGB_202503 --bowtie2out /localscratch/ronj2303.69368.0/SRR20002451.bowtie2.txt --nproc 24 -o /localscratch/ronj2303.69368.0/SRR20002451_profile.txt /localscratch/ronj2303.69368.0/all_reads.fastq
-#44391 reads processed
-#SampleID	Metaphlan_Analysis
-#clade_name	NCBI_tax_id	relative_abundance	additional_species
-k__Bacteria|p__Pseudomonadota|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Stutzerimonas|s__Stutzerimonas_stutzeri	2|1224|1236|72274|135621|2901164|316	40.82552976526424	
-k__Bacteria|p__Pseudomonadota|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Stutzerimonas|s__Stutzerimonas_stutzeri|t__SGB12382	2|1224|1236|72274|135621|2901164|316|	40.82552976526424	k__Bacteria|p__Pseudomonadota|c__Gammaproteobacteria|o__Pseudomonadales|f__Pseudomonadaceae|g__Stutzerimonas|s__Stutzerimonas_sp_FeSN7
