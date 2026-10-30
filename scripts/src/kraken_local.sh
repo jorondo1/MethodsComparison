@@ -98,7 +98,6 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
 
     singularity exec --writable-tmpfs -e \
     -B /dev/shm:/dev/shm \
-    -B /fast2/def-ilafores:/fast2/def-ilafores \
     -B $ILAFORES:$ILAFORES \
     $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
    
