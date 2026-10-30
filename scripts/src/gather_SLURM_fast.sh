@@ -11,17 +11,16 @@
 #SBATCH -J sourmash
 start_time=$(date +%s)
 
-export ILAFORES=$ANCHOR/$ILAFORES
+export ILAFORES=$ILAFORES
 
 # Load sourmash
 module load StdEnv/2020 apptainer/1.1.5
 
 # Parse options and variables
-export SAM_LIST="${ANCHOR}${2#$ANCHOR}" # allows providing variables generated from remote server like mp2b
-export SM_DB="${ANCHOR}${3}"
+export SAM_LIST="${2}" # allows providing variables generated from remote server like mp2b
+export SM_DB="${3}"
 export DB_NAME=$(basename ${SM_DB/[-._]k??.*/})
 export OUT_DIR=${PWD}/data/"${1}"/SM_${DB_NAME}
-export DB_ANCHOR=$(dirname $SM_DB)
 echo "Exporting to $OUT_DIR"
 echo "using $SM_DB"
 # Parse samples
@@ -29,16 +28,9 @@ export SAM_NUM=$(awk "NR==$SLURM_ARRAY_TASK_ID" ${SAM_LIST})
 IFS=$'\t' read -r SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2 <<< "$SAM_NUM" # array it up
 export SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2
 
-# Add Anchor to sample paths
-for var in FQ_P1 FQ_P2 FQ_U1 FQ_U2; do
-    if [[ "${!var}" != ${ANCHOR}/* && "${!var}" != /nfs3_ib/* ]]; then
-        declare "$var"="${ANCHOR}${!var}"
-    fi
-done
-
 SAM_ANCHOR=$(dirname $FQ_P1)
 
-export sourmash="singularity exec --writable-tmpfs -e -B ${SAM_ANCHOR}:${SAM_ANCHOR} -B $ILAFORES:$ILAFORES -B $DB_ANCHOR:$DB_ANCHOR ${ILAFORES}/programs/ILL_pipelines/containers/sourmash.4.8.11.sif sourmash"
+export sourmash="singularity exec --writable-tmpfs -e -B ${SAM_ANCHOR}:${SAM_ANCHOR} -B $ILAFORES:$ILAFORES -B $SM_DB:$SM_DB ${ILAFORES}/programs/ILL_pipelines/containers/sourmash.4.8.11.sif sourmash"
 
 export SIG=$(realpath "${PWD}/data/${1}/signatures/${SAM_ID}.sig")
 
