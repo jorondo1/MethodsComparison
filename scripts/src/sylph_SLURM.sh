@@ -21,7 +21,7 @@
 start_time=$(date +%s)
 set -eo pipefail
 
-export SYLPH=${SYLPH:-$ILAFORES/programs/sylph}
+export SYLPH=${SYLPH:-sylph} # sylph 1.0.0, from the sylph-tax conda env
 export SCALE=200 # must not be larger than the -c used to build the database
 
 # Parse options and variables
@@ -44,6 +44,7 @@ fi
 for cmd in $SYLPH sylph-tax; do
 	command -v $cmd > /dev/null || { echo "$cmd not found on $(hostname)"; exit 1; }
 done
+echo "$($SYLPH --version), sylph-tax $(sylph-tax --version 2>&1 | tail -1)"
 
 mkdir -p $SAMPLE_DIR $SKETCH_DIR
 
