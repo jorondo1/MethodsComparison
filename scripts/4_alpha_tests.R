@@ -87,7 +87,7 @@ wilcox.plots <- imap(wilcox.pdat, function(wilcox.df, Index_name) {
       size = guide_legend(order = 1)  # appears second = rightmost
     )
   
-
+  
 })
 
 imap(wilcox.plots, function(plot, idx){
@@ -114,28 +114,28 @@ imap(wilcox.pdat, function(wilcox.df, Index_name) {
 
 # Violin plots  -----------------------------------------------------------
 
-div.data <- read_rds('Out/_Rdata/alpha_div.RDS')[['plot_data']] %>% 
+div.data_1 <- read_rds('Out/_Rdata/alpha_div.RDS')[['plot_data']] %>% 
   filter(Dataset == "P19_Gut", 
          Database %in% c("MPA_db2025", "KB45"),
          Index == 'Shannon') %>% 
   mutate(Database = recode(Database, !!!CCE_names)) %>% 
   mutate(Database = str_replace(Database, ' \\(', '\n('))
 
-stat.test <- div.data %>%
+stat.test_1 <- div.data_1 %>%
   group_by(Database) %>% 
   wilcox_test(Index_value~ Grouping_var) %>%
   add_xy_position(x = "Grouping_var") %>% 
   mutate(p_equals = paste0("p=", round(p,5)),
          Index = "Shannon index")
 
-Shannon_violin <- div.data %>% 
+Shannon_violin <- div.data_1 %>% 
   mutate(Diarrhea = ifelse(Grouping_var=="A", 'Yes', 'No'),
          Index = "Shannon index") %>% 
   # plot:
   ggplot(aes(x = Diarrhea, y = Index_value, fill = Diarrhea)) + 
   geom_violin(draw_quantiles = 0.5)+
   geom_jitter(width = 0.2) +
-  stat_pvalue_manual(stat.test, label = "p_equals") +
+  stat_pvalue_manual(stat.test_1, label = "p_equals") +
   facet_nested(~Index+Database) +
   labs(y = 'Shannon index') +
   theme(axis.text.x = element_blank(),
@@ -167,7 +167,7 @@ plot_grid(
   p_A, p_B,
   ncol = 2,
   rel_widths = c(7, 2)
-  )
+)
 
 ggsave(paste0('Out/Manuscript/3.2.alpha_wilcox_example.pdf'),
        bg = 'white', width = 2500, height = 2000,
@@ -177,3 +177,54 @@ ggsave('Out/Manuscript/PLOS/Fig4.eps',
        bg = 'white', device = 'eps',
        width = 2900, height = 2320, units = 'px')
 
+
+# Shannon plot for flashtalk Microbiome ANCHOR 2026 -----------------------
+
+
+
+div.data_2 <- read_rds('Out/_Rdata/alpha_div.RDS')[['plot_data']] %>% 
+  filter(Dataset == "PD", 
+         Database %in% c("MPA_db2025", "MOTUS4", "KB45", 'KB45_GTDB'),
+         Index %in% c('Shannon', 'Hill_2')) %>% 
+  mutate(Database = recode(Database, !!!CCE_names)) %>% 
+  mutate(Index = case_when(
+           Index == 'Shannon'~'Shannon index',
+           Index == 'Hill_2' ~'Inverse Simpson'
+         ))
+
+stat.test_2 <- div.data_2 %>%
+  filter(Index == 'Shannon index') %>% 
+  group_by(Database, Index) %>% 
+  wilcox_test(Index_value~ Grouping_var) %>%
+  add_xy_position(x = "Grouping_var") %>% 
+  mutate(p_equals = paste0("p = ", round(p,5)))
+
+Shannon_violin_ANCHOR <- div.data_2 %>% 
+  mutate(`Parkinson's disease` = ifelse(Grouping_var=="A", 'No', 'Yes'),
+         ) %>% 
+  filter(Index == 'Shannon index') %>% 
+  # plot:
+  ggplot(aes(x = `Parkinson's disease`, y = Index_value, fill = `Parkinson's disease`)) + 
+  geom_violin(draw_quantiles = 0.5, linewidth = 0.2)+
+  geom_jitter(width = 0.15, size = 0.05, alpha = 0.5, colour = 'grey10') +
+  facet_grid(~Database) +
+  stat_pvalue_manual(
+    stat.test_2, 
+    label = "p_equals",
+    bracket.nudge.y = 0.3) +
+  labs(y = 'Shannon index') +
+ ylim(1, 6)+
+  theme(axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = c(0.15,0.1),
+        legend.background = element_rect(
+          colour = 'black',
+          linewidth = 0.2,
+        ),
+        !!!strip_theme
+  ); Shannon_violin_ANCHOR
+
+ggsave(paste0('Out/ANCHOR/alpha_plot.pdf'),
+       bg = 'white', width = 1200, height = 1000,
+       units = 'px', dpi = 200)
