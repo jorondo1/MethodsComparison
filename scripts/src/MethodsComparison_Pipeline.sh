@@ -1,7 +1,8 @@
 export MC=$ILAFORES/analysis/MethodsComparison
+export MAPLE_DATA=/net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS
 #export ILL_PIPELINES=$ILAFORES/analysis/MethodsComparison/ILL_pipelines
 cd $MC
-source scripts/myFunctions.sh
+source scripts/src/myFunctions.sh
 
 # Create <dataset>_TSV and NUM_<dataset> variables
 # Choose the one to work with :
@@ -14,6 +15,7 @@ dataset_variables "PD" "$MC/data/PD/preproc/preprocessed_reads.sample.tsv" # 47-
 dataset_variables "Bee" "$MC/data/Bee/preproc/preprocessed_reads.sample.tsv" 
 dataset_variables "Olive" "$MC/data/Olive/preproc/preprocessed_reads.sample.tsv" #XXX
 dataset_variables "RA_Gut" "$MC/data/RA_Gut/preproc/preprocessed_reads.sample.tsv" 
+dataset_variables "Maple" "$MAPLE_DATA/preproc/preprocessed_reads.sample.tsv" 
 
 ################################################################################################################
 # QC #################
@@ -21,13 +23,13 @@ dataset_variables "RA_Gut" "$MC/data/RA_Gut/preproc/preprocessed_reads.sample.ts
 
 mkdir -p  $DATASET_PATH/raw
 
-# Download from ENA tsv file with grep subset
+# Download from ENA tsv file with grep subset ------
 samples=($(grep "WGS"  $DATASET_PATH/raw/filereport_*_tsv.txt | cut -f1  | grep -v 'run'))
 cd /fast2/def-ilafores/Olive/raw
 grep -E "$(IFS="|"; echo "${samples[*]}")" " $DATASET_PATH/raw/" | bash
 
 # Create TSV
-:>  $DATASET_PATH/raw/samples_to_process.tsv
+:> $DATASET_PATH/raw/samples_to_process.tsv
 for sample in "${samples[@]}"; do
 	fq1=$(find $ANCHOR/fast2/def-ilafores/$DATASET/raw -type f -name "${sample}_1.fastq.gz")
 	fq2=$(find $ANCHOR/fast2/def-ilafores/$DATASET/raw -type f -name "${sample}_2.fastq.gz")
@@ -37,14 +39,11 @@ done
 #Process samples
 mkdir -p /fast2/def-ilafores/$DATASET/preproc/logs
 bash $ANCHOR/$ILAFORES/programs/ILL_pipelines/generateslurm_preprocess.kneaddata.sh \
-	--sample_tsv $ANCHOR/ $DATASET_PATH/raw/samples_to_process.tsv \
+	--sample_tsv $ANCHOR/$DATASET_PATH/raw/samples_to_process.tsv \
 	--out $ANCHOR/fast2/def-ilafores/$DATASET/preproc \
 	--trimmomatic_options "SLIDINGWINDOW:4:20 MINLEN:50" \
 	--db $FAST/host_genomes/GRCh38_index/grch38_1kgmaj \
 	--slurm_mem 30G --slurm_threads 24
-
-# correct script as the shell command needs to be anchored!
-cp -r /fast2/def-ilafores/$DATASET/preproc/*  $DATASET_PATH/preproc/
 
 # Find arrays of missing samples:
 missing_samples=$(grep -n -v -f <(ls  $DATASET_PATH/preproc/*/*_1.fastq.gz | awk -F'/' '{print $3}')  $DATASET_PATH/raw/samples_to_process.tsv | cut -f1 -d: | tr '\n' ','); echo $missing_samples
@@ -62,67 +61,67 @@ sed -i 's|/nfs3_ib/nfs-ip34/home|/net/nfs-ip34/jbod2|g' $tsv
 sed -i 's|/net/nfs-ip34/home|/net/nfs-ip34/jbod2|g' $tsv
 done
 
+
+# Local not preprocessed dataset (Maple)  -----------------
+mapfile -t samples < <(tail -n +2 ${MAPLE_DATA}/raw/OMX753-WGS-13-05-2025_IndexAssignment.csv | grep WGS - | cut -d, -f2 | sort -u)
+
+:> $MAPLE_DATA/raw/samples_to_process.tsv
+for sample in "${samples[@]}"; do
+	fq1=$(find $MAPLE -type f -name "${sample}_R1.fastq.gz")
+	fq2=$(find $MAPLE -type f -name "${sample}_R2.fastq.gz")
+	echo -e "${sample}\t${fq1}\t${fq2}" >> $MAPLE_DATA/raw/samples_to_process.tsv
+done
+
+# download acer genome
+mkdir -p $FAST/host_genomes/_genome_fasta/AcerSaccharum
+for chromosome in CM061734.1 CM061735.1 CM061736.1 CM061737.1 CM061738.1 CM061739.1 CM061740.1 CM061741.1 CM061742.1 CM061743.1 CM061744.1 CM061745.1 CM061746.1; do
+	efetch -db nucleotide -id ${chromosome} -format fasta > $FAST/host_genomes/_genome_fasta/AcerSaccharum/${chromosome}.fasta
+done
+# index 
+ml bowtie2
+cat $FAST/host_genomes/_genome_fasta/AcerSaccharum/*.fasta >  $FAST/host_genomes/_genome_fasta/AcerSaccharum/full_AcerSaccharum.fasta
+bowtie2-build --threads 48 --seed 1 $FAST/host_genomes/_genome_fasta/AcerSaccharum/full_AcerSaccharum.fasta $FAST/host_genomes/AcerSaccharum_index/AcerSaccharum
+
+
+mkdir -p $MAPLE_DATA/preproc
+bash $ILAFORES/programs/ILL_pipelines/generateslurm_preprocess.kneaddata.sh \
+	--sample_tsv $MAPLE_DATA/raw/samples_to_process.tsv \
+	--out $MAPLE_DATA/preproc \
+	--trimmomatic_options "SLIDINGWINDOW:4:20 MINLEN:50" \
+	--db $FAST/host_genomes/AcerSaccharum_index/AcerSaccharum \
+	--slurm_mem 60G --slurm_threads 24
+
+sbatch --partition bio,c-3t,cpubase --array=1-88 /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/preprocess.kneaddata.slurm.sh
+
+missing_samples=$(grep -n -v -f <(ls  $MAPLE_DATA/preproc/*/*R1.fastq.gz | awk -F'/' '{print $11}')  $MAPLE_DATA/raw/samples_to_process.tsv | cut -f1 -d: | tr '\n' ','); echo $missing_samples
+
+sbatch --partition bio,c-3t,cpubase --array=1 /net/nfs-bio/jbod2/def-ilafores/analysis/mapleRhizosphere/WMS/preproc/preprocess.kneaddata.slurm.sh
+
+# gzip output
+sed -i 's|.fastq|.fastq.gz|g' preproc/preprocessed_reads.sample.tsv
+rm preproc/*/*.gz
+# with safety if interrupted
+find "$MAPLE_DATA/preproc" -type f -name '*fastq' -print0 \
+| xargs -0 -P 12 -I {} bash -c '
+    if [ -f "{}.gz" ] && gzip -t "{}.gz" 2>/dev/null; then
+        :                      # valid, skip
+    else
+        rm -f "{}.gz"          # remove partial/corrupt
+        pigz "{}"
+    fi
+'
+
+dataset_variables "Maple" "$MAPLE_DATA/preproc/preprocessed_reads.sample.tsv" 
+
+
+
 ################################################################################################################
-# mOTUs4 [on FIR] ########
+# mOTUs4  ########
 ################################################################################################################
 
-## ON IP34 
-# ship to fir, migrate samples + preproc tsv 
-# First, sync only the TSV
-rsync -avr --no-relative \
-$MC/data/*/preproc/preprocessed_reads.sample.tsv \
-$PR19/*/preproc/preprocessed_reads.sample.tsv \
-$MOSS/preproc/preprocessed_reads.sample.tsv \
-ronj2303@fir.alliancecan.ca:/scratch/ronj2303/MethodsComparison/data/$DATASET/preproc/
+sbatch --array=1-"$N_SAMPLES" --partition bio,c-3t ${MC}/scripts/src/motus4_SLURM.sh ${DATASET_PATH} ${TSV}
+sbatch --array=1-"$N_SAMPLES" --partition bio,c-3t ${MC}/scripts/src/motus3_SLURM.sh ${DATASET_PATH} ${TSV}
 
-rsync -avr "$TSV" \
-ronj2303@fir.alliancecan.ca:/scratch/ronj2303/MethodsComparison/data/$DATASET/preproc/
-
-rsync -avr "$ILL_PIPELINES/containers/mOTUs_v4.0.4.sif" \
-ronj2303@fir.alliancecan.ca:/scratch/ronj2303/ILL_pipelines/containers
-
-# Then sync the other files
-awk '{print $2"\n"$3"\n"$4"\n"$5}' "$TSV" | tac | while read file; do 
-    [ -f "$file" ] && echo "$file"
-done | rsync -avr --no-relative --files-from=- / \
-ronj2303@fir.alliancecan.ca:/scratch/ronj2303/MethodsComparison/data/$DATASET/preproc/
-
-# ON FIR #####
-#initiate variables
-source $MC/scripts/myFunctions.sh
-
-# different subdir names...
-cd $MC
-dataset_variables "P19_Saliva" "$PWD/data/P19_Saliva/preproc/preprocessed_reads.sample.tsv" #√
-dataset_variables "P19_Gut" "$PWD/data/P19_Gut/preproc/preprocessed_reads.sample.tsv" #√
-
-# the TSV needs to be edited with new paths
-# we use the sample identifier to relpace the base path
-for DATASET in P19_Saliva P19_Gut Moss PD NAFLD AD_Skin Bee; do
-TSV=$(ls data/${DATASET}/preproc/*.tsv)
-awk -v new_path="$MC/data/${DATASET}/preproc" '
-    BEGIN { FS=OFS="\t" }
-    {
-        for (i=2; i<=NF; i++) {
-            # 1. Isolate the filename by removing the old path
-            # ".*" is greedy, so ".*\/" matches everything up to the LAST slash.
-            sub(/.*\//, "", $i)
-
-            # 2. Prepend the new path to the isolated filename
-            $i = new_path "/" $i
-        }
-        print
-    }
-' "$TSV" > "$TSV".fir
-sed -i 's|.fastq.gz|.fastq|g' "$TSV".fir
-sed -i 's|.fastq|.fastq.gz|g' "$TSV".fir
-done 
-
-# Custom SLURM script
-mkdir -p $MC/logs
-sbatch --array=1-"$N_SAMPLES" ${MC}/scripts/motus4_SLURM_fir.sh ${DATASET_PATH} ${TSV}.fir
-# Bee jobID 22105037
-# Check completion status
 check_output 'MOTUS4'  $DATASET_PATH _profile.txt
  
 # Rerun missing MOTUS
@@ -136,7 +135,8 @@ cat $motus_db/db_mOTU_taxonomy_meta-mOTUs.tsv | cut -f1 | sort -u | wc
 
 # Classification rate
 mkdir -p Out/classification_rates
-cd $MC && find ./data/*/MOTUS* -name '*_profile.txt' -exec awk '
+# -F'\t': taxonomy names contain spaces, so splitting on whitespace puts $4 in the wrong column
+cd $MC && find ./data/*/MOTUS* -name '*_profile.txt' -exec awk -F'\t' '
 FNR == 1 { assigned = 0; unassigned = 0 }
 /^#/ { next }
 /^unassigned/ { unassigned = $4; next }
@@ -144,7 +144,7 @@ FNR == 1 { assigned = 0; unassigned = 0 }
 ENDFILE { 
     total = unassigned + assigned;
     if (total > 0) {
-        rate = unassigned / total;
+        rate = assigned / total; # classified fraction, like the other tools
         printf "%s\t%.2f\t%.2f\t%.5f\n", FILENAME, assigned, unassigned, rate        
     } else {
         printf "%s\tNA\tNA\tNA\n", FILENAME
@@ -156,29 +156,27 @@ ENDFILE {
 # MetaPhlAn4 ###
 ################################################################################################################
 
-cd $ILL_PIPELINES; git checkout kraken_light; cd $MC
-metaphlan="bash ${ANCHOR}$ILL_PIPELINES/generateslurm_taxonomic_abundance.metaphlan.4.2.4.sh \
-	--slurm_log ${ANCHOR}$MC/logs --slurm_walltime 24:00:00 --slurm_threads 24 --slurm_mem 120G"
+cd $ILL_PIPELINES; git checkout kneaddata_gzip; cd $MC
+metaphlan="bash $ILL_PIPELINES/generateslurm_taxonomic_abundance.metaphlan.4.2.4.sh \
+	--slurm_log $MC/logs --slurm_walltime 48:00:00"
 
 # Generate SLURM scripts https://github.com/jflucier/ILL_pipelines/blob/main/generateslurm_taxonomic_abundance.metaphlan.sh
-# 2022 database
+$metaphlan --slurm_threads 8 --slurm_mem 60G --sample_tsv $TSV --db $FAST/metaphlan4_db/2022/mpa_vOct22_CHOCOPhlAnSGB_202212 --out $DATASET_PATH/MPA_db2022
+sbatch --array=1-"$N_SAMPLES" --partition bio,c-3t ${DATASET_PATH}/MPA_db2022/metaphlan.slurm.sh
 
-$metaphlan --sample_tsv ${ANCHOR}$TSV --db $FAST/metaphlan4_db/2022/mpa_vOct22_CHOCOPhlAnSGB_202212 --out ${ANCHOR}$DATASET_PATH/MPA_db2022
-sbatch --array=1-"$N_SAMPLES" ${ANCHOR}${DATASET_PATH}/MPA_db2022/metaphlan.slurm.sh
+$metaphlan --slurm_threads 8 --slurm_mem 60G --sample_tsv $TSV --db $FAST/metaphlan4_db/2023/mpa_vJun23_CHOCOPhlAnSGB_202307 --out $DATASET_PATH/MPA_db2023
+sbatch --array=1-"$N_SAMPLES" --partition bio,c-3t ${DATASET_PATH}/MPA_db2023/metaphlan.slurm.sh
 
-$metaphlan --sample_tsv ${ANCHOR}$TSV --db $FAST/metaphlan4_db/2023/mpa_vJun23_CHOCOPhlAnSGB_202307 --out ${ANCHOR}$DATASET_PATH/MPA_db2023
-sbatch --array=1-"$N_SAMPLES" ${ANCHOR}${DATASET_PATH}/MPA_db2023/metaphlan.slurm.sh
-
-$metaphlan --sample_tsv ${ANCHOR}${TSV} --db $FAST/metaphlan4_db/2025/mpa_vJan25_CHOCOPhlAnSGB_202503 --out ${ANCHOR}${DATASET_PATH}/MPA_db2025
-sbatch --array=1-"$N_SAMPLES" ${ANCHOR}${DATASET_PATH}/MPA_db2025/metaphlan.slurm.sh
+$metaphlan --slurm_threads 8 --slurm_mem 80G --sample_tsv ${TSV} --db $FAST/metaphlan4_db/2025/mpa_vJan25_CHOCOPhlAnSGB_202503 --out ${DATASET_PATH}/MPA_db2025
+sbatch --array=1-"$N_SAMPLES" --partition c-3t,bio ${DATASET_PATH}/MPA_db2025/metaphlan.slurm.sh
 
 # Rerun missing MPA
 database="MPA_db2025"
-missing_MPA=$(grep -n -v -f <(ls $DATASET_PATH/$database/*/*_profile.txt | xargs -I {} basename {} | sed 's/_profile\.txt//') $DATASET_PATH/preproc/preprocessed_reads.sample.tsv | cut -f1 -d: | tr '\n' ','); echo $missing_MPA
-sbatch --array="$missing_MPA" ${ANCHOR}${DATASET_PATH}/MPA_db2025/metaphlan.slurm.sh
+missing_MPA=$(grep -n -v -f <(ls $DATASET_PATH/$database/*/*_profile.txt | xargs -I {} basename {} | sed 's/_profile\.txt//') $MAPLE_DATA/preproc/preprocessed_reads.sample.tsv | cut -f1 -d: | tr '\n' ','); echo $missing_MPA
+sbatch --array="$missing_MPA" ${DATASET_PATH}/MPA_db2025/metaphlan.slurm.sh
 # Bee missing: jobid 71631
 
-# number of species
+# number of species by database
 bzcat $FAST/metaphlan4_db/2022/mpa_vOct22_CHOCOPhlAnSGB_202212_species.txt.bz2 | cut -f2 | awk -F'|' '{print $7}' | sort -u | grep "s__" | wc
 bzcat $FAST/metaphlan4_db/2023/mpa_vJun23_CHOCOPhlAnSGB_202307_species.txt.bz2 | cut -f2 | awk -F'|' '{print $7}' | sort -u | grep "s__" | wc
 bzcat $FAST/metaphlan4_db/2025/mpa_vJan25_CHOCOPhlAnSGB_202503_species.txt.bz2 | cut -f2 | awk -F'|' '{print $7}' | sort -u | grep "s__" | wc
@@ -186,13 +184,13 @@ bzcat $FAST/metaphlan4_db/2025/mpa_vJan25_CHOCOPhlAnSGB_202503_species.txt.bz2 |
 # Check completion status
 check_output 'MPA_db2025'  $DATASET_PATH _profile.txt
 
-cd $MC && find ./data/*/MPA* -name '*_profile.txt' -exec awk '
-/UNCLASSIFIED/ {
-    unclassified = $3;
-    classified = 100 - unclassified;
-    rate = classified / 100;
-    printf "%s\t%.2f\t%.2f\t%.5f\n", FILENAME, classified, unclassified, rate
-    }
+# Classified % = sum of the species rows (s__, not t__). With unclassified estimation (--unclassified_estimation before 4.2,
+# default since; check the command in line 2 of the profile) abundances are scaled by the mapped fraction, so each rank
+# sums to the classified %. The profiles no longer have their UNCLASSIFIED line; 100 - sum(s__) matched it (31.82, AD_Skin SRR20002363).
+cd $MC && find ./data/*/MPA* -name '*_profile.txt' -exec awk -F'\t' '
+FNR == 1 { classified = 0 }
+!/^#/ && $1 ~ /\|s__/ && $1 !~ /\|t__/ { classified += $3 }
+ENDFILE { printf "%s\t%.2f\t%.2f\t%.5f\n", FILENAME, classified, 100 - classified, classified / 100 }
 ' {} + > Out/classification_rates/mpa_classification_rate.tsv
 
 # Remove bowtie indexes
@@ -200,7 +198,7 @@ rm */MPA_db*/*/*.bowtie2.txt
 rm */*/.throttle -r
 
 # Post-process to keep only species lines and headers
-find "$MC"/data/*/MPA_* -type f -name "*_profile.txt" | \
+find "$MC"/data/${DATASET}/MPA_* -type f -name "*_profile.txt" | \
   parallel -j 24 'grep -E "s__|#" {} > {}.temp && mv {}.temp {}'
   
 ################################################################################################################
@@ -209,33 +207,35 @@ find "$MC"/data/*/MPA_* -type f -name "*_profile.txt" | \
 ################################################################################################################
 
 # Copy fastqs to /fast2
-for dir in $(find $MC/data/$DATASET -maxdepth 3 -type d -name 'preproc'); do 
-nice -n10 ionice -c2 -n7 rclone copy $dir /fast2/def-ilafores/preproc --transfers 16 --checkers 4 --modify-window 5s --fast-list --no-update-modtime --retries 3 --retries-sleep 30s --low-level-retries 1 -v -L --size-only --exclude "*contam*";
-done
+nice -n10 ionice -c2 -n7 rclone copy $MAPLE_DATA/preproc /net/nfs-ip34/fast2/def-ilafores/ --transfers 16 --checkers 4 --modify-window 5s --fast-list --no-update-modtime --retries 3 --retries-sleep 30s --low-level-retries 1 -v -L --size-only --exclude "*contam*";
+
 for dir in /jbod2/def-ilafores/analysis/projet_PROVID19/Feces/preproc /jbod2/def-ilafores/analysis/projet_PROVID19/Saliva/preproc/jbod2/def-ilafores/analysis/boreal_moss/preproc; do
 nice -n10 ionice -c2 -n7 rclone copy $dir /fast2/def-ilafores/preproc --transfers 16 --checkers 4 --modify-window 5s --fast-list --no-update-modtime --retries 3 --retries-sleep 30s --low-level-retries 1 -v -L --size-only --exclude "*contam*";
 done
 
-# rearrange tsvs to point to new path and remove anchors 
-DIR=$(dirname $TSV)
-sed "s|/nfs3_ib/nfs-ip34||g" ${TSV} > ${TSV}.fast
-sed -i "s|/net/nfs-ip34||g" ${TSV}.fast
-sed -i "s|${DIR}|/fast2/def-ilafores/preproc|g" ${TSV}.fast
+# rearrange tsvs to point to new path and remove anchors
+export TSV=/net/nfs-ip34/fast2/def-ilafores/preproc/preprocessed_reads.sample.tsv
+sed -i "s|${DIR}|/net/nfs-ip34/fast2/def-ilafores/preproc|g" ${TSV}
 
-rsync -avr $ILAFORES/ref_dbs/kraken2_dbs/k2_standard_20241228 /dev/shm/
-rsync -avr  $ILAFORES/ref_dbs/kraken2_dbs/k2_gtdb_genome_reps_20241109 /dev/shm/
+cp -r $ILAFORES/ref_dbs/kraken2_dbs/k2_standard_20241228 /dev/shm/
+cp -r $ILAFORES/ref_dbs/kraken2_dbs/k2_gtdb_genome_reps_20241109 /dev/shm/
 
 k2_std=/dev/shm/k2_standard_20241228 
 k2_gtdb=/dev/shm/k2_gtdb_genome_reps_20241109
-k2_local=$MC/scripts/kraken_local.sh
+k2_local=$MC/scripts/src/kraken_local.sh
 
 # RUN KRAKEN ON /fast2/
-bash $k2_local --tsv ${TSV}.fast --confidence 0.10 --output  $DATASET_PATH/KB10 --kraken_db $k2_std --threads 36
-bash $k2_local --tsv ${TSV}.fast --confidence 0.45 --output  $DATASET_PATH/KB45 --kraken_db $k2_std --threads 36
-bash $k2_local --tsv ${TSV}.fast --confidence 0.90 --output  $DATASET_PATH/KB90 --kraken_db $k2_std --threads 36
-bash $k2_local --tsv ${TSV}.fast --confidence 0.10 --output  $DATASET_PATH/KB10_GTDB --kraken_db $k2_gtdb --threads 24
-bash $k2_local --tsv ${TSV}.fast --confidence 0.45 --output  $DATASET_PATH/KB45_GTDB --kraken_db $k2_gtdb --threads 24
-bash $k2_local --tsv ${TSV}.fast --confidence 0.90 --output  $DATASET_PATH/KB90_GTDB --kraken_db $k2_gtdb --threads 24
+ml apptainer
+
+bash $k2_local --tsv ${TSV} --confidence 0.10 --output  $DATASET_PATH/KB10 --kraken_db $k2_std --threads 36
+bash $k2_local --tsv ${TSV} --confidence 0.45 --output  $DATASET_PATH/KB45 --kraken_db $k2_std --threads 36
+bash $k2_local --tsv ${TSV} --confidence 0.90 --output  $DATASET_PATH/KB90 --kraken_db $k2_std --threads 36
+bash $k2_local --tsv ${TSV} --confidence 0.10 --output  $DATASET_PATH/KB10_GTDB --kraken_db $k2_gtdb --threads 36
+bash $k2_local --tsv ${TSV} --confidence 0.45 --output  $DATASET_PATH/KB45_GTDB --kraken_db $k2_gtdb --threads 36
+bash $k2_local --tsv ${TSV} --confidence 0.90 --output  $DATASET_PATH/KB90_GTDB --kraken_db $k2_gtdb --threads 36
+
+# Check completion status
+check_output 'KB10 KB45 KB90 KB10_GTDB KB45_GTDB KB90_GTDB' "$DATASET_PATH" _bracken_S.MPA.TXT
 
 # Record % sequence classification
 mkdir -p Out/classification_rates
@@ -245,36 +245,41 @@ FNR==2 {classified=$2; rate=classified/(unclassified+classified);
          printf "%s\t%d\t%d\t%.5f\n", FILENAME, classified, unclassified, rate}
 ' {} + > Out/classification_rates/kraken_classification_rate.tsv
 
-# Check completion status
-check_output 'KB10 KB45 KB90 KB10_GTDB KB45_GTDB KB90_GTDB' "$DATASET_PATH" _bracken_S.MPA.TXT
-
 database="KB90"
 missing_KB=$(grep -n -v -f <(ls  $DATASET_PATH/$database/*/*/*_bracken_S.MPA.TXT | awk -F'/' '{print $3}' | sed 's/_profile\.txt//')  $DATASET_PATH/preproc/preprocessed_reads.sample.tsv | cut -f1 -d: | tr '\n' ','); echo $missing_KB
 sbatch --array="$missing_KB"  $DATASET_PATH/$database/taxonomic_profile.samples.slurm.sh  $DATASET_PATH "\$${dataset}_TSV"
 
 # Once completely done, remove heavy files from kraken out 
-cd data
-rm -r */KB*/*/*_taxonomy_nt */KB*/*/*/*.bracken */KB*/*/*bugs_list.MPA.TXT */KB*/*/*/*_temp.MPA.TXT */KB*/*/*/*.kreport */KB*/*/*_kronagrams */*/.throttle/
+cd data/$DATASET
+rm -r \
+KB*/*/*_taxonomy_nt \
+KB*/*/*/*.bracken \
+KB*/*/*bugs_list.MPA.TXT \
+KB*/*/*/*_temp.MPA.TXT \
+KB*/*/*.kreport \
+KB*/*/*_kronagrams \
+*/.throttle
+
 cd $MC
 
 ################################################################################################################
 # Sourmash gather ###
 ################################################################################################################
 
-sbatch --mem=120G -n 24 --array=1-"$N_SAMPLES" ${ANCHOR}$MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "genbank-2022.03"
-sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" ${ANCHOR}$MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/jbod2/def-ilafores/ref_dbs/sourmash_db/gtdb-rs214-reps.k31.zip"
-sbatch --mem=80G -n 16 --array=1-"$N_SAMPLES" ${ANCHOR}$MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/jbod2/def-ilafores/ref_dbs/sourmash_db/gtdb-rs214-full.k31.zip"
-sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" ${ANCHOR}$MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/jbod2/def-ilafores/ref_dbs/sourmash_db/gtdb-rs220-reps-k31.zip"
-# sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" ${ANCHOR}$MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/jbod2/def-ilafores/analysis/boreal_moss/genome_sketches/gtdb-rs214-rep-MAGs.sbt.zip"
-sbatch --mem=31G -n 1 --array=1-"$N_SAMPLES" ${ANCHOR}$MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "$ILAFORES/ref_dbs/sourmash_db/RefSeq_20250528.k31.sbt.zip" # Here using 1 see gather_SLURM_fast.sh script; pending sourmash 4.9 update to remove 
+sbatch --mem=120G -n 24 --array=1-"$N_SAMPLES" --partition bio,c-3t,cpubase $MC/scripts/src/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "genbank-2022.03"
+sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" --partition bio,c-3t,cpubase $MC/scripts/src/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/net/nfs-ip34/jbod2/def-ilafores/ref_dbs/sourmash_db/gtdb-rs214-reps.k31.zip"
+sbatch --mem=80G -n 16 --array=1-"$N_SAMPLES" --partition bio,c-3t,cpubase $MC/scripts/src/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/net/nfs-ip34/jbod2/def-ilafores/ref_dbs/sourmash_db/gtdb-rs214-full.k31.zip"
+sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" --partition bio,c-3t,cpubase $MC/scripts/src/gather_SLURM_fast.sh "$DATASET" "$TSV" "/net/nfs-ip34/jbod2/def-ilafores/ref_dbs/sourmash_db/gtdb-rs220-reps-k31.zip"
+# sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/jbod2/def-ilafores/analysis/boreal_moss/genome_sketches/gtdb-rs214-rep-MAGs.sbt.zip"
+sbatch --mem=31G -n 1 --array=1-"$N_SAMPLES" --partition bio,c-3t,cpubase $MC/scripts/src/gather_SLURM_fast.sh "$DATASET" "$TSV" "$ILAFORES/ref_dbs/sourmash_db/RefSeq_20250528.k31.sbt.zip" # Here using 1 see gather_SLURM_fast.sh script; pending sourmash 4.9 update to remove 
 
 # Check completion status
 check_output 'RefSeq_20250528' $DATASET_PATH _gather.csv
 
 # Extract Sourmash lineage subset
-for i in P19_Saliva P19_Gut PD AD_Skin Moss RA_Gut Bee Olive NAFLD; do
+#for i in P19_Saliva P19_Gut PD AD_Skin Moss RA_Gut Bee Olive NAFLD; do
 # i=RA_Gut
-for j in $(find data/$i -maxdepth 1 -type d -name 'SM_*'); do
+for j in $(find data/$DATASET -maxdepth 1 -type d -name 'SM_*'); do
 	db_name=$(basename $j)
 	db=$(echo "$db_name" | cut -d'_' -f2 | cut -d'-' -f1,2)
 	ver=$(echo "$db_name" | cut -d'_' -f3)
@@ -283,7 +288,7 @@ for j in $(find data/$i -maxdepth 1 -type d -name 'SM_*'); do
         cat $j/*_gather.csv | cut -d, -f10 | tail -n+2 | awk '{print $1}' | sed 's/"//g; s/^[^_]*_\([^.]*\).*$/\1/' | grep -v name | sort -u | grep -Fhf - $ILAFORES/ref_dbs/sourmash_db/${db}*${ver}*.lineages.csv > $j/${db_name}_lineages.csv
 	fi
 done
-done
+#done
 
 # Compute classification rates from sourmash gather output : 
 cd $MC && find ./data/*/SM* -name '*_gather.csv' -exec awk -F',' '
@@ -299,3 +304,87 @@ cd $MC && find ./data/*/SM* -name '*_gather.csv' -exec awk -F',' '
   { sum += $col }
   END { if (col) printf "%s\t%.5f\n", FILENAME, sum }
 ' {} \; > Out/classification_rates/sourmash_classification_rate.tsv
+
+################################################################################################################
+# Sylph #######
+################################################################################################################
+
+# REFSEQ Database -----------------------
+# [patch] Append anchor to genome files
+cat /net/nfs-ip34/fast2/def-ilafores/refseq_genomes/20250528_genome_list.txt | \
+sed 's|/fast2|/net/nfs-ip34/fast2|g' > \
+/net/nfs-ip34/fast2/def-ilafores/refseq_genomes/20250528_genome_list_anchor.txt
+
+# Sketch refseq custom db
+$sylph sketch -l /net/nfs-ip34/fast2/def-ilafores/refseq_genomes/20250528_genome_list_anchor.txt  -c 200 -t 32 -o $ILAFORES/ref_dbs/sylph_db/RefSeq_20250528_c200
+
+# sylph-tax custom taxonomy for the refseq db: genome file name <tab> d__;p__;c__;o__;f__;g__;s__
+# Lineages come from the sourmash lineage csv (accession,taxid,7 ranks; see sourmash_refseq_db.sh).
+# A genome is matched on its accession, else on its 9-digit number (lineage listed under the GCA/GCF twin or another version).
+# Genomes without a lineage go to RefSeq_20250528_no_taxonomy.txt; sylph-tax reports them as NO_TAXONOMY.
+awk -F',' '
+	NR == FNR {
+		gsub(/"/, "")
+		lineage = "d__" $(NF-6) ";p__" $(NF-5) ";c__" $(NF-4) ";o__" $(NF-3) ";f__" $(NF-2) ";g__" $(NF-1) ";s__" $NF
+		tax[$1] = lineage
+		split($1, a, "_"); by_num[substr(a[2], 1, 9)] = lineage
+		next
+	}
+	{
+		n = split($0, p, "/"); f = p[n]
+		split(f, a, "_"); acc = a[1] "_" a[2]; num = substr(a[2], 1, 9)
+		if (acc in tax) print f "\t" tax[acc]
+		else if (num in by_num) print f "\t" by_num[num]
+		else print f > "/dev/stderr"
+	}' $ILAFORES/ref_dbs/sourmash_db/RefSeq_20250528.lineages.csv \
+	/net/nfs-ip34/fast2/def-ilafores/refseq_genomes/20250528_genome_list_anchor.txt \
+	2> $ILAFORES/ref_dbs/sylph_db/RefSeq_20250528_no_taxonomy.txt \
+	| gzip > $ILAFORES/ref_dbs/sylph_db/RefSeq_20250528_taxonomy.tsv.gz # keep .gz in the name: sylph-tax decompresses based on it
+# Sanity check: lines in genome list = lines in taxonomy + lines in no_taxonomy (no_taxonomy = the 14 refseq plasmid.* bundles)
+
+# GTDB Database -----------------------
+# Pre-built db (gtdb-r220-c200-dbv1.syldb) from the sylph docs; sylph-tax ships its taxonomy files.
+# Downloads every sylph-tax taxonomy (incl. gtdb_r220_metadata.tsv.gz) and records the folder in sylph-tax's config.
+conda activate sylph-tax
+sylph-tax download --download-to $ILAFORES/ref_dbs/sylph_db/
+
+# Profile ----------------
+# args: dataset, sample tsv, sylph db, sylph-tax taxonomy, output name (data/<dataset>/SYLPH_<name>/per_sample)
+sbatch --array=1-"$N_SAMPLES" --partition bio,c-3t $MC/scripts/src/sylph_SLURM.sh \
+"$DATASET" "$TSV" $ILAFORES/ref_dbs/sylph_db/RefSeq_20250528_c200.syldb $ILAFORES/ref_dbs/sylph_db/RefSeq_20250528_taxonomy.tsv.gz "RefSeq"
+
+sbatch --array=1-"$N_SAMPLES" --partition bio,c-3t $MC/scripts/src/sylph_SLURM.sh \
+"$DATASET" "$TSV" $ILAFORES/ref_dbs/sylph_db/gtdb-r220-c200-dbv1.syldb $ILAFORES/ref_dbs/sylph_db/gtdb_r220_metadata.tsv.gz "gtdb_rs220"
+
+# Test globdb because ~30 samples are completely empty with refseq
+sbatch --array=1-"$N_SAMPLES" --partition bio,c-3t $MC/scripts/src/sylph_SLURM.sh \
+"$DATASET" "$TSV" $ILAFORES/ref_dbs/sylph_db/globdb_r232_sylph_c200.syldb $ILAFORES/ref_dbs/sylph_db/globdb_r232_taxonomy_sylph.tsv.gz  "glob_r232"
+
+# test fungi
+sbatch --array=1-"$N_SAMPLES" --partition bio,c-3t $MC/scripts/src/sylph_SLURM.sh \
+"$DATASET" "$TSV" $ILAFORES/ref_dbs/sylph_db/fungi-refseq-2025-10-11-c200-dbv1.syldb $ILAFORES/ref_dbs/sylph_db/fungi_refseq_2025-10-11_metadata.tsv.gz  "fungi_refseq"
+
+
+# Merged tables ----------------
+# Once all array tasks are done: counts.tsv, taxonomy.tsv, merged_all_ranks.tsv in data/<dataset>/SYLPH_<name>
+# Lists unfinished samples (and doesn't merge) or samples with no genome detected. Run from $MC.
+# Counts are corrected with each sample's classification rate (see sylph_merge.sh), read from per_sample/<sample>_profile.log
+# [patch, one-off] runs profiled before sylph_SLURM.sh kept per_sample/<sample>_profile.log: recover it from the slurm log
+# (sylph_merge.sh needs the logged classification rate to correct the counts). Latest log first, so reruns win.
+for L in $(ls -r logs/sylph-*.slurm.out); do
+	out=$(grep -m1 -o 'Exporting to .*' $L | sed 's/Exporting to //')
+	s=$(grep -m1 -o '[^/]*\.paired\.sylsp has [0-9.]*% of reads detected' $L | sed 's/\.paired\.sylsp.*//')
+	[[ -n $out && -n $s && -d $out/per_sample && ! -f $out/per_sample/${s}_profile.log ]] && cp $L $out/per_sample/${s}_profile.log
+done
+
+for db in RefSeq gtdb_rs220; do
+	bash $MC/scripts/src/sylph_merge.sh "$DATASET" $db "$TSV"
+done
+
+# Classification rates (% of reads detected in database), all datasets and dbs, same layout as the other tools
+cat $MC/data/*/SYLPH_*/classification_rate.tsv > Out/classification_rates/sylph_classification_rate.tsv
+
+
+
+
+

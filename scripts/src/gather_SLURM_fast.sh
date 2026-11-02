@@ -11,8 +11,6 @@
 #SBATCH -J sourmash
 start_time=$(date +%s)
 
-export ILAFORES=$ILAFORES
-
 # Load sourmash
 module load StdEnv/2020 apptainer/1.1.5
 

@@ -9,6 +9,8 @@ tmp/
 bak/
 *.bak
 .throttle/
+data/
+Out/
 doc/
 logs/
 *.log
@@ -47,3 +49,6 @@ reads_mapping.tsv.gz
 radEmu_scores*
 Maaslin2/
 .positai
+
+# ENA candidate dataset search outputs
+Out/ena_candidates/
