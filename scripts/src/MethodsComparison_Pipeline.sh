@@ -13,7 +13,7 @@ dataset_variables "NAFLD" "$MC/data/NAFLD/preproc/preprocessed_reads.sample.tsv"
 dataset_variables "AD_Skin" "$MC/data/AD_Skin/preproc/preprocessed_reads.sample.tsv" # √
 dataset_variables "PD" "$MC/data/PD/preproc/preprocessed_reads.sample.tsv" # 47-655
 dataset_variables "Bee" "$MC/data/Bee/preproc/preprocessed_reads.sample.tsv" 
-dataset_variables "Olive" "$MC/data/Olive/preproc/preprocessed_reads.sample.tsv" #XXX
+# dataset_variables "Olive" "$MC/data/Olive/preproc/preprocessed_reads.sample.tsv" #XXX
 dataset_variables "RA_Gut" "$MC/data/RA_Gut/preproc/preprocessed_reads.sample.tsv" 
 dataset_variables "Maple" "$MAPLE_DATA/preproc/preprocessed_reads.sample.tsv" 
 
@@ -112,7 +112,6 @@ find "$MAPLE_DATA/preproc" -type f -name '*fastq' -print0 \
 '
 
 dataset_variables "Maple" "$MAPLE_DATA/preproc/preprocessed_reads.sample.tsv" 
-
 
 
 ################################################################################################################
@@ -309,6 +308,11 @@ cd $MC && find ./data/*/SM* -name '*_gather.csv' -exec awk -F',' '
 # Sylph #######
 ################################################################################################################
 
+# sylph + sylph-tax env (once). Under $ILAFORES, not ~/miniconda3/envs: the old nodes don't see /home/ronj2303,
+# and a conda env can't be moved afterwards (its scripts hardcode its path). The SLURM scripts only put its bin/ in PATH.
+conda create -p $ILAFORES/programs/conda_envs/sylph -c conda-forge -c bioconda sylph=1.0.0 sylph-tax
+$ILAFORES/programs/conda_envs/sylph/bin/sylph --version
+
 # REFSEQ Database -----------------------
 # [patch] Append anchor to genome files
 cat /net/nfs-ip34/fast2/def-ilafores/refseq_genomes/20250528_genome_list.txt | \
@@ -345,15 +349,20 @@ awk -F',' '
 # GTDB Database -----------------------
 # Pre-built db (gtdb-r220-c200-dbv1.syldb) from the sylph docs; sylph-tax ships its taxonomy files.
 # Downloads every sylph-tax taxonomy (incl. gtdb_r220_metadata.tsv.gz) and records the folder in sylph-tax's config.
-conda activate sylph-tax
+conda activate $ILAFORES/programs/conda_envs/sylph
 sylph-tax download --download-to $ILAFORES/ref_dbs/sylph_db/
 
 # Profile ----------------
+# Don't run on mp2
 # args: dataset, sample tsv, sylph db, sylph-tax taxonomy, output name (data/<dataset>/SYLPH_<name>/per_sample)
-sbatch --array=1-"$N_SAMPLES" --partition bio,c-3t $MC/scripts/src/sylph_SLURM.sh \
+sbatch --array=1-"$N_SAMPLES" \
+--partition bio,c-3t --mem=50G -n 2 \
+$MC/scripts/src/sylph_SLURM.sh \
 "$DATASET" "$TSV" $ILAFORES/ref_dbs/sylph_db/RefSeq_20250528_c200.syldb $ILAFORES/ref_dbs/sylph_db/RefSeq_20250528_taxonomy.tsv.gz "RefSeq"
 
-sbatch --array=1-"$N_SAMPLES" --partition bio,c-3t $MC/scripts/src/sylph_SLURM.sh \
+sbatch --array=1-"$N_SAMPLES" \
+--partition bio,c-3t --mem=50G -n 2 \
+$MC/scripts/src/sylph_SLURM.sh \
 "$DATASET" "$TSV" $ILAFORES/ref_dbs/sylph_db/gtdb-r220-c200-dbv1.syldb $ILAFORES/ref_dbs/sylph_db/gtdb_r220_metadata.tsv.gz "gtdb_rs220"
 
 # Test globdb because ~30 samples are completely empty with refseq
@@ -364,18 +373,13 @@ sbatch --array=1-"$N_SAMPLES" --partition bio,c-3t $MC/scripts/src/sylph_SLURM.s
 sbatch --array=1-"$N_SAMPLES" --partition bio,c-3t $MC/scripts/src/sylph_SLURM.sh \
 "$DATASET" "$TSV" $ILAFORES/ref_dbs/sylph_db/fungi-refseq-2025-10-11-c200-dbv1.syldb $ILAFORES/ref_dbs/sylph_db/fungi_refseq_2025-10-11_metadata.tsv.gz  "fungi_refseq"
 
+check_output 'RefSeq' $DATASET_PATH _profile.tsv
+
 
 # Merged tables ----------------
-# Once all array tasks are done: counts.tsv, taxonomy.tsv, merged_all_ranks.tsv in data/<dataset>/SYLPH_<name>
+# Once all array tasks are done: counts.tsv, taxonomy.tsv, merged_species.tsv in data/<dataset>/SYLPH_<name>
 # Lists unfinished samples (and doesn't merge) or samples with no genome detected. Run from $MC.
 # Counts are corrected with each sample's classification rate (see sylph_merge.sh), read from per_sample/<sample>_profile.log
-# [patch, one-off] runs profiled before sylph_SLURM.sh kept per_sample/<sample>_profile.log: recover it from the slurm log
-# (sylph_merge.sh needs the logged classification rate to correct the counts). Latest log first, so reruns win.
-for L in $(ls -r logs/sylph-*.slurm.out); do
-	out=$(grep -m1 -o 'Exporting to .*' $L | sed 's/Exporting to //')
-	s=$(grep -m1 -o '[^/]*\.paired\.sylsp has [0-9.]*% of reads detected' $L | sed 's/\.paired\.sylsp.*//')
-	[[ -n $out && -n $s && -d $out/per_sample && ! -f $out/per_sample/${s}_profile.log ]] && cp $L $out/per_sample/${s}_profile.log
-done
 
 for db in RefSeq gtdb_rs220; do
 	bash $MC/scripts/src/sylph_merge.sh "$DATASET" $db "$TSV"

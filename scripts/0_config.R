@@ -44,7 +44,9 @@ CCE_names <- c(
   'SM_gtdb-rs214-full' = 'Sourmash (GTDB 214 full)',
   'SM_gtdb-rs214-rep' = 'Sourmash (GTDB 214)',
   'SM_gtdb-rs220-rep'= 'Sourmash (GTDB 220)',
-  'SM_gtdb-rs214-rep_MAGs'= 'Sourmash (GTDB \n+ Novel MAGs)'
+  'SM_gtdb-rs214-rep_MAGs'= 'Sourmash (GTDB \n+ Novel MAGs)',
+  'SYLPH_RefSeq' = 'sylph (RefSeq)',
+  'SYLPH_gtdb_rs220' = 'sylph (GTDB 220)'
 )
 
 Hill_numbers <- c(
@@ -71,7 +73,10 @@ CCE_metadata <- tribble(
   "SM_gtdb-rs214-full",    "navyblue",    "SM GTDB 214 Full",  "Sourmash",           85205, "Sourmash",   "Sourmash",    "D2D",       "GTDB",          "GTDB_214",   "GTDB",        "SM",   
   "SM_gtdb-rs214-rep",     "blue",        "SM GTDB 214",       "Sourmash",           85205, "Sourmash",   "Sourmash",    "D2D",       "GTDB",          "GTDB_214",   "GTDB",        "SM",   
   "SM_gtdb-rs220-rep",     "#1F78B4",     "SM GTDB 220",       "Sourmash",          113104, "Sourmash",   "Sourmash",    "D2D",       "GTDB",          "GTDB_220",   "GTDB",        "SM",   
-  "SM_gtdb-rs214-rep_MAGs","skyblue3",    "SM GTDB 214 + MAGs","Sourmash",          113211, "Sourmash",   "Sourmash",    "D2D",       "GTDB",          "GTDB_214",   "GTDB",        "SM"
+  "SM_gtdb-rs214-rep_MAGs","skyblue3",    "SM GTDB 214 + MAGs","Sourmash",          113211, "Sourmash",   "Sourmash",    "D2D",       "GTDB",          "GTDB_214",   "GTDB",        "SM",
+  # Num_spec: same genome sets as SM_RefSeq_20250528 (RefSeq 20250528) and the GTDB 220 entries above (r220 representatives)
+  "SYLPH_RefSeq",          "#8C510A",     "sylph RefSeq",      "sylph",              27285, "sylph",      "sylph",       "D2D",       "NCBI",          "RefSeq",     "RefSeq",  "sylph",
+  "SYLPH_gtdb_rs220",      "#D8B365",     "sylph GTDB 220",    "sylph",             113104, "sylph",      "sylph",       "D2D",       "GTDB",          "GTDB_220",   "GTDB",        "sylph"
 )
 
 tooldb_colours <- CCE_metadata$plot_colour
@@ -82,7 +87,8 @@ tool_colours <- c(
   'mOTUs4' = "#FDBF6F", 
   'MetaPhlAn4'= "#00A759",
   'Kraken2' = "#b41f1f",
-  'Sourmash' = "#1F78B4" 
+  'Sourmash' = "#1F78B4",
+  'sylph' = "#8C510A"
 )
 
 tool_vars <- tibble(

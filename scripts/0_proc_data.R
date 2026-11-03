@@ -7,6 +7,20 @@ dir.create('Out/_Rdata', recursive = TRUE, showWarnings = FALSE)
 # functions
 source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/community_functions.R')
 
+# sylph: counts.tsv (genome x sample read counts, already rate-corrected by sylph_merge.sh) + taxonomy.tsv (same rows)
+# Returns the same wide format as the other parse_*() functions: taxonomic ranks + one numeric column per sample
+parse_sylph <- function(sylph_dir) {
+  left_join(
+    read_tsv(file.path(sylph_dir, 'counts.tsv'), show_col_types = FALSE),
+    read_tsv(file.path(sylph_dir, 'taxonomy.tsv'), col_types = cols(.default = 'c')),
+    by = 'genome'
+  ) %>%
+    dplyr::rename(Kingdom = Domain) %>%
+    # genomes without species (no lineage, e.g. the RefSeq plasmid.* bundles) can't be assigned
+    dplyr::filter(!is.na(Species)) %>%
+    dplyr::select(-genome)
+}
+
 # Import External data
 psSalivaKB <- read_rds('data/P19_Saliva/psSalivaKB.rds')
 psFecesKB <- read_rds('data/P19_Gut/psFecesKB.rds')
@@ -55,6 +69,22 @@ meta_parsing <- function(dsName, samData) {
         onlySpecies = TRUE)
   }
   
+  # SYLPH ########################
+  # data/<dataset>/SYLPH_<db>, merged by sylph_merge.sh (dirs without counts.tsv aren't merged yet: skipped)
+  sylph_dirs <- list.dirs(file.path('data',dsName), recursive = FALSE) %>%
+    .[grep("/SYLPH_[^/]*$", .)] %>%
+    .[file.exists(file.path(., 'counts.tsv'))] %>% basename
+
+  for (db in sylph_dirs) {
+    message(paste('Parsing', db, '...'))
+    ps[[db]] <- parse_sylph(file.path('data', dsName, db)) %>%
+      species_glom() %>%
+      assemble_phyloseq(
+        samData,
+        seqdepth_plot = FALSE,
+        onlySpecies = TRUE)
+  }
+
   # KRAKEN (using default headers from parse_MPA function) ###############
   kbdirs <- list.dirs(file.path('data',dsName), recursive = FALSE) %>% 
     .[grep("/KB[^/]*$", .)] %>% basename # List all KB dirs
