@@ -12,13 +12,18 @@
 
 # Merge the per-sample outputs of sylph_SLURM.sh into tables. Run once all sylph_SLURM.sh array tasks are done
 # (from $MC, or sbatch --dependency=afterany:<array job id>).
-# Usage: sylph_merge.sh <dataset> <db name> <sample tsv>
+# Usage: sylph_merge.sh [-f] <dataset> <db name> <sample tsv>
+#   -f, --force : merge anyway when some samples are unfinished (no profile) or lack a classification rate;
+#                 they're left out of the tables (still listed as NA in classification_rate.tsv)
 # Writes to data/<dataset>/SYLPH_<db name>/:
 #   counts.tsv           : estimated read counts, genomes (rows) x samples (columns), corrected (see count correction below)
 #   taxonomy.tsv         : genome -> Domain, Phylum, Class, Order, Family, Genus, Species (same rows as counts.tsv)
 #   merged_all_ranks.tsv : sylph-tax merge of the per-sample profiles, corrected read counts at every rank
 #   classification_rate.tsv : path, % classified, % unclassified, rate (no header, like the other tools' rate files)
 set -eo pipefail
+
+FORCE=0
+if [[ $1 == -f || $1 == --force ]]; then FORCE=1; shift; fi
 
 export DB_NAME="${2}"
 export SAM_LIST="${3}"
@@ -41,8 +46,8 @@ for s in $(cut -f1 $SAM_LIST); do
 	fi
 done
 if [[ $missing -gt 0 ]]; then
-	echo "$missing samples unfinished, not merging"
-	exit 1
+	if [[ $FORCE -eq 1 ]]; then echo "--force: merging without these $missing unfinished samples"
+	else echo "$missing samples unfinished, not merging (-f to merge without them)"; exit 1; fi
 fi
 
 # Classification rate = % of reads detected in database, as logged by sylph profile (-u, forced by --estimate-read-counts):
@@ -50,12 +55,14 @@ fi
 echo "Classification rates..."
 rm -f $OUT_DIR/classification_rate.tsv
 no_rate=0
+MERGE_FILES=() # samples with a .sylphmpa and a rate: only these go into the tables
 for s in $(cut -f1 $SAM_LIST); do
 	log=$SAMPLE_DIR/${s}_profile.log
 	path=./data/${1}/SYLPH_${DB_NAME}/per_sample/${s}_profile.log
 	pct=$( [[ -f $log ]] && grep -o '[0-9.]*% of reads detected in database' $log | tail -1 | cut -d% -f1 || true )
 	if [[ -n $pct ]]; then
 		awk -v path=$path -v pct=$pct 'BEGIN { printf "%s\t%.2f\t%.2f\t%.5f\n", path, pct, 100 - pct, pct / 100 }' >> $OUT_DIR/classification_rate.tsv
+		if [[ -f $SAMPLE_DIR/${s}.sylphmpa ]]; then MERGE_FILES+=($SAMPLE_DIR/${s}.sylphmpa); fi
 	else
 		printf "%s\tNA\tNA\tNA\n" $path >> $OUT_DIR/classification_rate.tsv
 		# the rate is needed to correct the counts of every sample that made it into the tables
@@ -63,13 +70,15 @@ for s in $(cut -f1 $SAM_LIST); do
 	fi
 done
 if [[ $no_rate -gt 0 ]]; then
-	echo "$no_rate samples without classification rate, can't correct their counts: not merging"
+	echo "$no_rate samples without classification rate, can't correct their counts"
 	echo "(profiled before _profile.log was kept? recover the logs from the slurm logs, see MethodsComparison_Pipeline.sh)"
-	exit 1
+	if [[ $FORCE -eq 1 ]]; then echo "--force: merging without them"
+	else echo "not merging (-f to merge without them)"; exit 1; fi
 fi
+if [[ ${#MERGE_FILES[@]} -eq 0 ]]; then echo "No sample to merge"; exit 1; fi
 
-echo "Merging $(ls $SAMPLE_DIR/*.sylphmpa | wc -l) samples into $OUT_DIR..."
-sylph-tax merge $SAMPLE_DIR/*.sylphmpa --column sequence_abundance -o $OUT_DIR/merged_all_ranks.raw.tsv
+echo "Merging ${#MERGE_FILES[@]} samples into $OUT_DIR..."
+sylph-tax merge "${MERGE_FILES[@]}" --column sequence_abundance -o $OUT_DIR/merged_all_ranks.raw.tsv
 
 # Count correction: with --estimate-read-counts, sylph computes each genome's count as
 # coverage x genome size / read length x rate, and coverage x genome size / read length is already the read count.
