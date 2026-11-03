@@ -17,7 +17,7 @@ Started 2026-11-03.
   - [ ] Check any figure or manuscript text about AD_Skin or Moss procrustes agreement involving MetaPhlAn.
 - [ ] Classification rates: rerun the mOTUs block (fixed: `awk -F'\t'` and rate = assigned/total), the MetaPhlAn block (100 − Σ species) and the sylph block in `MethodsComparison_Pipeline.sh`.
 
-- [ ] **sourmash RefSeq counts are doubled** (found 2026-11-03, `doc/merged_tables_format_checks.md` §4). R joins gathers to `SM_RefSeq_20250528_lineages.csv` on the bare accession number, which matches the GCA/GCF twins and versions, so `left_join` duplicates most genomes (+111–116 % on P19_Saliva GQ10–12). Relative abundances are barely affected; counts, rarefaction depth and count-based alpha are. Fix decided with the merged-tables branch.
+- [ ] **sourmash RefSeq counts are doubled** (found 2026-11-03, `doc/merged_tables_format_checks.md` §4). R joins gathers to `SM_RefSeq_20250528_lineages.csv` on the bare accession number, which matches the GCA/GCF twins and versions, so `left_join` duplicates most genomes (+111–116 % on P19_Saliva GQ10–12). Relative abundances are barely affected; counts, rarefaction depth and count-based alpha are. Fixed on the `merged_tables` branch (RefSeq lineages from the sylph-tax table). The relative abundances shift too (max Shannon difference 0.1–0.7 per dataset), so the sourmash RefSeq results need regenerating.
 
 ## sylph
 

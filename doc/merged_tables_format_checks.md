@@ -84,3 +84,42 @@
 
 - Maple has `SM_gtdb-rs220-reps` (with an `s`), not `SM_gtdb-rs220-rep`. `0_config.R` has no entry for it, and none for P19's `SM_gtdb_rs220` either.
 - `meta_parsing()` parses every `SM_*` dir, so P19's `SM_gtdb_rs220` (full rs220) is in the objects next to `SM_gtdb-rs220-rep`.
+
+# Results: merged tables vs per-sample parsing (phases B–D)
+
+2026-11-03. Merged with `scripts/src/merge_tables.sh -f --tools motus,mpa,kraken,sourmash` (all 9 datasets of `scripts/src/datasets.tsv`; sylph tables already current). Compared with `scripts/compare_merged.R`: reference = the former `meta_parsing()` blocks on the per-sample files, with `community_functions.R` pinned at `b86aac6`. Full table: `Out/merged_tables/comparison.tsv` (HPC).
+
+| Status | Objects | Which |
+|---|---|---|
+| identical | 121 | every mOTUs 3/4, Kraken, sylph and non-RefSeq sourmash object; 3 MPA objects |
+| equal (float) | 24 | MPA: max relative otu difference 9.7e-13, Shannon 6e-15, richness 0 (merge_metaphlan_tables.py prints the values with different digits) |
+| both NULL | 3 | Moss MOTUS3, Bee MOTUS3, Bee MOTUS4: no sample reaches `min_sample_size = 100`, so `assemble_phyloseq()` returns NULL on both sides |
+| different | 9 | SM_RefSeq_20250528 in every dataset: the intended fix (below) |
+
+- Samples, taxa (except RefSeq, below) and `tax_table` are the same everywhere. Raw alpha diversity (Shannon, richness) is equal for every object other than RefSeq.
+- The full GTDB rs220 gathers (`SM_gtdb_rs220`, P19 only) are no longer parsed, by decision.
+
+**SM_RefSeq_20250528.** Same samples. Today's counts are 2.03–2.25× (median per dataset) the gather counts, which the merged objects now equal. The inflation isn't uniform: genomes are matched to 1, 2 or more lineage rows, and a few split across 2 species. So relative abundances shift too:
+
+| Dataset | Taxa ref / new | Count ratio ref/new | Max Shannon diff | Max richness diff |
+|---|---|---|---|---|
+| AD_Skin | 338 / 338 | 2.05 | 0.33 | 1 |
+| Bee | 25 / 25 | 2.25 | 0.15 | 0 |
+| Maple | 731 / 729 | 2.03 | 0.13 | 2 |
+| Moss | 396 / 396 | 2.22 | 0.74 | 1 |
+| NAFLD | 338 / 338 | 2.05 | 0.37 | 0 |
+| P19_Gut | 321 / 321 | 2.08 | 0.50 | 0 |
+| P19_Saliva | 249 / 249 | 2.10 | 0.12 | 0 |
+| PD | 874 / 874 | 2.06 | 0.52 | 1 |
+| RA_Gut | 620 / 619 | 2.07 | 0.49 | 1 |
+
+The Maple and RA_Gut taxa found only in the reference are species that reached `min_taxa_count` only through the doubled counts, or that got their counts from a genome split across 2 species.
+
+**Fixed during the full run:**
+- **AD_Skin `SM_gtdb-rs214-full/SRR20002431_gtdb-rs214-full_gather.csv` is truncated** at 48 KiB, mid-row 80 (an interrupted write, 2024-10-11). It's the only one of 6,812 gathers. sourmash can't load the partial row, so merge_tables.sh drops it from a temp copy. parse_SM() had put that row under a bogus sample "SRR2000", which assemble_phyloseq() dropped, so the objects match. The sample's rs214-full profile is still incomplete (79 matches kept): rerun that gather if it matters.
+- **combine_mpa.py duplicates rows** when a taxon is a root in one input and comes after a prefix line in another (RA_Gut KB10: some per-sample files also have higher-rank lines). The 91 duplicates are exact copies. merge_tables.sh keeps the first, and stops if a taxon ever appears twice with different values.
+
+**Noticed, not changed:**
+- `data/PD/MOTUS/` holds 40 empty profiles named after the Bee samples (and 70 empty PD profiles). They're ignored on both sides.
+- In 0_proc_data.R, `ps_raw.ls$Moss$MOTUS <- NULL` does nothing: the object is called `MOTUS3`.
+- Maple has no sample data in 0_proc_data.R yet. It was compared with every sample of its tsv.
