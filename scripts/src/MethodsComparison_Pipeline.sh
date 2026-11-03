@@ -384,9 +384,24 @@ check_output 'RefSeq' $DATASET_PATH _profile.tsv
 for db in RefSeq gtdb_rs220; do
 	bash $MC/scripts/src/sylph_merge.sh "$DATASET" $db "$TSV"
 done
+# (or merge_tables.sh --tools sylph "$DATASET", which runs sylph_merge.sh on every SYLPH_* dir, see below)
 
 # Classification rates (% of reads detected in database), all datasets and dbs, same layout as the other tools
 cat $MC/data/*/SYLPH_*/classification_rate.tsv > Out/classification_rates/sylph_classification_rate.tsv
+
+################################################################################################################
+# Merged tables (all tools) #######
+################################################################################################################
+
+# One table per dataset x database, merged with each tool's own utility, read by scripts/0_proc_data.R
+# (scripts/utils/parse_merged.R). Datasets and sample tsvs: scripts/src/datasets.tsv. Run from $MC.
+# Without -f, folders with samples of the tsv missing are skipped (listed). See the header of merge_tables.sh for outputs.
+sbatch $MC/scripts/src/merge_tables.sh -f                          # every dataset, every tool
+bash $MC/scripts/src/merge_tables.sh --tools sourmash,kraken PD    # some tools, one dataset
+
+# Check the objects built from the merged tables against the per-sample parsing (R 4.4 + mgx.tools)
+module load StdEnv/2023 r/4.4.0
+Rscript scripts/compare_merged.R           # writes Out/merged_tables/comparison.tsv
 
 ################################################################################################################
 # RSYNC EVERYTHING

@@ -4,182 +4,28 @@ p_load(phyloseq,mgx.tools, # unloadNamespace("mgx.tools"); devtools::install_git
 
 dir.create('Out/_Rdata', recursive = TRUE, showWarnings = FALSE)
 
-# functions
-source('https://raw.githubusercontent.com/jorondo1/misc_scripts/refs/heads/main/community_functions.R')
-
-# sylph: counts.tsv (genome x sample read counts, already rate-corrected by sylph_merge.sh) + taxonomy.tsv (same rows)
-# Returns the same wide format as the other parse_*() functions: taxonomic ranks + one numeric column per sample
-parse_sylph <- function(sylph_dir) {
-  left_join(
-    read_tsv(file.path(sylph_dir, 'counts.tsv'), show_col_types = FALSE),
-    read_tsv(file.path(sylph_dir, 'taxonomy.tsv'), col_types = cols(.default = 'c')),
-    by = 'genome'
-  ) %>%
-    dplyr::rename(Kingdom = Domain) %>%
-    # genomes without species (no lineage, e.g. the RefSeq plasmid.* bundles) can't be assigned
-    dplyr::filter(!is.na(Species)) %>%
-    dplyr::select(-genome)
-}
-
-# Import External data
-psSalivaKB <- read_rds('data/P19_Saliva/psSalivaKB.rds')
-psFecesKB <- read_rds('data/P19_Gut/psFecesKB.rds')
-moss.ps <-readRDS(url('https://github.com/jorondo1/borealMoss/raw/main/data/R_out/mossMAGs.RDS'))
-
-# Function to call parsing functions for each dataset,
-# results in a list containing 1 phyloseq object by dataset by tool (database)
-# with general structure List$Dataset$Database.ps
-meta_parsing <- function(dsName, samData) {
-  ps <- list()
-  
-  # MOTUS #########################
-  message(paste('Parsing', 'MOTUS', '...'))
-  ps[['MOTUS3']] <- parse_MPA(
-    MPA_files = file.path('data', dsName,"MOTUS/*_profile.txt"), 
-    column_names = c('mOTU', 'Taxonomy', 'NCBI', 'Abundance'),
-    mOTUs_data = TRUE) %>% 
-    assemble_phyloseq(samData, seqdepth_plot = FALSE, onlySpecies = TRUE)
-  
-  ps[['MOTUS4']] <- parse_MPA(
-    MPA_files = file.path('data', dsName,"MOTUS4/*_profile.txt"), 
-    column_names = c('mOTU', 'Taxonomy', 'Abundance'),
-    mOTUs_data = TRUE) %>% 
-    assemble_phyloseq(samData, seqdepth_plot = FALSE, onlySpecies = TRUE)
-  
-  # SOURMASH #####################
-  SM_dirs <- list.dirs(file.path('data',dsName), recursive = FALSE) %>% 
-    .[grep("/SM_[^/]*$",.)] %>% basename
-  
-  for (db in SM_dirs) {
-    message(paste('Parsing', db, '...'))
-    lineage_path <- file.path('data', dsName, db, paste0(db, '_lineages.csv'))
-    
-    ps[[db]] <- left_join(
-      parse_SM(file.path('data', dsName, db, '*_gather.csv')),
-      if(str_detect(db, 'gtdb')) {
-        parse_GTDB_lineages(lineage_path)
-      } else {
-        parse_genbank_lineages(lineage_path)
-      },
-      by = 'genome'
-    ) %>% species_glom() %>%
-      assemble_phyloseq(
-        samData, 
-        seqdepth_plot = FALSE, 
-        onlySpecies = TRUE)
-  }
-  
-  # SYLPH ########################
-  # data/<dataset>/SYLPH_<db>, merged by sylph_merge.sh (dirs without counts.tsv aren't merged yet: skipped)
-  sylph_dirs <- list.dirs(file.path('data',dsName), recursive = FALSE) %>%
-    .[grep("/SYLPH_[^/]*$", .)] %>%
-    .[file.exists(file.path(., 'counts.tsv'))] %>% basename
-
-  for (db in sylph_dirs) {
-    message(paste('Parsing', db, '...'))
-    ps[[db]] <- parse_sylph(file.path('data', dsName, db)) %>%
-      species_glom() %>%
-      assemble_phyloseq(
-        samData,
-        seqdepth_plot = FALSE,
-        onlySpecies = TRUE)
-  }
-
-  # KRAKEN (using default headers from parse_MPA function) ###############
-  kbdirs <- list.dirs(file.path('data',dsName), recursive = FALSE) %>% 
-    .[grep("/KB[^/]*$", .)] %>% basename # List all KB dirs
-  
-  for (db in kbdirs) {
-    message(paste('Parsing', db, '...'))
-    ps[[db]] <- parse_MPA(
-      MPA_files = file.path('data', dsName, db, '*/*_bracken/*_bracken_S.MPA.TXT')) %>% 
-      assemble_phyloseq(
-        samData, 
-        seqdepth_plot = FALSE, 
-        onlySpecies = TRUE)
-  }
-  
-  
-  # METAPHLAN ######################
-  mpadirs <- list.dirs(file.path('data',dsName), recursive = FALSE) %>% 
-    .[grep("/MPA_[^/]*$", .)] %>% basename
-  
-  for (db in mpadirs) {
-    message(paste('Parsing', db, '...'))
-    ps[[db]] <- parse_MPA(
-      MPA_files = file.path('data', dsName, db, '*/*_profile.txt'),
-      column_names = c('Taxonomy', 'NCBI','Abundance', 'Void'),
-      MPA_data = TRUE) %>% # this switch normalises MPA abundances to 100, see https://forum.biobakery.org/t/metaphlan-genus-level-relative-abundance-not-summing-up-to-100-and-possible-database-problem/5630/6
-      assemble_phyloseq(
-        samData, 
-        min_sample_size = 0, # because MPA is proportions
-        min_taxa_count = 0, #because MPA is proportions
-        seqdepth_plot = FALSE, 
-        onlySpecies = TRUE)
-  }
-  return(ps)
-}
-
-# Retrieve NAFLD metadata
-NAFLD_meta <- read_delim('data/NAFLD/raw/ENA_report.tsv') %>% 
-  dplyr::filter(library_strategy == 'WGS') %>% 
-  dplyr::select(run_accession, sample_title) %>% 
-  left_join(read_delim('data/NAFLD/raw/metadata.tsv'), 
-            join_by(sample_title == SampleID)) %>% 
-  mutate(Group = case_when(is.na(NAFLD) ~ 'Positive',
-                           TRUE ~ NAFLD), .keep = 'unused') %>% 
-  mutate(Group = as.factor(case_when(Group == 'Negative' ~ 0,
-                                     Group == 'Positive' ~ 1))) %>% 
-  column_to_rownames('sample_title')
-
-AD_skin_meta <- read_delim('data/AD_Skin/raw/ENA_report.tsv') %>% 
-  dplyr::select(run_accession, sample_alias, run_accession) %>% 
-  mutate(sample_alias = str_remove(sample_alias, ' ')) %>% 
-  right_join(read_delim('data/AD_Skin/raw/metadata.tsv'),
-             join_by(sample_alias == SampleID)) %>% 
-  dplyr::select(-`Sample Location`) %>% 
-  mutate(BGA = `Birth Gestational Age (weeks)`, 
-         Group = case_when(Group == 'control' ~ 0,
-                           Group == 'eczema' ~ 1),
-         .keep = 'unused') %>% 
-  column_to_rownames('run_accession')
-
-RA_meta <- read.delim('data/RA_Gut/raw/metadata.tsv') %>% 
-  tibble %>% 
-  transmute(Sample = run_accession, 
-            Group = as.factor(str_extract(sample_alias, "^[A-Za-z]+"))) %>% 
-  column_to_rownames('Sample')
-
-Bee_meta <- read_delim('data/Bee/raw/filereport_read_run_PRJNA685398_tsv.txt') %>% 
-  dplyr::select(run_accession, library_name) %>% 
-  mutate(Group = as.factor(str_extract_all(library_name, "[A-Za-z]") %>% 
-                             sapply(paste, collapse = "")),
-         .keep = 'unused') %>% 
-  column_to_rownames('run_accession')
-
-PD_meta <- read_delim('data/PD/raw/filereport_read_run_PRJNA834801_tsv.txt') %>% 
-  dplyr::select(run_accession, library_name) %>% 
-  mutate(Group = as.factor(
-    str_extract(library_name, regex(paste(c('DP', 'DC'), collapse = "|")))),
-    .keep = 'unused') %>% 
-  filter(!is.na(Group)) %>% 
-  column_to_rownames('run_accession')
+# Readers for the merged tables (scripts/src/merge_tables.sh on the HPC) and meta_parsing():
+# one phyloseq object per database, List$Dataset$Database.ps
+source('scripts/utils/parse_merged.R')
+# Sample data of each dataset (+ the external Moss MAGs object)
+source('scripts/utils/sample_data.R')
+sam_data <- load_sample_data()
 
 # Full phyloseq objects 
 ps_raw.ls <- list()
-ps_raw.ls[['P19_Saliva']] <- meta_parsing('P19_Saliva', psSalivaKB@sam_data)
-ps_raw.ls[['P19_Gut']] <- meta_parsing('P19_Gut', psFecesKB@sam_data)
-ps_raw.ls[['Moss']] <- meta_parsing('Moss', moss.ps@sam_data)
-ps_raw.ls[['Moss']][['SM_gtdb-rs214-rep_MAGs']] <- moss.ps 
+ps_raw.ls[['P19_Saliva']] <- meta_parsing('P19_Saliva', sam_data$P19_Saliva)
+ps_raw.ls[['P19_Gut']] <- meta_parsing('P19_Gut', sam_data$P19_Gut)
+ps_raw.ls[['Moss']] <- meta_parsing('Moss', sam_data$Moss)
+ps_raw.ls[['Moss']][['SM_gtdb-rs214-rep_MAGs']] <- sam_data$moss.ps
 ps_raw.ls$Moss$MPA_db2022 <- NULL
 ps_raw.ls$Moss$MPA_db2023 <- NULL
 ps_raw.ls$Moss$KB90 <- NULL
 ps_raw.ls$Moss$MOTUS <- NULL
-ps_raw.ls[['NAFLD']] <- meta_parsing('NAFLD', NAFLD_meta)
-ps_raw.ls[['AD_Skin']] <- meta_parsing('AD_Skin', AD_skin_meta)
-ps_raw.ls[['RA_Gut']] <- meta_parsing('RA_Gut', RA_meta)
-ps_raw.ls[['Bee']] <- meta_parsing('Bee', Bee_meta)
-ps_raw.ls[['PD']] <- meta_parsing('PD', PD_meta)
+ps_raw.ls[['NAFLD']] <- meta_parsing('NAFLD', sam_data$NAFLD)
+ps_raw.ls[['AD_Skin']] <- meta_parsing('AD_Skin', sam_data$AD_Skin)
+ps_raw.ls[['RA_Gut']] <- meta_parsing('RA_Gut', sam_data$RA_Gut)
+ps_raw.ls[['Bee']] <- meta_parsing('Bee', sam_data$Bee)
+ps_raw.ls[['PD']] <- meta_parsing('PD', sam_data$PD)
 
 write_rds(ps_raw.ls, "Out/_Rdata/ps_raw.ls.RDS", compress = 'bz2')
 
