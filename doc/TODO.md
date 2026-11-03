@@ -17,6 +17,8 @@ Started 2026-11-03.
   - [ ] Check any figure or manuscript text about AD_Skin or Moss procrustes agreement involving MetaPhlAn.
 - [ ] Classification rates: rerun the mOTUs block (fixed: `awk -F'\t'` and rate = assigned/total), the MetaPhlAn block (100 − Σ species) and the sylph block in `MethodsComparison_Pipeline.sh`.
 
+- [ ] **sourmash RefSeq counts are doubled** (found 2026-11-03, `doc/merged_tables_format_checks.md` §4). R joins gathers to `SM_RefSeq_20250528_lineages.csv` on the bare accession number, which matches the GCA/GCF twins and versions, so `left_join` duplicates most genomes (+111–116 % on P19_Saliva GQ10–12). Relative abundances are barely affected; counts, rarefaction depth and count-based alpha are. Fix decided with the merged-tables branch.
+
 ## sylph
 
 - [ ] Rerun sylph 1.0.0 (env `$ILAFORES/programs/conda_envs/sylph`) for all datasets and DBs. First delete the old `per_sample/` dirs and the sketches made with 0.9.0.
