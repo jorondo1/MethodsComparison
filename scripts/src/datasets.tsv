@@ -1,0 +1,11 @@
+# dataset<TAB>sample tsv (column 1 = sample ID), as in the dataset_variables lines of MethodsComparison_Pipeline.sh
+# $ILAFORES is expanded by the scripts that read this file
+P19_Saliva	$ILAFORES/analysis/projet_PROVID19/Saliva/preproc/preprocessed_reads.sample.tsv
+P19_Gut	$ILAFORES/analysis/projet_PROVID19/Feces/preproc/preprocessed_reads.sample.tsv
+Moss	$ILAFORES/analysis/_archive/2025_borealMoss/preproc/preprocessed_reads.sample.tsv
+NAFLD	$ILAFORES/analysis/MethodsComparison/data/NAFLD/preproc/preprocessed_reads.sample.tsv
+AD_Skin	$ILAFORES/analysis/MethodsComparison/data/AD_Skin/preproc/preprocessed_reads.sample.tsv
+PD	$ILAFORES/analysis/MethodsComparison/data/PD/preproc/preprocessed_reads.sample.tsv
+Bee	$ILAFORES/analysis/MethodsComparison/data/Bee/preproc/preprocessed_reads.sample.tsv
+RA_Gut	$ILAFORES/analysis/MethodsComparison/data/RA_Gut/preproc/preprocessed_reads.sample.tsv
+Maple	$ILAFORES/analysis/mapleRhizosphere/WMS/preproc/preprocessed_reads.sample.tsv
