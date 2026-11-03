@@ -18,7 +18,7 @@
 # Writes to data/<dataset>/SYLPH_<db name>/:
 #   counts.tsv           : estimated read counts, genomes (rows) x samples (columns), corrected (see count correction below)
 #   taxonomy.tsv         : genome -> Domain, Phylum, Class, Order, Family, Genus, Species (same rows as counts.tsv)
-#   merged_all_ranks.tsv : sylph-tax merge of the per-sample profiles, corrected read counts at every rank
+#   merged_species.tsv   : corrected read counts by species (sylph-tax merge, s__ rank only), clade_name = d__X|...|s__X
 #   classification_rate.tsv : path, % classified, % unclassified, rate (no header, like the other tools' rate files)
 set -eo pipefail
 
@@ -88,24 +88,28 @@ awk -F'\t' -v OFS='\t' '
 	NR == FNR { s = $1; sub(/.*\//, "", s); sub(/_profile\.log$/, "", s); rate[s] = $4; next }
 	FNR == 1 { for (i = 2; i <= NF; i++) r[i] = rate[$i]; print; next }
 	{ for (i = 2; i <= NF; i++) $i = (r[i] > 0) ? sprintf("%.0f", $i / r[i]) : 0; print }
-	' $OUT_DIR/classification_rate.tsv $OUT_DIR/merged_all_ranks.raw.tsv > $OUT_DIR/merged_all_ranks.tsv
+	' $OUT_DIR/classification_rate.tsv $OUT_DIR/merged_all_ranks.raw.tsv > $OUT_DIR/merged_all_ranks.tmp
 rm $OUT_DIR/merged_all_ranks.raw.tsv
 
-# genome rows (t__) only: clade_name = d__X|p__X|...|s__X|t__<genome>, or NO_TAXONOMY|t__<genome>
-awk -F'\t' -v counts=$OUT_DIR/counts.tsv -v tax=$OUT_DIR/taxonomy.tsv '
+# species rows (s__, no t__) -> merged_species.tsv
+# genome rows (t__) -> counts.tsv + taxonomy.tsv: clade_name = d__X|p__X|...|s__X|t__<genome>, or NO_TAXONOMY|t__<genome>
+awk -F'\t' -v counts=$OUT_DIR/counts.tsv -v tax=$OUT_DIR/taxonomy.tsv -v species=$OUT_DIR/merged_species.tsv '
 	BEGIN { split("d p c o f g s", prefix, " "); split("Domain Phylum Class Order Family Genus Species", rank, " ") }
 	NR == 1 {
 		printf "genome" > counts; for (i = 2; i <= NF; i++) printf "\t%s", $i > counts; printf "\n" > counts
 		printf "genome" > tax; for (r = 1; r <= 7; r++) printf "\t%s", rank[r] > tax; printf "\n" > tax
+		print > species
 		next
 	}
+	$1 ~ /(^|\|)s__/ && $1 !~ /\|t__/ { print > species }
 	$1 ~ /(^|\|)t__/ {
 		n = split($1, lev, "|"); genome = substr(lev[n], 4)
 		printf "%s", genome > counts; for (i = 2; i <= NF; i++) printf "\t%s", $i > counts; printf "\n" > counts
 		delete name
 		for (j = 1; j < n; j++) name[substr(lev[j], 1, 1)] = substr(lev[j], 4)
 		printf "%s", genome > tax; for (r = 1; r <= 7; r++) printf "\t%s", name[prefix[r]] > tax; printf "\n" > tax
-	}' $OUT_DIR/merged_all_ranks.tsv
+	}' $OUT_DIR/merged_all_ranks.tmp
+rm $OUT_DIR/merged_all_ranks.tmp
 
-echo "$(head -1 $OUT_DIR/counts.tsv | awk -F'\t' '{print NF-1}') samples, $(tail -n+2 $OUT_DIR/counts.tsv | wc -l) genomes"
+echo "$(head -1 $OUT_DIR/counts.tsv | awk -F'\t' '{print NF-1}') samples, $(tail -n+2 $OUT_DIR/counts.tsv | wc -l) genomes, $(tail -n+2 $OUT_DIR/merged_species.tsv | wc -l) species"
 echo "Merged tables written to $OUT_DIR"
