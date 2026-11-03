@@ -4,7 +4,7 @@ p_load(magrittr, mgx.tools, # devtools::install_github("jorondo1/mgx.tools")
        igraph, ggraph, patchwork, pheatmap,
        rstatix)
 
-source("scripts/0_Config.R")
+source("scripts/0_config.R")
 
 
 #   $$\ $$\         $$$$$$$$\ $$$$$$\  $$$$$$\             $$$$$$\  

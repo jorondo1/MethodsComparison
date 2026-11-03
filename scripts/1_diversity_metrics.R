@@ -6,12 +6,17 @@ p_load(
   phyloseq,
   rstatix, vegan)
 
-ps_rare.ls <- readRDS('Out/_Rdata/ps_rare.ls.rds')
+ps_rare.ls <- readRDS('Out/_Rdata/ps_rare.ls.RDS')
 ps_rare.ls$Olive <- NULL
 ps_rare.ls %<>% purrr::compact()
 
-source("scripts/myFunctions.R")
-source("scripts/0_Config.R")
+source("scripts/0_config.R")
+
+# Recode a two-level factor as A and B (was in scripts/archive/myFunctions.R; everything else comes from mgx.tools)
+recode_factor_AB <- function(factor_var) {
+  if (nlevels(factor_var) != 2) stop("The input factor must have exactly 2 levels.")
+  factor(as.numeric(factor_var), levels = 1:2, labels = c("A", "B"))
+}
 
 # Work from the species-level table
 taxRanks <- c("Phylum", "Class", "Order", "Family", "Genus", "Species")

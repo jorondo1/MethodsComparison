@@ -388,7 +388,9 @@ done
 # Classification rates (% of reads detected in database), all datasets and dbs, same layout as the other tools
 cat $MC/data/*/SYLPH_*/classification_rate.tsv > Out/classification_rates/sylph_classification_rate.tsv
 
-
+################################################################################################################
+# RSYNC EVERYTHING
+#
 
 
 
