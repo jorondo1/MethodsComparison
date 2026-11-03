@@ -214,7 +214,26 @@ merge_sourmash() {
 		*) echo "  no lineage file known for $db, skipped"; return 1 ;;
 	esac
 	[[ -f ${files[0]} ]] || { echo "  no *_gather.csv"; return 1; }
-	printf '%s\n' "${files[@]/#/$MC/}" > "$WORK/sm.list"
+	# Truncated gather CSVs (an interrupted write, e.g. AD_Skin SRR20002431 rs214-full) end with an incomplete row that
+	# sourmash can't load. Those rows are dropped from a copy in $WORK; parse_SM() put such a row under a bogus sample
+	# name (the cut query_name), which assemble_phyloseq() dropped, so the result is the same.
+	python3 -I - "$WORK/sm_clean" "${files[@]/#/$MC/}" > "$WORK/sm.list" <<'EOF'
+import csv, os, sys
+out = sys.argv[1]
+os.makedirs(out, exist_ok=True)
+for f in sys.argv[2:]:
+    with open(f, newline='') as fh:
+        rows = list(csv.reader(fh))
+    bad = [i for i, r in enumerate(rows[1:], 2) if len(r) != len(rows[0])]
+    if bad:
+        p = os.path.join(out, os.path.basename(f))
+        with open(p, 'w', newline='') as o:
+            csv.writer(o, lineterminator='\n').writerows(r for r in rows if len(r) == len(rows[0]))
+        print(f"  {os.path.basename(f)}: incomplete row(s) {bad} dropped (truncated file?)", file=sys.stderr)
+        print(p)
+    else:
+        print(f)
+EOF
 	$SING "$SM_SIF" python3 -I "$MC/scripts/src/sourmash_tax_summary.py" --from-file "$WORK/sm.list" \
 		-t "${lin[@]}" "${opts[@]}" -o "$WORK/sm.csv" > "$WORK/sm.log" 2>&1 || { tail -5 "$WORK/sm.log"; return 1; }
 	local missed; missed=$(grep -o 'lineage assignments for [0-9]* results were missed' "$WORK/sm.log" | awk '{s += $4} END {print s + 0}')
