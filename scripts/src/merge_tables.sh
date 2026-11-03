@@ -185,7 +185,11 @@ merge_kraken() {
 	python3 "$COMBINE_MPA" -i "${files[@]}" -o "$WORK/kb.raw" > "$WORK/kb.log" 2>&1 || { tail -5 "$WORK/kb.log"; return 1; }
 	# combine_mpa.py names the columns "Sample #<i>" (input order) when the inputs have no header line
 	{ printf '#Classification'; for f in "${files[@]}"; do printf '\t%s' "$(basename "$f" _bracken_S.MPA.TXT)"; done; printf '\n'
-	  tail -n +2 "$WORK/kb.raw"; } > "$WORK/kb.tsv"
+	  # combine_mpa.py prints a taxon twice (same values) when it's a root in one input and, in another, comes after a line
+	  # that is a prefix of it (inputs with higher ranks, e.g. some RA_Gut KB10 files): keep the first copy
+	  tail -n +2 "$WORK/kb.raw" | awk '!seen[$0]++'; } > "$WORK/kb.tsv"
+	local dup; dup=$(tail -n +2 "$WORK/kb.tsv" | cut -f1 | sort | uniq -d | wc -l)
+	[[ $dup -eq 0 ]] || { echo "  $dup taxa appear twice with different values"; return 1; }
 	echo "  ${#files[@]} samples, $(tail -n +2 "$WORK/kb.tsv" | wc -l) taxa"
 	finish "$WORK/kb.tsv" "$out"
 }

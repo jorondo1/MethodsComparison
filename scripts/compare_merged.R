@@ -5,7 +5,7 @@
 #
 # Usage (from $MC): Rscript scripts/compare_merged.R [dataset ...]   (default: every dataset with sample data, + Maple)
 # On the HPC: module load StdEnv/2023 r/4.4.0
-# Writes Out/merged_tables/comparison.tsv and prints a summary.
+# Writes Out/merged_tables/comparison_<dataset>.tsv, then comparison.tsv (all datasets compared so far) and a summary.
 
 suppressMessages({
   library(phyloseq); library(mgx.tools); library(tidyverse); library(magrittr); library(vegan)
@@ -55,7 +55,9 @@ ref_parse <- function(dsName, db) {
 otu <- function(ps) { m <- as(otu_table(ps), 'matrix'); if (!taxa_are_rows(ps)) m <- t(m); m }
 
 compare_ps <- function(a, b) { # a = reference, b = merged
-  if (is.null(a) || is.null(b)) return(tibble(status = 'missing object'))
+  # assemble_phyloseq() returns NULL when no sample reaches min_sample_size (e.g. Moss and Bee mOTUs)
+  if (is.null(a) && is.null(b)) return(tibble(status = 'both NULL'))
+  if (is.null(a) || is.null(b)) return(tibble(status = if (is.null(a)) 'only new' else 'only reference'))
   ma <- otu(a); mb <- otu(b)
   s_common <- intersect(colnames(ma), colnames(mb)); t_common <- intersect(rownames(ma), rownames(mb))
   ta <- as(tax_table(a), 'matrix'); tb <- as(tax_table(b), 'matrix')
@@ -99,9 +101,13 @@ sample_tsv <- function(ds) {
   read_tsv(p, col_names = FALSE, show_col_types = FALSE, col_types = cols(.default = 'c'))$X1
 }
 
+out_dir <- 'Out/merged_tables'
+dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 results <- list()
 for (ds in datasets) {
-  samData <- if (!is.null(sam_data_all[[ds]])) sam_data_all[[ds]] else data.frame(row.names = sample_tsv(ds), all = 1)
+  samData <- if (!is.null(sam_data_all[[ds]])) sam_data_all[[ds]] else {
+    ids <- sample_tsv(ds); data.frame(all = rep(1, length(ids)), row.names = ids)
+  }
   message('### ', ds)
   new_ps <- new$meta_parsing(ds, samData)
   dirs <- new$tool_dirs(ds)
@@ -114,13 +120,15 @@ for (ds in datasets) {
     ref_ps <- tryCatch(ref_parse(ds, db), error = function(e) { message('    reference failed: ', conditionMessage(e)); NULL })
     results[[paste(ds, db)]] <- compare_ps(ref_ps, new_ps[[db]]) %>%
       mutate(dataset = ds, database = db, .before = 1)
-    message(sprintf('    %s (%.0f s)', results[[paste(ds, db)]]$status, as.numeric(difftime(Sys.time(), t0, units = 'secs'))))
+    message(sprintf('    %s %s (%.0f s)', db, results[[paste(ds, db)]]$status, as.numeric(difftime(Sys.time(), t0, units = 'secs'))))
   }
+  # one file per dataset, so that a later failure doesn't lose the finished ones
+  write_tsv(bind_rows(results[startsWith(names(results), paste0(ds, ' '))]), file.path(out_dir, paste0('comparison_', ds, '.tsv')))
 }
 
-res <- bind_rows(results)
-dir.create('Out/merged_tables', recursive = TRUE, showWarnings = FALSE)
-write_tsv(res, 'Out/merged_tables/comparison.tsv')
+# all datasets compared so far (this run or earlier ones)
+res <- list.files(out_dir, '^comparison_.*\\.tsv$', full.names = TRUE) %>% map(read_tsv, show_col_types = FALSE) %>% bind_rows()
+write_tsv(res, file.path(out_dir, 'comparison.tsv'))
 cat('\n'); print(count(res, status))
 cat('\nNot identical:\n')
 res %>% filter(status != 'identical') %>%
