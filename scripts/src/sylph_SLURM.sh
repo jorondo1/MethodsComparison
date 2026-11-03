@@ -21,7 +21,7 @@
 start_time=$(date +%s)
 set -eo pipefail
 
-export SYLPH=${SYLPH:-sylph} # sylph 1.0.0, from the sylph-tax conda env
+export SYLPH=${SYLPH:-sylph} # sylph 1.0.0, from $SYLPH_ENV (below)
 export SCALE=200 # must not be larger than the -c used to build the database
 
 # Parse options and variables
@@ -35,14 +35,13 @@ export SKETCH_DIR=${PWD}/data/"${1}"/sylph_sketches_c${SCALE}
 echo "Exporting to $OUT_DIR"
 echo "using $SYLPH_DB with taxonomy $TAX"
 
-# sylph-tax lives in a conda env
-if ! command -v sylph-tax > /dev/null; then
-	eval "$(conda shell.bash hook)"
-	conda activate sylph-tax
-fi
+# sylph + sylph-tax: conda env under $ILAFORES, so every node sees it (unlike ~/miniconda3, missing on the old nodes).
+# Putting its bin/ first in PATH is enough for these two command-line tools: no conda needed in the job.
+export SYLPH_ENV=${SYLPH_ENV:-$ILAFORES/programs/conda_envs/sylph}
+export PATH=$SYLPH_ENV/bin:$PATH
 # fail early (missing command)
 for cmd in $SYLPH sylph-tax; do
-	command -v $cmd > /dev/null || { echo "$cmd not found on $(hostname)"; exit 1; }
+	command -v $cmd > /dev/null || { echo "$cmd not found on $(hostname) (SYLPH_ENV=$SYLPH_ENV)"; exit 1; }
 done
 echo "$($SYLPH --version), sylph-tax $(sylph-tax --version 2>&1 | tail -1)"
 

@@ -25,12 +25,11 @@ export SAM_LIST="${3}"
 export OUT_DIR=${PWD}/data/"${1}"/SYLPH_${DB_NAME}
 export SAMPLE_DIR=${OUT_DIR}/per_sample
 
-# sylph-tax lives in a conda env
-if ! command -v sylph-tax > /dev/null; then
-	eval "$(conda shell.bash hook)"
-	conda activate sylph-tax
-fi
-command -v sylph-tax > /dev/null || { echo "sylph-tax not found on $(hostname)"; exit 1; }
+# sylph + sylph-tax: conda env under $ILAFORES, so every node sees it (unlike ~/miniconda3, missing on the old nodes).
+# Putting its bin/ first in PATH is enough for these two command-line tools: no conda needed in the job.
+export SYLPH_ENV=${SYLPH_ENV:-$ILAFORES/programs/conda_envs/sylph}
+export PATH=$SYLPH_ENV/bin:$PATH
+command -v sylph-tax > /dev/null || { echo "sylph-tax not found on $(hostname) (SYLPH_ENV=$SYLPH_ENV)"; exit 1; }
 
 # Check every sample of the tsv: no profile = sylph_SLURM.sh didn't finish (rerun it), no .sylphmpa = no genome detected
 missing=0
