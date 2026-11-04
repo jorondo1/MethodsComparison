@@ -1,12 +1,12 @@
 # Rank ENA metagenomic WGS studies as candidate public datasets:
 # non-human, >= min_samples samples, and likely two-group design.
-# Input: Out/ena_candidates/runs_2023.tsv from find_wgs_projects.sh
+# Input: doc/ena_candidates/runs_2023.tsv from find_wgs_projects.sh
 # Run from the project root: Rscript scripts/src/ena_search/rank_wgs_projects.R
 
 library(pacman)
 p_load(tidyverse, xml2, httr2)
 
-out_dir <- 'Out/ena_candidates'
+out_dir <- 'doc/ena_candidates'
 runs_file <- file.path(out_dir, 'runs_2023.tsv')
 min_samples <- 50
 n_shortlist <- 150        # studies whose sample attributes are fetched (stage 3)

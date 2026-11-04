@@ -1,11 +1,10 @@
-library(pacman)
-p_load( magrittr, mgx.tools, # devtools::install_github("jorondo1/mgx.tools")
-        tidyverse, kableExtra, gghalves,
-        patchwork,
-        rstatix, PairedData)
+pacman::p_load(
+  magrittr, mgx.tools, # devtools::install_github("jorondo1/mgx.tools")
+  tidyverse, kableExtra, gghalves,
+  patchwork,
+  rstatix, PairedData)
 
 source("scripts/0_config.R")
-theme_set(theme_light())
 
 #   $$\ $$\         $$$$$$$$\ $$$$$$\  $$$$$$\              $$\   
 #   $$ \$$ \        $$  _____|\_$$  _|$$  __$$\           $$$$ |  
@@ -23,7 +22,7 @@ theme_set(theme_light())
 ######################
 
 # Reorder factors, filter for datasets
-these_datasets <- c('Moss', 'NAFLD', 'P19_Gut', 'P19_Saliva', 'PD', 'Bee', 'AD_Skin', 'RA_Gut')
+these_datasets <- c('Moss', 'NAFLD', 'P19_Gut', 'P19_Saliva', 'PD', 'Bee', 'AD_Skin', 'RA_Gut', 'Maple')
 
 alpha_div <- read_rds('Out/_Rdata/alpha_div.RDS')[['plot_data']] %>% 
   filter(Dataset %in% these_datasets) %>% 

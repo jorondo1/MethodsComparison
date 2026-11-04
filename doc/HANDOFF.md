@@ -4,7 +4,7 @@ Read at the start of each session and update before stopping (see `CLAUDE.md`). 
 
 ## Current state (keep this true; rewrite rather than append)
 
-- **Branch:** `merged_tables`. Last pushed commit: `01e908d2e`. 12 commits ahead of `main`; not merged yet.
+- **Branch:** `merged_tables`. Last pushed commit: `a8dfc1ad5`. 13 commits ahead of `main`; not merged yet.
 - **Pipeline (all on the HPC):**
   - Merged tables per tool, from `scripts/src/merge_tables.sh` and `sylph_merge.sh`.
   - `scripts/0_run_all.R` runs, per dataset, `0_proc_data.R` (phyloseq objects + rarefaction) and then `1_diversity_metrics.R`. Results are cached in `Out/_Rdata/cache/<DS>/`, then assembled into `Out/_Rdata/*.RDS`.
@@ -16,8 +16,8 @@ Read at the start of each session and update before stopping (see `CLAUDE.md`). 
   - the new sylph objects `SYLPH_<db>_Seq` (rarefied counts) and `SYLPH_<db>_Tax` (relative abundance rescaled to 100, not rarefied), for RefSeq and gtdb_rs220;
   - Maple (grouping variable `Provenance`: 88 samples, 66 tested) and Moss sylph;
   - seeded Procrustes and PERMANOVA.
-- **Synced to the Mac:** NOT YET (as of 2026-11-04).
-- **Mac `Out/_Rdata/`:** still the old results from before the fixes. Copy it aside first (e.g. to `Out/_Rdata_preFix_<date>/`); it's the baseline for measuring how the fixes change the results.
+- **Synced to the Mac:** done 2026-11-04. The Mac `Out/_Rdata/*.RDS` are the HPC files from 09:10, and all 9 datasets load.
+- **No pre-fix baseline:** the old Mac RDS files were overwritten by the sync without a copy, and they were never in git. What's left: `Out/_Rdata/alpha_div_plot_data.tsv` and `alpha_div_wilcox.tsv` (2026-03-10), and possibly Time Machine (not mounted). The old vs new comparison is on hold until the user asks for it.
 - **Figure scripts:**
   - `6.0`–`6.4` read only the synced files.
   - `6._FigX_TaxAssignment.R` and the DAA scripts (`5.x`) read files nobody regenerates anymore (`tax_assign_*`, `ps_taxranks`, `ps_filt`). DAA is out of scope.
@@ -26,16 +26,19 @@ Read at the start of each session and update before stopping (see `CLAUDE.md`). 
 
 ## Next steps
 
-1. **[Mac]**
-   1. `git pull` (branch `merged_tables`).
-   2. Copy `Out/_Rdata/` aside.
-   3. `bash scripts/utils/sync_from_hpc.sh <user@host>`.
-   4. Check that the RDS files load and have 9 datasets.
-2. **[Mac]** Compare the old and new results (alpha, Procrustes, PERMANOVA), focusing on sourmash RefSeq and MetaPhlAn, for the reviewers' response. The MetaPhlAn impact numbers measured so far are in `doc/TODO.md`.
+1. **[User, then either]** Find and process new public datasets. The candidate list is in `doc/ena_candidates/wgs_candidates_ranked.tsv` (regenerated 2026-11-04 by `scripts/src/ena_search/`). Then follow "Adding a dataset" in `doc/TODO.md`. The user will plan the next work after this.
+2. **[Mac, on hold]** Compare the old and new results (alpha, Procrustes, PERMANOVA), focusing on sourmash RefSeq and MetaPhlAn, for the reviewers' response. The MetaPhlAn impact numbers measured so far are in `doc/TODO.md`.
 3. **[Mac]** Rerun the figures (`6.0`–`6.4`). Decide how sylph appears in them (TODO: "Figures that include sylph need a rethink").
 4. **[Either]** Merge `merged_tables` into `main` when the figures look right.
 
 ## Log (newest first; tag each entry [HPC] or [Mac])
+
+### 2026-11-04 [Mac]
+- Sync checked: the RDS files are the HPC 09:10 versions, with 9 datasets. No pre-fix copy was kept (see Current state).
+- ENA search rerun. `find_wgs_projects.sh` and `rank_wgs_projects.R` now write to `doc/ena_candidates/` (untracked) instead of `Out/ena_candidates/`. The run found 710,018 runs (first public 2023+).
+- Uncommitted Mac edits, not pushed yet:
+  - `scripts/0_config.R`: Maple in `dataset_names`, shorter sylph labels and short names, DAA `tool_vars`/`DAA_metadata` commented out.
+  - `scripts/2_alpha_compare.R`, `scripts/3_beta_compare.R`: Maple and the sylph objects added.
 
 ### 2026-11-04 [HPC]
 - **sylph:**
