@@ -49,7 +49,7 @@ load_sample_data <- function() {
     filter(!is.na(Group)) %>%
     column_to_rownames('run_accession')
 
-  # Maple: no metadata yet, only the sample IDs (data/Maple/raw/metadata.tsv: the IDs of the preprocessed reads' sample tsv)
+  # Maple: Provenance (M/S) is the grouping variable; samples without one are left out of the tests only
   Maple_meta <- read_delim('data/Maple/raw/Nanodrop_omx_ME.csv', show_col_types = FALSE, delim = ";") %>%
     dplyr::select(SAMPLE_ID, Type, Provenance, traitement) %>% 
     column_to_rownames('SAMPLE_ID')

@@ -1,4 +1,4 @@
-rstudioapi::applyTheme("Idle Fingers") 
+if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) rstudioapi::applyTheme("Idle Fingers") # RStudio only (not Rscript on the HPC)
 ggplot2::theme_set(ggplot2::theme_light())
 
 my_datasets_factorlevels <- c('P19_Saliva', 'P19_Gut', 'RA_Gut', 'AD_Skin', 'Moss', 'NAFLD')
@@ -46,8 +46,10 @@ CCE_names <- c(
   'SM_gtdb-rs214-rep' = 'Sourmash (GTDB 214)',
   'SM_gtdb-rs220-rep'= 'Sourmash (GTDB 220)',
   'SM_gtdb-rs214-rep_MAGs'= 'Sourmash (GTDB \n+ Novel MAGs)',
-  'SYLPH_RefSeq' = 'sylph (RefSeq)',
-  'SYLPH_gtdb_rs220' = 'sylph (GTDB 220)'
+  'SYLPH_RefSeq_Seq' = 'sylph (RefSeq, sequence ab.)',
+  'SYLPH_RefSeq_Tax' = 'sylph (RefSeq, taxonomic ab.)',
+  'SYLPH_gtdb_rs220_Seq' = 'sylph (GTDB 220, sequence ab.)',
+  'SYLPH_gtdb_rs220_Tax' = 'sylph (GTDB 220, taxonomic ab.)'
 )
 
 Hill_numbers <- c(
@@ -76,8 +78,11 @@ CCE_metadata <- tribble(
   "SM_gtdb-rs220-rep",     "#1F78B4",     "SM GTDB 220",       "Sourmash",          113104, "Sourmash",   "Sourmash",    "D2D",       "GTDB",          "GTDB_220",   "GTDB",        "SM",   
   "SM_gtdb-rs214-rep_MAGs","skyblue3",    "SM GTDB 214 + MAGs","Sourmash",          113211, "Sourmash",   "Sourmash",    "D2D",       "GTDB",          "GTDB_214",   "GTDB",        "SM",
   # Num_spec: same genome sets as SM_RefSeq_20250528 (RefSeq 20250528) and the GTDB 220 entries above (r220 representatives)
-  "SYLPH_RefSeq",          "#8C510A",     "sylph RefSeq",      "sylph",              27285, "sylph",      "sylph",       "D2D",       "NCBI",          "RefSeq",     "RefSeq",  "sylph",
-  "SYLPH_gtdb_rs220",      "#D8B365",     "sylph GTDB 220",    "sylph",             113104, "sylph",      "sylph",       "D2D",       "GTDB",          "GTDB_220",   "GTDB",        "sylph"
+  # _Seq: estimated read counts (rarefied); _Tax: taxonomic abundance, proportions (not rarefied, like MetaPhlAn)
+  "SYLPH_RefSeq_Seq",      "#8C510A",     "sylph RefSeq",      "sylph",              27285, "sylph",      "sylph",       "D2D",       "NCBI",          "RefSeq",     "RefSeq",  "sylph",
+  "SYLPH_RefSeq_Tax",      "#BF812D",     "sylph RefSeq tax",  "sylph",              27285, "sylph",      "sylph",       "D2D",       "NCBI",          "RefSeq",     "RefSeq",  "sylph tax",
+  "SYLPH_gtdb_rs220_Seq",  "#D8B365",     "sylph GTDB 220",    "sylph",             113104, "sylph",      "sylph",       "D2D",       "GTDB",          "GTDB_220",   "GTDB",        "sylph",
+  "SYLPH_gtdb_rs220_Tax",  "#F6E8C3",     "sylph GTDB 220 tax","sylph",             113104, "sylph",      "sylph",       "D2D",       "GTDB",          "GTDB_220",   "GTDB",        "sylph tax"
 )
 
 tooldb_colours <- CCE_metadata$plot_colour

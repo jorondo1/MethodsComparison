@@ -1,3 +1,8 @@
+# Alpha and beta diversity of ONE dataset -> Out/_Rdata/cache/<DS>/ (alpha_plot_data, alpha_wilcox, pcoa,
+# pairwise_dist, procrustes, permanova .RDS). Reads cache/<DS>/ps_rare.RDS (scripts/0_proc_data.R).
+# Usually run by scripts/0_run_all.R, which then assembles all datasets into the usual Out/_Rdata/*.RDS files
+# (and builds dataset_names_n_lookup_alphadiv.RDS, which needs all datasets).
+# By hand: Rscript scripts/1_diversity_metrics.R <dataset>   (or set DS <- '<dataset>' and source() this file)
 library(pacman)
 p_load( 
   mgx.tools, # devtools::install_github("jorondo1/mgx.tools", force = TRUE)
@@ -6,11 +11,21 @@ p_load(
   phyloseq,
   rstatix, vegan)
 
-ps_rare.ls <- readRDS('Out/_Rdata/ps_rare.ls.RDS')
-ps_rare.ls$Olive <- NULL
-ps_rare.ls %<>% purrr::compact()
+if (length(commandArgs(trailingOnly = TRUE)) > 0) DS <- commandArgs(trailingOnly = TRUE)[1]
+if (!exists('DS')) stop('No dataset given: Rscript scripts/1_diversity_metrics.R <dataset>')
+cache_dir <- file.path('Out/_Rdata/cache', DS)
+message('### ', DS, ': alpha and beta diversity -> ', cache_dir)
+
+# A one-dataset list, so that the imap(dataset) -> imap(database) code below runs as it did on all datasets
+ps_rare.ls <- list(readRDS(file.path(cache_dir, 'ps_rare.RDS'))) %>% set_names(DS)
+ps_rare.ls[[DS]] %<>% purrr::compact()
 
 source("scripts/0_config.R")
+
+# Datasets without a grouping variable get alpha diversity, PCoA, pairwise distances and Procrustes, but no Wilcoxon
+# tests or PERMANOVA. Samples with no group (e.g. the Maple samples without Provenance) keep their diversity metrics
+# and are only left out of the tests.
+has_groups <- function(ds) ds %in% names(grouping_variable) && !is.na(grouping_variable[[ds]])
 
 # Recode a two-level factor as A and B (was in scripts/archive/myFunctions.R; everything else comes from mgx.tools)
 recode_factor_AB <- function(factor_var) {
@@ -39,8 +54,9 @@ alpha_div[['plot_data']] <-  imap(ps_rare.ls, function(ps_dataset.ls, dataset){
     # Dataframe with grouping variable
     samdat <- samdat_as_tibble(ps) %>% 
       # Recode the grouping variable as a A/B factor
-      mutate(Grouping_var = !!sym(grouping_variable[dataset]) %>% 
-               as.factor() %>% recode_factor_AB()) %>% 
+      { if (has_groups(dataset)) {
+          mutate(., Grouping_var = !!sym(grouping_variable[[dataset]]) %>% as.factor() %>% recode_factor_AB())
+        } else mutate(., Grouping_var = factor(NA, levels = c('A', 'B'))) } %>% 
       dplyr::select(Sample, Grouping_var)
     
     tibble(
@@ -66,10 +82,11 @@ alpha_div[['plot_data']] <-  imap(ps_rare.ls, function(ps_dataset.ls, dataset){
 }) %>% list_rbind()
 
 # WILCOX TESTS !
-# Set up parallel backend - detect available cores
+# Set up parallel backend: availableCores() = the Slurm allocation on the HPC (detectCores() would count the whole node)
 plan(multisession, workers = availableCores())
 
 alpha_div[['wilcox_tests']] <- alpha_div[['plot_data']] %>%
+  filter(map_lgl(Dataset, has_groups), !is.na(Grouping_var)) %>%
   group_by(Dataset, Database, Index) %>%
   group_split() %>%
   future_map_dfr(function(df) {
@@ -87,26 +104,10 @@ alpha_div[['wilcox_tests']] <- alpha_div[['plot_data']] %>%
 # Reset to sequential when done
 plan(sequential)
 
-write_rds(alpha_div, 'Out/_Rdata/alpha_div.RDS', compress = 'gz')
+write_rds(alpha_div[['plot_data']], file.path(cache_dir, 'alpha_plot_data.RDS'), compress = 'gz')
+write_rds(alpha_div[['wilcox_tests']], file.path(cache_dir, 'alpha_wilcox.RDS'), compress = 'gz')
 
-# N data naming for datasets (for figures)
-dataset_names_n_tibble <- alpha_div[['wilcox_tests']] %>% 
-  distinct(Dataset, n) %>% 
-  group_by(Dataset) %>% 
-  filter(n==max(n)) %>% 
-  left_join(tibble(
-    Dataset = names(dataset_names),
-    Dataset_name = unname(dataset_names)
-  ), by = "Dataset") %>% 
-  mutate(Dataset_name_n = paste0(Dataset_name, "\n(n=",n,")" ))
-
-# values:
-dataset_names_n_lookup <- dataset_names_n_tibble$Dataset_name_n
-# add standard names:
-names(dataset_names_n_lookup) <- dataset_names_n_tibble$Dataset 
-# reorder and flush NAs
-dataset_names_n_lookup %<>% .[names(dataset_names)] %>% .[!is.na(.)]
-write_rds(dataset_names_n_lookup, 'Out/_Rdata/dataset_names_n_lookup_alphadiv.RDS')
+# (Dataset labels with n for the figures: built from all datasets in scripts/0_run_all.R)
 
 
 # 2. Beta Diversity ----------------------------------------------------------
@@ -114,7 +115,7 @@ write_rds(dataset_names_n_lookup, 'Out/_Rdata/dataset_names_n_lookup_alphadiv.RD
 # 2.1. Compute bray-curtis PCoA :
 
 pcoa.ls <- list()
-future::plan(multicore, workers = detectCores())
+future::plan(multicore, workers = availableCores())
 
 pcoa.ls <- map(ps_rare.ls, function(ps.ls) {
   future_map(ps.ls, 
@@ -122,7 +123,7 @@ pcoa.ls <- map(ps_rare.ls, function(ps.ls) {
              .options = furrr_options(packages = c("phyloseq", "mgx.tools")))
 }); plan(sequential)
 
-write_rds(pcoa.ls, 'Out/_Rdata/pcoa_noVST.ls.RDS', compress = 'bz2')
+write_rds(pcoa.ls[[DS]], file.path(cache_dir, 'pcoa.RDS'), compress = 'gz')
 
 # ompile pairwise distances in a long dataset
 pairwise_distances <- imap(pcoa.ls, function(dataset.ls, dataset) {
@@ -135,14 +136,15 @@ pairwise_distances <- imap(pcoa.ls, function(dataset.ls, dataset) {
   }) %>% list_rbind()
 }) %>% list_rbind() 
 
-write_rds(pairwise_distances, 'Out/_Rdata/pairwise_dist.RDS', compress = 'bz2' )
+write_rds(pairwise_distances, file.path(cache_dir, 'pairwise_dist.RDS'), compress = 'gz')
 
 
 # 2.2. Procrustes analyses
 
 num_k <- 3
 
-plan(multisession, workers = detectCores())
+plan(multisession, workers = availableCores())
+set.seed(1234) # furrr derives each pair's permutation stream from it: reproducible p-values
 procrustes_tests <- imap(pcoa.ls, function(dataset.ls, dataset) {
   
   # Create all db combinations
@@ -174,20 +176,23 @@ procrustes_tests <- imap(pcoa.ls, function(dataset.ls, dataset) {
   
 }) %>% list_rbind(); plan('sequential')
 
-write_rds(procrustes_tests, 'Out/_Rdata/procrustes.RDS',compress = 'gz')
-
-# permanova.ds <- read_rds('Out/permanova.ds.RDS')
+write_rds(procrustes_tests, file.path(cache_dir, 'procrustes.RDS'), compress = 'gz')
 
 # 2.3. perMANOVA
-permanova.ds <- imap(pcoa.ls, function(pcoa_db.ls, ds) {
+permanova.ds <- imap(pcoa.ls[map_lgl(names(pcoa.ls), has_groups)], function(pcoa_db.ls, ds) {
   imap(pcoa_db.ls, function(pcoa, db) { # iterate over distances
     
     samData <- pcoa$metadata %>% 
       mutate(Grouping_var = factor(!!sym(grouping_variable[[ds]]), 
                                    labels = c("Group 1", "Group 2")))
+    # samples without a group are left out of the test (metadata rows are in the distance matrix's order)
+    grouped <- !is.na(samData$Grouping_var)
+    dist.mx <- as.dist(as.matrix(pcoa$dist.mx)[grouped, grouped])
+    samData <- samData[grouped, , drop = FALSE]
     
-    # permanova
-    res <- adonis2(formula = pcoa$dist.mx ~ Grouping_var, 
+    # permanova (seeded: the permutations, hence p, are reproducible)
+    set.seed(1234)
+    res <- adonis2(formula = dist.mx ~ Grouping_var, 
                    permutations = 9999,
                    data = samData,
                    na.action = na.exclude,
@@ -204,5 +209,5 @@ permanova.ds <- imap(pcoa.ls, function(pcoa_db.ls, ds) {
   }) %>% list_rbind()
 }) %>% list_rbind()
 
-write_rds(permanova.ds, 'Out/_Rdata/permanova.ds.RDS',compress = 'gz')
+write_rds(permanova.ds, file.path(cache_dir, 'permanova.RDS'), compress = 'gz')
 
