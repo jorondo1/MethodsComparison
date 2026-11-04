@@ -20,12 +20,15 @@ ps_raw.ls[['Moss']][['SM_gtdb-rs214-rep_MAGs']] <- sam_data$moss.ps
 ps_raw.ls$Moss$MPA_db2022 <- NULL
 ps_raw.ls$Moss$MPA_db2023 <- NULL
 ps_raw.ls$Moss$KB90 <- NULL
-ps_raw.ls$Moss$MOTUS <- NULL
+ps_raw.ls$Moss$MOTUS3 <- NULL # NULL anyway: no Moss sample reaches min_sample_size
 ps_raw.ls[['NAFLD']] <- meta_parsing('NAFLD', sam_data$NAFLD)
 ps_raw.ls[['AD_Skin']] <- meta_parsing('AD_Skin', sam_data$AD_Skin)
 ps_raw.ls[['RA_Gut']] <- meta_parsing('RA_Gut', sam_data$RA_Gut)
 ps_raw.ls[['Bee']] <- meta_parsing('Bee', sam_data$Bee)
 ps_raw.ls[['PD']] <- meta_parsing('PD', sam_data$PD)
+ps_raw.ls[['Maple']] <- meta_parsing('Maple', sam_data$Maple)
+# Maple's GTDB rs220 representatives gather dir is spelled SM_gtdb-rs220-reps: same database as the other datasets' SM_gtdb-rs220-rep
+names(ps_raw.ls$Maple) <- str_replace(names(ps_raw.ls$Maple), '^SM_gtdb-rs220-reps$', 'SM_gtdb-rs220-rep')
 
 write_rds(ps_raw.ls, "Out/_Rdata/ps_raw.ls.RDS", compress = 'bz2')
 

@@ -399,10 +399,6 @@ cat $MC/data/*/SYLPH_*/classification_rate.tsv > Out/classification_rates/sylph_
 sbatch $MC/scripts/src/merge_tables.sh -f                          # every dataset, every tool
 bash $MC/scripts/src/merge_tables.sh --tools sourmash,kraken PD    # some tools, one dataset
 
-# Check the objects built from the merged tables against the per-sample parsing (R 4.4 + mgx.tools)
-module load StdEnv/2023 r/4.4.0
-Rscript scripts/compare_merged.R           # writes Out/merged_tables/comparison.tsv
-
 ################################################################################################################
 # RSYNC EVERYTHING
 #

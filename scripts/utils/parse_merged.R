@@ -95,18 +95,15 @@ parse_merged_sourmash <- function(file) {
     species_glom()
 }
 
-# sylph: counts.tsv (genome x sample read counts, already rate-corrected by sylph_merge.sh) + taxonomy.tsv (same rows)
+# sylph: merged_species.tsv (sylph_merge.sh: sylph-tax merge, species rows, counts already rate-corrected),
+# clade_name = d__X|p__X|...|s__X. Genomes without lineage (NO_TAXONOMY, e.g. the RefSeq plasmid.* bundles) have no
+# species row, so they're left out, as before.
 parse_sylph <- function(sylph_dir) {
-  left_join(
-    read_tsv(file.path(sylph_dir, 'counts.tsv'), show_col_types = FALSE),
-    read_tsv(file.path(sylph_dir, 'taxonomy.tsv'), col_types = cols(.default = 'c')),
-    by = 'genome'
-  ) %>%
-    dplyr::rename(Kingdom = Domain) %>%
-    # genomes without species (no lineage, e.g. the RefSeq plasmid.* bundles) can't be assigned
-    dplyr::filter(!is.na(Species)) %>%
-    dplyr::select(-genome) %>%
-    dplyr::mutate(across(where(is.numeric), as.double))
+  read_tsv(file.path(sylph_dir, 'merged_species.tsv'), show_col_types = FALSE,
+           col_types = cols(clade_name = 'c', .default = 'd')) %>%
+    dplyr::mutate(clade_name = str_replace(clade_name, '^d__', 'k__')) %>%
+    mpa_ranks('clade_name') %>%
+    dplyr::relocate(Kingdom:Species)
 }
 
 # Database folders of a dataset, by tool. sourmash: the full GTDB rs220 gathers (SM_gtdb_rs220, P19 only) aren't used.
@@ -146,8 +143,8 @@ meta_parsing <- function(dsName, samData) {
     message(paste('Parsing', db, '...'))
     ps[[db]] <- parse_merged_sourmash(merged(db, 'merged_tax_summary.csv.gz')) %>% assemble()
   }
-  # sylph: dirs without counts.tsv aren't merged yet: skipped
-  for (db in dirs$sylph[file.exists(file.path('data', dsName, dirs$sylph, 'counts.tsv'))]) {
+  # sylph: dirs without merged_species.tsv aren't merged yet: skipped
+  for (db in dirs$sylph[file.exists(file.path('data', dsName, dirs$sylph, 'merged_species.tsv'))]) {
     message(paste('Parsing', db, '...'))
     ps[[db]] <- parse_sylph(file.path('data', dsName, db)) %>% species_glom() %>% assemble()
   }

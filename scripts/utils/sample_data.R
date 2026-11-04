@@ -49,6 +49,11 @@ load_sample_data <- function() {
     filter(!is.na(Group)) %>%
     column_to_rownames('run_accession')
 
+  # Maple: no metadata yet, only the sample IDs (data/Maple/raw/metadata.tsv: the IDs of the preprocessed reads' sample tsv)
+  Maple_meta <- read_tsv('data/Maple/raw/metadata.tsv', show_col_types = FALSE, col_types = cols(.default = 'c')) %>%
+    dplyr::mutate(rowname = Sample) %>%
+    column_to_rownames('rowname')
+
   list(
     P19_Saliva = psSalivaKB@sam_data,
     P19_Gut = psFecesKB@sam_data,
@@ -58,6 +63,7 @@ load_sample_data <- function() {
     RA_Gut = RA_meta,
     Bee = Bee_meta,
     PD = PD_meta,
+    Maple = Maple_meta,
     moss.ps = moss.ps # Moss's SM_gtdb-rs214-rep_MAGs object comes from this external RDS
   )
 }
