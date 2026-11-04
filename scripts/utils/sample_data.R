@@ -50,9 +50,9 @@ load_sample_data <- function() {
     column_to_rownames('run_accession')
 
   # Maple: no metadata yet, only the sample IDs (data/Maple/raw/metadata.tsv: the IDs of the preprocessed reads' sample tsv)
-  Maple_meta <- read_tsv('data/Maple/raw/metadata.tsv', show_col_types = FALSE, col_types = cols(.default = 'c')) %>%
-    dplyr::mutate(rowname = Sample) %>%
-    column_to_rownames('rowname')
+  Maple_meta <- read_delim('data/Maple/raw/Nanodrop_omx_ME.csv', show_col_types = FALSE, delim = ";") %>%
+    dplyr::select(SAMPLE_ID, Type, Provenance, traitement) %>% 
+    column_to_rownames('SAMPLE_ID')
 
   list(
     P19_Saliva = psSalivaKB@sam_data,

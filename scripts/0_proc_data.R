@@ -1,5 +1,4 @@
-library(pacman)
-p_load(phyloseq,mgx.tools, # unloadNamespace("mgx.tools"); devtools::install_github("jorondo1/mgx.tools", force = TRUE); library(mgx.tools)
+pacman::p_load(phyloseq,mgx.tools, # unloadNamespace("mgx.tools"); devtools::install_github("jorondo1/mgx.tools", force = TRUE); library(mgx.tools)
        tidyverse, magrittr, doParallel, furrr)
 
 dir.create('Out/_Rdata', recursive = TRUE, showWarnings = FALSE)

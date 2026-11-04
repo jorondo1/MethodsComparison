@@ -12,7 +12,8 @@ grouping_variable <- c(
   PD = 'Group',
   Bee = 'Group',
   Olive = NA,
-  RA_Gut = 'Group'
+  RA_Gut = 'Group',
+  Maple = 'Provenance'
 )
 
 dataset_names <- c(
