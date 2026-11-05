@@ -33,6 +33,39 @@ Read at the start of each session and update before stopping (see `CLAUDE.md`). 
 
 ## Log (newest first; tag each entry [HPC] or [Mac])
 
+### 2026-11-04 [HPC] (afternoon)
+- **Mosquito (PRJNA1065965):** dropped, because of its paired/longitudinal design. Its partial download is gone; delete `data/Mosquito/` when convenient.
+- **New dataset `Oilfield` (PRJNA1196024):**
+  - 87 oil-contaminated coastal wetland soils: Shengli 44 (`S#-SL`), Dagang 43 (`D#-DG`).
+  - NovaSeq 2×150, about 24.5 M pairs per sample, 282 GB.
+  - Paper: Commun. Earth Environ. 2025, s43247-025-02062-1. The paper compares the two oilfields, so the grouping variable is `Oilfield`. Per-sample TPH and Fe values are on Figshare (paper's Data availability). Code: "on request".
+  - **Download:** Slurm job 404290 on c-3t (cp0359), running `data/Oilfield/raw/download_ena.sh`: 8 samples in parallel from ENA FTP, with resume and md5 checks. Results go to `download_status.tsv` (174 files expected). The rate is about 2.5 MB/s in total, so it should take about 32 h. If the job stops early, resubmit it as is: finished files are skipped.
+  - **Metadata:** `data/Oilfield/raw/metadata.tsv` (Sample = SRR, Alias, Site, Oilfield).
+  - **Next:** kneaddata with the default GRCh38 index (soil, no host), then the "Adding a dataset" steps.
+- **New dataset `Grapevine` (PRJNA1153634):**
+  - Genome Biol 2026, 10.1186/s13059-025-03905-y. 78 runs from 39 vines: Health H/UH × Site A/D × Cultivar L/Z × Compartment Root/Soil. Each vine gives one root and one soil sample, so the compartments are paired.
+  - All 78 runs are being downloaded (user's choice), 625 GB: job 404291, which starts after 404290 (`afterany`).
+  - **Metadata:** `data/Grapevine/raw/metadata.tsv`, with Health, Site, Cultivar, Compartment, and Plant (the vine ID, for pairing).
+  - **Root samples need a *Vitis vinifera* host index** before kneaddata. Check that R = root from the host fraction.
+  - The download script is now generic: `data/<DS>/raw/download_ena.sh <filereport.tsv>`.
+- **Downloads from NCBI's AWS copy, not ENA:** ENA FTP gave about 0.4 MB/s per stream. Three scripts in `data/<DS>/raw/`, chained as Slurm jobs:
+  1. `download_sra.sh <filereport>`, on bio,c-3t (internet): `.sra` files into `sra/`, 8 at a time, checked against the server's size.
+  2. `convert_sra.sh <filereport>`, an array with one run per task, on bio,c-3t,cpubase: `fasterq-dump` on local scratch, then pigz into `<run>_1/_2.fastq.gz` with ENA-style read names. Spots are checked against the ENA `read_count`. Writes `download_status.tsv`.
+     - The first attempt ran 8 conversions in a single 32G job and was OOM-killed.
+  3. `prep_kneaddata.sh <index>`: `samples_to_process.tsv` from the runs with status ok, then generates and submits the kneaddata array (60G, 24 threads).
+  - Jobs (download → convert → prep):
+    - Snake (3 test runs): 404307 → 404308 → 404309
+    - Oilfield: 404310 → 404311 → 404312
+    - Grapevine: 404313 (after 404310) → 404314 → 404315
+  - Host indexes are built: `$FAST/host_genomes/VitisVinifera_index/VitisVinifera` (GCF_030704535.1) and `DrymarchonCorais_index/DrymarchonCorais` (GCA_043091225.1). Oilfield uses GRCh38.
+  - Snake metadata: `data/Snake/raw/metadata.tsv` (Origin Wild/Captive from the BioSample location, all 80).
+- **Grapevine:** all 78 runs converted (78 ok, 0 bad). Kneaddata array 405234 (78 tasks, Vitis index) submitted. Oilfield kneaddata is array 404625 (87 tasks, GRCh38).
+- **Test plots (`scripts/tests/test_profiles.sh` + `test_composition_barplot.R`, outputs in `Out/Snake_test_3samples/[<DS>/]`):** Oilfield and Grapevine, 5 samples each, are being profiled (sylph 405312/405318, MetaPhlAn 405317/405319). Snake: kneaddata kept only 0.8–4.7% of read pairs (the rest is host). sylph detected 0% (wild zr21461_8), 28% and 50% of reads. `sylph-tax taxprof` crashed with 'Illegal instruction' on cp0404, so it was rerun on the login node. Watch for this node issue whenever sylph-tax runs inside Slurm. Barplot done: 92–96% host, 3% low quality; MetaPhlAn classifies 4–27% of the reads kept (Morganella, Providencia, Citrobacter, Yokenella…), sylph 0–50%. The wild sample is nearly empty. Whether the Snake dataset is usable is the user's call.
+- **Candidates assessed, not downloaded:**
+  - PRJNA1171820 (pond mesocosms): longitudinal, 2.25 TB. Rejected.
+  - PRJNA1222911 (macaque Blastocystis): good; see the chat for details.
+  - PRJNA1347217 (tomato Ralstonia): longitudinal, but one time point could be used. Its metadata is in the BioSample attributes.
+
 ### 2026-11-04 [Mac]
 - Sync checked: the RDS files are the HPC 09:10 versions, with 9 datasets. No pre-fix copy was kept (see Current state).
 - ENA search rerun. `find_wgs_projects.sh` and `rank_wgs_projects.R` now write to `doc/ena_candidates/` (untracked) instead of `Out/ena_candidates/`. The run found 710,018 runs (first public 2023+).

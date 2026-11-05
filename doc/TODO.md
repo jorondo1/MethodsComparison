@@ -28,6 +28,29 @@ Started 2026-11-03.
   - The `n` in the figure labels (`dataset_names_n_lookup_alphadiv.RDS`) comes from the Wilcoxon tests, so for Maple it's the tested count.
   - State this in the methods.
 - Out of scope for this project: rarefaction curves (`9.1`/`9.2`) and the DAA scripts (`5.0`–`5.4`).
+- [ ] **New datasets (Nov 2026): describe them in the methods.**
+  - **Shared preprocessing:** raw paired reads were retrieved from the NCBI Sequence Read Archive. Each run's read count was checked against the archive's.
+    - QC used KneadData 0.12.0, with Trimmomatic (`SLIDINGWINDOW:4:20 MINLEN:50`), then removal of host reads by mapping to the host genome with Bowtie2 (`--very-sensitive-local`).
+    - These settings are the same as for Maple.
+  - **Oilfield (PRJNA1196024):** oil-contaminated coastal wetland soils, surface layer (0–20 cm).
+    - Paper: Commun. Earth Environ. 2025, doi:10.1038/s43247-025-02062-1.
+    - 87 samples, one per site: Shengli Oilfield 44, Dagang Oilfield 43. Illumina NovaSeq 6000, 2×150.
+    - **Grouping variable:** oilfield, taken from the sample names (`-SL` / `-DG`).
+    - **Host removal:** human GRCh38 (contamination filter only; no host).
+  - **Grapevine (PRJNA1153634):** root rot of wine grapevines, Ningxia, China.
+    - Paper: Genome Biol. 2026, doi:10.1186/s13059-025-03905-y.
+    - 78 samples from 39 vines: healthy vs diseased × 2 sites × 2 cultivars (Cabernet Sauvignon, Syrah) × rhizosphere soil and root. DNBSEQ-T7, 2×150.
+    - Metadata decoded from the sample names (e.g. `UHDZR3`).
+    - **Grouping variable:** health status or compartment (to decide).
+    - **Pairing:** each vine contributes a soil and a root sample, so the compartment comparison is paired. Our tests are unpaired, so state it as a limitation, or test one compartment.
+    - **Host removal:** *Vitis vinifera* PN40024 T2T reference (GCF_030704535.1).
+  - **Snake (PRJNA1353898):** cloacal swabs of Eastern Indigo Snakes (*Drymarchon couperi*), Florida, 2025.
+    - Paper: PLOS ONE 2026, doi:10.1371/journal.pone.0350824.
+    - 80 snakes: 60 captive (one facility) and 20 wild. Illumina NovaSeq X.
+    - **Grouping variable:** wild vs captive, from the BioSample location.
+    - The paper splits the captive snakes by *Cryptosporidium serpentis* status (30/30), but that status isn't public.
+    - **Host removal:** *Drymarchon corais* (GCA_043091225.1), the reference the authors used.
+    - Status: only 3 samples are downloaded so far, as a test.
 
 ## Adding a dataset
 
