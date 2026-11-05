@@ -1,4 +1,4 @@
-# dataset<TAB>sample tsv (column 1 = sample ID), as in the dataset_variables lines of MethodsComparison_Pipeline.sh
+# dataset<TAB>sample tsv (column 1 = sample ID). Read by use_dataset (myFunctions.sh), merge_tables.sh and 0_run_all.R
 # $ILAFORES is expanded by the scripts that read this file
 # Moss: copy of the archived sample tsv with the read paths updated (reads moved to $ILAFORES/analysis/_archive/2025_borealMoss)
 P19_Saliva	$ILAFORES/analysis/projet_PROVID19/Saliva/preproc/preprocessed_reads.sample.tsv
@@ -10,3 +10,5 @@ PD	$ILAFORES/analysis/MethodsComparison/data/PD/preproc/preprocessed_reads.sampl
 Bee	$ILAFORES/analysis/MethodsComparison/data/Bee/preproc/preprocessed_reads.sample.tsv
 RA_Gut	$ILAFORES/analysis/MethodsComparison/data/RA_Gut/preproc/preprocessed_reads.sample.tsv
 Maple	$ILAFORES/analysis/mapleRhizosphere/WMS/preproc/preprocessed_reads.sample.tsv
+Oilfield	$ILAFORES/analysis/MethodsComparison/data/Oilfield/preproc/preprocessed_reads.sample.tsv
+Grapevine	$ILAFORES/analysis/MethodsComparison/data/Grapevine/preproc/preprocessed_reads.sample.tsv

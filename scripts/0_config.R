@@ -11,7 +11,6 @@ grouping_variable <- c(
   P19_Saliva = 'diarr',
   PD = 'Group',
   Bee = 'Group',
-  Olive = NA,
   RA_Gut = 'Group',
   Maple = 'Provenance'
 )
@@ -25,7 +24,6 @@ dataset_names <- c(
   AD_Skin = 'Skin AD',
   Moss = 'Moss',
   Bee = 'Bee',
-  Olive = NA,
   Maple = 'Maple Rhizosphere'
 )
 

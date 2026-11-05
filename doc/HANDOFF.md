@@ -4,7 +4,7 @@ Read at the start of each session and update before stopping (see `CLAUDE.md`). 
 
 ## Current state (keep this true; rewrite rather than append)
 
-- **Branch:** `merged_tables`. Last pushed commit: `a8dfc1ad5`. 13 commits ahead of `main`; not merged yet.
+- **Branch:** `merged_tables`. Last pushed commit: `a8dfc1ad5`. 13 commits ahead of `main`; not merged yet. Uncommitted on the Mac: the pipeline split (log 2026-11-05).
 - **Pipeline (all on the HPC):**
   - Merged tables per tool, from `scripts/src/merge_tables.sh` and `sylph_merge.sh`.
   - `scripts/0_run_all.R` runs, per dataset, `0_proc_data.R` (phyloseq objects + rarefaction) and then `1_diversity_metrics.R`. Results are cached in `Out/_Rdata/cache/<DS>/`, then assembled into `Out/_Rdata/*.RDS`.
@@ -65,6 +65,23 @@ Read at the start of each session and update before stopping (see `CLAUDE.md`). 
   - PRJNA1171820 (pond mesocosms): longitudinal, 2.25 TB. Rejected.
   - PRJNA1222911 (macaque Blastocystis): good; see the chat for details.
   - PRJNA1347217 (tomato Ralstonia): longitudinal, but one time point could be used. Its metadata is in the BioSample attributes.
+
+### 2026-11-05 [Mac]
+- **Pipeline split** (uncommitted): `scripts/src/MethodsComparison_Pipeline.sh` is now three files.
+  - `pipeline_1_QC.sh`: copy-paste QC.
+  - `pipeline_2_profiling.sh`: copy-paste profiling, renamed with `git mv` from `MethodsComparison_Pipeline.sh` (history kept).
+  - `classification_rates.sh`: sourceable `rate_<tool> [dataset ...]` functions. They add or update rows by path and never remove any, so a dataset whose outputs were deleted keeps its rows. They can also be run directly: `bash scripts/src/classification_rates.sh kraken PD`.
+- **`use_dataset <DS>`** (myFunctions.sh) reads `scripts/src/datasets.tsv` and replaces `dataset_variables`, which is gone. Oilfield and Grapevine were added to `datasets.tsv`.
+- **Olive removed** from the pipeline and `0_config.R`. `data/Olive/` is untouched.
+- **Stale hard-codes fixed:** `$ANCHOR`, the paths pointing to the Olive and PD datasets, and the deleted `motus4_SLURM_fir.sh`. The rerun lines for missing samples now use `check_output` + `$FOUND`, and `check_output` resets `$FOUND`.
+- **Kraken now reads `$TSV.fast`**, built by the rclone block (fastqs copied to `/net/nfs-ip34/fast2/def-ilafores/<DS>/preproc`).
+- **Kraken classification rates recovered:** git `bf5418c2f` (2025-04-22) had 7 datasets, now merged into the Mac's `Out/classification_rates/kraken_classification_rate.tsv` (plus Maple, Olive dropped). The HPC copy still has Maple only. Do the same merge on the HPC (command below). The rsync runs from the HPC to the Mac and keeps newer local files, so the Mac copy is safe until then.
+  ```bash
+  f=Out/classification_rates/kraken_classification_rate.tsv
+  git show bf5418c2f:$f | sed 's|^\./|./data/|' | grep -v '^\./data/Olive/' > old.tmp
+  awk -F'\t' 'NR == FNR { cur[$1]; next } !($1 in cur)' $f old.tmp | cat $f - | sort > new.tmp && cat new.tmp > $f && rm old.tmp new.tmp
+  ```
+- **RA_Gut has no Kraken rates** (its kreports were deleted, and they were never in the old file), and the same will go for Oilfield and Grapevine unless `rate_kraken` runs before the cleanup.
 
 ### 2026-11-04 [Mac]
 - Sync checked: the RDS files are the HPC 09:10 versions, with 9 datasets. No pre-fix copy was kept (see Current state).

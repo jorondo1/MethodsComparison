@@ -90,7 +90,7 @@ for s in $(cut -f1 $SAM_LIST); do
 done
 if [[ $no_rate -gt 0 ]]; then
 	echo "$no_rate samples without classification rate, can't correct their counts"
-	echo "(profiled before _profile.log was kept? recover the logs from the slurm logs, see MethodsComparison_Pipeline.sh)"
+	echo "(profiled before _profile.log was kept? recover the logs from the slurm logs, see pipeline_2_profiling.sh)"
 	if [[ $FORCE -eq 1 ]]; then echo "--force: merging without them"
 	else echo "not merging (-f to merge without them)"; exit 1; fi
 fi
