@@ -41,6 +41,8 @@ Nothing has run on Fir. None of `scripts/fir/` has run on a cluster yet, so trea
 - Report outcomes plainly, including anything skipped or untested.
 
 ## Lessons from the HPC
+- **Never replace a script that running jobs may be reading,** even with an atomic rename. On NFS, compute nodes can lose the old file: bash stops silently where it was, with exit 0, and the job shows `COMPLETED` with no output. 22 MetaPhlAn profiles were lost this way on 2026-11-06. Wait for the jobs to end, or use a new file name. Scripts passed directly to `sbatch` are spooled and safe; scripts they call are not. Compare outputs against tasks: `COMPLETED` alone is not proof.
+- **Old nodes can hang at `module load`:** logs stop growing while the task stays `RUNNING`, sometimes for a day. Mammoth nodes are ageing and this is expected; `bio` and `c-3t` are newer.
 - **`gather_SLURM_fast.sh`:** an empty `SIG` once made `sketch` overwrite a sample's `paired_1.fastq.gz`, on the first task of a new dataset. Fixed, but pilot it on the first task and check the reads are intact.
 - **Sourmash timeouts:** old copies left cut-off `_gather.csv` files that looked finished. The script now writes `*_gather.tmp.csv` and renames on success. This fix was still waiting for its first test when this file was written.
 - **mOTUs:** only the last `-s` counts, so unmatched reads are merged into one file. Output goes to `MOTUS` (v3) and `MOTUS4`.
