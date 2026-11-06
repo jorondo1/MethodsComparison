@@ -45,15 +45,19 @@ else
 fi
 
 # Gather
-if [[ ! -f ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv ]]; then
+GATHER_OUT=${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv
+GATHER_TMP=${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.tmp.csv # fastgather writes as it goes: a timeout must not leave a *_gather.csv
+if [[ ! -f $GATHER_OUT ]]; then
 	echo "Gather $SIG against index database..."
 if [[ "$SLURM_NTASKS" -ne 1 ]]; then
 	$sourmash scripts fastgather $SIG ${SM_DB} \
-	-o ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv \
-	-c $SLURM_NTASKS
+	-o $GATHER_TMP \
+	-c $SLURM_NTASKS \
+	&& mv $GATHER_TMP $GATHER_OUT
 else # Single thread if custom index, pending sourmash 4.9 update
     $sourmash gather $SIG ${SM_DB} \
-	-o ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv
+	-o $GATHER_TMP \
+	&& mv $GATHER_TMP $GATHER_OUT
 fi	
 else
 	echo "Gather output found. Skipping..."

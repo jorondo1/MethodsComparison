@@ -12,6 +12,11 @@ DB_SYLPH=$ILAFORES/ref_dbs/sylph_db
 
 use_dataset Maple # names: scripts/src/datasets.tsv
 
+# Completion table, every tool x database x dataset: ok/empty/unfinished samples (red: unfinished, yellow: empty)
+check_all                # all datasets
+check_all Oilfield Maple # only these
+check_all -m Oilfield    # + unfinished tsv rows, for sbatch --array
+
 ################################################################
 # mOTUs  ########
 ################################################################
@@ -20,7 +25,7 @@ sbatch --array=1-"$N_SAMPLES" --partition $PARTS ${MC}/scripts/src/motus4_SLURM.
 sbatch --array=1-"$N_SAMPLES" --partition $PARTS ${MC}/scripts/src/motus3_SLURM.sh ${DATASET_PATH} ${TSV}
 
 # Rerun missing mOTUs (big samples: --mem 300G -c 64)
-check_output 'MOTUS3 MOTUS4' $DATASET_PATH _profile.txt
+check_output 'MOTUS MOTUS4' $DATASET_PATH _profile.txt
 sbatch --array="$FOUND" --partition $PARTS ${MC}/scripts/src/motus4_SLURM.sh ${DATASET_PATH} ${TSV}
 
 # number of species in db

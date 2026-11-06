@@ -34,6 +34,7 @@ Read at the start of each session and update before stopping (see `CLAUDE.md`). 
 ## Log (newest first; tag each entry [HPC] or [Mac])
 
 ### 2026-11-05 [HPC]
+- **`check_all [-m] [datasets]`** (`myFunctions.sh`, uncommitted): completion table, tool × database × dataset, as ok/empty/unfinished. Leaves out GTDB 214, GenBank and Olive (out of scope).
 - **`gather_SLURM_fast.sh` overwrote a read file (fixed, uncommitted):** `realpath` ran before `mkdir signatures/`, so the first task of a new dataset had an empty `SIG` and sketch wrote to `$FQ_P1`. Only `data/Oilfield/preproc/SRR31654854/SRR31654854_paired_1.fastq.gz` was hit (2026-11-06 02:08).
   - Kneaddata rerun: job 406795. Oilfield task 1 of 405852, 405853, 405854, 406436, 406439, 406440, 406441 waits on it (`afterok`), as do reruns 406803 (sourmash rs220) and 406804 (mOTUs 4). Kraken for this sample is manual; `KB10_GTDB` predates the damage.
   - Sourmash Grapevine timeouts rerun: 406805 (rs220, 14 tasks), 406806 (RefSeq, task 12). 405838 still has 11 tasks under its 6 h limit.
