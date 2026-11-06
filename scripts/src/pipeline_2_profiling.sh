@@ -4,22 +4,23 @@ return 0 2>/dev/null; [[ $0 == "${BASH_SOURCE[0]}" ]] && { echo "Copy-paste coll
 
 export MC=$ILAFORES/analysis/MethodsComparison
 cd $MC && source scripts/src/myFunctions.sh && source scripts/src/classification_rates.sh
-use_dataset Maple # names: scripts/src/datasets.tsv
 
 PARTS=bio,c-3t # + cpubase for light jobs (old nodes)
 DB_MPA=$FAST/metaphlan4_db
 DB_SM=$ILAFORES/ref_dbs/sourmash_db
 DB_SYLPH=$ILAFORES/ref_dbs/sylph_db
 
-################################################################################################################
+use_dataset Maple # names: scripts/src/datasets.tsv
+
+################################################################
 # mOTUs  ########
-################################################################################################################
+################################################################
 
 sbatch --array=1-"$N_SAMPLES" --partition $PARTS ${MC}/scripts/src/motus4_SLURM.sh ${DATASET_PATH} ${TSV}
 sbatch --array=1-"$N_SAMPLES" --partition $PARTS ${MC}/scripts/src/motus3_SLURM.sh ${DATASET_PATH} ${TSV}
 
 # Rerun missing mOTUs (big samples: --mem 300G -c 64)
-check_output 'MOTUS4' $DATASET_PATH _profile.txt
+check_output 'MOTUS3 MOTUS4' $DATASET_PATH _profile.txt
 sbatch --array="$FOUND" --partition $PARTS ${MC}/scripts/src/motus4_SLURM.sh ${DATASET_PATH} ${TSV}
 
 # number of species in db
@@ -30,27 +31,26 @@ cat $motus_db/db_mOTU_taxonomy_meta-mOTUs.tsv | cut -f1 | sort -u | wc
 # Classification rate
 rate_motus $DATASET
 
-################################################################################################################
+################################################################
 # MetaPhlAn4 ###
-################################################################################################################
+################################################################
 
 cd $ILL_PIPELINES; git checkout kneaddata_gzip; cd $MC
 metaphlan="bash $ILL_PIPELINES/generateslurm_taxonomic_abundance.metaphlan.4.2.4.sh \
 	--slurm_log $MC/logs --slurm_walltime 48:00:00"
 
 # Generate SLURM scripts https://github.com/jflucier/ILL_pipelines/blob/main/generateslurm_taxonomic_abundance.metaphlan.sh
-$metaphlan --slurm_threads 8 --slurm_mem 60G --sample_tsv $TSV --db $DB_MPA/2022/mpa_vOct22_CHOCOPhlAnSGB_202212 --out $DATASET_PATH/MPA_db2022
-sbatch --array=1-"$N_SAMPLES" --partition $PARTS ${DATASET_PATH}/MPA_db2022/metaphlan.slurm.sh
+$metaphlan --slurm_threads 24 --slurm_mem 31G --sample_tsv $TSV --db $DB_MPA/2022/mpa_vOct22_CHOCOPhlAnSGB_202212 --out $DATASET_PATH/MPA_db2022
+sbatch --array=1-"$N_SAMPLES" --partition cpubase ${DATASET_PATH}/MPA_db2022/metaphlan.slurm.sh
 
-$metaphlan --slurm_threads 8 --slurm_mem 60G --sample_tsv $TSV --db $DB_MPA/2023/mpa_vJun23_CHOCOPhlAnSGB_202307 --out $DATASET_PATH/MPA_db2023
-sbatch --array=1-"$N_SAMPLES" --partition $PARTS ${DATASET_PATH}/MPA_db2023/metaphlan.slurm.sh
+$metaphlan --slurm_threads 12 --slurm_mem 60G --sample_tsv $TSV --db $DB_MPA/2023/mpa_vJun23_CHOCOPhlAnSGB_202307 --out $DATASET_PATH/MPA_db2023
+sbatch --array=1-"$N_SAMPLES" --partition cpubase ${DATASET_PATH}/MPA_db2023/metaphlan.slurm.sh
 
-$metaphlan --slurm_threads 8 --slurm_mem 80G --sample_tsv ${TSV} --db $DB_MPA/2025/mpa_vJan25_CHOCOPhlAnSGB_202503 --out ${DATASET_PATH}/MPA_db2025
-sbatch --array=1-"$N_SAMPLES" --partition $PARTS ${DATASET_PATH}/MPA_db2025/metaphlan.slurm.sh
+$metaphlan --slurm_threads 12 --slurm_mem 60G --sample_tsv ${TSV} --db $DB_MPA/2025/mpa_vJan25_CHOCOPhlAnSGB_202503 --out ${DATASET_PATH}/MPA_db2025
+sbatch --array=1-"$N_SAMPLES" --partition cpubase ${DATASET_PATH}/MPA_db2025/metaphlan.slurm.sh
 
 # Rerun missing MPA
-database="MPA_db2025"
-check_output $database $DATASET_PATH _profile.txt
+check_output 'MPA_db2022 MPA_db2023 MPA_db2025' $DATASET_PATH _profile.txt
 sbatch --array="$FOUND" --partition $PARTS ${DATASET_PATH}/$database/metaphlan.slurm.sh
 
 # number of species by database
@@ -76,17 +76,6 @@ find $DATASET_PATH/MPA_* -type f -name "*_profile.txt" | \
 # on /fast2/ local #
 ################################################################################################################
 
-# Copy fastqs to /fast2, with a sample tsv pointing to the copies ($TSV.fast)
-FAST_PREPROC=/net/nfs-ip34/fast2/def-ilafores/$DATASET/preproc
-nice -n10 ionice -c2 -n7 rclone copy $(dirname $TSV) $FAST_PREPROC --transfers 16 --checkers 4 --modify-window 5s --fast-list --no-update-modtime --retries 3 --retries-sleep 30s --low-level-retries 1 -v -L --size-only --exclude "*contam*"
-sed "s|$(dirname $TSV)|$FAST_PREPROC|g" $TSV > $TSV.fast
-
-# ── ONE-TIME (done): P19 and Moss copied to /fast2 ──
-for dir in /jbod2/def-ilafores/analysis/projet_PROVID19/Feces/preproc /jbod2/def-ilafores/analysis/projet_PROVID19/Saliva/preproc/jbod2/def-ilafores/analysis/boreal_moss/preproc; do
-nice -n10 ionice -c2 -n7 rclone copy $dir /fast2/def-ilafores/preproc --transfers 16 --checkers 4 --modify-window 5s --fast-list --no-update-modtime --retries 3 --retries-sleep 30s --low-level-retries 1 -v -L --size-only --exclude "*contam*";
-done
-# ────
-
 # On the allocated node (/dev/shm there is big enough)
 cp -r $ILAFORES/ref_dbs/kraken2_dbs/k2_standard_20241228 /dev/shm/
 cp -r $ILAFORES/ref_dbs/kraken2_dbs/k2_gtdb_genome_reps_20241109 /dev/shm/
@@ -95,11 +84,11 @@ k2_std=/dev/shm/k2_standard_20241228
 k2_gtdb=/dev/shm/k2_gtdb_genome_reps_20241109
 k2_local=$MC/scripts/src/kraken_local.sh
 
-# RUN KRAKEN ON /fast2/ (finished samples are skipped, so rerun the same loop for missing ones)
+# RUN KRAKEN (finished samples are skipped, so rerun the same loop for missing ones)
 ml apptainer
 for conf in 10 45 90; do
-	bash $k2_local --tsv ${TSV}.fast --confidence 0.$conf --output $DATASET_PATH/KB$conf --kraken_db $k2_std --threads 36
-	bash $k2_local --tsv ${TSV}.fast --confidence 0.$conf --output $DATASET_PATH/KB${conf}_GTDB --kraken_db $k2_gtdb --threads 36
+	#bash $k2_local --tsv ${TSV} --confidence 0.$conf --output $DATASET_PATH/KB$conf --kraken_db $k2_std --threads $SLURM_CPUS_PER_TASK
+	bash $k2_local --tsv ${TSV} --confidence 0.$conf --output $DATASET_PATH/KB${conf}_GTDB --kraken_db $k2_gtdb --threads $SLURM_CPUS_PER_TASK
 done
 
 # Check completion status
@@ -116,7 +105,6 @@ KB*/*/*_taxonomy_nt \
 KB*/*/*/*.bracken \
 KB*/*/*bugs_list.MPA.TXT \
 KB*/*/*/*_temp.MPA.TXT \
-KB*/*/*.kreport \
 KB*/*/*_kronagrams \
 */.throttle
 cd $MC
@@ -128,8 +116,8 @@ cd $MC
 
 sbatch --mem=120G -n 24 --array=1-"$N_SAMPLES" --partition $PARTS,cpubase $MC/scripts/src/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "genbank-2022.03"
 sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" --partition $PARTS,cpubase $MC/scripts/src/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "$DB_SM/gtdb-rs214-reps.k31.zip"
-sbatch --mem=80G -n 16 --array=1-"$N_SAMPLES" --partition $PARTS,cpubase $MC/scripts/src/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "$DB_SM/gtdb-rs214-full.k31.zip"
-sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" --partition $PARTS,cpubase $MC/scripts/src/gather_SLURM_fast.sh "$DATASET" "$TSV" "$DB_SM/gtdb-rs220-reps-k31.zip"
+sbatch --mem=80G -n 16 --array=1-"$N_SAMPLES" --partition cpubase $MC/scripts/src/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "$DB_SM/gtdb-rs214-full.k31.zip"
+sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" --partition cpubase $MC/scripts/src/gather_SLURM_fast.sh "$DATASET" "$TSV" "$DB_SM/gtdb-rs220-reps-k31.zip"
 # sbatch --mem=31G -n 24 --array=1-"$N_SAMPLES" $MC/scripts/gather_SLURM_fast.sh "$DATASET" "$TSV.fast" "/jbod2/def-ilafores/analysis/boreal_moss/genome_sketches/gtdb-rs214-rep-MAGs.sbt.zip"
 sbatch --mem=31G -n 1 --array=1-"$N_SAMPLES" --partition $PARTS,cpubase $MC/scripts/src/gather_SLURM_fast.sh "$DATASET" "$TSV" "$DB_SM/RefSeq_20250528.k31.sbt.zip" # Here using 1 see gather_SLURM_fast.sh script; pending sourmash 4.9 update to remove
 
