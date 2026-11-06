@@ -15,12 +15,12 @@ Run Horse (PRJNA1102860, feces metagenome, shallow shotgun) through kneaddata an
 Paths are in `scripts/fir/fir_env.sh`. Source it in every session, because the job scripts need `ILAFORES` and `MC` in the environment.
 
 ## Branches
-- `merged_tables`: general changes.
+- `main` (`merged_tables` until its PR is merged): general changes.
 - `fir`: created by `setup_fir.sh`, in both `MethodsComparison` and `ILL_pipelines`, for Fir-only changes (Horse in `datasets.tsv`, one hardcoded container path in the ILL MetaPhlAn script). These are left uncommitted for the user.
 
 ## Order of work
-1. `setup_fir.sh` (fill in `SRC` and `HORSE_INDEX`), in tmux.
-2. Paste the blocks of `scripts/fir/horse.sh` one at a time: sample sheet, combined host index, kneaddata, sample tsv, then tools.
+1. `setup_fir.sh` (fill in `SRC`, and `HORSE_INDEX` only if the index is built on iv12), in tmux.
+2. Paste the blocks of `scripts/fir/horse.sh` one at a time: sample sheet, horse index, kneaddata, sample tsv, then tools.
 3. `check_all Horse` between blocks.
 4. Merge, then rsync to `$RESULTS`.
 
@@ -44,6 +44,7 @@ Nothing has run on Fir. None of `scripts/fir/` has run on a cluster yet, so trea
 - **`gather_SLURM_fast.sh`:** an empty `SIG` once made `sketch` overwrite a sample's `paired_1.fastq.gz`, on the first task of a new dataset. Fixed, but pilot it on the first task and check the reads are intact.
 - **Sourmash timeouts:** old copies left cut-off `_gather.csv` files that looked finished. The script now writes `*_gather.tmp.csv` and renames on success. This fix was still waiting for its first test when this file was written.
 - **mOTUs:** only the last `-s` counts, so unmatched reads are merged into one file. Output goes to `MOTUS` (v3) and `MOTUS4`.
+- **Host removal:** kneaddata gets human and horse as two indexes. Several indexes need the `kneaddata_gzip` commit that added them (`--db "index1 index2"`); `setup_fir.sh` stops if the clone lacks it. Each index sees all reads, which is slower than `--serial` but simpler, and `<sample>_contaminants/` gets one set of files per host.
 - **Kraken:** the index isn't reloaded per sample. The silent wait is classification, then a single-threaded report step of about 2 minutes on complex samples. More threads don't help that step.
 - **`/dev/shm`:** counts against job memory, is private to a job, and was half of RAM on the HPC nodes. `kraken_node.sh` falls back to local NVMe.
 - **`sbatch --export=ALL,VAR=x`:** such jobs were cancelled by root on the HPC. Pass script arguments.

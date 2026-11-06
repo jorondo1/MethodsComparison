@@ -4,7 +4,7 @@ Read at the start of each session and update before stopping (see `CLAUDE.md`). 
 
 ## Current state (keep this true; rewrite rather than append)
 
-- **Branch:** `merged_tables`. Last pushed commit: `a8dfc1ad5`. 13 commits ahead of `main`; not merged yet. Uncommitted on the Mac: the pipeline split (log 2026-11-05).
+- **Branch:** `merged_tables`, PR to `main` being opened 2026-11-06. ILL `kneaddata_gzip` (`e3f1778`) also goes to PR: multi-index kneaddata, gzip-safe MetaPhlAn and HUMAnN inputs. `scripts/benchmark/` and `scripts/10_benchmark_plot.R` stay uncommitted for now.
 - **Pipeline (all on the HPC):**
   - Merged tables per tool, from `scripts/src/merge_tables.sh` and `sylph_merge.sh`.
   - `scripts/0_run_all.R` runs, per dataset, `0_proc_data.R` (phyloseq objects + rarefaction) and then `1_diversity_metrics.R`. Results are cached in `Out/_Rdata/cache/<DS>/`, then assembled into `Out/_Rdata/*.RDS`.
@@ -34,6 +34,8 @@ Read at the start of each session and update before stopping (see `CLAUDE.md`). 
 ## Log (newest first; tag each entry [HPC] or [Mac])
 
 ### 2026-11-05 [HPC]
+- **Horse on Fir drafted, not run:** `scripts/fir/`, `doc/HANDOFF_FIR.md`. Also generalised `motus3_SLURM.sh`, `motus4_SLURM.sh` (`$ILAFORES` paths) and `kraken_local.sh` (index bind, per-sample `tmp.TXT`); uncommitted.
+- **Resource benchmark drafted, not submitted:** `scripts/benchmark/` + `scripts/10_benchmark_plot.R`. Launch steps are in `doc/TODO.md` under To launch. Pick and R tested; no tool job has run through these scripts yet.
 - **`check_all [-m] [datasets]`** (`myFunctions.sh`, uncommitted): completion table, tool × database × dataset, as ok/empty/unfinished. Leaves out GTDB 214, GenBank and Olive (out of scope).
 - **`gather_SLURM_fast.sh` overwrote a read file (fixed, uncommitted):** `realpath` ran before `mkdir signatures/`, so the first task of a new dataset had an empty `SIG` and sketch wrote to `$FQ_P1`. Only `data/Oilfield/preproc/SRR31654854/SRR31654854_paired_1.fastq.gz` was hit (2026-11-06 02:08).
   - Kneaddata rerun: job 406795. Oilfield task 1 of 405852, 405853, 405854, 406436, 406439, 406440, 406441 waits on it (`afterok`), as do reruns 406803 (sourmash rs220) and 406804 (mOTUs 4). Kraken for this sample is manual; `KB10_GTDB` predates the damage.

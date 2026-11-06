@@ -88,3 +88,40 @@ All tools are read from the merged tables (`scripts/src/merge_tables.sh`, `scrip
 ## Before the next Zenodo snapshot
 
 - [ ] Purge data/ and Out/ from the git history: `doc/git_history_purge_steps.txt`.
+
+## To launch
+
+- [ ] **Horse on Fir** (PRJNA1102860): `scripts/fir/`, written 2026-11-06, not run. Merge the `merged_tables` and ILL `kneaddata_gzip` PRs first. Set `SRC` in `setup_fir.sh`, and `HORSE_FASTA` in `horse.sh`, or `HORSE_INDEX` in `setup_fir.sh` if the index is built on iv12. Steps are in `doc/HANDOFF_FIR.md`.
+- [ ] **Resource benchmark** for the reviewer's runtime and memory request (written 2026-11-06, not submitted: the queue is full; scripts are local and uncommitted, held out of the `merged_tables` PR). 55 samples (5 per dataset, no Olive), all tools and databases, all on `c-3t`. Expect a few days on that node. Output: `Out/benchmark/`.
+  - **Launch:** paste the blocks of `scripts/benchmark/benchmark.sh` in order, from a login or interactive shell. Everything goes through `sbatch`; no `salloc` needed. The sample block rewrites `samples.tsv` and `tools.tsv`, already built once.
+  - **Pilot first:** after the sample block, set `A=1` and `K=1` to run one sample per tool. Check memory and the Kraken step below, delete `$B/jobs.tsv`, then set them back to `A=1-$(wc -l < $B/tools.tsv)` and `K=$(wc -l < $B/tools.tsv)`.
+  - **The commands, once `submit` is defined:**
+    ```bash
+    submit bases $BM/benchmark_bases.sh $B
+    submit sylph_sketch    --array=$A%10 -n 2 --mem=16G $BM/benchmark_sketch.sh sylph $B/tools.tsv $B
+    SK_SYLPH=$LAST
+    submit sourmash_sketch --array=$A%10 -n 1 --mem=16G $BM/benchmark_sketch.sh sourmash $B/tools.tsv $B
+    SK_SM=$LAST
+    # + the 3 $metaphlan generator lines, then:
+    submit MPA22 --array=$A%2 $B/MPA_db2022/metaphlan.slurm.sh
+    submit MPA23 --array=$A%2 $B/MPA_db2023/metaphlan.slurm.sh
+    submit MPA25 --array=$A%2 $B/MPA_db2025/metaphlan.slurm.sh
+    submit MOTU3 --array=$A%3 -n 6  --mem=60G  $SRC/motus3_SLURM.sh $B $B/tools.tsv
+    submit MOTU4 --array=$A%2 -n 12 --mem=100G $SRC/motus4_SLURM.sh $B $B/tools.tsv
+    DS=../Out/benchmark
+    submit SYref --array=$A%5 -n 2 --mem=64G --dependency=afterany:$SK_SYLPH $SRC/sylph_SLURM.sh \
+    	$DS $B/tools.tsv $DB_SYLPH/RefSeq_20250528_c200.syldb $DB_SYLPH/RefSeq_20250528_taxonomy.tsv.gz RefSeq
+    submit SY220 --array=$A%5 -n 2 --mem=64G --dependency=afterany:$SK_SYLPH $SRC/sylph_SLURM.sh \
+    	$DS $B/tools.tsv $DB_SYLPH/gtdb-r220-c200-dbv1.syldb $DB_SYLPH/gtdb_r220_metadata.tsv.gz gtdb_rs220
+    submit SMref --array=$A%5 -n 1  --mem=64G --dependency=afterany:$SK_SM $SRC/gather_SLURM_fast.sh \
+    	$DS $B/tools.tsv $DB_SM/RefSeq_20250528.k31.sbt.zip
+    submit SM220 --array=$A%2 -n 24 --mem=64G --dependency=afterany:$SK_SM $SRC/gather_SLURM_fast.sh \
+    	$DS $B/tools.tsv $DB_SM/gtdb-rs220-reps-k31.zip
+    submit KB --time=48:00:00 -N 1 -c 24 --mem=200G $BM/benchmark_kraken.sh $DB_K2/k2_standard_20241228 KB "" $B/tools.tsv $K $B
+    submit KG --time=48:00:00 -N 1 -c 24 --mem=700G $BM/benchmark_kraken.sh $DB_K2/k2_gtdb_genome_reps_20241109 KG _GTDB $B/tools.tsv $K $B
+    ```
+  - **When finished:** `check_jobs` prints nothing, then the last block runs `benchmark_gather.sh` and `scripts/10_benchmark_plot.R`, which write `resource_use.tsv`, `summary.tsv`, `benchmark_ridges.pdf` (raw CPU-hours, CPU-hours per Gbp, peak memory) and `benchmark_scaling.pdf` (CPU-hours against Gbp, per tool).
+  - **Check at the pilot:**
+    - Does a Kraken sample step's `MaxRSS` include the `/dev/shm` index? The R script adds the index size when the step is below it (85 and 502 GB).
+    - Do the `srun` steps see the index copied by the `KB_copy` or `KG_copy` step?
+    - `kraken_local.sh` runs under `nice -n10` between 06:00 and 20:00. This can slow elapsed time, not `TotalCPU`.

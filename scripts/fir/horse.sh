@@ -9,8 +9,9 @@ SRC=$MC/scripts/src
 FIR=$MC/scripts/fir
 DATASET_PATH=$MC/data/Horse
 PREPROC=$DATASET_PATH/preproc
-HOST_DB=$FAST/host_genomes/EquCab3_GRCh38_index/EquCab3_GRCh38
-HORSE_INDEX=              # bowtie2 prefix of the horse index, under $FAST/host_genomes
+HORSE_FASTA=               # horse genome FASTA, to build the index on Fir
+HORSE_DB=$FAST/host_genomes/EquCab3_index/EquCab3
+HOST_DBS="$FAST/host_genomes/GRCh38_index/grch38_1kgmaj $HORSE_DB" # kneaddata removes both hosts
 DB_MPA=$FAST/metaphlan4_db
 DB_SM=$ILAFORES/ref_dbs/sourmash_db
 DB_SYLPH=$ILAFORES/ref_dbs/sylph_db
@@ -36,10 +37,11 @@ done > $DATASET_PATH/raw/samples_to_process.tsv
 wc -l $DATASET_PATH/raw/samples_to_process.tsv
 
 ################################################################
-# Host index: horse + human ########
+# Horse index ########
 ################################################################
 
-run host_index $FIR/build_host_index.sh $FAST/host_genomes/GRCh38_index/grch38_1kgmaj $FAST/host_genomes/$HORSE_INDEX $HOST_DB
+# Skip this block if setup_fir.sh already copied the index, and point HORSE_DB at it.
+run host_index $FIR/build_host_index.sh $HORSE_FASTA $HORSE_DB
 
 ################################################################
 # Kneaddata ########
@@ -49,7 +51,7 @@ bash $ILL_PIPELINES/generateslurm_preprocess.kneaddata.sh \
 	--sample_tsv $DATASET_PATH/raw/samples_to_process.tsv \
 	--out $PREPROC \
 	--trimmomatic_options "SLIDINGWINDOW:4:20 MINLEN:50" \
-	--db $HOST_DB \
+	--db "$HOST_DBS" \
 	--slurm_mem 40G --slurm_threads 8
 
 N_RAW=$(wc -l < $DATASET_PATH/raw/samples_to_process.tsv)

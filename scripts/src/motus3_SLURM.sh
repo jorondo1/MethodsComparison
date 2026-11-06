@@ -17,7 +17,7 @@ set -eo pipefail
 # load all modules first, activate the venv last so its bin/ stays first in PATH
 module use /cvmfs/soft.mugqic/CentOS6/modulefiles
 module load StdEnv/2020 python/3.8.10 mugqic/bwa
-source /net/nfs-bio/jbod2/def-ilafores/programs/motus3_env/bin/activate
+source $ILAFORES/programs/motus3_env/bin/activate
 
 # make sure motus comes from the venv, not from a pip --user install in ~/.local/bin
 if [[ "$(command -v motus)" != "$VIRTUAL_ENV"/* ]]; then
