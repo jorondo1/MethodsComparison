@@ -4,7 +4,7 @@
 #SBATCH -D /net/nfs-ip34/jbod2/def-ilafores/analysis/MethodsComparison
 #SBATCH -o /net/nfs-ip34/jbod2/def-ilafores/analysis/MethodsComparison/logs/sourmash-%A_%a.slurm.out
 #SBATCH -e /net/nfs-ip34/jbod2/def-ilafores/analysis/MethodsComparison/logs/sourmash-%A_%a.slurm.err
-#SBATCH --time=6:00:00
+#SBATCH --time=24:00:00
 #SBATCH -N 1
 #SBATCH -n 24
 #SBATCH -A def-ilafores
@@ -30,9 +30,10 @@ SAM_ANCHOR=$(dirname $FQ_P1)
 
 export sourmash="singularity exec --writable-tmpfs -e -B ${SAM_ANCHOR}:${SAM_ANCHOR} -B $ILAFORES:$ILAFORES -B $SM_DB:$SM_DB ${ILAFORES}/programs/ILL_pipelines/containers/sourmash.4.8.11.sif sourmash"
 
-export SIG=$(realpath "${PWD}/data/${1}/signatures/${SAM_ID}.sig")
-
 mkdir -p $OUT_DIR/../signatures
+
+# realpath returns nothing if signatures/ is missing: an empty SIG makes sketch overwrite $FQ_P1
+export SIG=$(realpath "${PWD}/data/${1}/signatures/${SAM_ID}.sig")
 
 # Sketch Signatures
 if [[ ! -f $SIG ]]; then

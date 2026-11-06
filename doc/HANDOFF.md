@@ -33,6 +33,31 @@ Read at the start of each session and update before stopping (see `CLAUDE.md`). 
 
 ## Log (newest first; tag each entry [HPC] or [Mac])
 
+### 2026-11-05 [HPC]
+- **`gather_SLURM_fast.sh` overwrote a read file (fixed, uncommitted):** `realpath` ran before `mkdir signatures/`, so the first task of a new dataset had an empty `SIG` and sketch wrote to `$FQ_P1`. Only `data/Oilfield/preproc/SRR31654854/SRR31654854_paired_1.fastq.gz` was hit (2026-11-06 02:08).
+  - Kneaddata rerun: job 406795. Oilfield task 1 of 405852, 405853, 405854, 406436, 406439, 406440, 406441 waits on it (`afterok`), as do reruns 406803 (sourmash rs220) and 406804 (mOTUs 4). Kraken for this sample is manual; `KB10_GTDB` predates the damage.
+  - Sourmash Grapevine timeouts rerun: 406805 (rs220, 14 tasks), 406806 (RefSeq, task 12). 405838 still has 11 tasks under its 6 h limit.
+  - **`fastgather` writes its CSV as it goes:** a timeout leaves a partial file that the script and `check_output` treat as finished. The 14 partial rs220 files are in `data/Grapevine/_partial_sourmash_timeouts/`. Any later timeout needs the same move before resubmitting.
+- **mOTUs fixes (uncommitted):** `motus3_SLURM.sh` and `motus4_SLURM.sh` now merge the unmatched reads into one `-s` file (only the last `-s` was kept, so `unmatched_1` was dropped) and no longer prefix `${PWD}/` to `OUT_DIR`. Tested on the smoke input (jobs 406321, 406322; output in `Out/motus_fix_test/`).
+  - Before the fix, Maple and Grapevine went to `$MC/net/nfs-bio/jbod2/def-ilafores/analysis/MethodsComparison/data/<ds>/{MOTUS,MOTUS4}/`, not `data/`. Not moved yet: these need a rerun to include `unmatched_1` (the user's call).
+  - All v3 `MOTUS` profiles almost certainly lack `unmatched_1`. The 8 older `MOTUS4` datasets (February 2026) probably include it (`fir`/`narval` scripts concatenate), inferred from dates; no logs here.
+  - No database mix-up: headers and mOTU IDs show v3 tool + v3 db in `MOTUS`, v4 in `MOTUS4`.
+  - v3 empty profiles: `data/PD/MOTUS` 70, `data/AD_Skin/MOTUS` 1.
+- **`logs/` cleaned:** 5,225 logs of jobs with no completed attempt were moved into `logs/_failed_logs_2026-11-05.tar.gz` (list: `_removed_failed_logs_manifest.tsv`). Slurm history from June 2025 on is in `logs/_sacct_history_mp2.tsv`. The 25,816 older logs with no Slurm record (7-digit job IDs) were deleted at the user's request; names are in `logs/_removed_no_record_logs_manifest.tsv`.
+- **cpubase compatibility** (`scripts/tests/cpubase_smoke.sh`, results in `Out/cpubase_smoke/`): all 14 usable nodes are AMD Opteron 6174 (no AVX, no SSE4.2). Real 200k-pair runs with the pipeline's commands; control on cp0359 passed everything.
+  - **Work on cpubase:** sylph sketch/profile, MetaPhlAn 4.2.4, Kraken2, Bracken, sourmash (sketch, fastgather, gather), seqkit. Kraken and sourmash were tested with small databases only.
+  - **Crash with Illegal instruction:** `sylph-tax`, mOTUs 3, mOTUs 4. Setting `RSNT_ARCH=sse3` doesn't help.
+  - `sylph-tax` fails at `import numpy` (numpy 2.5.4). mOTUs 4 fails inside its container, so the fix would be a rebuild.
+  - Unexplained: 4 sylph tasks died on `mkdir` on cp0403; not reproduced.
+  - Jobs submitted with `sbatch --export=ALL,VAR=x` were cancelled by root after 2 min, with no log (2 of 2). Pass arguments instead.
+- **Classification-rate files repaired** (`Out/classification_rates/`). They had been reduced to a few datasets: the `.kreport` files were deleted, then the old rate script was rerun. The previous files are kept in `Out/classification_rates_backup_20261105/`.
+  - **kraken:** 7,503 rows from git `bf5418c2f`, with paths rewritten from `./<DS>/` to `./data/<DS>/`, plus the existing Maple rows. RA_Gut was never in git, so its 1,008 rows were rebuilt from the classified/unclassified counts in `data/RA_Gut/KB*/kraken_wrapper.log`. That method matches the kreport values exactly on all 6,375 rows where both exist.
+  - **mpa and sylph:** recomputed for all datasets with `rate_mpa` and `rate_sylph`; mpa matches the old git values to within 0.00001.
+  - **motus:** dropped 40 stale `data/PD/MOTUS` rows that carried Bee accessions and had no files.
+  - **sourmash:** already complete and correct.
+  - **Coverage:** Maple has no motus run. Olive has no mpa profiles and is not analysed.
+  - **`scripts/8_Classification_rates.R`:** the kraken `separate()` calls now include `'data'`, matching the `./data/<DS>/` paths.
+
 ### 2026-11-04 [HPC] (afternoon)
 - **Mosquito (PRJNA1065965):** dropped, because of its paired/longitudinal design. Its partial download is gone; delete `data/Mosquito/` when convenient.
 - **New dataset `Oilfield` (PRJNA1196024):**

@@ -12,7 +12,7 @@
 
 echo "initializing variables..."
 
-export OUT_DIR=${PWD}/"${1}"/MOTUS4
+export OUT_DIR="${1}"/MOTUS4
 export SAM_LIST="${2}"
 export SAM_NUM=$(awk "NR==$SLURM_ARRAY_TASK_ID" ${SAM_LIST})
 IFS=$'\t' read -r SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2 <<< "$SAM_NUM" # array it up
@@ -33,6 +33,10 @@ for var in FQ_P1 FQ_P2 FQ_U1 FQ_U2; do
     export "$var"="${SLURM_TMPDIR}/$(basename ${!var} .gz)"
 done
 
+# mOTUs keeps only the last -s, so pass the unmatched reads as a single file
+export FQ_U=${SLURM_TMPDIR}/FQ_U.fastq
+cat $FQ_U1 $FQ_U2 > $FQ_U
+
 echo "copying mOTUs container..."
 cp /net/nfs-ip34/jbod2/def-ilafores/programs/ILL_pipelines/containers/mOTUs_v4.0.4.mp2.sif $SLURM_TMPDIR
 
@@ -48,7 +52,7 @@ singularity exec --writable-tmpfs -e \
 -B $ILAFORES:$ILAFORES \
 $SLURM_TMPDIR/mOTUs_v4.0.4.mp2.sif \
 motus profile -f $FQ_P1 -r $FQ_P2 \
--s $FQ_U1 -s $FQ_U2 \
+-s $FQ_U \
 -n $SAM_ID \
 -t $SLURM_NTASKS \
 -o ${OUT_DIR}/${SAM_ID}_profile.txt
