@@ -4,7 +4,7 @@
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/../../.." && pwd)"
-out_dir="$root/Out/ena_candidates"
+out_dir="$root/doc/ena_candidates"
 mkdir -p "$out_dir"
 
 curl -sf -X POST https://www.ebi.ac.uk/ena/portal/api/search \

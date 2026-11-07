@@ -1,5 +1,4 @@
-library(pacman)
-p_load(magrittr, mgx.tools, # devtools::install_github("jorondo1/mgx.tools")
+pacman::p_load(magrittr, mgx.tools, # devtools::install_github("jorondo1/mgx.tools")
        tidyverse, kableExtra,
        igraph, ggraph, patchwork, pheatmap,
        rstatix)
@@ -24,11 +23,13 @@ source("scripts/0_config.R")
 procrustes_tests <- read_rds('Out/_Rdata/procrustes.RDS')
 these_databases <- c('MPA_db2023', 'MPA_db2022', 'MPA_db2025', 
                      'MOTUS3','MOTUS4', 
+                     "SYLPH_gtdb_rs220_Seq",  "SYLPH_gtdb_rs220_Tax",
+                     "SYLPH_RefSeq_Seq",       "SYLPH_RefSeq_Tax",
                      'KB10','KB10_GTDB', 'KB45', 'KB45_GTDB', 'KB90', 'KB90_GTDB',
                      'SM_gtdb-rs220-rep', 'SM_RefSeq_20250528')
 
 these_datasets <- c('Moss', 'NAFLD','PD', 'Bee','AD_Skin', 'RA_Gut',
-                    'P19_Gut', 'P19_Saliva')
+                    'P19_Gut', 'P19_Saliva', 'Maple')
 
 # Heatmap with hclust ------------------------------------------------------
 # One heatmap for all datasets

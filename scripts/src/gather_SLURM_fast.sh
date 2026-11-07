@@ -4,7 +4,7 @@
 #SBATCH -D /net/nfs-ip34/jbod2/def-ilafores/analysis/MethodsComparison
 #SBATCH -o /net/nfs-ip34/jbod2/def-ilafores/analysis/MethodsComparison/logs/sourmash-%A_%a.slurm.out
 #SBATCH -e /net/nfs-ip34/jbod2/def-ilafores/analysis/MethodsComparison/logs/sourmash-%A_%a.slurm.err
-#SBATCH --time=6:00:00
+#SBATCH --time=24:00:00
 #SBATCH -N 1
 #SBATCH -n 24
 #SBATCH -A def-ilafores
@@ -30,9 +30,10 @@ SAM_ANCHOR=$(dirname $FQ_P1)
 
 export sourmash="singularity exec --writable-tmpfs -e -B ${SAM_ANCHOR}:${SAM_ANCHOR} -B $ILAFORES:$ILAFORES -B $SM_DB:$SM_DB ${ILAFORES}/programs/ILL_pipelines/containers/sourmash.4.8.11.sif sourmash"
 
-export SIG=$(realpath "${PWD}/data/${1}/signatures/${SAM_ID}.sig")
-
 mkdir -p $OUT_DIR/../signatures
+
+# realpath returns nothing if signatures/ is missing: an empty SIG makes sketch overwrite $FQ_P1
+export SIG=$(realpath "${PWD}/data/${1}/signatures/${SAM_ID}.sig")
 
 # Sketch Signatures
 if [[ ! -f $SIG ]]; then
@@ -44,15 +45,19 @@ else
 fi
 
 # Gather
-if [[ ! -f ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv ]]; then
+GATHER_OUT=${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv
+GATHER_TMP=${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.tmp.csv # fastgather writes as it goes: a timeout must not leave a *_gather.csv
+if [[ ! -f $GATHER_OUT ]]; then
 	echo "Gather $SIG against index database..."
 if [[ "$SLURM_NTASKS" -ne 1 ]]; then
 	$sourmash scripts fastgather $SIG ${SM_DB} \
-	-o ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv \
-	-c $SLURM_NTASKS
+	-o $GATHER_TMP \
+	-c $SLURM_NTASKS \
+	&& mv $GATHER_TMP $GATHER_OUT
 else # Single thread if custom index, pending sourmash 4.9 update
     $sourmash gather $SIG ${SM_DB} \
-	-o ${OUT_DIR}/${SAM_ID}_${DB_NAME}_gather.csv
+	-o $GATHER_TMP \
+	&& mv $GATHER_TMP $GATHER_OUT
 fi	
 else
 	echo "Gather output found. Skipping..."

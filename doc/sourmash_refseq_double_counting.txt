@@ -1,0 +1,92 @@
+sourmash RefSeq_20250528: counts were double-counted in the earlier phyloseq objects
+======================================================================================
+
+What the earlier objects did
+----------------------------
+The sourmash gather counts were joined to their taxonomy on the bare accession
+number, with the GCA_/GCF_ prefix and the version removed:
+GCF_018127785.1 -> 018127785.
+- Gather side: parse_SM() in community_functions.R strips the accession.
+- Taxonomy side: parse_genbank_lineages() does the same.
+- The two are combined with left_join(..., by = 'genome'), then species_glom()
+  sums the rows by species.
+
+Why that duplicates counts
+--------------------------
+The RefSeq lineage file (RefSeq_20250528.lineages.csv, built by
+sourmash_refseq_db.sh) has several rows for nearly every accession number.
+It was built by looking up the database's accessions in all four NCBI assembly
+summaries (RefSeq and GenBank, current and historical). That brought in:
+- the GenBank twin of each RefSeq assembly (GCA_018127785.1 next to
+  GCF_018127785.1);
+- older versions of the same assembly.
+
+The file has 142,981 rows for about 67,900 accession numbers:
+- 64,179 numbers have 2 rows;
+- 3,056 have 4;
+- the human reference GRCh38 (000001405) has 51.
+
+The per-dataset subset (SM_RefSeq_20250528_lineages.csv, made in
+MethodsComparison_Pipeline.sh) was taken with a substring search on the same
+bare number, so it kept every twin and version.
+
+So each gather row matched 2, 4 or more lineage rows. left_join copied the
+row's count once per match, and species_glom() added the copies up. R gave no
+warning: each genome appears once on the gather side, so dplyr sees a
+one-to-many join and allows it silently. In Bee, for example, the join turns 52
+genome rows into 128.
+
+Why only RefSeq
+---------------
+The GTDB lineage files (rs214, rs220) and GenBank 2022.03 have one row per
+genome, so the same join matched each genome once. The new parsing reproduces
+those objects exactly.
+
+Effect on the earlier objects
+-----------------------------
+Shares of the counts, weighted by gather abundance, all samples pooled:
+
+  dataset      x2      x3-4    x5+    overall inflation
+  P19_Saliva   95.6%    4.4%   0.0%   2.09
+  P19_Gut      94.2%    5.4%   0.3%   2.12
+  Moss         89.6%   10.1%   0.4%   2.23
+  NAFLD        93.9%    5.9%   0.2%   2.13
+  AD_Skin      94.9%    5.1%   0.0%   2.10
+  RA_Gut       93.8%    5.9%   0.3%   2.13
+  Bee          86.9%   13.1%   0.0%   2.26
+  PD           95.9%    3.2%   0.9%   2.10
+  Maple        98.9%    0.9%   0.3%   2.03
+
+The per-sample median inflation is 2.03-2.25.
+
+Absolute counts:
+- Absolute counts were inflated about 2x.
+- This affects the rarefaction depth, the min_sample_size and min_taxa_count
+  filters, and count-based diversity indices.
+
+Relative abundances:
+- Relative abundances were distorted, because genomes with more twins or
+  versions (x4, x51) gained weight against those with x2.
+- The largest Shannon difference per dataset is 0.12-0.74.
+
+Spurious or extra taxa:
+- When a genome's twins carry different species, its counts landed in both
+  species. Example: GCF_002073715.1 is Neisseria sicca, while its other three
+  rows say N. mucosa.
+- Maple loses 2 taxa and RA_Gut 1: they only passed the filters because of the
+  extra counts.
+
+What is used now
+----------------
+scripts/src/merge_tables.sh runs sourmash tax metagenome with a lineage file
+built from the sylph-tax RefSeq_20250528 table
+($ILAFORES/ref_dbs/sylph_db/RefSeq_20250528_taxonomy.tsv.gz).
+- That table covers the same downloaded genomes, with one row per genome file.
+- Genomes are matched on the full identifier
+  (GCF_018127785.1_ASM1812778v1_genomic), so every genome gets exactly one
+  lineage.
+- Each species' counts now equal its genomes' gather counts
+  (unique_intersect_bp / scaled x average_abund).
+- The RefSeq taxonomy is now the same as in the sylph RefSeq profiles.
+- Samples are unchanged, and every gather match is kept except the plasmid
+  bundles, which have no lineage and were dropped before as well.

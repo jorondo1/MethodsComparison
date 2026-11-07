@@ -13,17 +13,21 @@
 # Merge the per-sample outputs of sylph_SLURM.sh into tables. Run once all sylph_SLURM.sh array tasks are done
 # (from $MC, or sbatch --dependency=afterany:<array job id>).
 # Usage: sylph_merge.sh [-f] <dataset> <db name> <sample tsv>
+#        sylph_merge.sh --tax-only <dataset> <db name> : only (re)write merged_species_tax.tsv, for the samples of the
+#                       existing merged_species.tsv (tables merged before the taxonomic abundance was added)
 #   -f, --force : merge anyway when some samples are unfinished (no profile) or lack a classification rate;
 #                 they're left out of the tables (still listed as NA in classification_rate.tsv)
 # Writes to data/<dataset>/SYLPH_<db name>/:
 #   counts.tsv           : estimated read counts, genomes (rows) x samples (columns), corrected (see count correction below)
 #   taxonomy.tsv         : genome -> Domain, Phylum, Class, Order, Family, Genus, Species (same rows as counts.tsv)
 #   merged_species.tsv   : corrected read counts by species (sylph-tax merge, s__ rank only), clade_name = d__X|...|s__X
+#   merged_species_tax.tsv : taxonomic abundance by species (sylph-tax merge --column relative_abundance, %), same layout
 #   classification_rate.tsv : path, % classified, % unclassified, rate (no header, like the other tools' rate files)
 set -eo pipefail
 
-FORCE=0
+FORCE=0; TAX_ONLY=0
 if [[ $1 == -f || $1 == --force ]]; then FORCE=1; shift; fi
+if [[ $1 == --tax-only ]]; then TAX_ONLY=1; shift; fi
 
 export DB_NAME="${2}"
 export SAM_LIST="${3}"
@@ -35,6 +39,21 @@ export SAMPLE_DIR=${OUT_DIR}/per_sample
 export SYLPH_ENV=${SYLPH_ENV:-$ILAFORES/programs/conda_envs/sylph}
 export PATH=$SYLPH_ENV/bin:$PATH
 command -v sylph-tax > /dev/null || { echo "sylph-tax not found on $(hostname) (SYLPH_ENV=$SYLPH_ENV)"; exit 1; }
+
+# Taxonomic abundance (% of genomes/cells, not reads) by species: no rate correction. Rows: s__ rank, no t__.
+merge_taxonomic() {
+	sylph-tax merge "$@" --column relative_abundance -o $OUT_DIR/merged_all_ranks_tax.tmp
+	awk -F'\t' 'NR == 1 || ($1 ~ /(^|\|)s__/ && $1 !~ /\|t__/)' $OUT_DIR/merged_all_ranks_tax.tmp > $OUT_DIR/merged_species_tax.tsv
+	rm $OUT_DIR/merged_all_ranks_tax.tmp
+	echo "$(tail -n+2 $OUT_DIR/merged_species_tax.tsv | wc -l) species (taxonomic abundance) written to $OUT_DIR/merged_species_tax.tsv"
+}
+if [[ $TAX_ONLY -eq 1 ]]; then
+	[[ -f $OUT_DIR/merged_species.tsv ]] || { echo "$OUT_DIR/merged_species.tsv not found: run without --tax-only"; exit 1; }
+	files=()
+	for s in $(head -1 $OUT_DIR/merged_species.tsv | cut -f2- | tr '\t' '\n'); do files+=($SAMPLE_DIR/${s}.sylphmpa); done
+	merge_taxonomic "${files[@]}"
+	exit 0
+fi
 
 # Check every sample of the tsv: no profile = sylph_SLURM.sh didn't finish (rerun it), no .sylphmpa = no genome detected
 missing=0
@@ -71,7 +90,7 @@ for s in $(cut -f1 $SAM_LIST); do
 done
 if [[ $no_rate -gt 0 ]]; then
 	echo "$no_rate samples without classification rate, can't correct their counts"
-	echo "(profiled before _profile.log was kept? recover the logs from the slurm logs, see MethodsComparison_Pipeline.sh)"
+	echo "(profiled before _profile.log was kept? recover the logs from the slurm logs, see pipeline_2_profiling.sh)"
 	if [[ $FORCE -eq 1 ]]; then echo "--force: merging without them"
 	else echo "not merging (-f to merge without them)"; exit 1; fi
 fi
@@ -110,6 +129,8 @@ awk -F'\t' -v counts=$OUT_DIR/counts.tsv -v tax=$OUT_DIR/taxonomy.tsv -v species
 		printf "%s", genome > tax; for (r = 1; r <= 7; r++) printf "\t%s", name[prefix[r]] > tax; printf "\n" > tax
 	}' $OUT_DIR/merged_all_ranks.tmp
 rm $OUT_DIR/merged_all_ranks.tmp
+
+merge_taxonomic "${MERGE_FILES[@]}"
 
 echo "$(head -1 $OUT_DIR/counts.tsv | awk -F'\t' '{print NF-1}') samples, $(tail -n+2 $OUT_DIR/counts.tsv | wc -l) genomes, $(tail -n+2 $OUT_DIR/merged_species.tsv | wc -l) species"
 echo "Merged tables written to $OUT_DIR"

@@ -1,14 +1,14 @@
 # Rank ENA metagenomic WGS studies as candidate public datasets:
 # non-human, >= min_samples samples, and likely two-group design.
-# Input: Out/ena_candidates/runs_2023.tsv from find_wgs_projects.sh
+# Input: doc/ena_candidates/runs_2023.tsv from find_wgs_projects.sh
 # Run from the project root: Rscript scripts/src/ena_search/rank_wgs_projects.R
 
 library(pacman)
 p_load(tidyverse, xml2, httr2)
 
-out_dir <- 'Out/ena_candidates'
+out_dir <- 'doc/ena_candidates'
 runs_file <- file.path(out_dir, 'runs_2023.tsv')
-min_samples <- 50
+min_samples <- 60
 n_shortlist <- 150        # studies whose sample attributes are fetched (stage 3)
 max_attr_samples <- 300   # samples per study fetched for attribute checks
 xml_batch_size <- 100
@@ -38,7 +38,7 @@ samples <- runs %>%
 studies <- runs %>%
   group_by(study_accession) %>%
   summarise(study_title = first(study_title),
-            first_public = min(first_public),
+            first_public = as.Date(min(first_public)),
             n_runs = n(),
             platform = mode_chr(instrument_platform),
             layout = mode_chr(library_layout),
@@ -51,8 +51,10 @@ studies <- runs %>%
                         median_gbp = round(median(bases) / 1e9, 2),
                         .groups = 'drop'),
             by = 'study_accession') %>%
-  filter(!str_detect(coalesce(study_title, ''),
-                     regex('amplicon|16S|Should be deleted', ignore_case = TRUE)))
+  filter(
+    !str_detect(coalesce(study_title, ''),
+                regex('amplicon|16S|Should be deleted', ignore_case = TRUE)),
+    first_public>as.Date("2024-04-01"))
 
 #### Habitat category ####
 
@@ -104,7 +106,7 @@ studies <- studies %>%
     habitat = coalesce(habitat_sci,
                        classify(study_title, c(Human = human_title, env_patterns)),
                        'Uncertain')) %>%
-  select(-habitat_sci)
+  dplyr::select(-habitat_sci)
 
 #### Two-group split detection from sample names ####
 
@@ -135,7 +137,7 @@ token_split <- function(labels, max_tokens = 30) {
   M <- vapply(cand, function(t) map_lgl(toks, ~ t %in% .x), logical(n))
   counts <- colSums(M)
   best <- no_split
-
+  
   if (length(cand) >= 2) {
     co <- crossprod(M)
     pairs <- which(co == 0 & upper.tri(co), arr.ind = TRUE)
@@ -151,7 +153,7 @@ token_split <- function(labels, max_tokens = 30) {
       }
     }
   }
-
+  
   single <- counts / n >= 0.2 & counts / n <= 0.8
   if (any(single)) {
     bal <- ifelse(single, pmin(counts, n - counts) / pmax(counts, n - counts), 0)
@@ -176,7 +178,7 @@ name_split <- function(df) {
 }
 
 candidates <- studies %>%
-  filter(habitat != 'Human', n_samples >= min_samples)
+  filter(habitat != 'Human', n_samples >= min_samples, )
 
 name_splits <- samples %>%
   semi_join(candidates, by = 'study_accession') %>%
@@ -220,13 +222,13 @@ fetch_sample_attrs <- function(accs) {
 
 shortlist_samples <- candidates %>%
   slice_max(prelim_score, n = n_shortlist, with_ties = FALSE) %>%
-  select(study_accession) %>%
+  dplyr::select(study_accession) %>%
   inner_join(samples, by = 'study_accession') %>%
   group_by(study_accession) %>%
   slice_sample(n = max_attr_samples) %>%
   mutate(n_fetched = n()) %>%
   ungroup() %>%
-  select(study_accession, sample_accession, n_fetched)
+  dplyr::select(study_accession, sample_accession, n_fetched)
 
 acc_batches <- unique(shortlist_samples$sample_accession) %>%
   split(ceiling(seq_along(.) / xml_batch_size))
@@ -271,14 +273,14 @@ ranked <- candidates %>%
          design_score = round(3 * attr_balance + 2 * name_score + title_score, 3),
          ena_url = paste0('https://www.ebi.ac.uk/ena/browser/view/', study_accession)) %>%
   arrange(desc(design_score), desc(n_samples)) %>%
-  select(study_accession, ena_url, habitat, scientific_name, study_title, n_samples, n_runs,
+  dplyr::select(study_accession, ena_url, habitat, scientific_name, study_title, n_samples, n_runs,
          median_gbp, platform, layout, design_score, attr_split, name_split, title_hits,
          first_public)
 
 studies %>%
   arrange(desc(n_samples)) %>%
-  write_tsv(file.path(out_dir, 'wgs_projects_2023.tsv'), na = '')
-write_tsv(ranked, file.path(out_dir, 'wgs_candidates_ranked.tsv'), na = '')
+  write_tsv(file.path(out_dir, 'wgs_projects_2024.tsv'), na = '')
+write_tsv(ranked, file.path(out_dir, 'wgs_candidates_ranked_2024.tsv'), na = '')
 
 message('Studies: ', nrow(studies), ' | with >= ', min_samples, ' samples: ',
         sum(studies$n_samples >= min_samples), ' | ranked (non-human): ', nrow(ranked))
