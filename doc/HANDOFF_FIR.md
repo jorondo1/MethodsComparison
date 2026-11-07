@@ -5,27 +5,37 @@ You are on Fir (or another Alliance cluster) and have no memory from the HPC ses
 ## Goal
 Run Horse (PRJNA1102860, feces metagenome, shallow shotgun) through kneaddata and all profilers, as an extra dataset for the methods comparison. The user supplies an accession list and picks 500–700 of the 2,778 runs. Median run: 1.05 Gbp. The project also has 30 `metagenome` and 30 `synthetic metagenome` runs, likely controls.
 
-## Layout
-| Path | Holds |
-|---|---|
-| `~/scratch` (`$ILAFORES`) | `programs/`, `ref_dbs/`, `fast/`, `MethodsComparison/` (`$MC`). All jobs run here |
-| `/project/def-ilafores/ronj2303/Horse/raw` (`$RAW`) | Raw reads. Same place as `~/projects/def-ilafores/ronj2303` |
-| `/project/def-ilafores/ronj2303/Horse/results` (`$RESULTS`) | Final outputs. Project limit is 1 TB; scratch has 20 TB per user but can be purged |
-
-Paths are in `scripts/fir/fir_env.sh`. Source it in every session, because the job scripts need `ILAFORES` and `MC` in the environment.
+## Layout (all in `scripts/fir/fir_env.sh`; source it in every session)
+| Variable | Path | Holds |
+|---|---|---|
+| `REPO` | `/project/6047190/ronj2303/MethodsComparison` | git repo, branch `fir`. `data/Horse/` receives only the profiler outputs, at the end |
+| `MC` | `~/scratch/mc_work` | working copy: jobs run with `-D $MC` and write `data/Horse/` here; `scripts` is a symlink to `$REPO/scripts` |
+| `ILL_PIPELINES` | `~/scratch/ILL_pipelines` | branch `kneaddata_gzip`; containers in `containers/` |
+| `DBS` | `~/scratch/ref_dbs` | all databases, including `host_genomes/` and `metaphlan4_db/` |
+| `RAW` | `~/scratch/Horse/raw` | raw reads |
+Ignore `~/scratch/MethodsComparison`: it's an old clone from February.
 
 ## Branches
-- `main` (`merged_tables` until its PR is merged): general changes.
-- `fir`: created by `setup_fir.sh`, in both `MethodsComparison` and `ILL_pipelines`, for Fir-only changes (Horse in `datasets.tsv`, one hardcoded container path in the ILL MetaPhlAn script). These are left uncommitted for the user.
+`fir` (in `REPO` only) holds the Fir changes: these scripts, Horse in `datasets.tsv`, and container paths taken from `$ILL_PIPELINES`. ILL needs no Fir branch.
 
 ## Order of work
-1. `setup_fir.sh` (fill in `SRC`, and `HORSE_INDEX` only if the index is built on iv12), in tmux.
-2. Paste the blocks of `scripts/fir/horse.sh` one at a time: sample sheet, horse index, kneaddata, sample tsv, then tools.
+1. `bash $REPO/scripts/fir/setup_fir.sh` in tmux. It pulls from hpc-bio over a single ssh connection.
+2. Paste the blocks of `scripts/fir/horse.sh` one at a time: sample sheet, horse index (built from `~/scratch/host_genomes/*.fna.gz`), kneaddata, sample tsv, then the tools.
 3. `check_all Horse` between blocks.
-4. Merge, then rsync to `$RESULTS`.
+4. Merge, then rsync to `$REPO/data/Horse`.
+
+## Raw reads (2026-11-07)
+- **Selection:** `data/Horse/raw/sample_list.csv` has 772 IDs, matched against ENA's `sample_alias` (NCBI "Sample name").
+  - 744 match, one WGS run each: 547 GB of fastq.gz.
+  - 28 `*_2014` IDs only have tiny runs in another project (PRJNA1528879, probably coprocultures), so they're skipped.
+- **Location:** `RAW` is now `~/scratch/Horse/raw` (`fir_env.sh`), because /project doesn't have room for it. The filereport is `$RAW/filereport_Horse.tsv`.
+- **Scripts** (`scripts/fir/`):
+  - `download_sra.sh <filereport> [P=4]` runs on the login node, in tmux session `horse_dl`. NCBI S3 gives about 40 MB/s per stream.
+  - `convert_sra.sh` is the conversion array: `sbatch -A def-ilafores -c 4 --mem 8G --time 1:00:00 --array=1-744 -o logs/convert-%A_%a.out $F/convert_sra.sh filereport_Horse.tsv`, run from `$RAW`. Pilot 2829682: 56 s, 3.6 GB MaxRSS.
+- **Check:** `cut -f2 $RAW/download_status.tsv | sort | uniq -c` should show 744 ok.
 
 ## Current state
-Nothing has run on Fir. None of `scripts/fir/` has run on a cluster yet, so treat the first task of each tool as a pilot: check its log, output and memory before trusting the rest.
+Raw read download for Horse started 2026-11-07 (see above). Nothing else has run on Fir. None of `scripts/fir/` has run on a cluster yet, so treat the first task of each tool as a pilot: check its log, output and memory before trusting the rest.
 
 ## Monitoring
 - Start in the background: `bash $MC/scripts/fir/watch.sh <YYYY-MM-DD> <first job id>`. It exits on a new problem or when no job is left.

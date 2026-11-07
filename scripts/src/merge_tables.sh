@@ -51,7 +51,7 @@ MC=${MC:-$PWD}
 cd "$MC"
 
 ILAFORES=${ILAFORES:-/net/nfs-bio/jbod2/def-ilafores}
-CONTAINERS=$ILAFORES/programs/ILL_pipelines/containers
+CONTAINERS=${ILL_PIPELINES:-$ILAFORES/programs/ILL_pipelines}/containers
 MPA_SIF=$CONTAINERS/metaphlan.4.2.4.sif
 MOTUS4_SIF=$CONTAINERS/mOTUs_v4.0.4.sif
 SM_SIF=$CONTAINERS/sourmash.4.8.11.sif

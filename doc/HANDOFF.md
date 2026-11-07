@@ -33,6 +33,13 @@ Read at the start of each session and update before stopping (see `CLAUDE.md`). 
 
 ## Log (newest first; tag each entry [HPC] or [Mac])
 
+### 2026-11-07 [Fir]
+- **Horse raw reads downloading:**
+  - 744 of 772 listed samples matched runs in PRJNA1102860.
+  - The other 28 (`*_2014`) are only in PRJNA1528879, and are tiny.
+  - New scripts `scripts/fir/download_sra.sh` and `convert_sra.sh`. `RAW` moved to scratch in `fir_env.sh`.
+  - Details are in `doc/HANDOFF_FIR.md` under "Raw reads".
+
 ### 2026-11-05 [HPC]
 - **22 MetaPhlAn profiles lost, 2026-11-06:** replacing `taxonomic_abundance.metaphlan.4.2.4.sh` at 11:06 ended running tasks silently (`COMPLETED`, exit 0, no profile). Resubmitted on `bio,c-3t`: 407210 (Grapevine 2022), 407211 (Grapevine 2023), 407212 (Oilfield 2023), 407213 (Oilfield 2025). Grapevine 2025 rows 27–30, hung 25 h at `module load` on cp0419, cancelled and resubmitted as 407214. 14 Oilfield tasks still hung on cp0403/08/09/13: resubmit on `bio,c-3t` if still stuck on 11-07. Truncated `SRR30485452.kreport` moved to `data/Grapevine/_partial_kraken/`.
 - **Horse on Fir drafted, not run:** `scripts/fir/`, `doc/HANDOFF_FIR.md`. Also generalised `motus3_SLURM.sh`, `motus4_SLURM.sh` (`$ILAFORES` paths) and `kraken_local.sh` (index bind, per-sample `tmp.TXT`); uncommitted.
