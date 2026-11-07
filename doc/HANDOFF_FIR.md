@@ -35,7 +35,7 @@ Ignore `~/scratch/MethodsComparison`: it's an old clone from February.
 - **Check:** `cut -f2 $RAW/download_status.tsv | sort | uniq -c` should show 744 ok.
 
 ## Current state
-Raw read download for Horse started 2026-11-07 (see above). Nothing else has run on Fir. None of `scripts/fir/` has run on a cluster yet, so treat the first task of each tool as a pilot: check its log, output and memory before trusting the rest.
+Horse raw reads done 2026-11-07: 744 pairs in `$RAW`, 450 GB, all ok in `download_status.tsv` (array 2831872). Next: `setup_fir.sh` (the user runs it in tmux, because hpc-bio needs 2FA), then `horse.sh`. None of `scripts/fir/` has run on a cluster yet, so treat the first task of each tool as a pilot: check its log, output and memory before trusting the rest.
 
 ## Monitoring
 - Start in the background: `bash $MC/scripts/fir/watch.sh <YYYY-MM-DD> <first job id>`. It exits on a new problem or when no job is left.

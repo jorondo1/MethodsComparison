@@ -46,15 +46,22 @@ run host_index $FIR/build_host_index.sh $HORSE_FASTA $HORSE_DB
 # Kneaddata ########
 ################################################################
 
+# The container doesn't see /cvmfs on Fir: copy the adapters under /scratch, which the script mounts with the host indexes
+mkdir -p $DBS/adapters
+cp /cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa $DBS/adapters/
+
 bash $ILL_PIPELINES/generateslurm_preprocess.kneaddata.sh \
 	--sample_tsv $DATASET_PATH/raw/samples_to_process.tsv \
 	--out $PREPROC \
+	--trimmomatic_adapters "ILLUMINACLIP:$DBS/adapters/TruSeq3-PE-2.fa:2:30:10" \
 	--trimmomatic_options "SLIDINGWINDOW:4:20 MINLEN:50" \
 	--db "$HOST_DBS" \
 	--slurm_mem 40G --slurm_threads 8
 
+# Pilot: one sample first. Check the log in $PREPROC/logs (Trimmomatic, both host indexes) and the gz outputs, then the rest
 N_RAW=$(wc -l < $DATASET_PATH/raw/samples_to_process.tsv)
-sbatch --time=6:00:00 --array=1-$N_RAW $PREPROC/preprocess.kneaddata.slurm.sh
+sbatch --time=6:00:00 --array=1 $PREPROC/preprocess.kneaddata.slurm.sh
+sbatch --time=6:00:00 --array=2-$N_RAW $PREPROC/preprocess.kneaddata.slurm.sh
 
 # Once finished, check a kneaddata log and the output sizes, then write the sample tsv for the tools:
 while read -r s _; do
