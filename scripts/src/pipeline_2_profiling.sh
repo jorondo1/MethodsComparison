@@ -65,6 +65,7 @@ bzcat $DB_MPA/2025/mpa_vJan25_CHOCOPhlAnSGB_202503_species.txt.bz2 | cut -f2 | a
 
 # Classification rate
 rate_mpa $DATASET
+rate_reads $DATASET
 
 # ── DESTRUCTIVE: only after merge_tables.sh and rate_mpa ──
 # Remove bowtie indexes
@@ -101,6 +102,7 @@ check_output 'KB10 KB45 KB90 KB10_GTDB KB45_GTDB KB90_GTDB' "$DATASET_PATH" _bra
 
 # Classification rate: needs the .kreport files, so before the cleanup below
 rate_kraken $DATASET
+rate_bracken $DATASET
 
 # ── DESTRUCTIVE: only after merge_tables.sh and rate_kraken ──
 # Remove heavy files from kraken out

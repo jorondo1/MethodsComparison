@@ -29,6 +29,7 @@ Started 2026-11-03.
   - Maple: 88 samples in the diversity comparisons, but only the 66 with a Provenance (33 M, 33 S) in the tests.
   - The `n` in the figure labels (`dataset_names_n_lookup_alphadiv.RDS`) comes from the Wilcoxon tests, so for Maple it's the tested count.
   - State this in the methods.
+- [ ] **PD mOTUs 3: 70 profiles salvaged (tell reviewers).** 70 of the 725 PD mOTUs 3 profiles (rows 1–25 plus 45 scattered rows) were empty files from a batch that died on 2025-03-29, so the merged table had 655 samples. Until 2026-11-07 the classification-rate script also gave each of them the previous sample's rate. Rerun on 2026-11-07 (job 407787, same mOTUs 3.1.0 and database). Mention the rerun in the methods or the response to reviewers, then rerun `merge_tables.sh PD` and the PD mOTUs 3 figures.
 - Out of scope for this project: rarefaction curves (`9.1`/`9.2`) and the DAA scripts (`5.0`–`5.4`).
 - [ ] **New datasets (Nov 2026): describe them in the methods.**
   - **Shared preprocessing:** raw paired reads were retrieved from the NCBI Sequence Read Archive. Each run's read count was checked against the archive's.
