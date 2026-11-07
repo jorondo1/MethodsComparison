@@ -5,6 +5,7 @@ This repo is worked on from two machines, each with its own Claude Code session,
 - **Mac:** RStudio. Gets data and results from the HPC through `scripts/utils/sync_from_hpc.sh` (rsync), and makes the figures.
 
 ## At the start of every session
+0. On Fir or another Alliance cluster: read `doc/HANDOFF_FIR.md` first.
 1. Read `doc/HANDOFF.md`: what the other machine did last, and what's next.
 2. Read `doc/TODO.md`: the open items.
 3. Run `git log --oneline -10` and `git status` to see whether the other side committed something since the last HANDOFF entry.

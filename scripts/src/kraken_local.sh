@@ -68,6 +68,10 @@ exec > >(tee -a "${out_dir}/kraken_wrapper.log") 2>&1
 # preload db
 # find ${kraken_db} -type f -exec cat {} > /dev/null \;
 
+# The index is bound on its own unless it sits in /dev/shm, which is bound below
+db_bind=""
+[[ $kraken_db == /dev/shm/* ]] || db_bind="-B ${kraken_db}:${kraken_db}"
+
 # Loop by sample
 while IFS=$'\t' read -r sample fq1 fq2 _; do
 
@@ -76,8 +80,8 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
     
     if [[ -f "${out_subdir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT" ]]; then
         echo "[ $(date '+%Y-%m-%d %H:%M:%S') ] Skipping ${out_subdir} - outputs already exist" 
-        grep "s__" ${out_subdir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT > tmp.TXT
-        mv tmp.TXT "${out_subdir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT"
+        grep "s__" ${out_subdir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT > "${out_subdir}/tmp.TXT"
+        mv "${out_subdir}/tmp.TXT" "${out_subdir}/${sample}_bracken/${sample}_bracken_S.MPA.TXT"
         continue
     fi
 
@@ -93,7 +97,7 @@ while IFS=$'\t' read -r sample fq1 fq2 _; do
     fi
 
     singularity exec --writable-tmpfs -e \
-    -B /dev/shm:/dev/shm \
+    -B /dev/shm:/dev/shm $db_bind \
     -B $ILAFORES:$ILAFORES \
     $ILAFORES/programs/ILL_pipelines/containers/kraken.2.1.2.sif bash -c "
    
