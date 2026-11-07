@@ -42,13 +42,13 @@ for sif in kneaddata.0.12.0 metaphlan.4.2.4 mOTUs_v4.0.4.mp2 kraken.2.1.2 sourma
 done
 
 # Databases ------------------------------------------------------------------
-$PULL $SRC:$OLD_FAST/metaphlan4_db/{2022,2023,2025} $FAST/metaphlan4_db/
-$PULL $SRC:$OLD_FAST/host_genomes/GRCh38_index $FAST/host_genomes/
-[[ -z $HORSE_INDEX ]] || $PULL $SRC:$OLD_FAST/host_genomes/$HORSE_INDEX $FAST/host_genomes/
-$PULL $SRC:$OLD_IL/ref_dbs/kraken2_dbs/{k2_standard_20241228,k2_gtdb_genome_reps_20241109} $ILAFORES/ref_dbs/kraken2_dbs/
-$PULL $SRC:$OLD_IL/ref_dbs/motus3/db_mOTU $ILAFORES/ref_dbs/motus3/
-$PULL $SRC:$OLD_IL/ref_dbs/sourmash_db/{RefSeq_20250528.k31.sbt.zip,RefSeq_20250528.lineages.csv,gtdb-rs220-reps-k31.zip,gtdb-rs220.lineages.reps.csv,gtdb-rs220-full.lineages.csv} $ILAFORES/ref_dbs/sourmash_db/
-$PULL $SRC:$OLD_IL/ref_dbs/sylph_db/{RefSeq_20250528_c200.syldb,RefSeq_20250528_taxonomy.tsv.gz,gtdb-r220-c200-dbv1.syldb,gtdb_r220_metadata.tsv.gz} $ILAFORES/ref_dbs/sylph_db/
+$PULL $SRC:$IV12_FAST/metaphlan4_db/{2022,2023,2025} $FAST/metaphlan4_db/
+$PULL $SRC:$IV12_FAST/host_genomes/GRCh38_index $FAST/host_genomes/
+[[ -z $HORSE_INDEX ]] || $PULL $SRC:$IV12_FAST/host_genomes/$HORSE_INDEX $FAST/host_genomes/
+$PULL $SRC:$IV12_IL/ref_dbs/kraken2_dbs/{k2_standard_20241228,k2_gtdb_genome_reps_20241109} $ILAFORES/ref_dbs/kraken2_dbs/
+$PULL $SRC:$IV12_IL/ref_dbs/motus3/db_mOTU $ILAFORES/ref_dbs/motus3/
+$PULL $SRC:$IV12_IL/ref_dbs/sourmash_db/{RefSeq_20250528.k31.sbt.zip,RefSeq_20250528.lineages.csv,gtdb-rs220-reps-k31.zip,gtdb-rs220.lineages.reps.csv} $ILAFORES/ref_dbs/sourmash_db/
+$PULL $SRC:$IV12_IL/ref_dbs/sylph_db/{RefSeq_20250528_c200.syldb,RefSeq_20250528_taxonomy.tsv.gz,gtdb-r220-c200-dbv1.syldb,gtdb_r220_metadata.tsv.gz} $ILAFORES/ref_dbs/sylph_db/
 
 # Environments: their scripts hardcode the old path --------------------------
 $PULL $SRC:$IV12_IL/programs/conda_envs/sylph $ILAFORES/programs/conda_envs/
