@@ -5,3 +5,5 @@ export FAST=$ILAFORES/fast # MetaPhlAn databases and host indexes, so that exist
 export MC=$ILAFORES/MethodsComparison
 export RAW=/project/def-ilafores/ronj2303/Horse/raw         # raw reads: project is not purged
 export RESULTS=/project/def-ilafores/ronj2303/Horse/results # final outputs, copied from scratch
+
+mkdir -p $RESULTS

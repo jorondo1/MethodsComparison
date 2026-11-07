@@ -17,9 +17,9 @@ Started 2026-11-03.
   - [ ] Check any figure or manuscript text about AD_Skin or Moss procrustes agreement involving MetaPhlAn.
 - [ ] Classification rates: rerun the mOTUs block (fixed: `awk -F'\t'` and rate = assigned/total), the MetaPhlAn block (100 − Σ species) and the sylph block: `rate_motus`, `rate_mpa`, `rate_sylph` (`scripts/src/classification_rates.sh`, called from `pipeline_2_profiling.sh`).
 
-- [ ] Kraken classification rates: RA_Gut has none (kreports deleted). Recovered for the other datasets from git (HANDOFF 2026-11-05); merge the recovered file on the HPC too.
+- [x] Kraken classification rates: RA_Gut has none (kreports deleted). Recovered for the other datasets from git (HANDOFF 2026-11-05); merge the recovered file on the HPC too.
 
-- [ ] **sourmash RefSeq counts are doubled** (found 2026-11-03, see `doc/sourmash_refseq_double_counting.txt`). R joins gathers to `SM_RefSeq_20250528_lineages.csv` on the bare accession number, which matches the GCA/GCF twins and versions, so `left_join` duplicates most genomes (+111–116 % on P19_Saliva GQ10–12). Counts, rarefaction depth and count-based alpha are affected. Fixed on the `merged_tables` branch (RefSeq lineages from the sylph-tax table). The relative abundances shift too (max Shannon difference 0.1–0.7 per dataset), so the sourmash RefSeq results need regenerating.
+- [x] **sourmash RefSeq counts are doubled** (found 2026-11-03, see `doc/sourmash_refseq_double_counting.txt`). R joins gathers to `SM_RefSeq_20250528_lineages.csv` on the bare accession number, which matches the GCA/GCF twins and versions, so `left_join` duplicates most genomes (+111–116 % on P19_Saliva GQ10–12). Counts, rarefaction depth and count-based alpha are affected. Fixed on the `merged_tables` branch (RefSeq lineages from the sylph-tax table). The relative abundances shift too (max Shannon difference 0.1–0.7 per dataset), so the sourmash RefSeq results need regenerating.
 
 ## Methods notes (for the manuscript)
 

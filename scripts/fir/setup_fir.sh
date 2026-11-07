@@ -12,8 +12,8 @@ HORSE_INDEX="" # folder name in host_genomes on the HPC, holding the horse bowti
 [[ -n $SRC && -n $HORSE_INDEX ]] || { echo "Fill in SRC and HORSE_INDEX at the top of this script first"; exit 1; }
 
 source "$(dirname "$(realpath "$0")")/fir_env.sh"
-OLD_IL=/net/nfs-bio/jbod2/def-ilafores
-OLD_FAST=/net/nfs-bio/fast/def-ilafores
+IV12_IL=/net/nfs-bio/jbod2/def-ilafores
+IV12_FAST=/net/nfs-bio/fast/def-ilafores
 PULL="rsync -avS --partial --no-g --no-p"
 
 mkdir -p $ILAFORES/programs/conda_envs $ILAFORES/ref_dbs/{kraken2_dbs,sourmash_db,sylph_db,motus3} \
@@ -35,22 +35,22 @@ git -C $ILL_PIPELINES checkout fir
 
 # Containers -----------------------------------------------------------------
 for sif in kneaddata.0.12.0 metaphlan.4.2.4 mOTUs_v4.0.4.mp2 kraken.2.1.2 sourmash.4.8.11; do
-	$PULL $SRC:$OLD_IL/programs/ILL_pipelines/containers/$sif.sif $ILL_PIPELINES/containers/
+	$PULL $SRC:$IV12_IL/programs/ILL_pipelines/containers/$sif.sif $ILL_PIPELINES/containers/
 done
 
 # Databases ------------------------------------------------------------------
-$PULL $SRC:$OLD_FAST/metaphlan4_db/{2022,2023,2025} $FAST/metaphlan4_db/
-$PULL $SRC:$OLD_FAST/host_genomes/{GRCh38_index,$HORSE_INDEX} $FAST/host_genomes/
-$PULL $SRC:$OLD_IL/ref_dbs/kraken2_dbs/{k2_standard_20241228,k2_gtdb_genome_reps_20241109} $ILAFORES/ref_dbs/kraken2_dbs/
-$PULL $SRC:$OLD_IL/ref_dbs/motus3/db_mOTU $ILAFORES/ref_dbs/motus3/
-$PULL $SRC:$OLD_IL/ref_dbs/sourmash_db/{RefSeq_20250528.k31.sbt.zip,RefSeq_20250528.lineages.csv,gtdb-rs220-reps-k31.zip,gtdb-rs220.lineages.reps.csv,gtdb-rs220-full.lineages.csv} $ILAFORES/ref_dbs/sourmash_db/
-$PULL $SRC:$OLD_IL/ref_dbs/sylph_db/{RefSeq_20250528_c200.syldb,RefSeq_20250528_taxonomy.tsv.gz,gtdb-r220-c200-dbv1.syldb,gtdb_r220_metadata.tsv.gz} $ILAFORES/ref_dbs/sylph_db/
+$PULL $SRC:$IV12_FAST/metaphlan4_db/{2022,2023,2025} $FAST/metaphlan4_db/
+$PULL $SRC:$IV12_FAST/host_genomes/{GRCh38_index,$HORSE_INDEX} $FAST/host_genomes/
+$PULL $SRC:$IV12_IL/ref_dbs/kraken2_dbs/{k2_standard_20241228,k2_gtdb_genome_reps_20241109} $ILAFORES/ref_dbs/kraken2_dbs/
+$PULL $SRC:$IV12_IL/ref_dbs/motus3/db_mOTU $ILAFORES/ref_dbs/motus3/
+$PULL $SRC:$IV12_IL/ref_dbs/sourmash_db/{RefSeq_20250528.k31.sbt.zip,RefSeq_20250528.lineages.csv,gtdb-rs220-reps-k31.zip,gtdb-rs220.lineages.reps.csv,gtdb-rs220-full.lineages.csv} $ILAFORES/ref_dbs/sourmash_db/
+$PULL $SRC:$IV12_IL/ref_dbs/sylph_db/{RefSeq_20250528_c200.syldb,RefSeq_20250528_taxonomy.tsv.gz,gtdb-r220-c200-dbv1.syldb,gtdb_r220_metadata.tsv.gz} $ILAFORES/ref_dbs/sylph_db/
 
 # Environments: their scripts hardcode the old path --------------------------
-$PULL $SRC:$OLD_IL/programs/conda_envs/sylph $ILAFORES/programs/conda_envs/
-$PULL $SRC:$OLD_IL/programs/motus3_env $ILAFORES/programs/
+$PULL $SRC:$IV12_IL/programs/conda_envs/sylph $ILAFORES/programs/conda_envs/
+$PULL $SRC:$IV12_IL/programs/motus3_env $ILAFORES/programs/
 for env in $ILAFORES/programs/conda_envs/sylph $ILAFORES/programs/motus3_env; do
-	grep -rIl "$OLD_IL/programs" $env/bin | xargs -r sed -i "s#$OLD_IL/programs#$ILAFORES/programs#g"
+	grep -rIl "$IV12_IL/programs" $env/bin | xargs -r sed -i "s#$IV12_IL/programs#$ILAFORES/programs#g"
 done
 
 # Fir-only changes -----------------------------------------------------------
