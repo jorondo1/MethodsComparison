@@ -32,7 +32,6 @@ done
 # Databases ------------------------------------------------------------------
 pull $SRC:$IV12_FAST/metaphlan4_db/{2022,2023,2025} $DBS/metaphlan4_db/
 pull $SRC:$IV12_FAST/host_genomes/GRCh38_index $DBS/host_genomes/
-pull $SRC:$IV12_IL/ref_dbs/kraken2_dbs/{k2_standard_20241228,k2_gtdb_genome_reps_20241109} $DBS/kraken2_dbs/
 pull $SRC:$IV12_IL/ref_dbs/motus3/db_mOTU $DBS/motus3/
 pull $SRC:$IV12_IL/ref_dbs/sourmash_db/{RefSeq_20250528.k31.sbt.zip,RefSeq_20250528.lineages.csv,gtdb-rs220-reps-k31.zip,gtdb-rs220.lineages.reps.csv} $DBS/sourmash_db/
 pull $SRC:$IV12_IL/ref_dbs/sylph_db/{RefSeq_20250528_c200.syldb,RefSeq_20250528_taxonomy.tsv.gz,gtdb-r220-c200-dbv1.syldb,gtdb_r220_metadata.tsv.gz} $DBS/sylph_db/
@@ -50,4 +49,8 @@ module load StdEnv/2020 apptainer/1.1.5 && singularity --version
 $ILAFORES/programs/conda_envs/sylph/bin/sylph --version
 $ILAFORES/programs/conda_envs/sylph/bin/sylph-tax --version
 module load python/3.8.10 && $ILAFORES/programs/motus3_env/bin/motus --version
-echo "Setup finished. Next: scripts/fir/horse.sh."
+echo "Everything but Kraken is ready: the other profilers can be launched now."
+
+# Kraken last: about 400 GB, the longest transfer -------------------------------
+pull $SRC:$IV12_IL/ref_dbs/kraken2_dbs/{k2_standard_20241228,k2_gtdb_genome_reps_20241109} $DBS/kraken2_dbs/
+echo "Setup finished, Kraken included."

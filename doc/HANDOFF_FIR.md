@@ -35,7 +35,13 @@ Ignore `~/scratch/MethodsComparison`: it's an old clone from February.
 - **Check:** `cut -f2 $RAW/download_status.tsv | sort | uniq -c` should show 744 ok.
 
 ## Current state
-Horse raw reads done 2026-11-07: 744 pairs in `$RAW`, 450 GB, all ok in `download_status.tsv` (array 2831872). Next: `setup_fir.sh` (the user runs it in tmux, because hpc-bio needs 2FA), then `horse.sh`. None of `scripts/fir/` has run on a cluster yet, so treat the first task of each tool as a pilot: check its log, output and memory before trusting the rest.
+Horse raw reads done 2026-11-07: 744 pairs in `$RAW`, 450 GB, all ok in `download_status.tsv` (array 2831872). Kneaddata done 2026-11-07, job 2836917: 744/744 with all 4 outputs, at most 24 min and about 14 GB per sample, 397 GB in `$MC/data/Horse/preproc`. An earlier array, 2834520, failed because the GRCh38 index was not there yet; that was harmless.
+
+All profilers ran 2026-11-07, every task COMPLETED: MetaPhlAn 2022/2023/2025, mOTUs 3 (2854047) and 4 (2849624), sylph (2854045 RefSeq, 2854046 GTDB), sourmash (2852464 rs220, 2852465+2852466 RefSeq) and Kraken (2873331 standard: 1 h, 248 GB; 2873332 GTDB: 1 h 55 min, 633 GB MaxRSS, index in /dev/shm). `check_all Horse` is complete except where the samples are genuinely empty:
+- sylph RefSeq: 147 profiles, 597 empty (nothing above threshold).
+- sourmash RefSeq: 273 csv; the other 471 logged "No matches found for --threshold-bp at 50.0 kbp", so no file is written and `check_all` counts them as unfinished.
+- KB90 (standard, confidence 0.9): 734; for 10 samples Kraken classified no reads, so Bracken wrote nothing (also counted as unfinished).
+Horse gut is poorly covered by RefSeq; the GTDB versions of each tool are complete. Next: `merge_tables`, then rsync to `$REPO/data/Horse` (last block of `horse.sh`). Also still to do: move the adapter copy from `horse.sh` into `setup_fir.sh`.
 
 ## Monitoring
 - Start in the background: `bash $MC/scripts/fir/watch.sh <YYYY-MM-DD> <first job id>`. It exits on a new problem or when no job is left.

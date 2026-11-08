@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH -c 16
-#SBATCH --mem=32G
+#SBATCH -c 96
+#SBATCH --mem=64G
 #SBATCH --time=6:00:00
 #SBATCH -A def-ilafores
 #SBATCH -J host_index
