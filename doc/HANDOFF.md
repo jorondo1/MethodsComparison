@@ -33,6 +33,30 @@ Read at the start of each session and update before stopping (see `CLAUDE.md`). 
 
 ## Log (newest first; tag each entry [HPC] or [Mac])
 
+### 2026-11-09 [HPC] (afternoon)
+- **Profilers for Oilfield and Grapevine:** everything is complete except Kraken. Kraken jobs submitted with the new `scripts/src/kraken_node_SLURM.sh` (uncommitted). It's a local version of `scripts/fir/kraken_node.sh`, with a confidence argument, and copies the index once per job into /dev/shm:
+  - Standard index, one cpubase node each (48 cores, 240G): 407970–407972 (Oilfield KB10/45/90), 407973–407975 (Grapevine KB10/45/90). Grapevine KB10 resumes after its 45 finished samples.
+  - Grapevine KB90_GTDB (17 samples left): 407976 on c-3t (700G) was cancelled by the user because it took the whole node. The user will relaunch it by hand on a smaller node.
+  - The earlier interactive Kraken runs (Grapevine KB10 on 11-05, KB90_GTDB on 11-08) were killed by the allocation's time limit. The truncated kreport `KB90_GTDB/SRR30485908` was moved to `data/Grapevine/_partial_kraken/`. Any later kill needs the same check: a kreport without `_bracken/*_bracken_S.MPA.TXT` is reused as if finished.
+  - **When they finish:** `rate_kraken`, `rate_bracken` and `rate_kraken_species` for both datasets (before any cleanup), then `merge_tables.sh --tools kraken Oilfield Grapevine`, then `Rscript scripts/0_run_all.R`.
+- **PD mOTUs 3:** re-merged (407977): 724 samples, up from 655. The one sample missing from every PD tool, SRR19064900, has no preprocessed reads, which is also why task 585 of 407787 failed. PD is listed in `rerun` in `0_run_all.R`.
+- **R setup for Oilfield, Grapevine and Horse** (`sample_data.R`, `0_config.R`, `0_run_all.R`; tested with `load_sample_data()`). Grouping variables:
+  - Oilfield: `Oilfield`.
+  - Grapevine: `Health`. `Compartment` is also in the sample data.
+  - Horse: `island_side`. `age_class_rev` is also in the sample data.
+  - The Horse run ↔ sample-name map is `data/Horse/raw/filereport_Horse.tsv` (ENA, fetched today). All 744 runs match `sample_list.csv`.
+- **Horse:** the merged tables are already in `data/Horse/`, but the rsync from Fir was still running. Run `0_run_all.R` once it is done.
+- **Classification rates:**
+  - mOTUs is dropped from the rate figure: its rate is over marker-gene reads only.
+  - New `rate_kraken_species` (`classification_rates.sh`): Kraken's species-rank share, from the Bracken summaries in `kraken_wrapper.log`. It needs no kreports. Written for 12 datasets (13,624 rows). The totals match the kreport-based rates on all 13,304 overlapping rows.
+  - The Oilfield and Grapevine rows are partial until their Kraken jobs end.
+  - TODO "Methods notes" has both items.
+- **`sync_from_hpc.sh` pulls every R input:** it now also takes the sample data (top-level `.tsv`/`.csv`/`.txt` of `data/<ds>/raw/`, ~1 MB, plus `data/<ds>/*.rds`). The new datasets' metadata therefore reaches the Mac. A local dry run gave 301 files, with no reads.
+- **Resource benchmark moves to Fir:**
+  - New branch `benchmark` (from `main`), with `scripts/benchmark/`, `scripts/10_benchmark_plot.R` and `doc/HANDOFF_FIR.md` staged, not committed.
+  - The 55 picked samples are symlinked under `Out/benchmark/reads/<ds>/<sample>/` (154 GB with `-L`), with `samples.rel.tsv`. On Fir they are rsynced with `-L`.
+  - `doc/HANDOFF_FIR.md` is rewritten for the benchmark: what to change in the scripts on Fir, the pilot, and the 5 Horse samples added there (60 samples in total).
+
 ### 2026-11-09 [Fir]
 - **Horse profiled and merged:** all tools, 744 samples (sylph RefSeq 147, KB90 734 and sourmash RefSeq 205 are genuinely sparse: RefSeq covers horse gut poorly). Outputs in `/project/6047190/ronj2303/MethodsComparison/data/Horse` on Fir. Details in `doc/HANDOFF_FIR.md`, Current state.
 - Adapter copy moved from `scripts/fir/horse.sh` to `scripts/fir/setup_fir.sh` (uncommitted).

@@ -2,7 +2,7 @@
 # Classification rate per sample, one file per tool in Out/classification_rates/ (no header):
 #   path <tab> classified <tab> unclassified <tab> rate   (sourmash, bracken: path <tab> value; reads: path <tab> pairs <tab> reads)
 # Source it (pipeline_2_profiling.sh does), then: rate_<tool> [dataset ...]  (no dataset: every data/*/)
-# Or run it: bash scripts/src/classification_rates.sh <motus|mpa|kraken|bracken|reads|sourmash|sylph|all> [dataset ...]
+# Or run it: bash scripts/src/classification_rates.sh <motus|mpa|kraken|bracken|kraken_species|reads|sourmash|sylph|all> [dataset ...]
 # Rows are added or updated by path, never removed: a dataset whose outputs are gone keeps its rows.
 
 # Rows for one dataset, run from $MC (paths start with ./data/<ds>/). awk with ENDFILE = gawk (HPC).
@@ -52,6 +52,35 @@ _rows_bracken() {
 	!/^#/ && $1 ~ /\|s__/ { reads += $NF }
 	ENDFILE { printf "%s\t%d\n", FILENAME, reads }
 	' {} + 2> /dev/null
+}
+
+# Species-level identifiability of Kraken: reads Kraken itself assigned at species rank or below, over all reads.
+# Not the Bracken total (bracken_S.MPA.TXT), which redistributes nearly every classified read down to species, from any
+# rank. Read from the BRACKEN SUMMARY that kraken_local.sh tees into <KB dir>/kraken_wrapper.log, so no .kreport needed:
+#   species = "kept at species level" + "discarded (species reads < threshold)"; total = "Total reads in sample".
+# Rows: ./data/<ds>/<KB>/<sample>/<sample>.kreport (same path layout as the kraken file) <tab> species <tab> other <tab> rate.
+# Only samples of the dataset's sample tsv; a log can hold several runs of a sample: the last summary wins.
+_rows_kraken_species() {
+	local tsv log kb
+	tsv=$(awk -F'\t' -v d="$1" '$1 == d { print $2 }' ./scripts/src/datasets.tsv)
+	tsv=$(eval echo "$tsv")
+	[[ -f $tsv ]] || return 0
+	for log in ./data/"$1"/KB*/kraken_wrapper.log; do
+		[[ -f $log ]] || continue
+		kb=$(basename "$(dirname "$log")")
+		awk -v pre="./data/$1/$kb" '
+		NR == FNR { keep[$1]; next }
+		/BRACKEN SUMMARY \(Kraken report:/ { s = $0; sub(/\.kreport\).*/, "", s); sub(/.*\//, "", s); next }
+		/Total reads in sample:/ { tot[s] = $NF + 0; sp[s] = 0; next }
+		/kept at species level/ || /discarded \(species reads/ { sp[s] += $NF; next }
+		END {
+			for (x in tot) {
+				if (!(x in keep)) continue
+				if (tot[x] > 0) printf "%s/%s/%s.kreport\t%d\t%d\t%.5f\n", pre, x, x, sp[x], tot[x] - sp[x], sp[x] / tot[x]
+				else printf "%s/%s/%s.kreport\tNA\tNA\tNA\n", pre, x, x
+			}
+		}' "$tsv" "$log"
+	done
 }
 
 # Reads per sample after KneadData (final counts in its log): ./data/<ds>/preproc/<sample> <tab> pairs <tab> reads.
@@ -119,12 +148,13 @@ rate_motus() { _update_rates motus "$@"; }
 rate_mpa() { _update_rates mpa "$@"; }
 rate_kraken() { _update_rates kraken "$@"; }
 rate_bracken() { _update_rates bracken "$@"; }
+rate_kraken_species() { _update_rates kraken_species "$@"; }
 rate_reads() { _update_rates reads "$@"; }
 rate_sourmash() { _update_rates sourmash "$@"; }
 rate_sylph() { _update_rates sylph "$@"; }
-rate_all() { local t; for t in motus mpa kraken bracken reads sourmash sylph; do _update_rates $t "$@"; done; }
+rate_all() { local t; for t in motus mpa kraken bracken kraken_species reads sourmash sylph; do _update_rates $t "$@"; done; }
 
 if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
-	tool=${1:?usage: bash classification_rates.sh <motus|mpa|kraken|bracken|reads|sourmash|sylph|all> [dataset ...]}; shift
+	tool=${1:?usage: bash classification_rates.sh <motus|mpa|kraken|bracken|kraken_species|reads|sourmash|sylph|all> [dataset ...]}; shift
 	"rate_$tool" "$@"
 fi

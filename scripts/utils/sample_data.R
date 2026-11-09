@@ -54,6 +54,24 @@ load_sample_data <- function() {
     dplyr::select(SAMPLE_ID, Type, Provenance, traitement) %>% 
     column_to_rownames('SAMPLE_ID')
 
+  # Oilfield: Oilfield (Shengli/Dagang) is the grouping variable; Site = sampling site (one sample per site)
+  Oilfield_meta <- read_delim('data/Oilfield/raw/metadata.tsv', show_col_types = FALSE) %>%
+    column_to_rownames('Sample')
+
+  # Grapevine: Health (Healthy/Diseased) is the grouping variable; Compartment (Root/Soil) is the alternative.
+  # Plant = vine ID: each vine gave one root and one soil sample (paired compartments)
+  Grapevine_meta <- read_delim('data/Grapevine/raw/metadata.tsv', show_col_types = FALSE) %>%
+    column_to_rownames('Sample')
+
+  # Horse: island_side (East/West) is the grouping variable; age_class_rev (Foal/Adult) is the alternative.
+  # sample_list.csv uses the NCBI sample names: the ENA filereport maps them to the run accessions
+  Horse_meta <- read_delim('data/Horse/raw/filereport_Horse.tsv', show_col_types = FALSE) %>%
+    dplyr::filter(library_strategy == 'WGS') %>%
+    dplyr::select(run_accession, sample_alias) %>%
+    inner_join(read_csv('data/Horse/raw/sample_list.csv', show_col_types = FALSE),
+               join_by(sample_alias == sample_id)) %>%
+    column_to_rownames('run_accession')
+
   list(
     P19_Saliva = psSalivaKB@sam_data,
     P19_Gut = psFecesKB@sam_data,
@@ -64,6 +82,9 @@ load_sample_data <- function() {
     Bee = Bee_meta,
     PD = PD_meta,
     Maple = Maple_meta,
+    Oilfield = Oilfield_meta,
+    Grapevine = Grapevine_meta,
+    Horse = Horse_meta,
     moss.ps = moss.ps # Moss's SM_gtdb-rs214-rep_MAGs object comes from this external RDS
   )
 }

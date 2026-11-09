@@ -12,7 +12,10 @@ grouping_variable <- c(
   PD = 'Group',
   Bee = 'Group',
   RA_Gut = 'Group',
-  Maple = 'Provenance'
+  Maple = 'Provenance',
+  Oilfield = 'Oilfield',
+  Grapevine = 'Health',   # alternative in the sample data: Compartment (paired by Plant)
+  Horse = 'island_side'   # alternative in the sample data: age_class_rev
 )
 
 dataset_names <- c(
@@ -24,7 +27,10 @@ dataset_names <- c(
   AD_Skin = 'Skin AD',
   Moss = 'Moss',
   Bee = 'Bee',
-  Maple = 'Maple Rhizosphere'
+  Maple = 'Maple Rhizosphere',
+  Oilfield = 'Oilfield Soil',
+  Grapevine = 'Grapevine',
+  Horse = 'Gut Horse'
 )
 
 CCE_names <- c(

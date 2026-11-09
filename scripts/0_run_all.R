@@ -20,8 +20,8 @@
 library(pacman)
 p_load(tidyverse, magrittr, phyloseq)
 
-datasets <- c('P19_Saliva', 'P19_Gut', 'Moss', 'NAFLD', 'AD_Skin', 'RA_Gut', 'Bee', 'PD', 'Maple')
-rerun <- c() # datasets to recompute even if their cache is complete, e.g. c('Moss')
+datasets <- c('P19_Saliva', 'P19_Gut', 'Moss', 'NAFLD', 'AD_Skin', 'RA_Gut', 'Bee', 'PD', 'Maple', 'Oilfield', 'Grapevine', 'Horse')
+rerun <- c('PD') # PD: mOTUs 3 table re-merged 2026-11-09 with the 69 salvaged profiles. # datasets to recompute even if their cache is complete, e.g. c('Moss')
 
 cache_root <- 'Out/_Rdata/cache'
 proc_files <- c('ps_raw.RDS', 'ps_rare.RDS')
