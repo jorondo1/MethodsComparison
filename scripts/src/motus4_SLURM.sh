@@ -38,7 +38,7 @@ export FQ_U=${SLURM_TMPDIR}/FQ_U.fastq
 cat $FQ_U1 $FQ_U2 > $FQ_U
 
 echo "copying mOTUs container..."
-cp $ILAFORES/programs/ILL_pipelines/containers/mOTUs_v4.0.4.mp2.sif $SLURM_TMPDIR
+cp ${ILL_PIPELINES:-$ILAFORES/programs/ILL_pipelines}/containers/mOTUs_v4.0.4.mp2.sif $SLURM_TMPDIR
 
 mkdir -p $OUT_DIR
 echo "output will be stored in $OUT_DIR"

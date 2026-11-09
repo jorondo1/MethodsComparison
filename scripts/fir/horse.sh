@@ -2,20 +2,20 @@
 # Copy-paste collection: running or sourcing this file does nothing. Paste a block, wait for it to finish, then the next.
 return 0 2>/dev/null; [[ $0 == "${BASH_SOURCE[0]}" ]] && { echo "Copy-paste collection: paste the commands, don't run this file"; exit 1; }
 
-source ~/scratch/MethodsComparison/scripts/fir/fir_env.sh
+source /project/6047190/ronj2303/MethodsComparison/scripts/fir/fir_env.sh
 cd $MC && source scripts/src/myFunctions.sh
 
 SRC=$MC/scripts/src
 FIR=$MC/scripts/fir
 DATASET_PATH=$MC/data/Horse
 PREPROC=$DATASET_PATH/preproc
-HORSE_FASTA=               # horse genome FASTA, to build the index on Fir
-HORSE_DB=$FAST/host_genomes/EquCab3_index/EquCab3
-HOST_DBS="$FAST/host_genomes/GRCh38_index/grch38_1kgmaj $HORSE_DB" # kneaddata removes both hosts
-DB_MPA=$FAST/metaphlan4_db
-DB_SM=$ILAFORES/ref_dbs/sourmash_db
-DB_SYLPH=$ILAFORES/ref_dbs/sylph_db
-DB_K2=$ILAFORES/ref_dbs/kraken2_dbs
+HORSE_FASTA=$ILAFORES/host_genomes/GCF_002863925.1_EquCab3.0_genomic.fna.gz # horse genome, to build the index
+HORSE_DB=$DBS/host_genomes/EquCab3_index/EquCab3
+HOST_DBS="$DBS/host_genomes/GRCh38_index/grch38_1kgmaj $HORSE_DB" # kneaddata removes both hosts
+DB_MPA=$DBS/metaphlan4_db
+DB_SM=$DBS/sourmash_db
+DB_SYLPH=$DBS/sylph_db
+DB_K2=$DBS/kraken2_dbs
 
 mkdir -p $DATASET_PATH/raw $PREPROC/logs $MC/logs
 
@@ -40,22 +40,28 @@ wc -l $DATASET_PATH/raw/samples_to_process.tsv
 # Horse index ########
 ################################################################
 
-# Skip this block if setup_fir.sh already copied the index, and point HORSE_DB at it.
 run host_index $FIR/build_host_index.sh $HORSE_FASTA $HORSE_DB
 
 ################################################################
 # Kneaddata ########
 ################################################################
 
+# The container doesn't see /cvmfs on Fir: copy the adapters under /scratch, which the script mounts with the host indexes
+mkdir -p $DBS/adapters
+cp /cvmfs/soft.mugqic/CentOS6/software/trimmomatic/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa $DBS/adapters/
+
 bash $ILL_PIPELINES/generateslurm_preprocess.kneaddata.sh \
 	--sample_tsv $DATASET_PATH/raw/samples_to_process.tsv \
 	--out $PREPROC \
+	--trimmomatic_adapters "ILLUMINACLIP:$DBS/adapters/TruSeq3-PE-2.fa:2:30:10" \
 	--trimmomatic_options "SLIDINGWINDOW:4:20 MINLEN:50" \
 	--db "$HOST_DBS" \
 	--slurm_mem 40G --slurm_threads 8
 
+# Pilot: one sample first. Check the log in $PREPROC/logs (Trimmomatic, both host indexes) and the gz outputs, then the rest
 N_RAW=$(wc -l < $DATASET_PATH/raw/samples_to_process.tsv)
-sbatch --time=6:00:00 --array=1-$N_RAW $PREPROC/preprocess.kneaddata.slurm.sh
+sbatch --time=6:00:00 --array=1 $PREPROC/preprocess.kneaddata.slurm.sh
+sbatch --time=6:00:00 --array=2-$N_RAW $PREPROC/preprocess.kneaddata.slurm.sh
 
 # Once finished, check a kneaddata log and the output sizes, then write the sample tsv for the tools:
 while read -r s _; do
@@ -113,7 +119,6 @@ run kraken $FIR/kraken_node.sh $DB_K2/k2_gtdb_genome_reps_20241109 _GTDB $TSV $D
 check_all Horse
 run merge_tables $SRC/merge_tables.sh Horse
 
-# To project, without reads and alignments
-mkdir -p $RESULTS
+# Profiler outputs to the repo (on /project), without reads, sketches and alignments
 rsync -a --no-g --no-p --exclude preproc --exclude raw --exclude signatures --exclude sylph_sketches_c200 \
-	--exclude '*.bam' --exclude '*.inserts.gz' --exclude '*.tmp.csv' $DATASET_PATH/ $RESULTS/
+	--exclude '*.bam' --exclude '*.inserts.gz' --exclude '*.tmp.csv' $DATASET_PATH/ $REPO/data/Horse/

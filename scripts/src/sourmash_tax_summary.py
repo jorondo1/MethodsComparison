@@ -48,6 +48,11 @@ def main():
         sys.exit("No gather results loaded")
     for r in results:
         r.build_summarized_result()
+    # A query whose matches all lack a lineage has nothing to summarize, and write_summary() raises on it: drop it
+    none = [r.query_name for r in results if not r.summarized_lineage_results]
+    if none:
+        print(f"{len(none)} queries without any match in the lineages, left out: {' '.join(none)}", file=sys.stderr)
+        results = [r for r in results if r.summarized_lineage_results]
     with FileOutputCSV(a.output) as fp:
         tax_utils.write_summary(results, fp)
     print(f"{len(results)} queries written to {a.output}", file=sys.stderr)
