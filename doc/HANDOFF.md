@@ -51,7 +51,7 @@ Read at the start of each session and update before stopping (see `CLAUDE.md`). 
   - New `rate_kraken_species` (`classification_rates.sh`): Kraken's species-rank share, from the Bracken summaries in `kraken_wrapper.log`. It needs no kreports. Written for 12 datasets (13,624 rows). The totals match the kreport-based rates on all 13,304 overlapping rows.
   - The Oilfield and Grapevine rows are partial until their Kraken jobs end.
   - TODO "Methods notes" has both items.
-- **`sync_from_hpc.sh` pulls every R input:** it now also takes the sample data (top-level `.tsv`/`.csv`/`.txt` of `data/<ds>/raw/`, ~1 MB, plus `data/<ds>/*.rds`). The new datasets' metadata therefore reaches the Mac. A local dry run gave 301 files, with no reads.
+- **`sync_from_hpc.sh` now pulls only the figure inputs:** `Out/classification_rates/*.tsv` and the 8 assembled `Out/_Rdata/*.RDS`. `0_run_all.R` runs on the HPC only (user's decision), so the merged tables, sample data and sample tsvs are no longer synced.
 - **Resource benchmark moves to Fir:**
   - New branch `benchmark` (from `main`), with `scripts/benchmark/`, `scripts/10_benchmark_plot.R` and `doc/HANDOFF_FIR.md` staged, not committed.
   - The 55 picked samples are symlinked under `Out/benchmark/reads/<ds>/<sample>/` (154 GB with `-L`), with `samples.rel.tsv`. On Fir they are rsynced with `-L`.
