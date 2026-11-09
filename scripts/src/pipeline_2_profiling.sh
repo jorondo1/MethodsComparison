@@ -3,7 +3,8 @@
 return 0 2>/dev/null; [[ $0 == "${BASH_SOURCE[0]}" ]] && { echo "Copy-paste collection: paste the commands, don't run this file"; exit 1; }
 
 export MC=$ILAFORES/analysis/MethodsComparison
-cd $MC && source scripts/src/myFunctions.sh && source scripts/src/classification_rates.sh
+cd $MC
+source scripts/src/myFunctions.sh && source scripts/src/classification_rates.sh
 
 PARTS=bio,c-3t # + cpubase for light jobs (old nodes)
 DB_MPA=$FAST/metaphlan4_db
@@ -14,7 +15,7 @@ use_dataset Maple # names: scripts/src/datasets.tsv
 
 # Completion table, every tool x database x dataset: ok/empty/unfinished samples (red: unfinished, yellow: empty)
 check_all                # all datasets
-check_all Oilfield Maple # only these
+check_all Oilfield Maple Grapevine # only these
 check_all -m Oilfield    # + unfinished tsv rows, for sbatch --array
 
 ################################################################
@@ -150,8 +151,6 @@ rate_sourmash $DATASET
 ################################################################################################################
 
 # ── ONE-TIME (done): sylph env and databases ──
-# sylph + sylph-tax env (once). Under $ILAFORES, not ~/miniconda3/envs: the old nodes don't see /home/ronj2303,
-# and a conda env can't be moved afterwards (its scripts hardcode its path). The SLURM scripts only put its bin/ in PATH.
 conda create -p $ILAFORES/programs/conda_envs/sylph -c conda-forge -c bioconda sylph=1.0.0 sylph-tax
 $ILAFORES/programs/conda_envs/sylph/bin/sylph --version
 
@@ -225,7 +224,7 @@ check_output 'RefSeq' $DATASET_PATH _profile.tsv
 # Counts are corrected with each sample's classification rate (see sylph_merge.sh), read from per_sample/<sample>_profile.log
 
 for db in RefSeq gtdb_rs220; do
-	bash $MC/scripts/src/sylph_merge.sh "$DATASET" $db "$TSV"
+	bash $MC/scripts/utils/sylph_merge.sh "$DATASET" $db "$TSV"
 done
 # (or merge_tables.sh --tools sylph "$DATASET", which runs sylph_merge.sh on every SYLPH_* dir, see below)
 

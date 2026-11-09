@@ -254,7 +254,7 @@ merge_sylph() {
 	local dir=$1 db=${1##*/SYLPH_} f=()
 	[[ -d $dir/per_sample ]] || { echo "  no per_sample/"; return 1; }
 	[[ $FORCE -eq 1 ]] && f=(-f)
-	bash scripts/src/sylph_merge.sh "${f[@]}" "$DS" "$db" "${SAMPLE_TSV[$DS]}" 2>&1 | sed 's/^/  /'
+	bash scripts/utils/sylph_merge.sh "${f[@]}" "$DS" "$db" "${SAMPLE_TSV[$DS]}" 2>&1 | sed 's/^/  /'
 	return "${PIPESTATUS[0]}"
 }
 

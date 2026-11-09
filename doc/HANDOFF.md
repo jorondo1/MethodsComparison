@@ -4,9 +4,9 @@ Read at the start of each session and update before stopping (see `CLAUDE.md`). 
 
 ## Current state (keep this true; rewrite rather than append)
 
-- **Branch:** `merged_tables`, PR to `main` being opened 2026-11-06. ILL `kneaddata_gzip` (`e3f1778`) also goes to PR: multi-index kneaddata, gzip-safe MetaPhlAn and HUMAnN inputs. `scripts/benchmark/` and `scripts/10_benchmark_plot.R` stay uncommitted for now.
+- **Branch:** `main`. `merged_tables` (PR #4) and `fir` (PR #5) are merged. ILL `kneaddata_gzip` (`e3f1778`) still goes to PR. `scripts/benchmark/` and `scripts/10_benchmark_plot.R` stay uncommitted for now.
 - **Pipeline (all on the HPC):**
-  - Merged tables per tool, from `scripts/src/merge_tables.sh` and `sylph_merge.sh`.
+  - Merged tables per tool, from `scripts/src/merge_tables.sh` and `scripts/utils/sylph_merge.sh` (moved from `scripts/src/` on 2026-11-09).
   - `scripts/0_run_all.R` runs, per dataset, `0_proc_data.R` (phyloseq objects + rarefaction) and then `1_diversity_metrics.R`. Results are cached in `Out/_Rdata/cache/<DS>/`, then assembled into `Out/_Rdata/*.RDS`.
   - The "Adding a dataset" steps are in `doc/TODO.md`.
 - **Results in `Out/_Rdata/` on the HPC:** regenerated on 2026-11-04 (09:10) for 9 datasets: P19_Saliva, P19_Gut, Moss, NAFLD, AD_Skin, RA_Gut, Bee, PD, Maple. They include:
@@ -36,6 +36,11 @@ Read at the start of each session and update before stopping (see `CLAUDE.md`). 
 ### 2026-11-09 [Fir]
 - **Horse profiled and merged:** all tools, 744 samples (sylph RefSeq 147, KB90 734 and sourmash RefSeq 205 are genuinely sparse: RefSeq covers horse gut poorly). Outputs in `/project/6047190/ronj2303/MethodsComparison/data/Horse` on Fir. Details in `doc/HANDOFF_FIR.md`, Current state.
 - Adapter copy moved from `scripts/fir/horse.sh` to `scripts/fir/setup_fir.sh` (uncommitted).
+
+### 2026-11-09 [Mac]
+- **`sylph_merge.sh` moved to `scripts/utils/`** (staged as a rename, not committed). References updated in `scripts/src/merge_tables.sh`, `pipeline_2_profiling.sh`, `scripts/0_run_all.R`, `doc/TODO.md`, `doc/HPC_handoff_prompt.md`. After pulling on the HPC, run it as `bash scripts/utils/sylph_merge.sh ...`.
+- **`check_all` runs its tool × dataset cells in parallel** (`scripts/src/myFunctions.sh`): `-j N`, default `$SLURM_CPUS_PER_TASK`, else 8. Same output as before (compared on the Mac with BSD awk); not yet run with gawk on the HPC.
+- `sync_from_hpc.sh` now also pulls `data/*/preproc/preprocessed_reads.sample.tsv`. `pipeline_2_profiling.sh`: `check_all` example includes Grapevine.
 
 ### 2026-11-07 [Fir]
 - **Horse raw reads downloading:**

@@ -62,7 +62,7 @@ Started 2026-11-03.
 1. HPC:
    - run the profilers;
    - add a line to `scripts/src/datasets.tsv`;
-   - run `bash scripts/src/merge_tables.sh <DS>`, plus `scripts/src/sylph_merge.sh <DS> <db> <sample tsv>` for each sylph database.
+   - run `bash scripts/src/merge_tables.sh <DS>`, plus `scripts/utils/sylph_merge.sh <DS> <db> <sample tsv>` for each sylph database.
 2. `scripts/utils/sample_data.R`: add the sample data to `load_sample_data()`'s list.
 3. `scripts/0_config.R`: add `grouping_variable` and `dataset_names` entries.
 4. Add `<DS>` to `datasets` in `scripts/0_run_all.R` and run it on the HPC (`Rscript scripts/0_run_all.R`).

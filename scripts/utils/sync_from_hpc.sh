@@ -16,6 +16,8 @@ REMOTE=/net/nfs-ip34/jbod2/def-ilafores/analysis/MethodsComparison
 rsync -avum "$@" \
 	--include='/data/' \
 	--include='/data/*/' \
+	--include='/data/*/preproc/' \
+	--include='/data/*/preproc/preprocessed_reads.sample.tsv' \
 	--include='/data/*/MOTUS*/' \
 	--include='/data/*/MOTUS*/merged_profile.tsv' \
 	--include='/data/*/KB*/' \

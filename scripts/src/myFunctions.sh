@@ -32,15 +32,19 @@ check_output() {
 	done
 }
 
-# check_all [-m] [dataset ...]: table of ok/empty/unfinished samples for every tool x database x dataset
+# check_all [-m] [-j N] [dataset ...]: table of ok/empty/unfinished samples for every tool x database x dataset
 # (all datasets in scripts/src/datasets.tsv if none given). Samples come from column 1 of each sample tsv.
 #   ok = output with results; empty = output with no results; unfinished = no output for that sample
 #   Red: unfinished > 0. Yellow: only empty. Green: all ok. No colour when the output isn't a terminal.
 #   -m: list the unfinished tsv rows, ready for sbatch --array
-# A crash that leaves a 0-byte file looks like empty. Needs gawk and bash 4.
+#   -j N: cells checked in parallel (default $SLURM_CPUS_PER_TASK, else 8). The time is NFS latency, not CPU.
+# A crash that leaves a 0-byte file looks like empty. Needs gawk and bash 4.3.
 check_all() {
-	local list=$MC/scripts/src/datasets.tsv show_rows=0 G="" Y="" R="" O="" ds row tsv
-	[[ $1 == -m ]] && { show_rows=1; shift; }
+	local list=$MC/scripts/src/datasets.tsv show_rows=0 njobs=${SLURM_CPUS_PER_TASK:-8} G="" Y="" R="" O="" ds row
+	while [[ $1 == -[mj] ]]; do
+		[[ $1 == -m ]] && { show_rows=1; shift; }
+		[[ $1 == -j ]] && { njobs=$2; shift 2; }
+	done
 	local datasets=("$@")
 	(( ${#datasets[@]} )) || mapfile -t datasets < <(grep -v '^#' "$list" | cut -f1)
 	[[ -t 1 ]] && { G=$'\033[32m'; Y=$'\033[33m'; R=$'\033[31m'; O=$'\033[0m'; }
@@ -60,50 +64,64 @@ check_all() {
 		"SYref;SYLPH_RefSeq/per_sample;1;*_profile.tsv;$sy;rows" "SY220;SYLPH_gtdb_rs220/per_sample;1;*_profile.tsv;$sy;rows"
 	)
 
-	# One cell per row x dataset: "ok empty unfinished unfinished_rows"
-	local -A cell total width
-	local unfinished_list=()
+	local -A tsv total width cell
 	for ds in "${datasets[@]}"; do
-		tsv=$(eval echo "$(awk -F'\t' -v ds="$ds" '$1 == ds { print $2 }' "$list")")
-		if [[ ! -f $tsv ]]; then echo "No sample tsv for $ds (see scripts/src/datasets.tsv)"; return 1; fi
-		total[$ds]=$(awk 'NF { n++ } END { print n + 0 }' "$tsv")
+		tsv[$ds]=$(eval echo "$(awk -F'\t' -v ds="$ds" '$1 == ds { print $2 }' "$list")")
+		if [[ ! -f ${tsv[$ds]} ]]; then echo "No sample tsv for $ds (see scripts/src/datasets.tsv)"; return 1; fi
+		total[$ds]=$(awk 'NF { n++ } END { print n + 0 }' "${tsv[$ds]}")
 		width[$ds]=${#ds}
+	done
+
+	# One cell per row x dataset, $njobs at a time, each written to $tmp/<label>,<dataset> as "ok empty unfinished unfinished_rows".
+	# The subshell keeps the shell's job messages ([1] 1234, Done) off the screen.
+	local tmp; tmp=$(mktemp -d)
+	(
+	for ds in "${datasets[@]}"; do
 		for row in "${rows[@]}"; do
-			local label folders depth name strip what dirs=() f
 			IFS=';' read -r label folders depth name strip what <<< "$row"
+			dirs=()
 			for f in $folders; do [[ -d $MC/data/$ds/$f ]] && dirs+=("$MC/data/$ds/$f"); done
-			cell[$label,$ds]=$(
-				{ (( ${#dirs[@]} )) && find "${dirs[@]}" -mindepth "$depth" -maxdepth "$depth" -type f -name "$name" -print0; } |
-				xargs -0 -r awk -v strip="$strip" -v what="$what" '
-					BEGINFILE { if (ERRNO) nextfile; id = FILENAME; sub(/.*\//, "", id); sub(strip, "", id); has = 0 }
-					(what == "species" && /s__/ && !/^#/) ||
-					(what == "rows" && FNR > 1) ||
-					(what == "motus" && !/^#|^mOTU\t|unassigned/ && $NF + 0 > 0) { has = 1; nextfile }
-					ENDFILE { print id "\t" has }' |
-				awk -F'\t' 'NR == FNR { if (NF) id[++n] = $1; next }
-					{ if ($2 || !($1 in seen)) seen[$1] = $2 }
-					END {
-						for (i = 1; i <= n; i++) {
-							if (!(id[i] in seen)) { c++; rows = rows sep i; sep = "," }
-							else if (seen[id[i]]) a++
-							else b++
-						}
-						print a + 0, b + 0, c + 0, rows
-					}' "$tsv" -
-			)
-			local ok empty left rows_left text
+			while (( $(jobs -rp | wc -l) >= njobs )); do wait -n; done
+			{ (( ${#dirs[@]} )) && find "${dirs[@]}" -mindepth "$depth" -maxdepth "$depth" -type f -name "$name" -print0; } |
+			xargs -0 -r awk -v strip="$strip" -v what="$what" '
+				BEGINFILE { if (ERRNO) nextfile; id = FILENAME; sub(/.*\//, "", id); sub(strip, "", id); has = 0 }
+				(what == "species" && /s__/ && !/^#/) ||
+				(what == "rows" && FNR > 1) ||
+				(what == "motus" && !/^#|^mOTU\t|unassigned/ && $NF + 0 > 0) { has = 1; nextfile }
+				ENDFILE { print id "\t" has }' |
+			awk -F'\t' 'NR == FNR { if (NF) id[++n] = $1; next }
+				{ if ($2 || !($1 in seen)) seen[$1] = $2 }
+				END {
+					for (i = 1; i <= n; i++) {
+						if (!(id[i] in seen)) { c++; rows = rows sep i; sep = "," }
+						else if (seen[id[i]]) a++
+						else b++
+					}
+					print a + 0, b + 0, c + 0, rows
+				}' "${tsv[$ds]}" - > "$tmp/$label,$ds" &
+		done
+	done
+	wait
+	)
+
+	local unfinished_list=() label ok empty left rows_left text colour
+	for ds in "${datasets[@]}"; do
+		for row in "${rows[@]}"; do
+			label=${row%%;*}
+			cell[$label,$ds]=$(< "$tmp/$label,$ds")
 			read -r ok empty left rows_left <<< "${cell[$label,$ds]}"
 			text="$ok/$empty/$left"
 			(( ${#text} > ${width[$ds]} )) && width[$ds]=${#text}
 			(( show_rows && left )) && unfinished_list+=("$ds $label: $rows_left")
 		done
 	done
+	rm -r "$tmp"
 
 	# Table, padded before colouring so that columns line up
 	printf '%-6s' ""; for ds in "${datasets[@]}"; do printf '  %-*s' "${width[$ds]}" "$ds"; done; echo
 	printf '%-6s' "n";  for ds in "${datasets[@]}"; do printf '  %-*s' "${width[$ds]}" "${total[$ds]}"; done; echo
 	for row in "${rows[@]}"; do
-		local label=${row%%;*} ok empty left rows_left colour
+		label=${row%%;*}
 		printf '%-6s' "$label"
 		for ds in "${datasets[@]}"; do
 			read -r ok empty left rows_left <<< "${cell[$label,$ds]}"

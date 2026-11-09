@@ -11,7 +11,7 @@
 #
 # Adding a dataset:
 #   1. HPC: run the profilers, add a line to scripts/src/datasets.tsv, then
-#      bash scripts/src/merge_tables.sh <DS>   (and scripts/src/sylph_merge.sh <DS> <db> <sample tsv> per sylph database)
+#      bash scripts/src/merge_tables.sh <DS>   (and scripts/utils/sylph_merge.sh <DS> <db> <sample tsv> per sylph database)
 #   2. scripts/utils/sample_data.R: add the dataset's sample data to load_sample_data()'s list
 #   3. scripts/0_config.R: add grouping_variable and dataset_names entries
 #   4. add <DS> to `datasets` below and run this script (the checks below say what's missing)
@@ -81,7 +81,7 @@ check_new_dataset <- function(ds) {
   missing_tables <- expected[!file.exists(file.path('data', ds, expected))]
   for (f in missing_tables) {
     if (str_detect(f, '^SYLPH_')) {
-      message('    MISSING: data/', ds, '/', f, ' (HPC: bash scripts/src/sylph_merge.sh ', ds, ' ',
+      message('    MISSING: data/', ds, '/', f, ' (HPC: bash scripts/utils/sylph_merge.sh ', ds, ' ',
               str_remove(dirname(f), '^SYLPH_'), ' <sample tsv>)')
     } else {
       message('    MISSING: data/', ds, '/', f, ' (HPC: bash scripts/src/merge_tables.sh ', ds, ')')

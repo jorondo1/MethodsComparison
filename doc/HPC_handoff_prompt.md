@@ -11,7 +11,7 @@ You're picking up work on the MethodsComparison repo. It compares taxonomic prof
 ## Already done (don't redo or "fix")
 
 - **sylph 1.0.0:**
-  - Scripts: `scripts/src/sylph_SLURM.sh` profiles each sample into `data/<ds>/SYLPH_<db>/per_sample/`. `scripts/src/sylph_merge.sh [-f] <ds> <db> <tsv>` writes `counts.tsv`, `taxonomy.tsv`, `merged_species.tsv` and `classification_rate.tsv`.
+  - Scripts: `scripts/src/sylph_SLURM.sh` profiles each sample into `data/<ds>/SYLPH_<db>/per_sample/`. `scripts/utils/sylph_merge.sh [-f] <ds> <db> <tsv>` writes `counts.tsv`, `taxonomy.tsv`, `merged_species.tsv` and `classification_rate.tsv`.
   - Counts are divided by the classification rate on purpose. `sylph profile --estimate-read-counts` scales counts by the rate twice, so they come out as rate² × reads. This was checked empirically.
 - **MetaPhlAn normalisation:**
   - `parse_MPA(MPA_data = TRUE)` in `jorondo1/misc_scripts/community_functions.R` now normalises per sample (commit b86aac6). `0_proc_data.R` sources it from GitHub main.
