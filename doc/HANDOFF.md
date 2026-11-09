@@ -33,6 +33,10 @@ Read at the start of each session and update before stopping (see `CLAUDE.md`). 
 
 ## Log (newest first; tag each entry [HPC] or [Mac])
 
+### 2026-11-09 [Fir]
+- **Horse profiled and merged:** all tools, 744 samples (sylph RefSeq 147, KB90 734 and sourmash RefSeq 205 are genuinely sparse: RefSeq covers horse gut poorly). Outputs in `/project/6047190/ronj2303/MethodsComparison/data/Horse` on Fir. Details in `doc/HANDOFF_FIR.md`, Current state.
+- Adapter copy moved from `scripts/fir/horse.sh` to `scripts/fir/setup_fir.sh` (uncommitted).
+
 ### 2026-11-07 [Fir]
 - **Horse raw reads downloading:**
   - 744 of 772 listed samples matched runs in PRJNA1102860.

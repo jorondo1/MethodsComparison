@@ -92,7 +92,7 @@ All tools are read from the merged tables (`scripts/src/merge_tables.sh`, `scrip
 
 ## To launch
 
-- [ ] **Horse on Fir** (PRJNA1102860): `scripts/fir/`, written 2026-11-06, not run. Merge the `merged_tables` and ILL `kneaddata_gzip` PRs first. Set `SRC` in `setup_fir.sh`, and `HORSE_FASTA` in `horse.sh`, or `HORSE_INDEX` in `setup_fir.sh` if the index is built on iv12. Steps are in `doc/HANDOFF_FIR.md`.
+- [x] **Horse on Fir** (PRJNA1102860): profiled and merged 2026-11-07, outputs in `data/Horse` on Fir (2026-11-09). Remaining: the R steps of "Adding a dataset". Original note: Merge the `merged_tables` and ILL `kneaddata_gzip` PRs first. Set `SRC` in `setup_fir.sh`, and `HORSE_FASTA` in `horse.sh`, or `HORSE_INDEX` in `setup_fir.sh` if the index is built on iv12. Steps are in `doc/HANDOFF_FIR.md`.
 - [ ] **Resource benchmark** for the reviewer's runtime and memory request (written 2026-11-06, not submitted: the queue is full; scripts are local and uncommitted, held out of the `merged_tables` PR). 55 samples (5 per dataset, no Olive), all tools and databases, all on `c-3t`. Expect a few days on that node. Output: `Out/benchmark/`.
   - **Launch:** paste the blocks of `scripts/benchmark/benchmark.sh` in order, from a login or interactive shell. Everything goes through `sbatch`; no `salloc` needed. The sample block rewrites `samples.tsv` and `tools.tsv`, already built once.
   - **Pilot first:** after the sample block, set `A=1` and `K=1` to run one sample per tool. Check memory and the Kraken step below, delete `$B/jobs.tsv`, then set them back to `A=1-$(wc -l < $B/tools.tsv)` and `K=$(wc -l < $B/tools.tsv)`.

@@ -41,7 +41,11 @@ All profilers ran 2026-11-07, every task COMPLETED: MetaPhlAn 2022/2023/2025, mO
 - sylph RefSeq: 147 profiles, 597 empty (nothing above threshold).
 - sourmash RefSeq: 273 csv; the other 471 logged "No matches found for --threshold-bp at 50.0 kbp", so no file is written and `check_all` counts them as unfinished.
 - KB90 (standard, confidence 0.9): 734; for 10 samples Kraken classified no reads, so Bracken wrote nothing (also counted as unfinished).
-Horse gut is poorly covered by RefSeq; the GTDB versions of each tool are complete. Next: `merge_tables`, then rsync to `$REPO/data/Horse` (last block of `horse.sh`). Also still to do: move the adapter copy from `horse.sh` into `setup_fir.sh`.
+Horse gut is poorly covered by RefSeq; the GTDB versions of each tool are complete.
+
+Merged 2026-11-07 (`merge_tables.sh Horse`): 744 samples in every table, except sylph RefSeq (147), KB90 (734) and sourmash RefSeq (205: of the 273 gathers, 68 have no match in the lineages and are left out by `sourmash_tax_summary.py`). Profiler outputs rsynced to `$REPO/data/Horse` on 2026-11-09 (1.9 GB, 28k files; BAMs, inserts, reads and sketches stay in `$MC`). The adapter copy is now in `setup_fir.sh`.
+
+Next: get `data/Horse` to the HPC/Mac, then the R steps of "Adding a dataset" (`doc/TODO.md`): sample data, `grouping_variable`, `0_run_all.R`. Horse metadata is in `data/Horse/raw/`. Deleting `$MC/data/Horse/preproc` (397 GB) and the raw reads is the user's call.
 
 ## Monitoring
 - Start in the background: `bash $MC/scripts/fir/watch.sh <YYYY-MM-DD> <first job id>`. It exits on a new problem or when no job is left.
