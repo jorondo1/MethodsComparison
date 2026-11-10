@@ -1,184 +1,66 @@
-# Handoff between the HPC and Mac sessions
+# Handoff
 
-Read at the start of each session and update before stopping (see `CLAUDE.md`). Pending work items are in `doc/TODO.md`; this file says where things stand and what the last session did.
+Read at the start of a session and keep it current. Pending items are in `doc/TODO.md`. Older session logs are in git history (`git log -p -- doc/HANDOFF.md`).
 
-## Current state (keep this true; rewrite rather than append)
+## Where things stand (2026-11-10)
 
-- **Branch:** `main`. `merged_tables` (PR #4) and `fir` (PR #5) are merged. ILL `kneaddata_gzip` (`e3f1778`) still goes to PR. `scripts/benchmark/` and `scripts/10_benchmark_plot.R` stay uncommitted for now.
-- **Pipeline (all on the HPC):**
-  - Merged tables per tool, from `scripts/src/merge_tables.sh` and `scripts/utils/sylph_merge.sh` (moved from `scripts/src/` on 2026-11-09).
-  - `scripts/0_run_all.R` runs, per dataset, `0_proc_data.R` (phyloseq objects + rarefaction) and then `1_diversity_metrics.R`. Results are cached in `Out/_Rdata/cache/<DS>/`, then assembled into `Out/_Rdata/*.RDS`.
-  - The "Adding a dataset" steps are in `doc/TODO.md`.
-- **Results in `Out/_Rdata/` on the HPC:** regenerated on 2026-11-04 (09:10) for 9 datasets: P19_Saliva, P19_Gut, Moss, NAFLD, AD_Skin, RA_Gut, Bee, PD, Maple. They include:
-  - the MetaPhlAn per-sample normalisation fix;
-  - the sourmash RefSeq double-counting fix (`doc/sourmash_refseq_double_counting.txt`);
-  - Bacteria + Archaea only (GTDB tables kept whole);
-  - the new sylph objects `SYLPH_<db>_Seq` (rarefied counts) and `SYLPH_<db>_Tax` (relative abundance rescaled to 100, not rarefied), for RefSeq and gtdb_rs220;
-  - Maple (grouping variable `Provenance`: 88 samples, 66 tested) and Moss sylph;
-  - seeded Procrustes and PERMANOVA.
-- **Synced to the Mac:** done 2026-11-04. The Mac `Out/_Rdata/*.RDS` are the HPC files from 09:10, and all 9 datasets load.
-- **No pre-fix baseline:** the old Mac RDS files were overwritten by the sync without a copy, and they were never in git. What's left: `Out/_Rdata/alpha_div_plot_data.tsv` and `alpha_div_wilcox.tsv` (2026-03-10), and possibly Time Machine (not mounted). The old vs new comparison is on hold until the user asks for it.
-- **Figure scripts:**
-  - `6.0`–`6.4` read only the synced files.
-  - `6._FigX_TaxAssignment.R` and the DAA scripts (`5.x`) read files nobody regenerates anymore (`tax_assign_*`, `ps_taxranks`, `ps_filt`). DAA is out of scope.
-  - The figure scripts are not in git (untracked on the HPC). The Mac copy is the reference.
-- **Object names changed:** the sylph entries are `SYLPH_RefSeq_Seq/_Tax` and `SYLPH_gtdb_rs220_Seq/_Tax` (labels in `CCE_names`/`CCE_metadata` in `0_config.R`). The Moss MAGs object is `SM_gtdb-rs214-rep_MAGs`. Figure code that hard-codes old database names may need updating.
+- **HPC work is finished.** Profiling, merged tables, classification rates and `scripts/0_run_all.R` are complete for all 12 datasets:
+  - P19_Saliva, P19_Gut, Moss, NAFLD, AD_Skin, RA_Gut, Bee, PD, Maple;
+  - the new Oilfield, Grapevine and Horse.
+  - From here the work is on the Mac, from the synced outputs. The pipeline runs only on the HPC; rerunning it is not planned.
+- **Results:** `Out/_Rdata/*.RDS`, assembled on 2026-11-09 at 22:26. Per-dataset caches are in `Out/_Rdata/cache/<DS>/`.
+  - **PD** was redone with the re-merged mOTUs 3 table (724 samples). SRR19064900 has no preprocessed reads in any tool.
+  - **Grouping variables:**
+    - Oilfield: `Oilfield`.
+    - Grapevine: `Health`, also has `Compartment` and `Plant` for pairing.
+    - Horse: `island_side`, also has `age_class_rev`.
+  - **Samples after rarefaction:**
+    - Oilfield: 87, except mOTUs 3 (81) and sylph RefSeq (85).
+    - Grapevine: 78 everywhere.
+    - Horse: 744 for most databases. RefSeq covers horse gut poorly: mOTUs 3 587, mOTUs 4 682, KB90 525, sourmash RefSeq 182, sylph RefSeq 140/144.
+- **Classification rates:** `Out/classification_rates/*.tsv`, all 12 datasets. Horse has no `reads` rows, because its KneadData logs stayed on Fir.
+  - New `kraken_species_classification_rate.tsv`: Kraken's own species-rank share, read from the Bracken summaries. Use it instead of `kraken`/`bracken` for species-level identifiability.
+  - mOTUs is dropped from the rate figure: its denominator is marker-gene reads only. TODO "Methods notes" has the wording item.
+- **Object names:** the sylph entries are `SYLPH_<db>_Seq` (rarefied counts) and `SYLPH_<db>_Tax` (relative abundance, not rarefied). The Moss MAGs object is `SM_gtdb-rs214-rep_MAGs`.
+- **Git:** branch `benchmark` (from `main`).
+  - Staged: `scripts/benchmark/`, `scripts/10_benchmark_plot.R`, `doc/HANDOFF_FIR.md`.
+  - Unstaged: the R setup for the 3 new datasets (`0_config.R`, `0_run_all.R`, `utils/sample_data.R`), `src/classification_rates.sh`, `utils/sync_from_hpc.sh` and docs.
+  - Untracked: `src/kraken_node_SLURM.sh`.
+  - Nothing is committed. The figure scripts (`6.x`, `8_*`, `9.x`) are untracked on the HPC; the Mac copy is the reference.
 
-## Next steps
+## Sync to the Mac
 
-1. **[User, then either]** Find and process new public datasets. The candidate list is in `doc/ena_candidates/wgs_candidates_ranked.tsv` (regenerated 2026-11-04 by `scripts/src/ena_search/`). Then follow "Adding a dataset" in `doc/TODO.md`. The user will plan the next work after this.
-2. **[Mac, on hold]** Compare the old and new results (alpha, Procrustes, PERMANOVA), focusing on sourmash RefSeq and MetaPhlAn, for the reviewers' response. The MetaPhlAn impact numbers measured so far are in `doc/TODO.md`.
-3. **[Mac]** Rerun the figures (`6.0`–`6.4`). Decide how sylph appears in them (TODO: "Figures that include sylph need a rethink").
-4. **[Either]** Merge `merged_tables` into `main` when the figures look right.
+From the Mac repo root:
+```bash
+bash scripts/utils/sync_from_hpc.sh <user@host>      # add --dry-run to preview
+```
+It pulls only what the figure scripts read:
+- `Out/classification_rates/*.tsv`;
+- `Out/_Rdata/{ps_raw.ls,ps_rare.ls,alpha_div,pcoa_noVST.ls,pairwise_dist,procrustes,permanova.ds,dataset_names_n_lookup_alphadiv}.RDS`.
 
-## Log (newest first; tag each entry [HPC] or [Mac])
+`-u` keeps local files that are newer. `scripts/src/datasets.tsv` comes with git. Nothing else on the HPC is needed on the Mac.
 
-### 2026-11-09 [HPC] (afternoon)
-- **Profilers for Oilfield and Grapevine:** everything is complete except Kraken. Kraken jobs submitted with the new `scripts/src/kraken_node_SLURM.sh` (uncommitted). It's a local version of `scripts/fir/kraken_node.sh`, with a confidence argument, and copies the index once per job into /dev/shm:
-  - Standard index, one cpubase node each (48 cores, 240G): 407970–407972 (Oilfield KB10/45/90), 407973–407975 (Grapevine KB10/45/90). Grapevine KB10 resumes after its 45 finished samples.
-  - Grapevine KB90_GTDB (17 samples left): 407976 on c-3t (700G) was cancelled by the user because it took the whole node. The user will relaunch it by hand on a smaller node.
-  - The earlier interactive Kraken runs (Grapevine KB10 on 11-05, KB90_GTDB on 11-08) were killed by the allocation's time limit. The truncated kreport `KB90_GTDB/SRR30485908` was moved to `data/Grapevine/_partial_kraken/`. Any later kill needs the same check: a kreport without `_bracken/*_bracken_S.MPA.TXT` is reused as if finished.
-  - **When they finish:** `rate_kraken`, `rate_bracken` and `rate_kraken_species` for both datasets (before any cleanup), then `merge_tables.sh --tools kraken Oilfield Grapevine`, then `Rscript scripts/0_run_all.R`.
-- **PD mOTUs 3:** re-merged (407977): 724 samples, up from 655. The one sample missing from every PD tool, SRR19064900, has no preprocessed reads, which is also why task 585 of 407787 failed. PD is listed in `rerun` in `0_run_all.R`.
-- **R setup for Oilfield, Grapevine and Horse** (`sample_data.R`, `0_config.R`, `0_run_all.R`; tested with `load_sample_data()`). Grouping variables:
-  - Oilfield: `Oilfield`.
-  - Grapevine: `Health`. `Compartment` is also in the sample data.
-  - Horse: `island_side`. `age_class_rev` is also in the sample data.
-  - The Horse run ↔ sample-name map is `data/Horse/raw/filereport_Horse.tsv` (ENA, fetched today). All 744 runs match `sample_list.csv`.
-- **Horse:** the merged tables are already in `data/Horse/`, but the rsync from Fir was still running. Run `0_run_all.R` once it is done.
-- **Classification rates:**
-  - mOTUs is dropped from the rate figure: its rate is over marker-gene reads only.
-  - New `rate_kraken_species` (`classification_rates.sh`): Kraken's species-rank share, from the Bracken summaries in `kraken_wrapper.log`. It needs no kreports. Written for 12 datasets (13,624 rows). The totals match the kreport-based rates on all 13,304 overlapping rows.
-  - The Oilfield and Grapevine rows are partial until their Kraken jobs end.
-  - TODO "Methods notes" has both items.
-- **`sync_from_hpc.sh` now pulls only the figure inputs:** `Out/classification_rates/*.tsv` and the 8 assembled `Out/_Rdata/*.RDS`. `0_run_all.R` runs on the HPC only (user's decision), so the merged tables, sample data and sample tsvs are no longer synced.
-- **Resource benchmark moves to Fir:**
-  - New branch `benchmark` (from `main`), with `scripts/benchmark/`, `scripts/10_benchmark_plot.R` and `doc/HANDOFF_FIR.md` staged, not committed.
-  - The 55 picked samples are symlinked under `Out/benchmark/reads/<ds>/<sample>/` (154 GB with `-L`), with `samples.rel.tsv`. On Fir they are rsynced with `-L`.
-  - `doc/HANDOFF_FIR.md` is rewritten for the benchmark: what to change in the scripts on Fir, the pilot, and the 5 Horse samples added there (60 samples in total).
+## Next steps (Mac)
 
-### 2026-11-09 [Fir]
-- **Horse profiled and merged:** all tools, 744 samples (sylph RefSeq 147, KB90 734 and sourmash RefSeq 205 are genuinely sparse: RefSeq covers horse gut poorly). Outputs in `/project/6047190/ronj2303/MethodsComparison/data/Horse` on Fir. Details in `doc/HANDOFF_FIR.md`, Current state.
-- Adapter copy moved from `scripts/fir/horse.sh` to `scripts/fir/setup_fir.sh` (uncommitted).
+1. Sync, then rerun the figures `6.0`–`6.4` with the 12 datasets. Add display names or ordering for Oilfield, Grapevine and Horse where scripts hard-code dataset lists.
+2. `8_Identifiability.R`: add `'Horse'` to `dataset_order` (line 26) and to `ds_names`. Otherwise `stopifnot(setequal(...))` fails.
+3. `8_Classification_rates.R`: remove mOTUs, and switch Kraken to `kraken_species_classification_rate.tsv`.
+4. Decide how sylph appears in the figures (TODO).
+5. Stale, not regenerated: `6._FigX_TaxAssignment.R`, `9.2` (`Rarefaction.rds`), DAA `5.x`. Out of scope unless the user says otherwise.
 
-### 2026-11-09 [Mac]
-- **`sylph_merge.sh` moved to `scripts/utils/`** (staged as a rename, not committed). References updated in `scripts/src/merge_tables.sh`, `pipeline_2_profiling.sh`, `scripts/0_run_all.R`, `doc/TODO.md`, `doc/HPC_handoff_prompt.md`. After pulling on the HPC, run it as `bash scripts/utils/sylph_merge.sh ...`.
-- **`check_all` runs its tool × dataset cells in parallel** (`scripts/src/myFunctions.sh`): `-j N`, default `$SLURM_CPUS_PER_TASK`, else 8. Same output as before (compared on the Mac with BSD awk); not yet run with gawk on the HPC.
-- `sync_from_hpc.sh` now also pulls `data/*/preproc/preprocessed_reads.sample.tsv`. `pipeline_2_profiling.sh`: `check_all` example includes Grapevine.
+## Elsewhere
 
-### 2026-11-07 [Fir]
-- **Horse raw reads downloading:**
-  - 744 of 772 listed samples matched runs in PRJNA1102860.
-  - The other 28 (`*_2014`) are only in PRJNA1528879, and are tiny.
-  - New scripts `scripts/fir/download_sra.sh` and `convert_sra.sh`. `RAW` moved to scratch in `fir_env.sh`.
-  - Details are in `doc/HANDOFF_FIR.md` under "Raw reads".
+- **Resource benchmark on Fir:** see `doc/HANDOFF_FIR.md`. The reads are staged as symlinks in `Out/benchmark/reads/` (55 samples; 5 Horse samples are added on Fir). The results come back as tsv files to `Out/benchmark/` and are plotted with `scripts/10_benchmark_plot.R`.
+- **HPC cleanup (the user's call):**
+  - stale `Out/_Rdata/{ps_filt,ps_radEmu,ps_taxranks,ps_rare_taxranks}` (2025);
+  - `data/Grapevine/_partial_*`;
+  - `data/Mosquito/`.
+  - Jobs 405784_27–30 are stuck COMPLETING on cp0419; only admins can clear them.
 
-### 2026-11-05 [HPC]
-- **22 MetaPhlAn profiles lost, 2026-11-06:** replacing `taxonomic_abundance.metaphlan.4.2.4.sh` at 11:06 ended running tasks silently (`COMPLETED`, exit 0, no profile). Resubmitted on `bio,c-3t`: 407210 (Grapevine 2022), 407211 (Grapevine 2023), 407212 (Oilfield 2023), 407213 (Oilfield 2025). Grapevine 2025 rows 27–30, hung 25 h at `module load` on cp0419, cancelled and resubmitted as 407214. 14 Oilfield tasks still hung on cp0403/08/09/13: resubmit on `bio,c-3t` if still stuck on 11-07. Truncated `SRR30485452.kreport` moved to `data/Grapevine/_partial_kraken/`.
-- **Horse on Fir drafted, not run:** `scripts/fir/`, `doc/HANDOFF_FIR.md`. Also generalised `motus3_SLURM.sh`, `motus4_SLURM.sh` (`$ILAFORES` paths) and `kraken_local.sh` (index bind, per-sample `tmp.TXT`); uncommitted.
-- **Resource benchmark drafted, not submitted:** `scripts/benchmark/` + `scripts/10_benchmark_plot.R`. Launch steps are in `doc/TODO.md` under To launch. Pick and R tested; no tool job has run through these scripts yet.
-- **`check_all [-m] [datasets]`** (`myFunctions.sh`, uncommitted): completion table, tool × database × dataset, as ok/empty/unfinished. Leaves out GTDB 214, GenBank and Olive (out of scope).
-- **`gather_SLURM_fast.sh` overwrote a read file (fixed, uncommitted):** `realpath` ran before `mkdir signatures/`, so the first task of a new dataset had an empty `SIG` and sketch wrote to `$FQ_P1`. Only `data/Oilfield/preproc/SRR31654854/SRR31654854_paired_1.fastq.gz` was hit (2026-11-06 02:08).
-  - Kneaddata rerun: job 406795. Oilfield task 1 of 405852, 405853, 405854, 406436, 406439, 406440, 406441 waits on it (`afterok`), as do reruns 406803 (sourmash rs220) and 406804 (mOTUs 4). Kraken for this sample is manual; `KB10_GTDB` predates the damage.
-  - Sourmash Grapevine timeouts rerun: 406805 (rs220, 14 tasks), 406806 (RefSeq, task 12). 405838 still has 11 tasks under its 6 h limit.
-  - **`fastgather` writes its CSV as it goes:** a timeout leaves a partial file that the script and `check_output` treat as finished. The 14 partial rs220 files are in `data/Grapevine/_partial_sourmash_timeouts/`. Any later timeout needs the same move before resubmitting.
-- **mOTUs fixes (uncommitted):** `motus3_SLURM.sh` and `motus4_SLURM.sh` now merge the unmatched reads into one `-s` file (only the last `-s` was kept, so `unmatched_1` was dropped) and no longer prefix `${PWD}/` to `OUT_DIR`. Tested on the smoke input (jobs 406321, 406322; output in `Out/motus_fix_test/`).
-  - Before the fix, Maple and Grapevine went to `$MC/net/nfs-bio/jbod2/def-ilafores/analysis/MethodsComparison/data/<ds>/{MOTUS,MOTUS4}/`, not `data/`. Not moved yet: these need a rerun to include `unmatched_1` (the user's call).
-  - All v3 `MOTUS` profiles almost certainly lack `unmatched_1`. The 8 older `MOTUS4` datasets (February 2026) probably include it (`fir`/`narval` scripts concatenate), inferred from dates; no logs here.
-  - No database mix-up: headers and mOTU IDs show v3 tool + v3 db in `MOTUS`, v4 in `MOTUS4`.
-  - v3 empty profiles: `data/PD/MOTUS` 70, `data/AD_Skin/MOTUS` 1.
-- **`logs/` cleaned:** 5,225 logs of jobs with no completed attempt were moved into `logs/_failed_logs_2026-11-05.tar.gz` (list: `_removed_failed_logs_manifest.tsv`). Slurm history from June 2025 on is in `logs/_sacct_history_mp2.tsv`. The 25,816 older logs with no Slurm record (7-digit job IDs) were deleted at the user's request; names are in `logs/_removed_no_record_logs_manifest.tsv`.
-- **cpubase compatibility** (`scripts/tests/cpubase_smoke.sh`, results in `Out/cpubase_smoke/`): all 14 usable nodes are AMD Opteron 6174 (no AVX, no SSE4.2). Real 200k-pair runs with the pipeline's commands; control on cp0359 passed everything.
-  - **Work on cpubase:** sylph sketch/profile, MetaPhlAn 4.2.4, Kraken2, Bracken, sourmash (sketch, fastgather, gather), seqkit. Kraken and sourmash were tested with small databases only.
-  - **Crash with Illegal instruction:** `sylph-tax`, mOTUs 3, mOTUs 4. Setting `RSNT_ARCH=sse3` doesn't help.
-  - `sylph-tax` fails at `import numpy` (numpy 2.5.4). mOTUs 4 fails inside its container, so the fix would be a rebuild.
-  - Unexplained: 4 sylph tasks died on `mkdir` on cp0403; not reproduced.
-  - Jobs submitted with `sbatch --export=ALL,VAR=x` were cancelled by root after 2 min, with no log (2 of 2). Pass arguments instead.
-- **Classification-rate files repaired** (`Out/classification_rates/`). They had been reduced to a few datasets: the `.kreport` files were deleted, then the old rate script was rerun. The previous files are kept in `Out/classification_rates_backup_20261105/`.
-  - **kraken:** 7,503 rows from git `bf5418c2f`, with paths rewritten from `./<DS>/` to `./data/<DS>/`, plus the existing Maple rows. RA_Gut was never in git, so its 1,008 rows were rebuilt from the classified/unclassified counts in `data/RA_Gut/KB*/kraken_wrapper.log`. That method matches the kreport values exactly on all 6,375 rows where both exist.
-  - **mpa and sylph:** recomputed for all datasets with `rate_mpa` and `rate_sylph`; mpa matches the old git values to within 0.00001.
-  - **motus:** dropped 40 stale `data/PD/MOTUS` rows that carried Bee accessions and had no files.
-  - **sourmash:** already complete and correct.
-  - **Coverage:** Maple has no motus run. Olive has no mpa profiles and is not analysed.
-  - **`scripts/8_Classification_rates.R`:** the kraken `separate()` calls now include `'data'`, matching the `./data/<DS>/` paths.
+## Rules
 
-### 2026-11-04 [HPC] (afternoon)
-- **Mosquito (PRJNA1065965):** dropped, because of its paired/longitudinal design. Its partial download is gone; delete `data/Mosquito/` when convenient.
-- **New dataset `Oilfield` (PRJNA1196024):**
-  - 87 oil-contaminated coastal wetland soils: Shengli 44 (`S#-SL`), Dagang 43 (`D#-DG`).
-  - NovaSeq 2×150, about 24.5 M pairs per sample, 282 GB.
-  - Paper: Commun. Earth Environ. 2025, s43247-025-02062-1. The paper compares the two oilfields, so the grouping variable is `Oilfield`. Per-sample TPH and Fe values are on Figshare (paper's Data availability). Code: "on request".
-  - **Download:** Slurm job 404290 on c-3t (cp0359), running `data/Oilfield/raw/download_ena.sh`: 8 samples in parallel from ENA FTP, with resume and md5 checks. Results go to `download_status.tsv` (174 files expected). The rate is about 2.5 MB/s in total, so it should take about 32 h. If the job stops early, resubmit it as is: finished files are skipped.
-  - **Metadata:** `data/Oilfield/raw/metadata.tsv` (Sample = SRR, Alias, Site, Oilfield).
-  - **Next:** kneaddata with the default GRCh38 index (soil, no host), then the "Adding a dataset" steps.
-- **New dataset `Grapevine` (PRJNA1153634):**
-  - Genome Biol 2026, 10.1186/s13059-025-03905-y. 78 runs from 39 vines: Health H/UH × Site A/D × Cultivar L/Z × Compartment Root/Soil. Each vine gives one root and one soil sample, so the compartments are paired.
-  - All 78 runs are being downloaded (user's choice), 625 GB: job 404291, which starts after 404290 (`afterany`).
-  - **Metadata:** `data/Grapevine/raw/metadata.tsv`, with Health, Site, Cultivar, Compartment, and Plant (the vine ID, for pairing).
-  - **Root samples need a *Vitis vinifera* host index** before kneaddata. Check that R = root from the host fraction.
-  - The download script is now generic: `data/<DS>/raw/download_ena.sh <filereport.tsv>`.
-- **Downloads from NCBI's AWS copy, not ENA:** ENA FTP gave about 0.4 MB/s per stream. Three scripts in `data/<DS>/raw/`, chained as Slurm jobs:
-  1. `download_sra.sh <filereport>`, on bio,c-3t (internet): `.sra` files into `sra/`, 8 at a time, checked against the server's size.
-  2. `convert_sra.sh <filereport>`, an array with one run per task, on bio,c-3t,cpubase: `fasterq-dump` on local scratch, then pigz into `<run>_1/_2.fastq.gz` with ENA-style read names. Spots are checked against the ENA `read_count`. Writes `download_status.tsv`.
-     - The first attempt ran 8 conversions in a single 32G job and was OOM-killed.
-  3. `prep_kneaddata.sh <index>`: `samples_to_process.tsv` from the runs with status ok, then generates and submits the kneaddata array (60G, 24 threads).
-  - Jobs (download → convert → prep):
-    - Snake (3 test runs): 404307 → 404308 → 404309
-    - Oilfield: 404310 → 404311 → 404312
-    - Grapevine: 404313 (after 404310) → 404314 → 404315
-  - Host indexes are built: `$FAST/host_genomes/VitisVinifera_index/VitisVinifera` (GCF_030704535.1) and `DrymarchonCorais_index/DrymarchonCorais` (GCA_043091225.1). Oilfield uses GRCh38.
-  - Snake metadata: `data/Snake/raw/metadata.tsv` (Origin Wild/Captive from the BioSample location, all 80).
-- **Grapevine:** all 78 runs converted (78 ok, 0 bad). Kneaddata array 405234 (78 tasks, Vitis index) submitted. Oilfield kneaddata is array 404625 (87 tasks, GRCh38).
-- **Test plots (`scripts/tests/test_profiles.sh` + `test_composition_barplot.R`, outputs in `Out/Snake_test_3samples/[<DS>/]`):** Oilfield and Grapevine, 5 samples each, are being profiled (sylph 405312/405318, MetaPhlAn 405317/405319). Snake: kneaddata kept only 0.8–4.7% of read pairs (the rest is host). sylph detected 0% (wild zr21461_8), 28% and 50% of reads. `sylph-tax taxprof` crashed with 'Illegal instruction' on cp0404, so it was rerun on the login node. Watch for this node issue whenever sylph-tax runs inside Slurm. Barplot done: 92–96% host, 3% low quality; MetaPhlAn classifies 4–27% of the reads kept (Morganella, Providencia, Citrobacter, Yokenella…), sylph 0–50%. The wild sample is nearly empty. Whether the Snake dataset is usable is the user's call.
-- **Candidates assessed, not downloaded:**
-  - PRJNA1171820 (pond mesocosms): longitudinal, 2.25 TB. Rejected.
-  - PRJNA1222911 (macaque Blastocystis): good; see the chat for details.
-  - PRJNA1347217 (tomato Ralstonia): longitudinal, but one time point could be used. Its metadata is in the BioSample attributes.
-
-### 2026-11-05 [Mac]
-- **Pipeline split** (uncommitted): `scripts/src/MethodsComparison_Pipeline.sh` is now three files.
-  - `pipeline_1_QC.sh`: copy-paste QC.
-  - `pipeline_2_profiling.sh`: copy-paste profiling, renamed with `git mv` from `MethodsComparison_Pipeline.sh` (history kept).
-  - `classification_rates.sh`: sourceable `rate_<tool> [dataset ...]` functions. They add or update rows by path and never remove any, so a dataset whose outputs were deleted keeps its rows. They can also be run directly: `bash scripts/src/classification_rates.sh kraken PD`.
-- **`use_dataset <DS>`** (myFunctions.sh) reads `scripts/src/datasets.tsv` and replaces `dataset_variables`, which is gone. Oilfield and Grapevine were added to `datasets.tsv`.
-- **Olive removed** from the pipeline and `0_config.R`. `data/Olive/` is untouched.
-- **Stale hard-codes fixed:** `$ANCHOR`, the paths pointing to the Olive and PD datasets, and the deleted `motus4_SLURM_fir.sh`. The rerun lines for missing samples now use `check_output` + `$FOUND`, and `check_output` resets `$FOUND`.
-- **Kraken now reads `$TSV.fast`**, built by the rclone block (fastqs copied to `/net/nfs-ip34/fast2/def-ilafores/<DS>/preproc`).
-- **Kraken classification rates recovered:** git `bf5418c2f` (2025-04-22) had 7 datasets, now merged into the Mac's `Out/classification_rates/kraken_classification_rate.tsv` (plus Maple, Olive dropped). The HPC copy still has Maple only. Do the same merge on the HPC (command below). The rsync runs from the HPC to the Mac and keeps newer local files, so the Mac copy is safe until then.
-  ```bash
-  f=Out/classification_rates/kraken_classification_rate.tsv
-  git show bf5418c2f:$f | sed 's|^\./|./data/|' | grep -v '^\./data/Olive/' > old.tmp
-  awk -F'\t' 'NR == FNR { cur[$1]; next } !($1 in cur)' $f old.tmp | cat $f - | sort > new.tmp && cat new.tmp > $f && rm old.tmp new.tmp
-  ```
-- **RA_Gut has no Kraken rates** (its kreports were deleted, and they were never in the old file), and the same will go for Oilfield and Grapevine unless `rate_kraken` runs before the cleanup.
-
-### 2026-11-04 [Mac]
-- Sync checked: the RDS files are the HPC 09:10 versions, with 9 datasets. No pre-fix copy was kept (see Current state).
-- ENA search rerun. `find_wgs_projects.sh` and `rank_wgs_projects.R` now write to `doc/ena_candidates/` (untracked) instead of `Out/ena_candidates/`. The run found 710,018 runs (first public 2023+).
-- Uncommitted Mac edits, not pushed yet:
-  - `scripts/0_config.R`: Maple in `dataset_names`, shorter sylph labels and short names, DAA `tool_vars`/`DAA_metadata` commented out.
-  - `scripts/2_alpha_compare.R`, `scripts/3_beta_compare.R`: Maple and the sylph objects added.
-
-### 2026-11-04 [HPC]
-- **sylph:**
-  - `sylph_merge.sh` now also writes `merged_species_tax.tsv` (taxonomic abundance), plus a `--tax-only` mode.
-  - Ran it for all datasets.
-  - Profiled Moss with sylph, RefSeq + GTDB (first sylph run for Moss).
-  - Moss `datasets.tsv` now points to `data/Moss/raw/preprocessed_reads.sample.tsv`, with the corrected read paths.
-- **`scripts/utils/parse_merged.R`:**
-  - `prokaryotes_only()`: Bacteria + Archaea; Tax/MPA rescaled to 100.
-  - `parse_sylph(abundance =)`.
-  - `dataset_fixes()`: Moss MAGs object; Maple renames.
-  - sylph fungi_refseq and glob_r232 are excluded (side tests only).
-- **Per-dataset restructure:**
-  - `0_proc_data.R` and `1_diversity_metrics.R` now take a dataset argument.
-  - New master script `scripts/0_run_all.R`: checks the setup of new datasets, caches, assembles.
-  - Verified: the assembled outputs are `identical()` to the previous monolithic run. The only differences are the p-values, from the new seeds.
-- **Diversity:** samples without a group are dropped only from the Wilcoxon tests and PERMANOVA. `set.seed(1234)` added before `adonis2` and before Procrustes.
-- **Archived** (not in the repo): the old-vs-new merged-table comparison scripts (`archive/merged_tables_comparison/`).
-- **Docs:**
-  - `doc/sourmash_refseq_double_counting.txt` (for the reviewers);
-  - `doc/TODO.md` methods notes (the test sample sets differ from the diversity sample sets);
-  - the "Adding a dataset" checklist.
-- **`scripts/utils/sync_from_hpc.sh`:** now also syncs the sylph tax tables and the assembled RDS files.
-- **Stale leftovers** on the HPC in `Out/_Rdata/`: `ps_filt`, `ps_radEmu`, `ps_taxranks`, `ps_rare_taxranks` (June/July 2025). They are not synced; deleting them is the user's call.
+- No commits or pushes unless asked. Never `git reset --hard` or `git clean`. Sync clones with fetch + mixed reset.
+- Don't rerun profilers unless asked. Never delete per-sample profiler outputs.
+- Never replace a script that running jobs read (NFS: they stop silently with exit 0).
+- HPC interactive node: at most 2 cores unless the user grants more. Heavy work goes through sbatch.
+- Out of scope: GTDB 214, GenBank, full GTDB rs220, Olive.
