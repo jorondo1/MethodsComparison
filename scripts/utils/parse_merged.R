@@ -147,7 +147,17 @@ meta_parsing <- function(dsName, samData) {
     if (!file.exists(path)) stop(path, ' not found: run scripts/src/merge_tables.sh (sylph: sylph_merge.sh) ', dsName, ' on the HPC')
     path
   }
-  assemble <- function(tbl, ...) assemble_phyloseq(tbl, samData, seqdepth_plot = FALSE, onlySpecies = TRUE, ...)
+  # Every sample of the tables is kept: those without sample data get NA metadata (diversity comparisons only, not the
+  # tests), except the samples of scripts/src/dropped_samples.tsv (controls, AD_Skin runs without metadata, ...)
+  dropped <- read_tsv('scripts/src/dropped_samples.tsv', comment = '#', col_names = c('Dataset', 'Sample', 'reason'),
+                      show_col_types = FALSE) %>% filter(Dataset == dsName) %>% pull(Sample)
+  samData <- as(samData, 'data.frame')
+  assemble <- function(tbl, ...) {
+    no_metadata <- setdiff(names(select(tbl, where(is.double))), c(rownames(samData), dropped))
+    samData[no_metadata, ] <- NA
+    samData <- samData[!rownames(samData) %in% dropped, , drop = FALSE]
+    assemble_phyloseq(tbl, samData, seqdepth_plot = FALSE, onlySpecies = TRUE, ...)
+  }
 
   for (db in dirs$motus3) {
     message(paste('Parsing', db, '...'))
@@ -194,9 +204,8 @@ dataset_fixes <- function(dsName, ps, sam_data) {
     ps$KB90 <- NULL
     ps$MOTUS3 <- NULL # NULL anyway: no Moss sample reaches min_sample_size
   }
-  if (dsName == 'Maple') {
-    # Maple's GTDB rs220 representatives gather dir is spelled SM_gtdb-rs220-reps: same database as the other datasets' SM_gtdb-rs220-rep
-    names(ps) <- str_replace(names(ps), '^SM_gtdb-rs220-reps$', 'SM_gtdb-rs220-rep')
-  }
+  # Maple, Oilfield, Grapevine and Horse spell the GTDB rs220 representatives gather dir SM_gtdb-rs220-reps:
+  # same database as the other datasets' SM_gtdb-rs220-rep, which is the name the figures use
+  names(ps) <- str_replace(names(ps), '^SM_gtdb-rs220-reps$', 'SM_gtdb-rs220-rep')
   ps
 }

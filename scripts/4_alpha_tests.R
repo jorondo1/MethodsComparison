@@ -19,7 +19,6 @@ theme_set(theme_light())
 # Alpha diversity tests ###
 ############################
 
-these_datasets <- c('Moss', 'NAFLD', 'P19_Gut', 'P19_Saliva', 'PD', 'Bee', 'AD_Skin', 'RA_Gut')
 
 these_databases <- c('KB10' ,'KB45', 'KB90', 'SM_RefSeq_20250528', 
                      'KB10_GTDB','KB45_GTDB', 'KB90_GTDB', 
@@ -43,7 +42,7 @@ alpha_div_test <- read_rds('Out/_Rdata/alpha_div.RDS')[['wilcox_tests']] %>% # c
       p.signif, 
       levels = c('p ≥ 0.05', 'p < 0.05', 'p < 0.01', 'p < 0.001' )))
 
-dataset_names_n_lookup <- read_rds('Out/_Rdata/dataset_names_n_lookup_alphadiv.RDS')
+dataset_names_n_lookup <- dataset_names_n() # labels and order from 0_config.R
 
 which_indices <- c('Richness', 'Shannon', 'Hill_2', 'Tail')
 
@@ -93,7 +92,7 @@ wilcox.plots <- imap(wilcox.pdat, function(wilcox.df, Index_name) {
 imap(wilcox.plots, function(plot, idx){
   ggsave(paste0('Out/Manuscript/3.1.alpha_wilcox_',idx, '.pdf'),
          plot = plot,
-         bg = 'white', width = 2500, height = 2000,
+         bg = 'white', width = 2500, height = 2700, # 12 datasets (was 2000 for 8)
          units = 'px', dpi = 280)
 })
 

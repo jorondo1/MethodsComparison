@@ -21,8 +21,20 @@ Started 2026-11-03.
 
 - [x] **sourmash RefSeq counts are doubled** (found 2026-11-03, see `doc/sourmash_refseq_double_counting.txt`). R joins gathers to `SM_RefSeq_20250528_lineages.csv` on the bare accession number, which matches the GCA/GCF twins and versions, so `left_join` duplicates most genomes (+111–116 % on P19_Saliva GQ10–12). Counts, rarefaction depth and count-based alpha are affected. Fixed on the `merged_tables` branch (RefSeq lineages from the sylph-tax table). The relative abundances shift too (max Shannon difference 0.1–0.7 per dataset), so the sourmash RefSeq results need regenerating.
 
+- [ ] **sourmash GTDB 220 missing for Oilfield, Grapevine, Horse** (found 2026-11-10): their objects are `SM_gtdb-rs220-reps`. `parse_merged.R` now renames for every dataset; rerun `0_run_all.R` on the HPC with `rerun <- c('Oilfield', 'Grapevine', 'Horse')`, sync, then rerun the figures.
+- [ ] PD mOTUs 3: 10 rate rows are NA in `motus_classification_rate.tsv` though the profiles have counts: the rerun of the mOTUs rate block is still pending (item above). Visible as `unknown` in `Out/dataset_summary/dataset_summary.tsv`.
+
 ## Methods notes (for the manuscript)
 
+- [ ] **Response to reviewers: sample numbers (a reviewer found them incoherent across the ms).** Two sample sets, stated once in the methods and in the dataset table (`Out/dataset_summary/dataset_table.html`, `scripts/6.2_dataset_summary.R`):
+  - every post-QC sample for the comparisons that need no metadata (alpha diversity, PCoA, distances, Procrustes; 2,216 samples);
+  - only samples with a value for the grouping variable for the Wilcoxon tests and PERMANOVA (2,185): Moss 131 of 140, Maple 66 of 88.
+  - Removed from everything beforehand (`scripts/src/dropped_samples.tsv`):
+    - Gut COV: 7 controls (mock community MSA-3001, GQ27–29, GQ54–56);
+    - PD: 5 runs that are neither PD nor control (library SP*/SC*);
+    - Skin AD: 78 runs absent from the study's metadata, mostly very shallow (only the 70 with metadata are used).
+  - Figure labels must use the matching n.
+  - [ ] Takes effect in the results after the HPC rerun of Moss (HANDOFF).
 - [ ] **The sample sets differ between the diversity comparisons and the statistical tests.**
   - The diversity comparisons use every sample of a dataset: alpha diversity, PCoA, pairwise distances and Procrustes.
   - The Wilcoxon tests and PERMANOVA use only the samples that have a value for the grouping variable (`grouping_variable` in `0_config.R`).
@@ -32,7 +44,12 @@ Started 2026-11-03.
 - [ ] **PD mOTUs 3: 70 profiles salvaged (tell reviewers).** 70 of the 725 PD mOTUs 3 profiles (rows 1–25 plus 45 scattered rows) were empty files from a batch that died on 2025-03-29, so the merged table had 655 samples. Until 2026-11-07 the classification-rate script also gave each of them the previous sample's rate. Rerun on 2026-11-07 (job 407787, same mOTUs 3.1.0 and database). Mention the rerun in the methods or the response to reviewers, then rerun `merge_tables.sh PD` and the PD mOTUs 3 figures.
 - [ ] **mOTUs left out of the classification rates (decided 2026-11-09): say why in the methods or the ms.** mOTUs only sees reads of 10 single-copy prokaryotic marker genes. Its assigned/(assigned + unassigned) is therefore a share of the prokaryotic marker-gene signal, not of the reads, and it ignores host, eukaryotic and non-marker DNA. It is not comparable with the other tools (Bee median 0.95, against 0.11 for MetaPhlAn).
 - [ ] **Kraken identifiability = species-rank share (2026-11-09): say so in the methods.** The rate is the fraction of reads Kraken itself assigns at species rank or below, read from Bracken's summary. It is not the Bracken total, which redistributes nearly all classified reads to species, and not the any-rank classified rate the figure used before. Example, PD at confidence 0.10 (GTDB): species-rank 0.55, any rank 0.99. At 0.90 it is ~0 everywhere. The rates are in `Out/classification_rates/kraken_species_classification_rate.tsv` (`rate_kraken_species`). Caveat: it is per read, so reads from conserved regions of known species stay at higher ranks.
-  - [ ] Mac: switch `scripts/8_Classification_rates.R` to read this file for Kraken. It has the same 4 columns and path layout as `kraken_classification_rate.tsv`.
+  - [x] Mac: Kraken switched to this file in `scripts/6.1_Identifiability.R` (2026-11-10; replaces `8_Classification_rates.R`). It has the same 4 columns and path layout as `kraken_classification_rate.tsv`.
+- [ ] **Discussion: at Kraken confidence 0.45, RefSeq puts a larger share of reads at species rank than GTDB (human datasets), the reverse of 0.10 and of every other tool** (checked 2026-11-10; not a parsing bug: the Bracken-summary totals equal the kreport totals for all 13,819 samples).
+  - **The numbers** (medians, human datasets, 0.45): GTDB classifies 0.87–0.93 of the reads at any rank but only 0.07–0.16 at species; RefSeq classifies 0.49–0.72 at any rank and 0.13–0.25 at species. Within the classified reads, the species share is 0.08–0.18 for GTDB against 0.21–0.53 for RefSeq. In non-human datasets (Horse, soils, Maple) GTDB is higher at every confidence, because RefSeq barely classifies anything there.
+  - **Likely explanation:** Kraken assigns a read to the deepest node supported by ≥ confidence × its k-mers. GTDB r220 has ~113k species with one representative genome each and splits gut genera finely (e.g. *Bacteroides*, *Prevotella*). A read's k-mers are spread over sister species, or moved up to the genus by the LCA step, so species-level support rarely reaches 0.45 and the read stops at genus. RefSeq has fewer species but many strains of the common human-associated ones, so a read either clearly matches a well-covered species or stays unclassified. A denser database classifies more reads but at higher ranks: Nasko et al. 2018, Genome Biol 19:165 (RefSeq growth and k-mer LCA species identification).
+  - **For the ms:** the species-rank share mixes "is the read classified?" with "how deep?". It is the proxy for "share of reads identified at species level", but higher confidence trades one against the other differently in each database.
+  - [ ] Optional HPC check: recompute the species-rank reads from one kreport per database (Grapevine KB45 vs KB45_GTDB; awk one-liner in the 2026-11-10 session) and compare with the rate file.
 - Out of scope for this project: rarefaction curves (`9.1`/`9.2`) and the DAA scripts (`5.0`–`5.4`).
 - [ ] **New datasets (Nov 2026): describe them in the methods.**
   - **Shared preprocessing:** raw paired reads were retrieved from the NCBI Sequence Read Archive. Each run's read count was checked against the archive's.

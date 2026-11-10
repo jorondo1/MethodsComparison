@@ -88,7 +88,8 @@ cp -r $ILAFORES/ref_dbs/kraken2_dbs/k2_standard_20241228 /dev/shm/
 cp -r $ILAFORES/ref_dbs/kraken2_dbs/k2_gtdb_genome_reps_20241109 /dev/shm/
 
 k2_std=/dev/shm/k2_standard_20241228
-k2_gtdb=/dev/shm/k2_gtdb_genome_reps_20241109
+#k2_gtdb=/dev/shm/k2_gtdb_genome_reps_20241109
+k2_gtdb=$ILAFORES/ref_dbs/kraken2_dbs/k2_gtdb_genome_reps_20241109
 k2_local=$MC/scripts/src/kraken_local.sh
 
 # RUN KRAKEN (finished samples are skipped, so rerun the same loop for missing ones)

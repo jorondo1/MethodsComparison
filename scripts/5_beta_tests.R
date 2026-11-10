@@ -28,7 +28,7 @@ these_databases <- c('KB10', 'KB10_GTDB','KB45', 'KB90',
                      'MOTUS3', 'MOTUS4')
 
 # dataset Ns 
-dataset_names_n_lookup <- read_rds('Out/_Rdata/dataset_names_n_lookup_alphadiv.RDS')
+dataset_names_n_lookup <- dataset_names_n() # labels and order from 0_config.R
 
 # PCoA comparison
 permanova.ds <- read_rds('Out/_Rdata/permanova.ds.RDS')%>% 
@@ -75,13 +75,13 @@ permanova.ds %>%
 
 
 ggsave(paste0('Out/Manuscript/4.beta_permanova.pdf'),
-       bg = 'white', width = 2900, height = 2320,
+       bg = 'white', width = 2900, height = 3000, # 12 datasets (was 2320 for 9)
        units = 'px', dpi = 300)
 
 
 ggsave('Out/Manuscript/PLOS/Fig5.eps',
        bg = 'white', device = 'eps',
-       width = 2900, height = 2320, units = 'px')
+       width = 2900, height = 3000, units = 'px')
 
 # PLOT variance with p-values
 # p_value_lines <- function() {

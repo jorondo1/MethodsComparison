@@ -28,9 +28,6 @@ these_databases <- c('MPA_db2023', 'MPA_db2022', 'MPA_db2025',
                      'KB10','KB10_GTDB', 'KB45', 'KB45_GTDB', 'KB90', 'KB90_GTDB',
                      'SM_gtdb-rs220-rep', 'SM_RefSeq_20250528')
 
-these_datasets <- c('Moss', 'NAFLD','PD', 'Bee','AD_Skin', 'RA_Gut',
-                    'P19_Gut', 'P19_Saliva', 'Maple')
-
 # Heatmap with hclust ------------------------------------------------------
 # One heatmap for all datasets
 
@@ -332,16 +329,15 @@ pcoa_from_cor <- function(cor_mat, ds_name) {
 }
 
 # Run over all datasets and add sample count
-dataset_names_n_lookup <- read_rds('Out/_Rdata/dataset_names_n_lookup_alphadiv.RDS')
-ds_name_n_lookup_oneline <- str_replace_all(dataset_names_n_lookup, '\n',' ')
+ds_name_n_lookup_oneline <- dataset_names_n(sep = ' ') # labels from 0_config.R
 
 pcoa_results <- imap_dfr(procruste.list, function(df, ds_name) {
   mat <- matrix_builder(df, "db1", "db2", "cor")
   pcoa_from_cor(mat, ds_name)
-}) %>% 
-  # Set names & levels
-  mutate(ds = factor(recode(ds, !!!dataset_names), levels = dataset_names),
-         ds_n = ds_name_n_lookup_oneline[ds])
+}) %>%
+  # Set names & levels (ds_n first, looked up by dataset id)
+  mutate(ds_n = ds_name_n_lookup_oneline[as.character(ds)],
+         ds = factor(recode(ds, !!!dataset_names), levels = dataset_names))
 
 # Pull and define palettes by ref db
 all_refdbs <- CCE_metadata %>%
@@ -421,7 +417,7 @@ plot_list$Legend <- cowplot::get_legend(legend_plot)
 
 # --- Patchwork ---
 # Parentheses required: without them plot_layout() attaches only to legend_row
-(wrap_plots(plot_list, ncol = 3)) 
+(wrap_plots(plot_list, ncol = 4)) # 12 datasets + legend: 4 x 4
 
 ggsave('Out/Manuscript/2.3.procrustes_ordination.pdf',
        bg = 'white', width = 2000, height = 2000, 

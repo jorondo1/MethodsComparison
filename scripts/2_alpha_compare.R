@@ -22,7 +22,6 @@ source("scripts/0_config.R")
 ######################
 
 # Reorder factors, filter for datasets
-these_datasets <- c('Moss', 'NAFLD', 'P19_Gut', 'P19_Saliva', 'PD', 'Bee', 'AD_Skin', 'RA_Gut', 'Maple')
 
 alpha_div <- read_rds('Out/_Rdata/alpha_div.RDS')[['plot_data']] %>% 
   filter(Dataset %in% these_datasets) %>% 
@@ -32,6 +31,7 @@ alpha_div <- read_rds('Out/_Rdata/alpha_div.RDS')[['plot_data']] %>%
 # PLOT hill_1 variation for methods most equivalent in terms of number of species
 these_databases <- c('MPA_db2025', 'MOTUS4', 
                      'KB45', 'KB45_GTDB', 
+                     #'SYLPH_gtdb_rs220_Seq', 'SYLPH_gtdb_rs220_Tax',
                      'SM_gtdb-rs220-rep', 'SM_RefSeq_20250528')
 
 axis_desc <- c(
@@ -367,10 +367,9 @@ dropout_fun <- function(dataset){
   startpoint_line <- grep("TEST_STARTPOINT", lines)[1]
   breakpoint_line <- grep("TEST_BREAKPOINT", lines)[1]
   
-  # Remove all instances of "'PD',"
-  dataset_pattern <- paste0("'", dataset, "',")
-  lines <- gsub(dataset_pattern, "", lines, fixed = TRUE)
-  
+  # Drop the dataset (these_datasets comes from 0_config.R; local to this function's environment)
+  these_datasets <- setdiff(these_datasets, dataset)
+
   # Replace all instances of another string (example: replace "old" with "new")
   lines <- gsub("Manuscript", paste0("Manuscript/dropout_",dataset), lines, fixed = TRUE)
   

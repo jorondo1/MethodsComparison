@@ -3,8 +3,7 @@
 # Usually run by scripts/0_run_all.R, which then assembles all datasets into the usual Out/_Rdata/*.RDS files
 # (and builds dataset_names_n_lookup_alphadiv.RDS, which needs all datasets).
 # By hand: Rscript scripts/1_diversity_metrics.R <dataset>   (or set DS <- '<dataset>' and source() this file)
-library(pacman)
-p_load( 
+pacman::p_load( 
   mgx.tools, # devtools::install_github("jorondo1/mgx.tools", force = TRUE)
   magrittr, tidyverse, 
   purrr, parallel, furrr, future,

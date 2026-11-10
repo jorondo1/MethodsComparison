@@ -2,31 +2,43 @@
 
 Read at the start of a session and keep it current. Pending items are in `doc/TODO.md`. Older session logs are in git history (`git log -p -- doc/HANDOFF.md`).
 
-## Where things stand (2026-11-10)
+## Where things stand (2026-11-10, end of a Mac session)
 
-- **HPC work is finished.** Profiling, merged tables, classification rates and `scripts/0_run_all.R` are complete for all 12 datasets:
-  - P19_Saliva, P19_Gut, Moss, NAFLD, AD_Skin, RA_Gut, Bee, PD, Maple;
-  - the new Oilfield, Grapevine and Horse.
-  - From here the work is on the Mac, from the synced outputs. The pipeline runs only on the HPC; rerunning it is not planned.
-- **Results:** `Out/_Rdata/*.RDS`, assembled on 2026-11-09 at 22:26. Per-dataset caches are in `Out/_Rdata/cache/<DS>/`.
-  - **PD** was redone with the re-merged mOTUs 3 table (724 samples). SRR19064900 has no preprocessed reads in any tool.
-  - **Grouping variables:**
-    - Oilfield: `Oilfield`.
-    - Grapevine: `Health`, also has `Compartment` and `Plant` for pairing.
-    - Horse: `island_side`, also has `age_class_rev`.
-  - **Samples after rarefaction:**
-    - Oilfield: 87, except mOTUs 3 (81) and sylph RefSeq (85).
-    - Grapevine: 78 everywhere.
-    - Horse: 744 for most databases. RefSeq covers horse gut poorly: mOTUs 3 587, mOTUs 4 682, KB90 525, sourmash RefSeq 182, sylph RefSeq 140/144.
-- **Classification rates:** `Out/classification_rates/*.tsv`, all 12 datasets. Horse has no `reads` rows, because its KneadData logs stayed on Fir.
-  - New `kraken_species_classification_rate.tsv`: Kraken's own species-rank share, read from the Bracken summaries. Use it instead of `kraken`/`bracken` for species-level identifiability.
-  - mOTUs is dropped from the rate figure: its denominator is marker-gene reads only. TODO "Methods notes" has the wording item.
-- **Object names:** the sylph entries are `SYLPH_<db>_Seq` (rarefied counts) and `SYLPH_<db>_Tax` (relative abundance, not rarefied). The Moss MAGs object is `SM_gtdb-rs214-rep_MAGs`.
-- **Git:** branch `benchmark` (from `main`).
-  - Staged: `scripts/benchmark/`, `scripts/10_benchmark_plot.R`, `doc/HANDOFF_FIR.md`.
-  - Unstaged: the R setup for the 3 new datasets (`0_config.R`, `0_run_all.R`, `utils/sample_data.R`), `src/classification_rates.sh`, `utils/sync_from_hpc.sh` and docs.
-  - Untracked: `src/kraken_node_SLURM.sh`.
-  - Nothing is committed. The figure scripts (`6.x`, `8_*`, `9.x`) are untracked on the HPC; the Mac copy is the reference.
+- **Results:** `Out/_Rdata/*.RDS` from 2026-11-09 (all 12 datasets), synced to the Mac. Classification rates for all 12, including Horse's KneadData `reads` rows.
+- **Mac work, not committed yet** (the user commits and pushes before the HPC session):
+  - `0_config.R`: dataset list and order (`these_datasets <- names(dataset_names)`) and shared helpers for the `6.x` scripts (`read_rates()`, `samples_qc()`, `samples_grouped()`, `dataset_names_n_qc()`, `rate_databases`). `0_run_all.R` sources it too, which is harmless: function definitions only.
+  - Figure scripts `2_`–`5_` cover the 12 datasets. New `6.1_Identifiability.R` (ridges, replaces `8_*`) and `6.2_dataset_summary.R` (profiled-samples heatmap, `Out/dataset_summary/dataset_table.html`).
+  - `utils/parse_merged.R`: `SM_gtdb-rs220-reps` → `SM_gtdb-rs220-rep` for every dataset (was Maple only), and the new sample rule (below). New tracked file `scripts/src/dropped_samples.tsv`.
+  - `src/count_reads.sh` and `src/compile_sample_reads.jl` untracked and archived; `Out/stats/` is no longer used.
+  - To stage: `git add -u && git add scripts/6.1_Identifiability.R scripts/6.2_dataset_summary.R scripts/src/dropped_samples.tsv && git add -f doc/HANDOFF.md doc/TODO.md`.
+
+## Task for the HPC session: rerun `0_run_all.R` for Moss, Oilfield, Grapevine, Horse
+
+The code is ready (Mac, 2026-11-10); the HPC only runs it. `scripts/0_run_all.R` already has:
+```r
+rerun <- c('Moss', 'Oilfield', 'Grapevine', 'Horse')
+```
+Then run it through sbatch, and sync to the Mac (`scripts/utils/sync_from_hpc.sh`).
+
+**Why these 4:**
+- **Oilfield, Grapevine, Horse:** sourmash GTDB 220 was named `SM_gtdb-rs220-reps`, so the figures left it out. `parse_merged.R` now renames it for every dataset.
+- **Moss:** gets its 9 samples without metadata back (140 instead of 131). They're in the diversity comparisons and out of the tests (NA `Compartment`).
+
+**New sample rule (decided with the user):**
+- Every post-QC sample enters the diversity comparisons. Samples without metadata get NA groups and are only left out of the Wilcoxon tests and PERMANOVA.
+- The exception is `scripts/src/dropped_samples.tsv`, which removes samples from everything:
+  - P19_Gut: controls GQ27–29 and GQ54–56, and the mock community MSA_3001;
+  - PD: the 5 SP/SC runs;
+  - AD_Skin: the 78 runs without study metadata.
+- It's applied in `meta_parsing()` (`utils/parse_merged.R`) and in `samples_qc()` (`0_config.R`, the `6.x` counts).
+- Tested on the Mac for Moss, P19_Gut, AD_Skin and PD: only Moss changes. The others keep their 21 / 70 / 719 samples, so they need no rerun.
+
+**Checks after the run:**
+- Moss: 140 samples in most objects. `SM_gtdb-rs214-rep_MAGs` stays at 131: it's the external `mossMAGs.RDS` object.
+- The Wilcoxon/PERMANOVA n are unchanged: Moss 131 in `dataset_names_n_lookup_alphadiv.RDS`.
+- Oilfield, Grapevine and Horse have `SM_gtdb-rs220-rep`.
+
+**Then, on the Mac:** rerun the figures `2_`–`6.2`. `6.2` writes `Out/dataset_summary/dataset_table.html` (2,216 samples post-QC, 2,185 with metadata).
 
 ## Sync to the Mac
 
@@ -40,13 +52,10 @@ It pulls only what the figure scripts read:
 
 `-u` keeps local files that are newer. `scripts/src/datasets.tsv` comes with git. Nothing else on the HPC is needed on the Mac.
 
-## Next steps (Mac)
+## Next steps (Mac), after the rerun
 
-1. Sync, then rerun the figures `6.0`–`6.4` with the 12 datasets. Add display names or ordering for Oilfield, Grapevine and Horse where scripts hard-code dataset lists.
-2. `8_Identifiability.R`: add `'Horse'` to `dataset_order` (line 26) and to `ds_names`. Otherwise `stopifnot(setequal(...))` fails.
-3. `8_Classification_rates.R`: remove mOTUs, and switch Kraken to `kraken_species_classification_rate.tsv`.
-4. Decide how sylph appears in the figures (TODO).
-5. Stale, not regenerated: `6._FigX_TaxAssignment.R`, `9.2` (`Rarefaction.rds`), DAA `5.x`. Out of scope unless the user says otherwise.
+- Render `2_`–`5_`, `6.1`, `6.2` with the new objects. `3_beta_compare.R` line 38 filters on `these_datasets` (from the config).
+- Still open: how sylph appears in the figures (TODO). Stale, out of scope: `6._FigX_TaxAssignment.R`, `9.2`, DAA `5.x`.
 
 ## Elsewhere
 
