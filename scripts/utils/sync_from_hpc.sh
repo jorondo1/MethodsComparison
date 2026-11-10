@@ -3,7 +3,8 @@
 # scripts/0_run_all.R) runs on the HPC only, so its inputs (merged tables, sample data, sample tsvs) are not synced:
 #   - the classification rate tables (Out/classification_rates/*.tsv, every tool);
 #   - the phyloseq lists and diversity results scripts/0_run_all.R assembles (Out/_Rdata/*.RDS, listed by name so the
-#     stale 2025 leftovers there are not pulled; the per-dataset cache, Out/_Rdata/cache/, stays on the HPC).
+#     stale 2025 leftovers there are not pulled; the per-dataset cache, Out/_Rdata/cache/, stays on the HPC);
+#   - the beta-diversity sensitivity variants from scripts/1b_beta_sensitivity.R (pcoa_/procrustes_/permanova_<variant>).
 # scripts/src/datasets.tsv, also read by 8_Identifiability.R, comes with git.
 # Usage, from the repo root:  bash scripts/utils/sync_from_hpc.sh <user@host> [extra rsync options, e.g. --dry-run]
 # Nothing is deleted locally, and local files newer than the HPC copy are kept (-u).
@@ -27,5 +28,11 @@ rsync -avum "$@" \
 	--include='/Out/_Rdata/procrustes.RDS' \
 	--include='/Out/_Rdata/permanova.ds.RDS' \
 	--include='/Out/_Rdata/dataset_names_n_lookup_alphadiv.RDS' \
+	--include='/Out/_Rdata/pcoa_BC_VST.ls.RDS' \
+	--include='/Out/_Rdata/pcoa_rAitchison.ls.RDS' \
+	--include='/Out/_Rdata/procrustes_BC_VST.RDS' \
+	--include='/Out/_Rdata/procrustes_rAitchison.RDS' \
+	--include='/Out/_Rdata/permanova_BC_VST.ds.RDS' \
+	--include='/Out/_Rdata/permanova_rAitchison.ds.RDS' \
 	--exclude='*' \
 	"$HPC:$REMOTE/" ./

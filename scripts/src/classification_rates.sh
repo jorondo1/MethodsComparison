@@ -94,6 +94,8 @@ _rows_reads() {
 	[[ -f $tsv ]] || return 0
 	while IFS=$'\t' read -r sample p1 _; do
 		log=$(dirname "$p1")/kneaddata-$sample.log
+		# sample tsv written on another cluster (Horse: Fir paths): the log copied into this repo's data/<ds>/preproc/<sample>/
+		[[ -f $log ]] || log=./data/$1/preproc/$sample/kneaddata-$sample.log
 		[[ -f $log ]] || continue
 		awk -v key="./data/$1/preproc/$sample" '
 		match($0, /READ COUNT: final (pair1|orphan1|orphan2) :.*: ([0-9.]+)$/, m) { n[m[1]] = m[2] + 0 }
