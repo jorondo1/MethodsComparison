@@ -1,0 +1,94 @@
+# Samples dropped from every analysis: removed from the phyloseq objects (scripts/utils/parse_merged.R) and from the
+# 6.x counts (scripts/0_config.R, samples_qc()). Other samples without metadata are kept for the diversity comparisons
+# (NA group: left out of the Wilcoxon tests and PERMANOVA only), e.g. 22 Maple and 9 Moss samples.
+# Dataset<TAB>Sample<TAB>reason
+P19_Gut	GQ27	control (GQ27-29, GQ54-56)
+P19_Gut	GQ28	control (GQ27-29, GQ54-56)
+P19_Gut	GQ29	control (GQ27-29, GQ54-56)
+P19_Gut	GQ54	control (GQ27-29, GQ54-56)
+P19_Gut	GQ55	control (GQ27-29, GQ54-56)
+P19_Gut	GQ56	control (GQ27-29, GQ54-56)
+P19_Gut	MSA_3001	mock community (ATCC MSA-3001)
+PD	SRR19064710	library SP*/SC*: neither PD (DP*) nor control (DC*)
+PD	SRR19064711	library SP*/SC*: neither PD (DP*) nor control (DC*)
+PD	SRR19064713	library SP*/SC*: neither PD (DP*) nor control (DC*)
+PD	SRR19064889	library SP*/SC*: neither PD (DP*) nor control (DC*)
+PD	SRR19064890	library SP*/SC*: neither PD (DP*) nor control (DC*)
+AD_Skin	SRR20002341	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002342	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002344	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002346	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002347	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002348	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002349	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002350	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002354	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002357	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002358	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002359	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002361	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002362	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002364	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002366	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002367	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002370	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002372	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002374	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002376	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002381	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002383	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002385	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002387	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002389	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002390	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002392	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002393	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002395	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002398	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002399	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002400	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002404	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002405	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002407	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002408	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002409	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002411	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002413	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002414	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002415	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002418	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002423	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002424	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002426	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002428	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002429	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002431	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002434	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002436	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002437	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002438	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002440	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002444	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002445	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002447	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002449	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002451	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002452	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002453	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002454	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002457	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002458	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002460	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002461	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002462	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002463	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002467	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002469	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002470	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002471	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002472	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002476	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002480	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002483	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002484	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
+AD_Skin	SRR20002485	not in the study metadata (mostly very shallow): only the 70 runs with metadata are used
