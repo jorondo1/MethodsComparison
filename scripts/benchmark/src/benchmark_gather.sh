@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Slurm records of the benchmark jobs. Reads the job ids in <output>/jobs.tsv, writes <output>/sacct.tsv
-# Usage: bash benchmark_gather.sh <output>. Rerunning a label: the last job id in jobs.tsv is the one plotted.
+# Usage: bash benchmark_gather.sh <output>. Every job id of a label is gathered; 10_benchmark_plot.R keeps the last COMPLETED job per label x row.
 OUT=${1:?Usage: benchmark_gather.sh <output>}
 
 sacct -j "$(cut -f2 "$OUT/jobs.tsv" | paste -sd,)" -P \

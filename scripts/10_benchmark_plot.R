@@ -38,8 +38,7 @@ input <- samples %>%
   summarise(Gbp = sum(sum_len) / 1e9, .by = c(Row, Dataset, Sample))
 
 jobs <- read_tsv(file.path(dir, "jobs.tsv"), show_col_types = FALSE, col_names = c("Label", "Job"),
-                 col_types = "cc") %>%
-  slice_tail(n = 1, by = Label) # the last submission of each label
+                 col_types = "cc") # every submission: a rerun of some rows (Kraken, OOM tasks) adds a job to its label
 
 sacct <- read_delim(file.path(dir, "sacct.tsv"), delim = "|", show_col_types = FALSE,
                     col_types = cols(.default = "c"))
@@ -75,9 +74,12 @@ kraken_steps <- sacct %>%
   filter(str_detect(JobName, "^K[BG]\\d+_\\d+$"), str_remove(JobID, "\\..*") %in% jobs$Job) %>%
   extract(JobName, c("Label", "Row"), "^(K[BG]\\d+)_(\\d+)$", remove = FALSE)
 
+# A rerun row: its last job wins. That also drops the 2026-11-10 KB/KG steps that ran on 0 reads (COMPLETED anyway:
+# nfs-ip34 paths not visible in the container), rerun on 2026-11-12.
 use <- bind_rows(array_tasks, kraken_steps) %>%
   filter(State == "COMPLETED") %>%
-  mutate(Row = as.integer(Row)) %>%
+  mutate(Row = as.integer(Row), Job_n = as.numeric(str_extract(JobID, "^\\d+"))) %>%
+  slice_max(Job_n, n = 1, by = c(Label, Row)) %>%
   inner_join(input, by = "Row") %>%
   mutate(
     Tool = factor(tools[Label], levels = rev(tools)),

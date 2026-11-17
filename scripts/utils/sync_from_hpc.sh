@@ -34,5 +34,8 @@ rsync -avum "$@" \
 	--include='/Out/_Rdata/procrustes_rAitchison.RDS' \
 	--include='/Out/_Rdata/permanova_BC_VST.ds.RDS' \
 	--include='/Out/_Rdata/permanova_rAitchison.ds.RDS' \
+	--include='/Out/benchmark/' \
+	--include='/Out/benchmark/*.pdf' \
+	--include='/Out/benchmark/*.tsv' \
 	--exclude='*' \
 	"$HPC:$REMOTE/" ./
