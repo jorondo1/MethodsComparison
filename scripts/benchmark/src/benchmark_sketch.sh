@@ -23,7 +23,7 @@ case $TOOL in
 		module load StdEnv/2020 apptainer/1.1.5
 		mkdir -p $OUT/signatures
 		singularity exec --writable-tmpfs -e -B $(dirname $FQ_P1):$(dirname $FQ_P1) -B $ILAFORES:$ILAFORES \
-			$ILAFORES/programs/ILL_pipelines/containers/sourmash.4.8.11.sif \
+			${SOURMASH_SIF:-$ILAFORES/programs/ILL_pipelines/containers/sourmash.4.8.11.sif} \
 			sourmash sketch dna -p k=31,scaled=1000,abund --merge $SAM_ID \
 			-o $OUT/signatures/$SAM_ID.sig $FQ_P1 $FQ_P2 $FQ_U1 $FQ_U2
 		;;

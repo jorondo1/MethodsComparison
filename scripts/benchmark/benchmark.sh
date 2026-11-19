@@ -108,10 +108,30 @@ submit SYref --array=$A%5 -n 2 --mem=64G --dependency=afterany:$SK_SYLPH $SRC/sy
 submit SY220 --array=$A%5 -n 2 --mem=64G --dependency=afterany:$SK_SYLPH $SRC/sylph_SLURM.sh \
 	$DS $B/tools.tsv $DB_SYLPH/gtdb-r220-c200-dbv1.syldb $DB_SYLPH/gtdb_r220_metadata.tsv.gz gtdb_rs220
 
-submit SMref --array=$A%5 -n 1  --mem=64G --dependency=afterany:$SK_SM $SRC/gather_SLURM_fast.sh \
-	$DS $B/tools.tsv $DB_SM/RefSeq_20250528.k31.sbt.zip
+# Superseded (sourmash 4.8.11, 2026-11): RefSeq was an SBT index, which fastgather can't read, so it ran on 1 thread
+# with the Python gather, and GTDB on 24 with fastgather. Outputs kept in $B/SM_* and $B/signatures for the
+# comparison with 4.9.4.
+# submit SMref --array=$A%5 -n 1  --mem=64G --dependency=afterany:$SK_SM $SRC/gather_SLURM_fast.sh \
+# 	$DS $B/tools.tsv $DB_SM/RefSeq_20250528.k31.sbt.zip
+# submit SM220 --array=$A%2 -n 24 --mem=64G --dependency=afterany:$SK_SM $SRC/gather_SLURM_fast.sh \
+# 	$DS $B/tools.tsv $DB_SM/gtdb-rs220-reps-k31.zip
+
+################################################################
+# sourmash 4.9.4 + branchwater: sketch and both gathers, 24 threads each (2026-11) ########
+################################################################
+
+# Container and RefSeq zip: doc/HANDOFF.md. Same labels as before: 10_benchmark_plot.R keeps the last COMPLETED job
+# per label x row, so these replace the 4.8.11 rows (check that every row has a new job).
+# Outputs in $B/sm49/ (new sketches too), so the scripts don't skip samples that already have 4.8.11 outputs.
+export SOURMASH_SIF=$ILAFORES/programs/ILL_pipelines/containers/sourmash.4.9.4.sif # read by both scripts below
+DS49=../Out/benchmark/sm49
+mkdir -p $B/sm49
+submit sourmash_sketch --array=$A%10 -n 1 --mem=16G $BM/benchmark_sketch.sh sourmash $B/tools.tsv $B/sm49
+SK_SM=$LAST
+submit SMref --array=$A%2 -n 24 --mem=64G --dependency=afterany:$SK_SM $SRC/gather_SLURM_fast.sh \
+	$DS49 $B/tools.tsv $DB_SM/RefSeq_20250528.k31.zip
 submit SM220 --array=$A%2 -n 24 --mem=64G --dependency=afterany:$SK_SM $SRC/gather_SLURM_fast.sh \
-	$DS $B/tools.tsv $DB_SM/gtdb-rs220-reps-k31.zip
+	$DS49 $B/tools.tsv $DB_SM/gtdb-rs220-reps-k31.zip
 
 ################################################################
 # Kraken + Bracken ########

@@ -28,7 +28,10 @@ export SAM_ID FQ_P1 FQ_P2 FQ_U1 FQ_U2
 
 SAM_ANCHOR=$(dirname $FQ_P1)
 
-export sourmash="singularity exec --writable-tmpfs -e -B ${SAM_ANCHOR}:${SAM_ANCHOR} -B $ILAFORES:$ILAFORES -B $SM_DB:$SM_DB ${ILL_PIPELINES:-$ILAFORES/programs/ILL_pipelines}/containers/sourmash.4.8.11.sif sourmash"
+# SOURMASH_SIF (exported before sbatch) overrides the container: the benchmark uses sourmash 4.9.4 + branchwater
+SOURMASH_SIF=${SOURMASH_SIF:-${ILL_PIPELINES:-$ILAFORES/programs/ILL_pipelines}/containers/sourmash.4.8.11.sif}
+echo "Container: $SOURMASH_SIF"
+export sourmash="singularity exec --writable-tmpfs -e -B ${SAM_ANCHOR}:${SAM_ANCHOR} -B $ILAFORES:$ILAFORES -B $SM_DB:$SM_DB $SOURMASH_SIF sourmash"
 
 mkdir -p $OUT_DIR/../signatures
 
