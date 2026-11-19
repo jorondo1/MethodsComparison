@@ -1,32 +1,40 @@
 pacman::p_load(magrittr, mgx.tools, # devtools::install_github("jorondo1/mgx.tools")
-       tidyverse, kableExtra,
-       igraph, ggraph, patchwork, pheatmap,
-       rstatix)
+               tidyverse, kableExtra,
+               igraph, ggraph, patchwork, pheatmap,
+               rstatix, cowplot, ggrepel)
 
-source("scripts/0_config.R")
+source("scripts/0_config.R") # methods, method_label(), reference_colours, tool_shapes
 
+# helper for heatmap olrdering and PCoA
+pairs_to_matrix <- function(data, value, missing = 1) {
+  data <- mutate(data, across(c(db1, db2), as.character))
+  dbs <- sort(unique(c(data$db1, data$db2)))
+  m <- matrix(NA_real_, length(dbs), length(dbs), dimnames = list(dbs, dbs))
+  m[cbind(data$db1, data$db2)] <- data[[value]]
+  mt <- t(m)
+  m <- ifelse(is.na(m), mt, ifelse(is.na(mt), m, (m + mt) / 2)) # average both directions, or take the one present
+  m[is.na(m)] <- missing
+  diag(m) <- 1
+  m
+}
 
-#   $$\ $$\         $$$$$$$$\ $$$$$$\  $$$$$$\             $$$$$$\  
-#   $$ \$$ \        $$  _____|\_$$  _|$$  __$$\           $$  __$$\ 
+#   $$\ $$\         $$$$$$$$\ $$$$$$\  $$$$$$\             $$$$$$\
+#   $$ \$$ \        $$  _____|\_$$  _|$$  __$$\           $$  __$$\
 # $$$$$$$$$$\       $$ |        $$ |  $$ /  \__|          \__/  $$ |
 # \_$$  $$   |      $$$$$\      $$ |  $$ |$$$$\            $$$$$$  |
-# $$$$$$$$$$\       $$  __|     $$ |  $$ |\_$$ |          $$  ____/ 
-# \_$$  $$  _|      $$ |        $$ |  $$ |  $$ |          $$ |      
-#   $$ |$$ |        $$ |      $$$$$$\ \$$$$$$  |$$\       $$$$$$$$\ 
+# $$$$$$$$$$\       $$  __|     $$ |  $$ |\_$$ |          $$  ____/
+# \_$$  $$  _|      $$ |        $$ |  $$ |  $$ |          $$ |
+#   $$ |$$ |        $$ |      $$$$$$\ \$$$$$$  |$$\       $$$$$$$$\
 #   \__|\__|        \__|      \______| \______/ \__|      \________|
-#                         
+#
 
 ##################################
 # PCoA procrustes visualisation ###
 ####################################
 
 procrustes_tests <- read_rds('Out/_Rdata/procrustes.RDS')
-these_databases <- c('MPA_db2023', 'MPA_db2022', 'MPA_db2025', 
-                     'MOTUS3','MOTUS4', 
-                     "SYLPH_gtdb_rs220_Seq",  "SYLPH_gtdb_rs220_Tax",
-                     "SYLPH_RefSeq_Seq",       "SYLPH_RefSeq_Tax",
-                     'KB10','KB10_GTDB', 'KB45', 'KB45_GTDB', 'KB90', 'KB90_GTDB',
-                     'SM_gtdb-rs220-rep', 'SM_RefSeq_20250528')
+these_databases <- methods$Database # all 17 methods of the study (0_config.R)
+
 
 # Heatmap with hclust ------------------------------------------------------
 # One heatmap for all datasets
@@ -35,16 +43,16 @@ these_databases <- c('MPA_db2023', 'MPA_db2022', 'MPA_db2025',
 procrustes_subset <- procrustes_tests %>%
   filter(db1 %in% these_databases,
          db2 %in% these_databases,
-         ds %in% these_datasets) 
+         ds %in% these_datasets)
 
-procrustes_subset %>% 
+procrustes_subset %>%
   filter(pval>0.01)
 
 # We only plot significant correlations p<0.01
 # because super low correlations is indicative of
 # the tool not being able to detect the community in a meaningful way
-db_pairs <- procrustes_subset %>% 
-  filter(pval<0.01) %>% 
+db_pairs <- procrustes_subset %>%
+  filter(pval<0.01) %>%
   group_by(db1, db2) %>%
   summarise(
     cor_tendency = median(cor),
@@ -54,138 +62,51 @@ db_pairs <- procrustes_subset %>%
   ) %>%
   arrange(desc(cor_tendency))
 
-# long format
+# Method order: hierarchical clustering on 1 - median correlation
+db_order <- pairs_to_matrix(db_pairs, 'cor_tendency') %>%
+  { rownames(.)[hclust(as.dist(1 - .))$order] }
+
+# Both directions of every pair (no diagonal: left empty), in clustering order
 plot_data <- db_pairs %>%
-  # unique database names
-  bind_rows(
-    db_pairs %>% 
-      dplyr::select(
-        db1 = db2, db2 = db1, 
-        cor_tendency, cor_dispersion, n_datasets)
-  ) %>%
-  distinct() # no need for a diagonal, we want it to be NA
+  bind_rows(rename(db_pairs, db1 = db2, db2 = db1)) %>%
+  distinct(db1, db2, .keep_all = TRUE) %>%
+  mutate(db1 = factor(db1, levels = rev(db_order)),
+         db2 = factor(db2, levels = db_order))
 
-# Reorder factors in long df categories using hclust on values of a column;
-# Built for 2-column factor (pairwise comparisons); db1 and db2 are pair ids
-
-hclust_by_col <- function(data, colname){
-  
-  # All combinations
-  all_dbs <- sort(unique(c(data$db1, data$db2)))
-  
-  # Build matrix
-  cor_matrix <- matrix(
-    1, 
-    nrow = length(all_dbs), 
-    ncol = length(all_dbs),
-    dimnames = list(all_dbs, rev(all_dbs)))
-  
-  # Fill it
-  for(i in 1:nrow(data)) {
-    db1 <- as.character(data$db1[i])
-    db2 <- as.character(data$db2[i])
-    if(!is.na(pull(data,colname)[i])) {
-      cor_matrix[db1, db2] <- pull(data,colname)[i]
-    }
-  }
-  
-  # hierarchical clustering
-  hclust_result <- hclust(as.dist(1 - cor_matrix))
-  ordered_dbs <- all_dbs[hclust_result$order]
-  
-  # reorder factors
-  data %<>%
-    mutate(
-      db1 = factor(db1, levels = rev(ordered_dbs)),
-      db2 = factor(db2, levels = ordered_dbs)
-    ) 
-  return(data)
+# Heatmap of one column of plot_data; low/high: colours of the scale ends
+cor_heatmap <- function(data, value, name, low, high) {
+  ggplot(data, aes(x = db1, y = db2, fill = .data[[value]])) +
+    geom_tile(color = "white", linewidth = 0.5) +
+    geom_text(aes(label = if_else(is.na(.data[[value]]), '', sprintf("%.2f", .data[[value]]))), size = 3) +
+    scale_fill_gradient(low = low, high = high, name = name, na.value = "white") +
+    scale_x_discrete(labels = method_label) +
+    scale_y_discrete(labels = method_label) +
+    theme_minimal() +
+    theme(
+      axis.text.x = element_text(size = 9, angle = 90, hjust = 1),
+      axis.text.y = element_text(size = 9),
+      panel.grid = element_blank(),
+      axis.title = element_blank(),
+      legend.position = 'bottom',
+      legend.title.position = 'top'
+    )
 }
 
-# -- PLOT DATA Tendency (median) ---
-cor_hclust.pdat <- plot_data %>% 
-  hclust_by_col("cor_tendency") 
-
-# Recode names
-recode_names <- setNames(CCE_metadata$MethodName, CCE_metadata$Database)
-
-cor_hclust_names.pdat <- cor_hclust.pdat %>% 
-  mutate(db1 = recode(db1, !!!recode_names),
-         db2 = recode(db2, !!!recode_names)) 
-
-# Theme
-theme_cor_mx <- list(
-  theme_minimal(),
-  theme(
-    axis.text.x = element_text(size = 9, angle = 90, hjust =1),
-    axis.text.y = element_text(size = 9),
-    panel.grid = element_blank(),
-    axis.title = element_blank(),
-    #aspect.ratio = 1
-  )#,
-  #coord_equal()
-)
-
-
-disp_cor.plot <- cor_hclust_names.pdat %>%
-  # Plot !
-  ggplot(aes(x = db1, y = db2, fill = cor_tendency)) +
-  geom_tile(color = "white", linewidth = 0.5) +
-  geom_text(
-    aes(label = sprintf("%.2f", cor_tendency),
-        color = is.na(cor_tendency)), 
-    size = 3) +
-  scale_color_manual(
-    values = c("TRUE" = "white", "FALSE" = "black"), 
-    guide = "none")+
-  scale_fill_gradient(
-    high = "#57a2ff", 
-    #  mid = "#a0c83e", 
-    low = "#c75740",
-    # midpoint = median(plot_data$cor_tendency),
-    #limits = c(0.6, 1),
-    name = "Median Procrustes correlation",
-    na.value = "white"
-  ) +
-  theme_cor_mx +
-  theme(
-    legend.position = 'bottom',
-    legend.title.position = 'top'
-  ); disp_cor.plot
+# --- PLOT Tendency (median) ---
+disp_cor.plot <- cor_heatmap(plot_data, 'cor_tendency', "Median Procrustes correlation",
+                             low = "#c75740", high = "#57a2ff"); disp_cor.plot
 
 ggsave('Out/Manuscript/2.1.procrustes_tendency_heatmap.pdf',
        plot = disp_cor.plot,
-       bg = 'white', width = 2000, height = 2200, 
+       bg = 'white', width = 2000, height = 2200,
        units = 'px', dpi = 260)
 
-
 # --- PLOT Dispersion ---
-cor_hclust_names.pdat %>% 
-  ggplot(aes(x = db1, y = db2, fill = cor_dispersion)) +
-  geom_tile(color = "white", linewidth = 0.5) +
-  geom_text(
-    aes(label = sprintf("%.2f", cor_dispersion),
-        color = is.na(cor_dispersion)), 
-    size = 3) +
-  scale_color_manual(
-    values = c("TRUE" = "white", "FALSE" = "black"), 
-    guide = "none")+
-  scale_fill_gradient(
-    high = "#c75740", 
-    #  mid = "#a0c83e", 
-    low = "#57a2ff",
-    # midpoint = median(plot_data$cor_dispersion),
-    name = "Median absolute deviation in Procrustes correlation",
-    na.value = "white"
-  ) +
-  theme_cor_mx +
-  theme(
-    legend.position = 'bottom',
-    legend.title.position = 'top'
-  )
+cor_heatmap(plot_data, 'cor_dispersion', "Median absolute deviation in Procrustes correlation",
+            low = "#57a2ff", high = "#c75740")
 
 ggsave('Out/Manuscript/2.2.procrustes_disp_heatmap.pdf',
-       bg = 'white', width = 2000, height = 2200, 
+       bg = 'white', width = 2000, height = 2200,
        units = 'px', dpi = 260)
 
 # PCoA Examples -----------------------------------------------------------
@@ -196,22 +117,18 @@ pcoa_plot <- function(data.list, dataset, database, legend_title){
   
   eig1 <- format(data.list[[dataset]][[database]]$eig[1], digits = 2)
   eig2 <- format(data.list[[dataset]][[database]]$eig[2], digits = 2)
-  #label_name = 'Gametophyte compartment'
-  #label_colours = c('saddlebrown', 'darkgreen')
   
-  data.list[[dataset]][[database]]$metadata %>% 
-    mutate(Database = CCE_names[database]) %>% 
-    ggplot(aes(x = PCo1, y = PCo2, 
+  data.list[[dataset]][[database]]$metadata %>%
+    mutate(Database = method_label(database)) %>%
+    ggplot(aes(x = PCo1, y = PCo2,
                colour = !!sym(grouping_variable[[dataset]]))) +
-    stat_ellipse(aes(fill = !!sym(grouping_variable[[dataset]])), 
+    stat_ellipse(aes(fill = !!sym(grouping_variable[[dataset]])),
                  geom = 'polygon',
                  alpha = 0.05) +
     geom_point(colour = 'black',
                stroke = 0.3,
                aes(fill = !!sym(grouping_variable[[dataset]])),
                shape = 21) +
-    #scale_colour_manual(values = label_colours) +
-    #scale_fill_manual(values = label_colours) +
     facet_grid(~Database)+
     labs(x = paste0("PCo1 [", eig1,"%]"),
          y = paste0("PCo2 [", eig2,"%]"),
@@ -226,7 +143,6 @@ pcoa_plot <- function(data.list, dataset, database, legend_title){
 p1 <- pcoa_plot(pcoa, 'RA_Gut', 'KB45_GTDB', 'RA status')
 p2 <- pcoa_plot(pcoa, 'RA_Gut', 'KB45', 'RA status')
 
-library(cowplot)
 # 1. Extract the shared legend from B or C
 shared_legend <- get_legend(p1 + theme(
   legend.title.position = 'top',
@@ -268,251 +184,109 @@ ggsave(paste0('Out/Manuscript/2.4.pcoa_example.pdf'),
        bg = 'white', width = 2200, height = 1600,
        units = 'px', dpi = 220)
 
-ggsave('Out/Manuscript/PLOS/Fig2.eps',
-       bg = 'white', device = 'eps', # transparency warning ok !
-       width = 2800, height = 2000, units = 'px')
+# ggsave('Out/Manuscript/PLOS/Fig2.eps',
+#        bg = 'white', device = 'eps', # transparency warning ok !
+#        width = 2800, height = 2000, units = 'px')
 
 
+
+#   $$\ $$\         $$$$$$$$\ $$$$$$\  $$$$$$\             $$$$$$\
+#   $$ \$$ \        $$  _____|\_$$  _|$$  __$$\           $$ ___$$\
+# $$$$$$$$$$\       $$ |        $$ |  $$ /  \__|          \_/   $$ |
+#   \_$$  $$   |      $$$$$\      $$ |  $$ |$$$$\             $$$$$ /
+#   $$$$$$$$$$\       $$  __|     $$ |  $$ |\_$$ |            \___$$\
+# \_$$  $$  _|      $$ |        $$ |  $$ |  $$ |          $$\   $$ |
+#   $$ |$$ |        $$ |      $$$$$$\ \$$$$$$  |$$\       \$$$$$$  |
+#   \__|\__|        \__|      \______| \______/ \__|       \______/
 
 # Ordination of correlations ----------------------------------------------
+# Per dataset, a PCoA of the methods on 1 - Procrustes correlation. One encoding 
+# per methods table (0_config.R): 
+# colour = reference database,
+# shape = tool, 
+# filled = sequence abundance / open = taxonomic abundance
+# label = the remaining parameter (Kraken confidence, MetaPhlAn database year, mOTUs version).
 
-# Convert tibble to list by dataset and name list elements
-procruste.list <- procrustes_subset %>% 
-  group_by(ds) %>% 
-  # Set names dynamically:
-  (\(d) setNames(
-    group_split(d, .keep = FALSE), 
-    group_keys(d) %>% pull(1)))()
+connect_tools <- c('Kraken') # thin line through each tool's parameter series (e.g. confidence 0.10 -> 0.45 -> 0.90)
 
-# --- matrix building helper function ---
-matrix_builder <- function(procrustes, db1, db2, colname) {
-  all_dbs <- sort(unique(c(
-    as.character(procrustes[[db1]]),
-    as.character(procrustes[[db2]])
-  )))
-  
-  n <- length(all_dbs)
-  
-  # build correlation matrix
-  cor_matrix <- matrix(1, nrow = n, ncol = n,
-                       dimnames = list(all_dbs, all_dbs))
-  
-  for (i in 1:nrow(procrustes)) {
-    v1  <- as.character(procrustes[[db1]][i])
-    v2  <- as.character(procrustes[[db2]][i])
-    val <- procrustes[[colname]][i]
-    if (!is.na(val)) {
-      cor_matrix[v1, v2] <- val
-      cor_matrix[v2, v1] <- val   # symmetric fill
-    }
-  }
-  return(cor_matrix)
-}
+procrustes_pcoa <- procrustes_subset %>%
+  group_split(ds) %>%
+  map_dfr(\(d) {
+    m <- pairs_to_matrix(d, 'cor')
+    p <- cmdscale(as.dist(1 - m), k = 2, eig = TRUE)
+    var <- p$eig[1:2] / sum(p$eig[p$eig > 0]) * 100
+    tibble(ds = d$ds[1], Database = rownames(m), PC1 = p$points[, 1], PC2 = p$points[, 2],
+           strip = sprintf("%s [%.0f%% · %.0f%%]", dataset_names[d$ds[1]], var[1], var[2]))
+  }) %>%
+  left_join(methods, by = "Database") %>%
+  mutate(strip = factor(strip, levels = unique(strip[order(match(ds, names(dataset_names)))])),
+         ds_n = dataset_names_n(sep = ' ')[ds],
+         fill = if_else(Abundance == 'Sequence', reference_colours[as.character(Reference)], 'white'),
+         label = coalesce(Param, ''))
 
-# testing
-matrix_builder(procruste.list$AD_Skin, 'db1', 'db2', 'cor')
+procrustes_ordination.plot <- ggplot(procrustes_pcoa, aes(PC1, PC2)) +
+  geom_path(data = \(d) d %>% filter(Tool %in% connect_tools) %>% arrange(Param),
+            aes(group = interaction(Tool, Reference), colour = Reference), linewidth = 0.3, show.legend = FALSE) +
+  geom_point(aes(colour = Reference, shape = Tool, fill = fill), size = 2, stroke = 0.7) +
+  geom_text_repel(
+    seed = 1,
+    aes(label = label), 
+    size = 2.3, 
+    colour = 'grey25', 
+    box.padding = 0.15, 
+    point.padding = 0.1,
+    min.segment.length = Inf, 
+    max.overlaps = Inf) +
+  facet_wrap(~ strip, ncol = 4, scales = 'free') +
+  scale_x_continuous(expand = expansion(mult = 0.1)) +
+  scale_y_continuous(expand = expansion(mult = 0.1)) +
+  scale_colour_manual(values = reference_colours, name = "Reference database") +
+  scale_shape_manual(values = tool_shapes, name = "Tool") +
+  scale_fill_identity() +
+  guides(colour = guide_legend(override.aes = list(shape = 21, fill = reference_colours)),
+         shape = guide_legend(override.aes = list(fill = 'grey60', colour = 'grey30'))) +
+  labs(x = "Eigenvector 1", y = "Eigenvector 2",
+       caption = paste0("Filled: sequence abundance; open: taxonomic abundance. ",
+                        "Labels: Kraken confidence, MetaPhlAn database year, mOTUs version.\n",
+                        "Strips: variance explained by eigenvectors 1 ; 2.")) +
+  theme(
+    axis.text = element_blank(),
+    axis.ticks = element_blank(),
+    legend.position = 'bottom',
+    legend.box = 'vertical',
+    legend.spacing.y = unit(0, 'pt'),     # gap between legends
+    legend.margin = margin(0, 0, 0, 0),
+    plot.caption = element_text(hjust = 0, colour = 'grey30'),
+    !!!strip_theme
+  ); procrustes_ordination.plot
 
-# --- PCoA wrapper ---
-pcoa_from_cor <- function(cor_mat, ds_name) {
-  
-  dist_mat <- as.dist(1 - cor_mat) # correlation = distance
-  pcoa <- cmdscale(dist_mat, k = 2, eig = TRUE)
-  
-  tibble(
-    Database = rownames(cor_mat),
-    PC1 = pcoa$points[, 1],
-    PC2 = pcoa$points[, 2],
-    ds = ds_name,
-    var_PC1 = pcoa$eig[1] / sum(pcoa$eig[pcoa$eig > 0]) * 100,
-    var_PC2 = pcoa$eig[2] / sum(pcoa$eig[pcoa$eig > 0]) * 100
-  )
-}
-
-# Run over all datasets and add sample count
-ds_name_n_lookup_oneline <- dataset_names_n(sep = ' ') # labels from 0_config.R
-
-pcoa_results <- imap_dfr(procruste.list, function(df, ds_name) {
-  mat <- matrix_builder(df, "db1", "db2", "cor")
-  pcoa_from_cor(mat, ds_name)
-}) %>%
-  # Set names & levels (ds_n first, looked up by dataset id)
-  mutate(ds_n = ds_name_n_lookup_oneline[as.character(ds)],
-         ds = factor(recode(ds, !!!dataset_names), levels = dataset_names))
-
-# Pull and define palettes by ref db
-all_refdbs <- CCE_metadata %>%
-  filter(Database %in% these_databases) %>%
-  pull(short_alpha_2) %>% unique() %>% sort()
-
-refdb_colors <- setNames(
-  c("#823D51", tool_colours[['MetaPhlAn4']], tool_colours[['mOTUs4']], "#515A82"),
-  all_refdbs
-)
-
-
-plot_list <- pcoa_results %>%
-  group_by(ds) %>%
-  group_split() %>%
-  setNames(pcoa_results %>% pull(ds) %>% unique() %>% sort()) %>%
-  imap(function(df, ds_name) {
-    
-    # Per-facet axis labels with % variance explained
-    x_lab <- sprintf("Eigenvector 1 [%.1f%%]", df$var_PC1[1])
-    y_lab <- sprintf("Eigenvector 2 [%.1f%%]", df$var_PC2[1])
-    
-    df %>%
-      left_join(CCE_metadata, by = "Database") %>%
-      # Force all levels present in every plot — required for legend merging
-      mutate(short_alpha_2 = factor(short_alpha_2, levels = all_refdbs),
-      ) %>%
-      ggplot(aes(PC1, PC2, colour = short_alpha_2, label = MethodName)) +
-      facet_wrap(~ds) +
-      ggrepel::geom_label_repel(
-        size = 2.5, 
-        label.padding = 0.1,
-        box.padding = 0.1,
-        max.overlaps = 20,
-        linewidth = 0,
-        fill = NA,        # suppress label background (avoids ggrepel registering its own fill scale)
-        label.size = NA,  # suppress label border
-        colour = "black"
-      ) +
-      geom_point(size = 2) +
-      # Suppress legend: a single shared legend is added manually below.
-      # guides = "collect" in patchwork was unreliable when guide objects differed
-      # subtly across plots, producing duplicate legends.
-      scale_colour_manual(values = refdb_colors, drop = FALSE, guide = "none") +
-      labs(x = x_lab, y = y_lab) +
-      theme(
-        axis.title = element_text(size = 9),
-        axis.text = element_blank(),
-        axis.ticks = element_blank(),
-        !!!strip_theme
-      )
-  })
-
-# Reorder datasets (flush unused ones)
-plot_list %<>% .[dataset_names] %>% compact()
-
-# --- Standalone legend ---
-# Some datasets are missing a few tools and that messes with patchwork's handling
-# of legend collection. Bild dummy plot to guarantee a single legend.
-# Horizontal layout with nrow = 1 enforced before extraction.
-
-legend_plot <- ggplot(
-  data.frame(short_alpha_2 = factor(all_refdbs, levels = all_refdbs)),
-  aes(x = 1, y = short_alpha_2, fill = short_alpha_2)) +
-  geom_point(size = 3, shape = 21, colour = "black") +
-  scale_fill_manual(values = refdb_colors, name = "Reference database") +
-  guides(fill = guide_legend(nrow = 4)) +
-  theme_void() +
-  theme(legend.position = "right", 
-        legend.direction = "vertical",
-        legend.title = element_text(size = 15),
-        legend.text = element_text(size = 13)
-  )
-
-# extract legend
-plot_list$Legend <- cowplot::get_legend(legend_plot)
-
-# --- Patchwork ---
-# Parentheses required: without them plot_layout() attaches only to legend_row
-(wrap_plots(plot_list, ncol = 4)) # 12 datasets + legend: 4 x 4
-
-ggsave('Out/Manuscript/2.3.procrustes_ordination.pdf',
-       bg = 'white', width = 2000, height = 2000, 
+ggsave('Out/Manuscript/2.3.procrustes_ordination.pdf', procrustes_ordination.plot,
+       bg = 'white', width = 2200, height = 2000,
        units = 'px', dpi = 240)
 
-ggsave('Out/Manuscript/PLOS/Fig3.eps',
-       bg = 'white', device = 'eps',
-       width = 2500, height = 2500, units = 'px')
+# ggsave('Out/Manuscript/PLOS/Fig3.eps', procrustes_ordination.plot,
+#        bg = 'white', device = 'eps',
+#        width = 2500, height = 2500, units = 'px')
 
 # --- ANCHOR poster
-plot_list_ANCHOR <- imap(plot_list, function(plot, plot_name){
-  if(plot_name=="Legend"){
-    return(plot)
-  } else {
-    plot + 
-      facet_wrap(~ds_n) +
-      labs(
-        x = gsub(".*\\[(.*)\\].*", "\\1", plot$labels$x),
-        y = gsub(".*\\[(.*)\\].*", "\\1", plot$labels$y)
-      ) +
-      theme_light() +
-      theme(
-        plot.subtitle = element_blank(),
-        panel.grid = element_blank(),
-        axis.ticks = element_blank(),
-        axis.text = element_blank(),
-        axis.title = element_text(size = 10),
-        !!!strip_theme_dark
-      ) 
-  }
-})
-
-(wrap_plots(plot_list_ANCHOR, ncol = 3)) 
-
-ggsave('Out/Manuscript/2.3.procrustes_ordination_ANCHOR.pdf',
-       bg = 'white', width = 2000, height = 2000, 
-       units = 'px', dpi = 210)
-
-
-
-# Correlations into interpretable groups  ---------------------------------
-
-# Deduplicate procruste; needs some gymnastic because of floating point incosistencies;
-# procruses cor were computed twice per pair (AxB and BxA) and cor are slightly different
-# procrustes_dedup <- procrustes_subset %>% 
-#   rowwise() %>% 
-#   mutate(unique_pair = paste(
-#     min(as.character(db1), as.character(db2)), 
-#     max(as.character(db1), as.character(db2)))
-#   ) %>% 
-#   group_by(ds, unique_pair) %>% 
-#   slice(1) %>% 
-#   ungroup()
-# 
-# 
-# # Median Correlation when db1 and db2 are the same tool, but different database
-# 
-# procrustes_subset %>% 
-#   filter(
-#     str_detect(db1, "KB") & str_detect(db2, "KB")
+# This figure was plotted with the old unfaceted (patchwork) plot 
+# # see https://github.com/jorondo1/MethodsComparison/blob/6fcb5e209c50b3cdfa8d128374bdabec3d462a13/scripts/3_beta_compare.R
+# procrustes_ordination.plot +
+#   facet_wrap(~ ds_n, ncol = 3, scales = 'free') +
+#   theme_light() +
+#   theme(
+#     panel.grid = element_blank(),
+#     axis.ticks = element_blank(),
+#     axis.text = element_blank(),
+#     axis.title = element_text(size = 10),
+#     legend.position = 'bottom',
+#     legend.box = 'vertical',
+#     legend.spacing.y = unit(0, 'pt'),     # gap between the two legends
+#     legend.margin = margin(0, 0, 0, 0),
+#     !!!strip_theme_dark
 #   )
 # 
-# # join to procruste data
-# procrustes_classified <- procrustes_dedup %>%
-#   # Add metadata to tool 1
-#   left_join(CCE_metadata, by = c("db1" = "Database")) %>%
-#   rename(method1 = CCE_approach, family1 = tool_family, database1 = refdb, taxonomy1 = Taxonomy) %>%
-#   dplyr::select(ds, db1, db2, cor, pval, unique_pair, method1, family1, database1, taxonomy1) %>%
-#   # add metadata to tool 2
-#   left_join(CCE_metadata, by = c("db2" = "Database")) %>%
-#   rename(method2 = CCE_approach, family2 = tool_family, database2 = refdb, taxonomy2 = Taxonomy) %>%
-#   dplyr::select(ds, db1, db2, cor, pval, unique_pair,
-#                 method1, family1, database1, taxonomy1,
-#                 method2, family2, database2, taxonomy2) %>%
-#   # Classify comparison types
-#   mutate(comparison_type = case_when(
-#     family1 == family2 & database1 == database2 ~ "Within tool, across parameter or database version",
-#     family1 == family2 & database1 != database2 ~ "Same tool, different database (DNA-to-DNA only)",
-#     method1 == method2 & family1 != family2 & database1 == database2 ~ "Same database, different tool (DNA-to-DNA only)",
-#     method1 != method2 ~ "Cross-approach",
-#     method1 == method2 & family1 != family2 ~ "Different tool & database (within approach)",
-#     TRUE ~ "other [UNEXPECTED]"
-#   ))
-# 
-# procrustes_classified %>% 
-#   distinct(comparison_type, family1, family2) %>% 
-#   arrange(comparison_type)
-# 
-# procrustes_classified %>%
-#   group_by(comparison_type) %>%
-#   summarise(
-#     median_cor = median(cor),
-#     MAD_cor = mad(cor, constant = 1),
-#     n_pairs = n()
-#   ) %>% 
-#   arrange(median_cor)
-# 
-# 
+# ggsave('Out/Manuscript/2.3.procrustes_ordination_ANCHOR.pdf',
+#        bg = 'white', width = 2000, height = 2000,
+#        units = 'px', dpi = 210)
+
