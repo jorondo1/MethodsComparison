@@ -1,6 +1,6 @@
 library(pacman)
 p_load( magrittr, mgx.tools, # devtools::install_github("jorondo1/mgx.tools")
-        tidyverse, ggh4x, patchwork, ggpubr,
+        tidyverse, ggh4x, patchwork, ggpubr, kableExtra, cowplot,
         rstatix)
 
 source("scripts/0_config.R")
@@ -47,14 +47,12 @@ dataset_names_n_lookup <- dataset_names_n() # labels and order from 0_config.R
 which_indices <- c('Richness', 'Shannon', 'Hill_2', 'Tail')
 
 # plot data
-wilcox.pdat <- CCE_metadata %>% 
-  dplyr::select(Database, CCE_approach, short_alpha_2, short_alpha_3) %>% 
-  right_join(alpha_div_test, by = 'Database') %>% 
+wilcox.pdat <- alpha_div_test %>% 
   filter(Dataset %in% these_datasets, 
          Database %in% these_databases,
          Index %in% which_indices) %>% 
-  mutate(Dataset = factor(recode(Dataset, !!!dataset_names_n_lookup), levels = dataset_names_n_lookup),
-         CCE_approach = factor(CCE_approach, levels = c("D2M", "D2D"))) %>% 
+  add_method_facets() %>% # Approach, Reference, Method (0_config.R)
+  mutate(Dataset = factor(recode(Dataset, !!!dataset_names_n_lookup), levels = dataset_names_n_lookup)) %>% 
   split(., .['Index']) # split by group 
 
 wilcox.plots <- imap(wilcox.pdat, function(wilcox.df, Index_name) {
@@ -62,7 +60,7 @@ wilcox.plots <- imap(wilcox.pdat, function(wilcox.df, Index_name) {
   plot <- wilcox.df %>% 
     ggplot(aes(x = Database, y = Dataset, size = effsize, colour = p)) +
     geom_point() +
-    facet_nested(Dataset ~ CCE_approach + short_alpha_2 + short_alpha_3, scales = 'free') +
+    facet_nested(Dataset ~ Approach + Reference + Method, scales = 'free') +
     scale_colour_steps2(
       low = "#3d0173", mid = "#f0f0f0", high = "#cccccc",
       midpoint = log10(0.05), 
@@ -117,7 +115,7 @@ div.data_1 <- read_rds('Out/_Rdata/alpha_div.RDS')[['plot_data']] %>%
   filter(Dataset == "P19_Gut", 
          Database %in% c("MPA_db2025", "KB45"),
          Index == 'Shannon') %>% 
-  mutate(Database = recode(Database, !!!CCE_names)) %>% 
+  mutate(Database = method_label(Database)) %>% 
   mutate(Database = str_replace(Database, ' \\(', '\n('))
 
 stat.test_1 <- div.data_1 %>%
@@ -185,7 +183,7 @@ div.data_2 <- read_rds('Out/_Rdata/alpha_div.RDS')[['plot_data']] %>%
   filter(Dataset == "PD", 
          Database %in% c("MPA_db2025", "MOTUS4", "KB45", 'KB45_GTDB'),
          Index %in% c('Shannon', 'Hill_2')) %>% 
-  mutate(Database = recode(Database, !!!CCE_names)) %>% 
+  mutate(Database = method_label(Database)) %>% 
   mutate(Index = case_when(
            Index == 'Shannon'~'Shannon index',
            Index == 'Hill_2' ~'Inverse Simpson'

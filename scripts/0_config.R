@@ -111,74 +111,74 @@ rate_databases <- c(MPA_db2022 = 'MetaPhlAn 2022', MPA_db2023 = 'MetaPhlAn 2023'
                     SM_RefSeq_20250528 = 'sourmash RefSeq', `SM_gtdb-rs220-rep` = 'sourmash GTDB',
                     SYLPH_RefSeq = 'sylph RefSeq', SYLPH_gtdb_rs220 = 'sylph GTDB')
 
-CCE_names <- c(
-  'MOTUS3' = 'mOTUs3',
-  'MOTUS4' = 'mOTUs4',
-  'MPA_db2022' = 'Metaphlan4 (2022)',
-  'MPA_db2023' = 'Metaphlan4 (2023)',
-  'MPA_db2025' = 'MetaPhlAn4 (2025)',
-  'KB10' = 'Kraken 0.10 (RefSeq)',
-  'KB45' = 'Kraken 0.45 (RefSeq)',
-  'KB90' = 'Kraken 0.90 (RefSeq)',
-  'KB10_GTDB' = 'Kraken 0.10 (GTDB 220)',
-  'KB45_GTDB' = 'Kraken 0.45 (GTDB 220)',
-  'KB90_GTDB' = 'Kraken 0.90 (GTDB 220)',
-  'SM_genbank-2022.03' = 'Sourmash (Genbank)',
-  'SM_RefSeq_20250528' = 'Sourmash (RefSeq)',
-  'SM_gtdb-rs214-full' = 'Sourmash (GTDB 214 full)',
-  'SM_gtdb-rs214-rep' = 'Sourmash (GTDB 214)',
-  'SM_gtdb-rs220-rep'= 'Sourmash (GTDB 220)',
-  'SM_gtdb-rs214-rep_MAGs'= 'Sourmash (GTDB \n+ Novel MAGs)',
-  'SYLPH_RefSeq_Seq' = 'sylph (RefSeq, sequence)',
-  'SYLPH_RefSeq_Tax' = 'sylph (RefSeq, taxonomic)',
-  'SYLPH_gtdb_rs220_Seq' = 'sylph (GTDB 220, sequence)',
-  'SYLPH_gtdb_rs220_Tax' = 'sylph (GTDB 220, taxonomic)'
-)
+# Methods of the study: one row per profile object (Database), one column per methodological dimension.
+# Replaced CCE_metadata, CCE_names, tooldb_colours and tool_colours on 2026-11-19 (legacy copy in scripts/archive/).
+#   Reference: the database the tool profiles against (MetaPhlAn and mOTUs: their own marker database)
+#   Param:     what distinguishes methods sharing a tool and reference (Kraken confidence, database year, version)
+#   Abundance: Sequence (read counts, rarefied) or Taxonomic (proportions, not rarefied)
+#   Approach:  D2M = DNA-to-marker, D2D = DNA-to-DNA
+methods <- tribble(
+  ~Database,              ~Tool,       ~Reference,  ~Param, ~Abundance,  ~Approach, ~colour,
+  'MPA_db2022',           'MetaPhlAn', 'MetaPhlAn', '2022', 'Taxonomic', 'D2M',     'green4',
+  'MPA_db2023',           'MetaPhlAn', 'MetaPhlAn', '2023', 'Taxonomic', 'D2M',     '#3d8f58',
+  'MPA_db2025',           'MetaPhlAn', 'MetaPhlAn', '2025', 'Taxonomic', 'D2M',     '#00A759',
+  'MOTUS3',               'mOTUs',     'mOTUs',     '3.0',    'Taxonomic', 'D2M',     'orange',
+  'MOTUS4',               'mOTUs',     'mOTUs',     '4.0',    'Taxonomic', 'D2M',     '#FDBF6F',
+  'KB10',                 'Kraken',    'RefSeq',    '0.10', 'Sequence',  'D2D',     'indianred1',
+  'KB45',                 'Kraken',    'RefSeq',    '0.45', 'Sequence',  'D2D',     'indianred3',
+  'KB90',                 'Kraken',    'RefSeq',    '0.90', 'Sequence',  'D2D',     'indianred4',
+  'KB10_GTDB',            'Kraken',    'GTDB r220', '0.10', 'Sequence',  'D2D',     'purple',
+  'KB45_GTDB',            'Kraken',    'GTDB r220', '0.45', 'Sequence',  'D2D',     'purple2',
+  'KB90_GTDB',            'Kraken',    'GTDB r220', '0.90', 'Sequence',  'D2D',     'purple3',
+  'SM_RefSeq_20250528',   'sourmash',  'RefSeq',    NA,     'Sequence',  'D2D',     '#b41f1f',
+  'SM_gtdb-rs220-rep',    'sourmash',  'GTDB r220', NA,     'Sequence',  'D2D',     '#1F78B4',
+  'SYLPH_RefSeq_Seq',     'sylph',     'RefSeq',    NA,     'Sequence',  'D2D',     '#8C510A',
+  'SYLPH_RefSeq_Tax',     'sylph',     'RefSeq',    NA,     'Taxonomic', 'D2D',     '#BF812D',
+  'SYLPH_gtdb_rs220_Seq', 'sylph',     'GTDB r220', NA,     'Sequence',  'D2D',     '#D8B365',
+  'SYLPH_gtdb_rs220_Tax', 'sylph',     'GTDB r220', NA,     'Taxonomic', 'D2D',     '#F6E8C3'
+) %>%
+  mutate(Tool = factor(Tool, levels = c('Kraken', 'sourmash', 'sylph', 'MetaPhlAn', 'mOTUs')),
+         Reference = factor(Reference, levels = c('GTDB r220', 'RefSeq', 'MetaPhlAn', 'mOTUs')),
+         Abundance = factor(Abundance, levels = c('Sequence', 'Taxonomic')))
+stopifnot(!anyDuplicated(methods$Database))
 
-Hill_numbers <- c(
-  'H_0' = 'Richness',
-  'H_1' = 'Shannon (Hill order 1)',
-  'H_2' = 'Simpson (Hill order 2)'
-)
+reference_colours <- c(`GTDB r220` = '#823D51', RefSeq = '#515A82', MetaPhlAn = '#00A759', mOTUs = '#FDBF6F')
+tool_shapes <- c(Kraken = 24, sourmash = 22, sylph = 23, MetaPhlAn = 21, mOTUs = 25) # fillable shapes (21-25)
 
-CCE_metadata <- tribble(
-  ~Database,                ~plot_colour, ~MethodName,         ~MethodNameParam, ~Num_spec, ~Tool,        ~tool_family,  ~CCE_approach,   ~Taxonomy,       ~refdb,      ~short_alpha_2,      ~short_alpha_3,
-  "MOTUS3",                "orange",      "mOTUs 3",           "mOTUs",              25314, "mOTUs3",     "mOTUs",       "D2M",       "Tool-specific", "MOTUS",      "mOTUs",           "3.0",
-  "MOTUS4",                "#FDBF6F",     "mOTUs 4",           "mOTUs",             124296, "mOTUs4",     "mOTUs",       "D2M",       "Tool-specific", "MOTUS",      "mOTUs",           "4.0",
-  "MPA_db2022",            "green4",      "MPA 2022",          "MetaPhlAn",          30094, "MetaPhlAn4", "MetaPhlAn",   "D2M",       "Tool-specific", "MPA",        "MetaPhlAn",       "2022",
-  "MPA_db2023",            "#3d8f58",     "MPA 2023",          "MetaPhlAn",          36333, "MetaPhlAn4", "MetaPhlAn",   "D2M",       "Tool-specific", "MPA",        "MetaPhlAn",       "2023",
-  "MPA_db2025",            "#00A759",     "MPA 2025",          "MetaPhlAn",          56335, "MetaPhlAn4", "MetaPhlAn",   "D2M",       "Tool-specific", "MPA",        "MetaPhlAn",       "2025",
-  "KB10",                  "indianred1",  "KB10 RefSeq",       "Kraken 0.10",        27285, "Kraken2",    "Kraken",      "D2D",       "NCBI",          "RefSeq",     "RefSeq",  "KB 0.10",
-  "KB45",                  "indianred3",  "KB45 RefSeq",       "Kraken 0.45",        27285, "Kraken2",    "Kraken",      "D2D",       "NCBI",          "RefSeq",     "RefSeq",  "KB 0.45",
-  "KB90",                  "indianred4",  "KB90 RefSeq",       "Kraken 0.90",        27285, "Kraken2",    "Kraken",      "D2D",       "NCBI",          "RefSeq",     "RefSeq",  "KB 0.90",
-  "KB10_GTDB",             "purple",      "KB10 GTDB",         "Kraken 0.10",       113104, "Kraken2",    "Kraken",      "D2D",       "GTDB",          "GTDB_220",   "GTDB",        "KB 0.10",
-  "KB45_GTDB",             "purple2",     "KB45 GTDB",         "Kraken 0.45",       113104, "Kraken2",    "Kraken",      "D2D",       "GTDB",          "GTDB_220",   "GTDB",        "KB 0.45",
-  "KB90_GTDB",             "purple3",     "KB90 GTDB",         "Kraken 0.90",       113104, "Kraken2",    "Kraken",      "D2D",       "GTDB",          "GTDB_220",   "GTDB",        "KB 0.90",
-  "SM_genbank-2022.03",    "red2",        "SM GenBank",        "Sourmash",           62052, "Sourmash",   "Sourmash",    "D2D",       "NCBI",          "GenBank",    "RefSeq",  "SM",   
-  "SM_RefSeq_20250528",    "#b41f1f",     "SM RefSeq",         "Sourmash",           27285, "Sourmash",   "Sourmash",    "D2D",       "NCBI",          "RefSeq",     "RefSeq",  "SM",   
-  "SM_gtdb-rs214-full",    "navyblue",    "SM GTDB 214 Full",  "Sourmash",           85205, "Sourmash",   "Sourmash",    "D2D",       "GTDB",          "GTDB_214",   "GTDB",        "SM",   
-  "SM_gtdb-rs214-rep",     "blue",        "SM GTDB 214",       "Sourmash",           85205, "Sourmash",   "Sourmash",    "D2D",       "GTDB",          "GTDB_214",   "GTDB",        "SM",   
-  "SM_gtdb-rs220-rep",     "#1F78B4",     "SM GTDB 220",       "Sourmash",          113104, "Sourmash",   "Sourmash",    "D2D",       "GTDB",          "GTDB_220",   "GTDB",        "SM",   
-  "SM_gtdb-rs214-rep_MAGs","skyblue3",    "SM GTDB 214 + MAGs","Sourmash",          113211, "Sourmash",   "Sourmash",    "D2D",       "GTDB",          "GTDB_214",   "GTDB",        "SM",
-  # Num_spec: same genome sets as SM_RefSeq_20250528 (RefSeq 20250528) and the GTDB 220 entries above (r220 representatives)
-  # _Seq: estimated read counts (rarefied); _Tax: taxonomic abundance, proportions (not rarefied, like MetaPhlAn)
-  "SYLPH_RefSeq_Seq",      "#8C510A",     "sylph RefSeq seq",  "sylph",              27285, "sylph",      "sylph",       "D2D",       "NCBI",          "RefSeq",     "RefSeq",  "sylph seq",
-  "SYLPH_RefSeq_Tax",      "#BF812D",     "sylph RefSeq tax",  "sylph",              27285, "sylph",      "sylph",       "D2D",       "NCBI",          "RefSeq",     "RefSeq",  "sylph tax",
-  "SYLPH_gtdb_rs220_Seq",  "#D8B365",     "sylph GTDB 220 seq","sylph",             113104, "sylph",      "sylph",       "D2D",       "GTDB",          "GTDB_220",   "GTDB",        "sylph seq",
-  "SYLPH_gtdb_rs220_Tax",  "#F6E8C3",     "sylph GTDB 220 tax","sylph",             113104, "sylph",      "sylph",       "D2D",       "GTDB",          "GTDB_220",   "GTDB",        "sylph tax"
-)
+# Full label of a method, e.g. "Kraken 0.45 (GTDB r220)", "MetaPhlAn 2022", "sylph seq (RefSeq)".
+# Unknown Database ids come back unchanged.
+method_label <- function(db) {
+  m <- methods[match(db, methods$Database), ]
+  label <- case_when(
+    m$Tool %in% c('MetaPhlAn', 'mOTUs') ~ paste(m$Tool, m$Param),
+    m$Tool == 'sylph' ~ paste0('sylph ', if_else(m$Abundance == 'Sequence', 'seq', 'tax'), ' (', m$Reference, ')'),
+    is.na(m$Param) ~ paste0(m$Tool, ' (', m$Reference, ')'),
+    .default = paste0(m$Tool, ' ', m$Param, ' (', m$Reference, ')'))
+  setNames(coalesce(label, db), db)
+}
 
-tooldb_colours <- CCE_metadata$plot_colour
-names(tooldb_colours) <- CCE_metadata$Database
+# Short label, for plots that already show the reference: "Kraken 0.45", "sourmash", "sylph seq", "2022" (MetaPhlAn),
+# "3.0" (mOTUs)
+method_short <- function(db) {
+  m <- methods[match(db, methods$Database), ]
+  label <- case_when(
+    m$Tool %in% c('MetaPhlAn', 'mOTUs') ~ m$Param,
+    m$Tool == 'sylph' ~ paste('sylph', if_else(m$Abundance == 'Sequence', 'seq', 'tax')),
+    is.na(m$Param) ~ as.character(m$Tool),
+    .default = paste(m$Tool, m$Param))
+  setNames(coalesce(label, db), db)
+}
 
-tool_colours <- c(
-  'mOTUs3' = "orange", 
-  'mOTUs4' = "#FDBF6F", 
-  'MetaPhlAn4'= "#00A759",
-  'Kraken2' = "#b41f1f",
-  'Sourmash' = "#1F78B4",
-  'sylph' = "#8C510A"
-)
+approach_labels <- c(D2M = 'DNA-to-marker', D2D = 'DNA-to-DNA')
+
+# Facet columns for plots with one column per method (4_alpha_tests.R, 5_beta_tests.R), for
+# facet_nested(~ Approach + Reference + Method): Approach and Reference from methods, Method = method_short()
+add_method_facets <- function(data) {
+  data %>%
+    left_join(dplyr::select(methods, Database, Approach, Reference), by = 'Database') %>%
+    mutate(Approach = factor(approach_labels[Approach], levels = approach_labels),
+           Method = factor(method_short(Database), levels = unique(method_short(methods$Database))))
+}
 # 
 # tool_vars <- tibble(
 #   "Aldex2" = "wi.eBH",

@@ -122,7 +122,7 @@ iwalk(alpha_figs[names(alpha_figs) != 'Shannon'], \(p, idx)
 # Figure SUPP : pair matrix of the 9 databases ----------------------------
 # Lower: within-dataset percentiles, one point per sample (diagonal = same rank with both databases).
 # Upper: Spearman rho per dataset (bar = median). Samples profiled by both databases of each pair.
-db_labels <- setNames(CCE_metadata$MethodName, CCE_metadata$Database)[triads$Database]
+db_labels <- method_label(triads$Database)
 
 pair_matrix <- function(idx) {
   dat <- alpha_div %>% filter(Index == idx) %>% select(Dataset, Sample, Database, pct)

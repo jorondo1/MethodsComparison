@@ -7,7 +7,7 @@
 # Usage, from the repo root: Rscript scripts/10_benchmark_plot.R
 
 pacman::p_load(tidyverse, patchwork, magrittr)
-source("scripts/0_config.R") # tooldb_colours
+source("scripts/0_config.R") # methods (colours)
 
 dir <- "Out/benchmark"
 
@@ -21,21 +21,16 @@ tools <- c(
   MPA22 = "MetaPhlAn 2022", MPA23 = "MetaPhlAn 2023", MPA25 = "MetaPhlAn 2025"
 )
 
-# Methods as a user runs them (see Cost model below), in figure order, with their colour in tooldb_colours (0_config.R)
-method_colours <- tooldb_colours[c(
-  `sylph RefSeq` = "SYLPH_RefSeq_Seq", 
-  `sylph GTDB 220` = "SYLPH_gtdb_rs220_Seq",
-  `sourmash RefSeq` = "SM_RefSeq_20250528", 
-  `sourmash GTDB 220` = "SM_gtdb-rs220-rep",
-  `Kraken RefSeq` = "KB45",  
-  `Kraken GTDB` = "KB45_GTDB",
-  `mOTUs 3` = "MOTUS3", 
-  `mOTUs 4` = "MOTUS4",
-  `MetaPhlAn 2022` = "MPA_db2022",
-  `MetaPhlAn 2023` = "MPA_db2023", 
-  `MetaPhlAn 2025` = "MPA_db2025")] %>%
-  setNames(c("sylph RefSeq", "sylph GTDB 220", "sourmash RefSeq", "sourmash GTDB 220", "Kraken RefSeq", "Kraken GTDB",
-             "mOTUs 3", "mOTUs 4", "MetaPhlAn 2022", "MetaPhlAn 2023", "MetaPhlAn 2025"))
+# Methods as a user runs them (see Cost model below), in figure order, with the profile object whose colour they take
+# (methods table, 0_config.R)
+benchmark_methods <- c(
+  `sylph RefSeq` = "SYLPH_RefSeq_Seq", `sylph GTDB 220` = "SYLPH_gtdb_rs220_Seq",
+  `sourmash RefSeq` = "SM_RefSeq_20250528", `sourmash GTDB 220` = "SM_gtdb-rs220-rep",
+  `Kraken RefSeq` = "KB45", `Kraken GTDB` = "KB45_GTDB",
+  `mOTUs 3` = "MOTUS3", `mOTUs 4` = "MOTUS4",
+  `MetaPhlAn 2022` = "MPA_db2022", `MetaPhlAn 2023` = "MPA_db2023", `MetaPhlAn 2025` = "MPA_db2025")
+method_colours <- setNames(methods$colour[match(benchmark_methods, methods$Database)], names(benchmark_methods))
+stopifnot(!anyNA(method_colours))
 
 # Kraken's index sits in /dev/shm, charged to the copy step, so a sample's step may not show it (GB)
 index_gb <- c(KB = 85, KG = 502)

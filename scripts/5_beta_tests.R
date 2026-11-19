@@ -32,21 +32,20 @@ dataset_names_n_lookup <- dataset_names_n() # labels and order from 0_config.R
 
 # PCoA comparison
 permanova.ds <- read_rds('Out/_Rdata/permanova.ds.RDS')%>% 
-  left_join(CCE_metadata, by = 'Database') %>% 
   filter(Database %in% these_databases) %>% 
+  add_method_facets() %>% # Approach, Reference, Method (0_config.R)
   group_by(Dataset) %>%
   mutate(R2_scaled = (R2 - min(R2)) / (max(R2) - min(R2))) %>%
   ungroup() %>% 
   mutate(R2_label = sprintf("%.3f", R2),
          Dataset = factor(recode(Dataset, !!!dataset_names_n_lookup), 
-                          levels = dataset_names_n_lookup),
-         CCE_approach = factor(CCE_approach, levels = c("D2M", "D2D")))
+                          levels = dataset_names_n_lookup))
                 
 permanova.ds %>% 
   ggplot(aes(x = Database, y = Dataset)) +
   geom_point(aes(size = R2, colour = p)) +
   geom_text(aes(label = R2_label), colour = 'black', nudge_y = -0.4, size = 3) +
-  facet_nested(Dataset ~ CCE_approach + short_alpha_2 + short_alpha_3, scales = 'free') +
+  facet_nested(Dataset ~ Approach + Reference + Method, scales = 'free') +
   scale_colour_steps2(
     low = "#3d0173", mid = "#f0f0f0", high = "#cccccc",
     midpoint = log10(0.05), 
@@ -110,7 +109,7 @@ ggsave('Out/Manuscript/PLOS/Fig5.eps',
 #       position = position_jitter(seed = 1, width = 0.01, height = 0)) +
 #     facet_grid(Dataset~., scales = 'free')  +
 #     p_value_lines() +
-#     scale_colour_manual(values = tooldb_colours, labels = CCE_names) +
+#     scale_colour_manual(values = setNames(methods$colour, methods$Database), labels = method_label) +
 #     expand_limits(y = 0) +  
 #     scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
 #     labs(x = expression("log"[10]*"(p-value)"), y = '', colour = 'Methodology') +
