@@ -13,9 +13,10 @@ set -eo pipefail
 
 HPC=${1:?usage: sync_from_hpc.sh <user@host> [rsync options]}; shift
 REMOTE=/net/nfs-ip34/jbod2/def-ilafores/analysis/MethodsComparison
+SSH_KEY=${SSH_KEY:-$HOME/.ssh/ronj}
 
 # First match wins; every parent directory of a wanted file must be included to be walked into.
-rsync -avum "$@" \
+rsync -avum -e "ssh -i $SSH_KEY" "$@" \
 	--include='/Out/' \
 	--include='/Out/classification_rates/' \
 	--include='/Out/classification_rates/*.tsv' \

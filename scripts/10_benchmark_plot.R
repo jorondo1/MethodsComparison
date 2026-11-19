@@ -1,16 +1,17 @@
-# Resource benchmark: CPU-hours and peak memory per tool x database x dataset.
-# Input: the output folder of scripts/benchmark/benchmark.sh (samples.tsv, bases.tsv, jobs.tsv, sacct.tsv)
-# Output in the same folder: resource_use.tsv, summary.tsv, benchmark_ridges.pdf, benchmark_scaling.pdf
-# Usage: Rscript scripts/10_benchmark_plot.R [folder]
+# Resource benchmark: per-sample CPU cost of each method against input size, and peak memory of each step.
+# Input: the output folder of scripts/benchmark/benchmark.sh (samples.tsv, bases.tsv, jobs.tsv, sacct.tsv).
+# Output in the same folder:
+#   resource_use.tsv         one row per sample x step: CPU-hours, wall time, peak memory
+#   cost_model.tsv           per method: overhead per sample (a), CPU-hours per Gbp (b), 95 % CIs, peak memory
+#   benchmark_resources.pdf  A: CPU-hours per sample against Gbp, with the fit; B: peak memory per step
+# Usage, from the repo root: Rscript scripts/10_benchmark_plot.R
 
-library(tidyverse)
-library(ggridges)
-library(patchwork)
+pacman::p_load(tidyverse, patchwork, magrittr)
+source("scripts/0_config.R") # tooldb_colours
 
-args <- commandArgs(trailingOnly = TRUE)
-dir <- if (length(args)) args[1] else "Out/benchmark"
+dir <- "Out/benchmark"
 
-# Top to bottom in the ridge plots
+# sacct labels (jobs.tsv, Kraken step names) to display names
 tools <- c(
   sylph_sketch = "sylph sketch", SYref = "sylph RefSeq", SY220 = "sylph GTDB 220",
   sourmash_sketch = "sourmash sketch", SMref = "sourmash RefSeq", SM220 = "sourmash GTDB 220",
@@ -20,28 +21,51 @@ tools <- c(
   MPA22 = "MetaPhlAn 2022", MPA23 = "MetaPhlAn 2023", MPA25 = "MetaPhlAn 2025"
 )
 
+# Methods as a user runs them (see Cost model below), in figure order, with their colour in tooldb_colours (0_config.R)
+method_colours <- tooldb_colours[c(
+  `sylph RefSeq` = "SYLPH_RefSeq_Seq", 
+  `sylph GTDB 220` = "SYLPH_gtdb_rs220_Seq",
+  `sourmash RefSeq` = "SM_RefSeq_20250528", 
+  `sourmash GTDB 220` = "SM_gtdb-rs220-rep",
+  `Kraken RefSeq` = "KB45",  
+  `Kraken GTDB` = "KB45_GTDB",
+  `mOTUs 3` = "MOTUS3", 
+  `mOTUs 4` = "MOTUS4",
+  `MetaPhlAn 2022` = "MPA_db2022",
+  `MetaPhlAn 2023` = "MPA_db2023", 
+  `MetaPhlAn 2025` = "MPA_db2025")] %>%
+  setNames(c("sylph RefSeq", "sylph GTDB 220", "sourmash RefSeq", "sourmash GTDB 220", "Kraken RefSeq", "Kraken GTDB",
+             "mOTUs 3", "mOTUs 4", "MetaPhlAn 2022", "MetaPhlAn 2023", "MetaPhlAn 2025"))
+
 # Kraken's index sits in /dev/shm, charged to the copy step, so a sample's step may not show it (GB)
 index_gb <- c(KB = 85, KG = 502)
 
 # Read inputs -----------------------------------------------------------------
-
-samples <- read_tsv(file.path(dir, "samples.tsv"), show_col_types = FALSE,
-                    col_names = c("Dataset", "Sample", "p1", "p2", "u1", "u2", "Bytes")) %>%
+samples <- read_tsv(
+  file.path(dir, "samples.tsv"), show_col_types = FALSE,
+  col_names = c("Dataset", "Sample", "p1", "p2", "u1", "u2", "Bytes")) %>%
   mutate(Row = row_number())
 
 bases <- read_tsv(file.path(dir, "bases.tsv"), show_col_types = FALSE)
 
-# Gbp per sample, all 4 read files. Sylph only reads the 2 paired files.
-input <- samples %>%
+# Bases per read file, with its sample. Gbp per sample counts all 4 read files (sylph only reads the 2 paired ones).
+sample_files <- samples %>%
   pivot_longer(c(p1, p2, u1, u2), values_to = "file") %>%
-  left_join(bases, by = "file") %>%
-  summarise(Gbp = sum(sum_len) / 1e9, .by = c(Row, Dataset, Sample))
+  left_join(bases, by = "file")
 
-jobs <- read_tsv(file.path(dir, "jobs.tsv"), show_col_types = FALSE, col_names = c("Label", "Job"),
-                 col_types = "cc") # every submission: a rerun of some rows (Kraken, OOM tasks) adds a job to its label
+input <- summarise(
+  sample_files, Gbp = sum(sum_len) / 1e9, 
+  .by = c(Row, Dataset, Sample))
 
-sacct <- read_delim(file.path(dir, "sacct.tsv"), delim = "|", show_col_types = FALSE,
-                    col_types = cols(.default = "c"))
+jobs <- read_tsv(
+  file.path(dir, "jobs.tsv"), 
+  show_col_types = FALSE, col_names = c("Label", "Job"),
+  col_types = "cc") # every submission: a rerun of some rows (Kraken, OOM tasks) adds a job to its label
+
+# sacct output (slurm logs job usage)
+sacct <- read_delim(
+  file.path(dir, "sacct.tsv"), delim = "|", show_col_types = FALSE,
+  col_types = cols(.default = "c"))
 
 # Unit conversions ------------------------------------------------------------
 
@@ -61,18 +85,18 @@ to_gb <- function(x) {
   value * c(K = 1 / 1024^2, M = 1 / 1024, G = 1, T = 1024)[unit]
 }
 
-# One row per sample x tool ---------------------------------------------------
+# One row per sample x step ---------------------------------------------------
 
 # Array tasks: 123_7.batch, 7 = row of samples.tsv
 array_tasks <- sacct %>%
   filter(str_detect(JobID, "^\\d+_\\d+\\.batch$")) %>%
-  extract(JobID, c("Job", "Row"), "^(\\d+)_(\\d+)\\.", remove = FALSE) %>%
+  tidyr::extract(JobID, c("Job", "Row"), "^(\\d+)_(\\d+)\\.", remove = FALSE) %>%
   inner_join(jobs, by = "Job")
 
 # Kraken: srun steps named <label>_<row>, for example KG45_7
 kraken_steps <- sacct %>%
   filter(str_detect(JobName, "^K[BG]\\d+_\\d+$"), str_remove(JobID, "\\..*") %in% jobs$Job) %>%
-  extract(JobName, c("Label", "Row"), "^(K[BG]\\d+)_(\\d+)$", remove = FALSE)
+  tidyr::extract(JobName, c("Label", "Row"), "^(K[BG]\\d+)_(\\d+)$", remove = FALSE)
 
 # A rerun row: its last job wins. That also drops the 2026-11-10 KB/KG steps that ran on 0 reads (COMPLETED anyway:
 # nfs-ip34 paths not visible in the container), rerun on 2026-11-12.
@@ -82,49 +106,123 @@ use <- bind_rows(array_tasks, kraken_steps) %>%
   slice_max(Job_n, n = 1, by = c(Label, Row)) %>%
   inner_join(input, by = "Row") %>%
   mutate(
-    Tool = factor(tools[Label], levels = rev(tools)),
+    Tool = factor(tools[Label], levels = tools),
     Wall_h = as.numeric(ElapsedRaw) / 3600,
     CPU_h = to_seconds(TotalCPU) / 3600,
-    CPU_h_per_Gbp = CPU_h / Gbp,
     Mem_GB = to_gb(MaxRSS),
     Index_GB = index_gb[str_sub(Label, 1, 2)],
     # add the index only if the step's memory can't already include it
     Mem_GB = if_else(!is.na(Index_GB) & Mem_GB < Index_GB, Mem_GB + Index_GB, Mem_GB)
   ) %>%
-  select(Tool, Dataset, Sample, Gbp, CPUs = AllocCPUS, Wall_h, CPU_h, CPU_h_per_Gbp, Mem_GB, Node = NodeList)
+  select(Tool, Dataset, Sample, Gbp, CPUs = AllocCPUS, Wall_h, CPU_h, Mem_GB, Node = NodeList)
 
 write_tsv(use, file.path(dir, "resource_use.tsv"))
 
-use %>%
-  summarise(across(c(Gbp, Wall_h, CPU_h, CPU_h_per_Gbp, Mem_GB), list(median = median, min = min, max = max)),
-            n = n(), .by = c(Tool, Dataset)) %>%
-  arrange(Tool, Dataset) %>%
-  write_tsv(file.path(dir, "summary.tsv"))
 
-# Plots -----------------------------------------------------------------------
+# Cost model ------------------------------------------------------------------
+# A run = what a user runs for one sample:
+#   - sylph, sourmash: sketch + profile (the sketch is needed, and costs more than sylph's profiling);
+#   - Kraken: Kraken2 + Bracken at one confidence. The 3 confidences cost the same, so the 3 runs per sample are pooled.
+# Per run: CPU_h = a + b * Gbp. a = overhead per sample (e.g. loading the MetaPhlAn index), b = CPU-hours per Gbp.
+#   Gamma GLM, identity link: the spread grows with the cost, so the deepest samples don't dominate the fit.
+# Left out: Kraken's index copy to /dev/shm, done once per dataset run on a node (< 0.15 CPU-hours).
 
-ridge <- function(value, x_label) {
-  ggplot(use, aes(x = {{ value }}, y = Tool, fill = Dataset, colour = Dataset)) +
-    geom_density_ridges(alpha = 0.3, jittered_points = TRUE, point_size = 0.8) +
-    scale_x_log10() +
-    labs(x = x_label, y = NULL) +
-    theme_classic()
+runs <- use %>%
+  mutate(Method = str_remove(Tool, " 0\\.\\d+$"), Sketcher = word(Tool, 1), Key = paste(Dataset, Sample))
+
+sketches <- runs %>%
+  filter(str_detect(Tool, "sketch")) %>%
+  select(Sketcher, Key, Sketch_h = CPU_h, Sketch_GB = Mem_GB)
+
+runs <- runs %>%
+  filter(!str_detect(Tool, "sketch")) %>%
+  left_join(sketches, by = c("Sketcher", "Key")) %>%
+  mutate(CPU_h = CPU_h + coalesce(Sketch_h, 0),
+         Mem_GB = pmax(Mem_GB, Sketch_GB, na.rm = TRUE),
+         Method = factor(Method, levels = names(method_colours))) %>%
+  select(Method, Key, Dataset, Sample, Gbp, CPU_h, Mem_GB)
+
+fit_cost <- function(d) {
+  start <- pmax(coef(lm(CPU_h ~ Gbp, d)), c(1e-4, 1e-6))
+  f <- tryCatch(suppressWarnings(glm(CPU_h ~ Gbp, family = Gamma("identity"), data = d, start = start)),
+                error = \(e) NULL)
+  if (!is.null(f) && coef(f)[1] >= 0) return(f)
+  # a < 0 (Kraken RefSeq: no measurable overhead): through the origin
+  suppressWarnings(glm(CPU_h ~ 0 + Gbp, family = Gamma("identity"), data = d, start = start[2]))
 }
 
-# Raw cost, cost per Gbp, memory
-ridges <- ridge(CPU_h, "CPU-hours per sample") +
-  (ridge(CPU_h_per_Gbp, "CPU-hours per Gbp") + theme(axis.text.y = element_blank())) +
-  (ridge(Mem_GB, "Peak memory (GB)") + theme(axis.text.y = element_blank())) +
-  plot_layout(guides = "collect")
-ggsave(file.path(dir, "benchmark_ridges.pdf"), ridges, width = 12, height = 7)
+by_method <- split(runs, runs$Method)
+fits <- map(by_method, fit_cost)
 
-# Fixed cost against scaling with depth
-scaling <- ggplot(use, aes(x = Gbp, y = CPU_h)) +
-  geom_point(aes(colour = Dataset), size = 0.8) +
-  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, colour = "black", linewidth = 0.4) +
-  scale_x_log10() +
-  scale_y_log10() +
-  facet_wrap(~ fct_rev(Tool)) +
-  labs(x = "Input (Gbp)", y = "CPU-hours") +
-  theme_classic()
-ggsave(file.path(dir, "benchmark_scaling.pdf"), scaling, width = 10, height = 8)
+# Wald 95 % intervals; a = 0 without interval for a fit through the origin
+model <- imap_dfr(fits, \(f, m) {
+  ci <- confint.default(f)
+  has_a <- "(Intercept)" %in% rownames(ci)
+  tibble(Method = m,
+         a = if (has_a) coef(f)[["(Intercept)"]] else 0,
+         a_lo = if (has_a) ci["(Intercept)", 1] else NA, a_hi = if (has_a) ci["(Intercept)", 2] else NA,
+         b = coef(f)[["Gbp"]], b_lo = ci["Gbp", 1], b_hi = ci["Gbp", 2],
+         n_samples = n_distinct(by_method[[m]]$Key),
+         Mem_GB_median = median(by_method[[m]]$Mem_GB), Mem_GB_max = max(by_method[[m]]$Mem_GB))
+}) %>%
+  mutate(Method = factor(Method, levels = names(method_colours))) %>%
+  arrange(Method)
+
+model %>%
+  mutate(across(where(is.numeric) & !n_samples, \(x) signif(x, 3))) %>%
+  write_tsv(file.path(dir, "cost_model.tsv"))
+
+# A: CPU-hours per sample, with the fit ------------------------------------------
+
+number <- scales::label_number(drop0trailing = TRUE, big.mark = ",")
+
+# Each method's line over the Gbp range it was measured on; ribbon = 95 % CI of the mean, built on the log scale
+# (delta method: SE of log(fit) = SE / fit) so it stays positive on the log axes
+fit_lines <- imap_dfr(fits, \(f, m) {
+  g <- range(by_method[[m]]$Gbp)
+  grid <- tibble(Gbp = 10^seq(log10(g[1]), log10(g[2]), length.out = 50))
+  p <- predict(f, grid, se.fit = TRUE)
+  mutate(grid, Method = m, CPU_h = p$fit,
+         lo = p$fit * exp(-1.96 * p$se.fit / p$fit), hi = p$fit * exp(1.96 * p$se.fit / p$fit))
+}) %>%
+  mutate(Method = factor(Method, levels = names(method_colours)))
+
+fit_plot <- ggplot(runs, aes(Gbp, CPU_h)) +
+  geom_point(colour = "grey45", size = 0.7) +
+  geom_ribbon(data = fit_lines, aes(ymin = lo, ymax = hi, fill = Method), alpha = 0.25) +
+  geom_line(data = fit_lines, aes(colour = Method), linewidth = 0.6) +
+  scale_x_log10(labels = number) +
+  scale_y_log10(labels = number) +
+  scale_colour_manual(values = method_colours, aesthetics = c("colour", "fill")) +
+  labs(x = "Sample size (Gbp, post-QC)", y = "CPU-hours per sample") +
+  theme_classic() +
+  theme(strip.background = element_blank()); fit_plot
+
+# B: peak memory per step ---------------------------------------------------------
+# One point per sample and step. Kraken: the highest of the 3 confidences (they differ by < 1 GB), index included.
+# Sketches get their own rows (in grey: each serves 2 databases).
+
+steps <- c("sylph sketch", "sylph RefSeq", "sylph GTDB 220", "sourmash sketch", "sourmash RefSeq", "sourmash GTDB 220",
+           "Kraken RefSeq", "Kraken GTDB", "mOTUs 3", "mOTUs 4", "MetaPhlAn 2022", "MetaPhlAn 2023", "MetaPhlAn 2025")
+step_colours <- c(method_colours, `sylph sketch` = "grey50", `sourmash sketch` = "grey50")
+
+memory <- use %>%
+  mutate(Step = str_remove(Tool, " 0\\.\\d+$")) %>%
+  summarise(Mem_GB = max(Mem_GB), .by = c(Step, Dataset, Sample)) %>%
+  mutate(Step = factor(Step, levels = steps))
+
+mem_plot <- ggplot(memory, aes(Mem_GB, Step, colour = Step)) +
+  geom_point(position = position_jitter(width = 0, height = 0.2, seed = 1), size = 0.8, alpha = 0.6) +
+  stat_summary(fun = median, geom = "point", shape = "|", size = 6, colour = "black") +
+  scale_x_log10(labels = number, limits = c(NA, 1000), breaks = c(1, 10, 100, 1000)) +
+  scale_y_discrete(limits = rev(steps)) +
+  scale_colour_manual(values = step_colours, guide = "none") +
+  labs(x = "Peak memory (GB)", y = NULL) +
+  theme_classic() +
+  theme(panel.grid.major.x = element_line(colour = "grey92", linewidth = 0.3))
+
+resources <- fit_plot / mem_plot +
+  plot_layout(widths = c(3, 2), guides = "collect") +
+  plot_annotation(tag_levels = "A"); resources
+
+ggsave(file.path(dir, "benchmark_resources.pdf"), resources, width = 13, height = 7)

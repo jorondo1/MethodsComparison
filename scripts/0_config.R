@@ -1,4 +1,4 @@
-if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) rstudioapi::applyTheme("Idle Fingers") # RStudio only (not Rscript on the HPC)
+if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) rstudioapi::applyTheme("Fastverse Light") # RStudio only (not Rscript on the HPC)
 ggplot2::theme_set(ggplot2::theme_light())
 
 conflicted::conflicts_prefer(
@@ -41,6 +41,20 @@ dataset_names <- c(
 
 these_datasets <- names(dataset_names) # datasets to use for plots
 stopifnot(!anyDuplicated(names(dataset_names)), !anyDuplicated(dataset_names))
+
+human_datasets <- c('PD', 'RA_Gut', 'NAFLD', 'P19_Gut', 'P19_Saliva', 'AD_Skin')
+
+# One colour per dataset (RColorBrewer Paired, pale yellow darkened)
+dataset_colours <- setNames(c('#A6CEE3', '#1F78B4', '#B2DF8A', '#33A02C', '#FB9A99', '#E31A1C',
+                              '#FDBF6F', '#FF7F00', '#CAB2D6', '#6A3D9A', '#E5C100', '#B15928'), these_datasets)
+
+# Method triads compared in 2_alpha_compare.R: abundance type > reference > c(Database = label), in loop order
+alpha_triads <- list(
+  `Sequence abundances` = list(
+    `GTDB r220` = c(KB45_GTDB = 'Kraken 0.45', SYLPH_gtdb_rs220_Seq = 'sylph', `SM_gtdb-rs220-rep` = 'sourmash'),
+    RefSeq      = c(KB45 = 'Kraken 0.45', SYLPH_RefSeq_Seq = 'sylph', SM_RefSeq_20250528 = 'sourmash')),
+  `Taxonomic abundances` = list(
+    `Tool-specific` = c(MPA_db2025 = 'MetaPhlAn 4', MOTUS4 = 'mOTUs 4', SYLPH_gtdb_rs220_Tax = 'sylph (GTDB)')))
 
 # Figure labels with n, e.g. "Gut PD\n(n=719)", named by dataset and in dataset_names order.
 # The name comes from dataset_names above; only n (samples in the Wilcoxon tests) is read from
