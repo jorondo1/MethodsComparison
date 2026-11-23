@@ -1,146 +1,111 @@
-ml apptainer
+# sourmash RefSeq database (2025-05-28): the genomes of the Kraken2 standard 20241228 library, sketched with sourmash,
+# indexed, and given NCBI lineages. Log of the commands used.
+# Copy-paste collection: running or sourcing this file does nothing. Paste a block, wait for it to finish, then the next.
+# Older approaches (manysketch, per-kingdom singleton sketches, accession2taxid): git history of this file.
+return 0 2>/dev/null; [[ $0 == "${BASH_SOURCE[0]}" ]] && { echo "Copy-paste collection: paste the commands, don't run this file"; exit 1; }
 
+module load StdEnv/2020 apptainer/1.1.5
 sourmash="singularity exec --writable-tmpfs -e -B $ILAFORES:$ILAFORES,/fast2/def-ilafores:/fast2/def-ilafores $ILL_PIPELINES/containers/sourmash.4.8.11.sif"
-refseq_genomes="/fast2/def-ilafores/refseq_genomes"
+refseq_genomes=/fast2/def-ilafores/refseq_genomes
 dwnld_date=20250528
 genomes=$refseq_genomes/${dwnld_date}_genomes
 signatures=$refseq_genomes/${dwnld_date}_signatures
-mkdir -p $genomes
-mkdir -p $signatures
+SM_DB=$ILAFORES/ref_dbs/sourmash_db
+mkdir -p $genomes $signatures
+cd $refseq_genomes
 
-# Extract all accessions + urls from kraken library
-cat $ILAFORES/ref_dbs/kraken2_dbs/k2_standard_20241228/library_report.tsv | \
-cut -f3 | sed 's|https://ftp.ncbi.nlm.nih.gov/||g' | \
-grep genomes | sed 's|genomes/|https://ftp.ncbi.nlm.nih.gov/genomes/|g' | sort -u > $refseq_genomes/ncbi_accession_urls.txt
+################################################################
+# Genomes ########
+################################################################
 
-# DOWNLOAD GENOMES
+# Accessions + URLs of the Kraken2 standard library
+cut -f3 $ILAFORES/ref_dbs/kraken2_dbs/k2_standard_20241228/library_report.tsv | \
+	sed 's|https://ftp.ncbi.nlm.nih.gov/||g' | grep genomes | \
+	sed 's|genomes/|https://ftp.ncbi.nlm.nih.gov/genomes/|g' | sort -u > ncbi_accession_urls.txt
+
+# Download (skips files already there)
 cd $genomes
 xargs -P 8 -I {} bash -c '
-    file=$(basename "{}")
-    if [ ! -f "$file" ]; then
-        curl -L -O "{}" || echo "Failed: {}" >&2
-    fi
-' < "$refseq_genomes/ncbi_accession_urls.txt"
-cd ..
+	file=$(basename "{}")
+	[ -f "$file" ] || curl -L -O "{}" || echo "Failed: {}" >&2
+' < $refseq_genomes/ncbi_accession_urls.txt
+cd $refseq_genomes
+find $genomes -name '*.gz' > ${dwnld_date}_genome_list.txt
 
-# SKETCH SOURMASH SIGNATURES
-# List genomes 
-find "$genomes" -name '*.gz' > "$refseq_genomes/${dwnld_date}_genome_list.txt"
+################################################################
+# Signatures: one per genome, k=31, scaled=1000, with abundances ########
+################################################################
 
-# parallel sketch :
 nice parallel -j 24 $sourmash sourmash sketch dna {} -p k=31,scaled=1000,abund \
-    --name-from-first --outdir "$signatures" \
-    :::: "$refseq_genomes/${dwnld_date}_genome_list.txt"
+	--name-from-first --outdir $signatures :::: ${dwnld_date}_genome_list.txt
+find $signatures -name '*.sig' > ${dwnld_date}_signature_list.txt
 
-find "$signatures" -name '*.sig' > "$refseq_genomes/${dwnld_date}_signature_list.txt"
-
-# Rename using GCA|F identifier
+# Name each signature after its genome file (GCF_/GCA_ accession + assembly name): this is the gather match name,
+# which merge_tables.sh joins to the lineages
 nice parallel -j 24 'id=$(basename {} | sed '\''s/\.fna\.gz\.sig$//'\''); \
-    '"$sourmash"' sourmash signature rename {} "$id" -o {}' \
-    :::: "$refseq_genomes/${dwnld_date}_signature_list.txt"
+	'"$sourmash"' sourmash signature rename {} "$id" -o {}' :::: ${dwnld_date}_signature_list.txt
 
-# Find missing signatures 
-missing_genomes=($(grep -vFf <(sed "s|$signatures/||g" ${dwnld_date}_signature_list.txt | sed 's|.sig||g') ${dwnld_date}_genome_list.txt))
+# Sketch the genomes that have no signature yet
+missing_genomes=($(grep -vFf <(sed "s|$signatures/||; s|\.sig$||" ${dwnld_date}_signature_list.txt) ${dwnld_date}_genome_list.txt))
 for genome in "${missing_genomes[@]}"; do
-    $sourmash sourmash sketch dna "$genome" -p k=31,scaled=1000,abund --name-from-first --outdir "$signatures"
-done 
-## These genomes seem to be corrupt at the source. Redownloading them did not solve.
-###### GCF_045946455.1_ASM4594645v1_genomic.fna.gz
-###### GCF_010223795.1_ASM1022379v1_genomic.fna.gz
-###### GCF_000847605.1_ViralProj14684_genomic.fna.gz
+	$sourmash sourmash sketch dna "$genome" -p k=31,scaled=1000,abund --name-from-first --outdir $signatures
+done
+# These 3 stay missing: corrupt at the source, and downloading them again didn't help.
+#   GCF_045946455.1_ASM4594645v1_genomic.fna.gz
+#   GCF_010223795.1_ASM1022379v1_genomic.fna.gz
+#   GCF_000847605.1_ViralProj14684_genomic.fna.gz
+find $signatures -name '*.sig' > ${dwnld_date}_signature_list.txt
 
-# BUILD INDEX 
-$sourmash sourmash index --dna -k 31 ${signatures}.k31 --from-file $refseq_genomes/${dwnld_date}_signature_list.txt
-cp /fast2/def-ilafores/refseq_genomes/RefSeq_${dwnld_date}.k31.sbt.zip $ILAFORES/ref_dbs/sourmash_db/
+################################################################
+# Index ########
+################################################################
 
-# TAXONOMY LINEAGE FILE for sourmash
-# 1. Extract just the IDs (GC?_xxxxxxxxx.x
-sed -E 's~.*/((GCF|GCA)_[0-9]{9}).*~\1~' $refseq_genomes/ncbi_accession_urls.txt > $refseq_genomes/ncbi_accession.txt
+# SBT index (2025-06), used by the main analysis (sourmash 4.8.11 gather, 1 thread)
+$sourmash sourmash index --dna -k 31 RefSeq_${dwnld_date}.k31 --from-file ${dwnld_date}_signature_list.txt
+cp RefSeq_${dwnld_date}.k31.sbt.zip $SM_DB/
 
+# Zip collection (2026-11-19), for branchwater fastgather (multithreaded), which can't read an SBT. Same signatures:
+# sig cat copies the SBT's leaves. The output name must end in .zip (sourmash picks the format from the extension).
+sbatch -A def-ilafores -p bio -J sm_refseq_zip -c 1 --mem=64G --time=12:00:00 -o sm_refseq_zip-%j.out --wrap \
+	"module load StdEnv/2020 apptainer/1.1.5; $sourmash sourmash sig cat $SM_DB/RefSeq_${dwnld_date}.k31.sbt.zip \
+	-o $SM_DB/RefSeq_${dwnld_date}.k31.tmp.zip && mv $SM_DB/RefSeq_${dwnld_date}.k31.tmp.zip $SM_DB/RefSeq_${dwnld_date}.k31.zip"
+# Check: same number of sketches, ksize, scaled, abundances and total hashes in both
+$sourmash sourmash sig fileinfo $SM_DB/RefSeq_${dwnld_date}.k31.sbt.zip
+$sourmash sourmash sig fileinfo $SM_DB/RefSeq_${dwnld_date}.k31.zip
+
+################################################################
+# Lineages ########
+################################################################
+
+# Note: merge_tables.sh no longer uses this file for sourmash. It lists GCA/GCF twins and several versions of some
+# accessions, with no header, so it uses the sylph-tax RefSeq table instead (merge_sourmash() in merge_tables.sh).
+
+# 1. Accessions (GCF_/GCA_ + 9 digits)
+sed -E 's~.*/((GCF|GCA)_[0-9]{9}).*~\1~' ncbi_accession_urls.txt > ncbi_accession.txt
+
+# 2. NCBI assembly summaries and taxonomy dump. The historical summaries list suppressed assemblies, needed to
+#    reproduce the 20241228 Kraken library.
 mkdir -p ncbi_ref && cd ncbi_ref
-
-# 2. Download NCBI assembly accession-to-taxid map (updated daily)
-wget ftp://ftp.ncbi.nlm.nih.gov/genomes/ASSEMBLY_REPORTS/assembly_summary_refseq.txt
-wget ftp://ftp.ncbi.nlm.nih.gov/genomes/ASSEMBLY_REPORTS/assembly_summary_genbank.txt
-#!!! FOR LEGACY DB (suppressed taxa) :::::::::::::::::
-# included because we are trying to replicate the 20241228 Kraken db used in other analysis: 
-wget ftp://ftp.ncbi.nlm.nih.gov/genomes/ASSEMBLY_REPORTS/assembly_summary_genbank_historical.txt
-wget ftp://ftp.ncbi.nlm.nih.gov/genomes/ASSEMBLY_REPORTS/assembly_summary_refseq_historical.txt 
-#!!!  :::::::::::::::::::::::::::::::::::::::::::::::::
-
-# 3. Download complete taxonomy dump (nodes/names)
+for f in refseq genbank genbank_historical refseq_historical; do
+	wget ftp://ftp.ncbi.nlm.nih.gov/genomes/ASSEMBLY_REPORTS/assembly_summary_$f.txt
+done
 wget ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz
-tar -xzvf taxdump.tar.gz 
-cd ..
+tar -xzvf taxdump.tar.gz
+cd $refseq_genomes
 
-# 4. Subset taxids of our database
-grep -wFf $refseq_genomes/ncbi_accession.txt <(cat ncbi_ref/assembly_summary_*.txt) | awk -F'\t' '{print $1"\t"$6}' > ncbi_ref/assembly_subset_taxid.tsv
+# 3. Taxid of each accession of the database
+grep -wFf ncbi_accession.txt <(cat ncbi_ref/assembly_summary_*.txt) | awk -F'\t' '{print $1"\t"$6}' > ncbi_ref/assembly_subset_taxid.tsv
+# Accessions whose GCF_ was later removed from RefSeq are only in GenBank, as GCA_: match them on the number.
+# (Probably unnecessary now that the historical summaries are included.)
+cut -f1 ncbi_ref/assembly_subset_taxid.tsv | sed 's/^[^_]*_\([^.]*\).*$/\1/' > ncbi_ref/acc_nums.txt
+missing_num_acc=($(grep -vFf ncbi_ref/acc_nums.txt ncbi_accession.txt | grep GC | sed 's|GC.||g'))
+grep -f <(printf "%s\n" "${missing_num_acc[@]}") <(cat ncbi_ref/assembly_summary_*.txt) | \
+	awk -F'\t' '{print $1"\t"$6}' >> ncbi_ref/assembly_subset_taxid.tsv
+# A few remain without a taxid (e.g. GCA_045946455, suppressed by NCBI).
 
-## Some taxa may be missing because the Kraken ref file used to select the genomes has a GCF_* but it was eventually 
-## removed by refseq, so now it's not in the assembly_summary_refseq.txt but rather the genbank one and has a GCA_* id.
-## PROBABLY NOT NECESSARY IF HISTORICAL ARE INCLUDED
-## In this case : 
-### 4.1 Extract the numeric portion of accessions from all downloaded genomes 
-cut -f1 ncbi_ref/assembly_subset_taxid.tsv | sed "s/^[^_]*_\([^.]*\).*$/\1/" > ncbi_ref/acc_nums.txt
-### 4.2 find the ones missing from the assembly subset taxid
-missing_num_acc=($(grep -vFf ncbi_ref/acc_nums.txt $refseq_genomes/ncbi_accession.txt | grep GC | sed 's|GC.||g'))
-### 4.3 Append them to the assembly_subset_taxid.tsv
-grep -f <(printf "%s\n" "${missing_num_acc[@]}") <(cat ncbi_ref/assembly_summary_*.txt) | awk -F'\t' '{print $1"\t"$6}' >> ncbi_ref/assembly_subset_taxid.tsv
-# Some will still be missing, we delete them from the index! Ex. GCA_045946455 has been suppressed by NCBI. Flush it !
-
-
-# 5. Create full lineage info
-# Requires taxonkit v0.20 since March 2025, NCBI made massive changes to rank names and so on
+# 4. Lineages. taxonkit >= 0.20: NCBI renamed ranks in March 2025.
 conda activate
 taxonkit reformat2 -I 2 --data-dir ncbi_ref/ \
-    -f "{domain};{phylum};{class};{order};{family};{genus};{species}" ncbi_ref/assembly_subset_taxid.tsv \
-    | sed 's/\t\|;/,/g' > ncbi_ref/RefSeq_${dwnld_date}.lineages.csv
-
-# Copy final files to sourmash ref directory
-cp ncbi_ref/RefSeq_${dwnld_date}.lineages.csv $ILAFORES/ref_dbs/sourmash_db/
-
-
-#find $PWD/split_genomes_09-April-2025/signatures/ -type f -name "*.sig" > split_genomes_09-April-2025/signature_list.txt
-#
-#singularity exec --writable-tmpfs -e -B $ANCHOR$ILAFORES:$ANCHOR$ILAFORES,$ANCHOR/fast2/def-ilafores:$ANCHOR/fast2/def-ilafores $ANCHOR$ILL_PIPELINES/containers/sourmash.4.8.11.sif sourmash index -k=31 split_genomes_09-April-2025/RefSeq_abpv_09042025 --from-file $ANCHOR$PWD/split_genomes_09-April-2025/signature_list.txt
-
-#
-## branchwater multithread sketch
-#
-## Build csv
-#echo name,genome_filename,protein_filename > $refseq_genomes/manysketch_${dwnld_date}.csv
-#for i in ${refseq_genomes}/*/${dwnld_date}-*-genomes/*.genomic.fna.gz
-#do
-#echo $i,$i,
-#done >> $refseq_genomes/manysketch_${dwnld_date}.csv
-#
-#sourmash scripts manysketch fa.csv -o fa.zip -p k=21,k=31,k=51,scaled=1000,abund -p protein,k=10,scaled=200
-#
-#$sourmash scripts manysketch $refseq_genomes/manysketch_${dwnld_date}.csv \
-#--cores 16 -p k=31,scaled=1000,abund --singleton -o $refseq_genomes/all_sig_${dwnld_date}.zip
-#
-########## OLD SINGLE THREAD
-## Compute signature 
-#for bibitte in archaea bacteria plasmid viral; do
-#	mkdir -p ${refseq_genomes}/${bibitte}/${dwnld_date}-signatures
-#	$sourmash sketch dna ${refseq_genomes}/${bibitte}/${dwnld_date}-${bibitte}-genomes/*.genomic.fna.gz \
-#	-p k=31,scaled=1000,abund \
-#	--output-dir ${refseq_genomes}/${bibitte}/${dwnld_date}-signatures \
-#	--singleton # >> singleton means one signature for each record
-#done
-#
-## Create index
-#$sourmash sig cat $refseq_genomes/*/${dwnld_date}-signatures/*.sig -o $refseq_genomes/all_sig.zip
-## OR index (may take weeks)
-#$sourmash index -k 31 $refseq_genomes/RefSeq-ABPV-090425.k31.sbt.zip $refseq_genomes/*/${dwnld_date}-signatures/*.sig
-#
-#cp $refseq_genomes/RefSeq-ABPV-090425.k31.rocksdb
-#
-## Extract taxonomy
-#wget https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/nucl_gb.accession2taxid.gz
-#wget https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/nucl_wgs.accession2taxid.gz
-#wget https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/accession2taxid/nucl_wgs.accession2taxid.EXTRA.gz
-#wget https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.Z
-#
-#uncompress -c taxdump.tar.Z | tar xf - 
-
+	-f "{domain};{phylum};{class};{order};{family};{genus};{species}" ncbi_ref/assembly_subset_taxid.tsv \
+	| sed 's/\t\|;/,/g' > ncbi_ref/RefSeq_${dwnld_date}.lineages.csv
+cp ncbi_ref/RefSeq_${dwnld_date}.lineages.csv $SM_DB/
