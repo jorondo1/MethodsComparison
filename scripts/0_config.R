@@ -199,6 +199,13 @@ these_indices <- c(
   Hill_2 = 'Inverse Simpson',
   Tail = 'Tail')
 
+# One colour per index (Okabe-Ito; 1.5.alpha_rank_consistency)
+index_colours <- c(
+  Richness = '#000000',
+  Shannon = '#E69F00',
+  `Inverse Simpson` = '#56B4E9',
+  Tail = '#009E73')
+
 # Triads of 21_compare_alpha.R: abundance type > reference > c(Database = label);
 # the loop repeats the first method (sylph, common to all triads) as last axis
 alpha_triads <- list(

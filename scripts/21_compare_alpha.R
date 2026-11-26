@@ -128,7 +128,7 @@ alpha_figs <- imap(these_indices, function(label, idx) {
   ylim <- range(dat$Index_value, dat$value_b)
   loop <- \(triad, ...) loop_plot(filter(dat, Triad == triad), idx, ylim, ...)
   triad_names <- unique(triads$Triad) # A, B: sequence-abundance triads; C: taxonomic-abundance triad
-
+  
   # 2 x 2 grid, so A sits over C and B over D. Legends not collected: each is centred under its own column
   # (difference scale under C, triads under D).
   # guides(), not theme(legend.position): the closing & theme() would override the latter
@@ -240,3 +240,67 @@ pitman %>%
   print() %>%
   writeLines('Out/Manuscript/1.4.alpha_pitmanMorgan.txt')
 
+
+# Rank-order consistency of samples within triads x datasets ----
+
+# Per dataset (pooled datasets would be ranked apart easily), triad and index: do the 3 methods rank the samples alike?
+# Ranks only, so a method that gives systematically higher diversity (database, sensitivity parameter) doesn't count.
+# Figure: range of the 3 pairwise Spearman rho of a triad. Table: Kendall's W (one summary per triad;
+# for 3 methods, W = (2 * mean pairwise rho + 1) / 3) and the rho range.
+# Ties (Richness, near-single-species samples): midranks, + Kendall's tie correction for W (correct = TRUE).
+# No p-values: every method profiles the same metagenomes, so "no agreement" is not a plausible null.
+
+rank_consistency <- triad_dat %>%
+  group_by(Index, Triad, Dataset) %>%
+  group_modify(\(d, k) {
+    ratings <- d %>%
+      pivot_wider(id_cols = Sample, names_from = Database, values_from = Index_value) %>%
+      select(-Sample)
+    rho <- cor(ratings, method = 'spearman') # midranks for ties
+    rho <- rho[lower.tri(rho)]
+    tibble(n = nrow(ratings),
+           W = DescTools::KendallW(ratings, correct = TRUE),
+           rho_min = min(rho), rho_max = max(rho), rho_mean = mean(rho))
+  }) %>%
+  ungroup() %>%
+  mutate(Index = factor(these_indices[Index], these_indices),
+         Triad = factor(Triad, unique(triads$Triad)))
+
+rank_consistency %>%
+  arrange(Index, Triad, factor(Dataset, these_datasets)) %>%
+  transmute(Index, Triad, Dataset = dataset_names[Dataset], n,
+            W = round(W, 3), `rho min` = round(rho_min, 3), `rho max` = round(rho_max, 3)) %>%
+  kable() %>%
+  kable_styling(bootstrap_options = c('striped', 'hover', 'condensed', 'responsive')) %>%
+  save_kable('Out/Manuscript/alpha_rank_consistency.html')
+
+# Figure SUPP : datasets sorted by median rho within host group (least consistent at the bottom),
+# one bar per index spanning its 3 pairwise rho
+rank_dat <- rank_consistency %>%
+  mutate(Host = if_else(Dataset %in% human_datasets, 'Human', 'Non-human'),
+         Dataset = fct_reorder(Dataset, rho_mean, median)) %>%
+  # every other dataset row shaded, counted within host group
+  mutate(shade = dense_rank(Dataset) %% 2 == 0, .by = Host)
+
+rank_plot <- rank_dat %>%
+  ggplot(aes(y = Dataset, xmin = rho_min, xmax = rho_max, colour = Triad)) +
+  # Row shading. A tile for every row (unshaded = transparent): a layer drawn first with only some datasets would
+  # set the y order. x = rho_min only so the tile trains the free x scale on real data; width = Inf spans the panel.
+  geom_tile(aes(x = rho_min, fill = shade), width = Inf, height = 1, colour = NA, show.legend = FALSE) +
+  geom_errorbar(width = 0.6, linewidth = 0.4, orientation = 'y',
+                position = position_dodge(width = 0.75, orientation = 'y', reverse = TRUE)) + # first triad on top
+  facet_grid(Host ~ Index, scales = 'free', space = 'free_y') +
+  scale_y_discrete(labels = dataset_names, expand = c(0, 0.5)) +
+  scale_x_continuous(breaks = scales::breaks_pretty(n = 3)) +
+  scale_colour_manual(values = triad_colours) +
+  scale_fill_manual(values = c(`TRUE` = 'grey98', `FALSE` = NA)) +
+  labs(x = "Within-triad range of pairwise Spearman's rho", y = NULL, colour = NULL) +
+  theme_light() +
+  theme(
+    !!!strip_theme,
+    panel.spacing.y = unit(0.2, 'lines'),
+    panel.spacing.x = unit(0.2, 'lines'), # free x: room for the edge labels of neighbouring panels
+    panel.grid.major.y = element_blank(),
+    legend.position = 'bottom'); rank_plot
+
+ggsave('Out/Manuscript/1.5.alpha_rank_consistency.pdf', rank_plot, width = 240, height = 160, units = 'mm')

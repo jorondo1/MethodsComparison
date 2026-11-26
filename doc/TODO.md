@@ -4,7 +4,7 @@ Started 2026-11-03.
 
 ## Results to regenerate
 
-- [ ] **MetaPhlAn per-sample normalisation fixed** (misc_scripts `b86aac6`, pushed 2026-11-03).
+- [x] **MetaPhlAn per-sample normalisation fixed** (misc_scripts `b86aac6`, pushed 2026-11-03).
   - **The bug:** `parse_MPA(MPA_data = TRUE)` divided by the sum over all samples. Each sample therefore summed to its own classified fraction instead of 100.
   - **To do:** rerun the figures (objects and diversity regenerated 2026-11-04 with `scripts/0_run_all.R`).
   - **Impact measured** on the saved RDS (MetaPhlAn objects only):
@@ -27,6 +27,15 @@ Started 2026-11-03.
 
 ## Methods notes (for the manuscript)
 
+- [ ] colourblind friendly paslettes Okabe-Ito (make sure it's everywhere?)
+- [ ] **Rank-order consistency of alpha diversity within triads (a reviewer asked whether samples keep their rank order across methods). Add to the methods (2026-11-26):**
+  - Per dataset × triad × index (Richness, Shannon, Inverse Simpson, Tail), on the samples profiled by all 3 methods of the triad. Per dataset, not pooled: otherwise the differences between datasets would make the agreement look higher.
+  - Rank-based, so systematic shifts in diversity between methods (database size, sensitivity parameters) don't count.
+  - Figure: the range of the 3 pairwise Spearman ρ of each triad. Table: Kendall's W (one summary per triad; with 3 methods, W = (2 × mean pairwise ρ + 1)/3) and the ρ range.
+  - Ties: midranks; Kendall's tie correction for W (`DescTools::KendallW(correct = TRUE)`).
+  - No p-values: every method profiles the same metagenome, so "no agreement" is not a plausible null hypothesis. We report the extent of the agreement and which datasets have the least.
+  - Outputs: `Out/Manuscript/1.5.alpha_rank_consistency.pdf` (supp. figure), `Out/Manuscript/alpha_rank_consistency.html` (table). Code: `scripts/21_compare_alpha.R`. Index colours: `index_colours` in `scripts/0_config.R`.
+  - For the response: the human gut datasets are the most consistent (ρ mostly ≥ 0.85, apart from Richness with RefSeq). Least consistent: Maple, Moss, Bee and Horse, plus Saliva with GTDB. Maple GTDB r220 Shannon goes down to ρ ≈ −0.25 for one pair.
 - [ ] **Adapter clipping was skipped in 9 datasets (found 2026-11-18). Decide what to do (the user's call).**
   - In the HPC kneaddata runs since 2024, `ILLUMINACLIP` pointed at `/cvmfs/soft.mugqic/.../TruSeq3-PE-2.fa`. The kneaddata container mounts only the roots of the host-index paths (`/net`), so Trimmomatic couldn't read the file. It clipped no adapters, raised no error, and still applied `SLIDINGWINDOW:4:20 MINLEN:50`.
   - Test: a kneaddata log with adapters loaded has 4 `Using Long Clipping Sequence` lines. Counts: P19_Gut 0/28, NAFLD 0/35, AD_Skin 0/148, PD 0/724, Bee 0/40, RA_Gut 0/168, Maple 0/88, Oilfield 0/87, Grapevine 0/78. Adapters were clipped in P19_Saliva 25/26 and Moss 140/140 (2023 runs) and Horse 744/744 (Fir, adapter file copied under /scratch).
@@ -122,6 +131,6 @@ All tools are read from the merged tables (`scripts/src/merge_tables.sh`, `scrip
 
 - [x] **Horse on Fir** (PRJNA1102860): profiled and merged 2026-11-07, outputs in `data/Horse` on Fir (2026-11-09). Remaining: the R steps of "Adding a dataset". Original note: Merge the `merged_tables` and ILL `kneaddata_gzip` PRs first. Set `SRC` in `setup_fir.sh`, and `HORSE_FASTA` in `horse.sh`, or `HORSE_INDEX` in `setup_fir.sh` if the index is built on iv12. Steps are in `doc/HANDOFF_FIR.md`.
 - [x] **Resource benchmark** for the reviewer's runtime and memory request: 55 samples x 17 tools done on cp0359 (2026-11-16). Scripts: `scripts/benchmark/`, figure `scripts/10_benchmark_plot.R`, methods `scripts/benchmark/benchmark_methods.txt`.
-  - [ ] Add Horse (rows 56-60) and rerun sourmash with 4.9.4 + branchwater, 24 threads for both databases (RefSeq SBT -> zip). Steps in `doc/HANDOFF.md`.
-  - [ ] Sub-agent check: does 4.9.4 change the taxonomic composition (HANDOFF step 6)? If it does, decide whether the main sourmash profiles need a rerun.
+  - [x] Add Horse (rows 56-60) and rerun sourmash with 4.9.4 + branchwater, 24 threads for both databases (RefSeq SBT -> zip). Done 2026-11-20: 17 tools x 60 rows, all on cp0359; every sourmash row from the 4.9.4 jobs (408977-79, 408985-87). Checked on the Mac 2026-11-23.
+  - [x] Does 4.9.4 change the taxonomic composition? No (2026-11-20). GTDB identical in 60/60; RefSeq equivalent in 56 (ties broken differently by SBT vs zip; Bray-Curtis median 0.0009, max 0.043; 3 top-10 swaps at the rank 10/11 boundary). The main analysis keeps its 4.8.11 profiles. The 2 anchor misses (GQ19, GQ38) are a production-input issue, not a benchmark one: see the P19 item under "Results to regenerate".
   - [ ] Methods text: node hardware, Horse, 60 samples, sourmash 4.9.4.
