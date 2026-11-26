@@ -150,6 +150,3 @@ check_jobs() { squeue -u $USER -h -o '%j %T' | grep '^bm_' | sort | uniq -c; } #
 check_jobs
 
 bash $BM/benchmark_gather.sh $B # writes $B/sacct.tsv
-
-module load StdEnv/2023 r/4.4.0
-VROOM_THREADS=2 Rscript scripts/10_benchmark_plot.R $B

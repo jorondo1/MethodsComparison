@@ -15,8 +15,8 @@ dir <- "Out/benchmark"
 tools <- c(
   sylph_sketch = "sylph sketch", SYref = "sylph RefSeq", SY220 = "sylph GTDB 220",
   sourmash_sketch = "sourmash sketch", SMref = "sourmash RefSeq", SM220 = "sourmash GTDB 220",
-  KB10 = "Kraken RefSeq 0.10", KB45 = "Kraken RefSeq 0.45", KB90 = "Kraken RefSeq 0.90",
-  KG10 = "Kraken GTDB 0.10", KG45 = "Kraken GTDB 0.45", KG90 = "Kraken GTDB 0.90",
+  KB10 = "Kraken-Bracken RefSeq 0.10", KB45 = "Kraken-Bracken RefSeq 0.45", KB90 = "Kraken-Bracken RefSeq 0.90",
+  KG10 = "Kraken-Bracken GTDB 0.10", KG45 = "Kraken-Bracken GTDB 0.45", KG90 = "Kraken-Bracken GTDB 0.90",
   MOTU3 = "mOTUs 3", MOTU4 = "mOTUs 4",
   MPA22 = "MetaPhlAn 2022", MPA23 = "MetaPhlAn 2023", MPA25 = "MetaPhlAn 2025"
 )
@@ -26,11 +26,10 @@ tools <- c(
 benchmark_methods <- c(
   `sylph RefSeq` = "SYLPH_RefSeq_Seq", `sylph GTDB 220` = "SYLPH_gtdb_rs220_Seq",
   `sourmash RefSeq` = "SM_RefSeq_20250528", `sourmash GTDB 220` = "SM_gtdb-rs220-rep",
-  `Kraken RefSeq` = "KB45", `Kraken GTDB` = "KB45_GTDB",
+  `Kraken-Bracken RefSeq` = "KB45", `Kraken-Bracken GTDB` = "KB45_GTDB",
   `mOTUs 3` = "MOTUS3", `mOTUs 4` = "MOTUS4",
   `MetaPhlAn 2022` = "MPA_db2022", `MetaPhlAn 2023` = "MPA_db2023", `MetaPhlAn 2025` = "MPA_db2025")
 method_colours <- setNames(methods$colour[match(benchmark_methods, methods$Database)], names(benchmark_methods))
-stopifnot(!anyNA(method_colours))
 
 # Kraken's index sits in /dev/shm, charged to the copy step, so a sample's step may not show it (GB)
 index_gb <- c(KB = 85, KG = 502)
@@ -142,7 +141,7 @@ fit_cost <- function(d) {
   f <- tryCatch(suppressWarnings(glm(CPU_h ~ Gbp, family = Gamma("identity"), data = d, start = start)),
                 error = \(e) NULL)
   if (!is.null(f) && coef(f)[1] >= 0) return(f)
-  # a < 0 (Kraken RefSeq: no measurable overhead): through the origin
+  # a < 0 (Kraken-Bracken RefSeq: no measurable overhead): through the origin
   suppressWarnings(glm(CPU_h ~ 0 + Gbp, family = Gamma("identity"), data = d, start = start[2]))
 }
 
@@ -198,7 +197,7 @@ fit_plot <- ggplot(runs, aes(Gbp, CPU_h)) +
 # Sketches get their own rows (in grey: each serves 2 databases).
 
 steps <- c("sylph sketch", "sylph RefSeq", "sylph GTDB 220", "sourmash sketch", "sourmash RefSeq", "sourmash GTDB 220",
-           "Kraken RefSeq", "Kraken GTDB", "mOTUs 3", "mOTUs 4", "MetaPhlAn 2022", "MetaPhlAn 2023", "MetaPhlAn 2025")
+           "Kraken-Bracken RefSeq", "Kraken-Bracken GTDB", "mOTUs 3", "mOTUs 4", "MetaPhlAn 2022", "MetaPhlAn 2023", "MetaPhlAn 2025")
 step_colours <- c(method_colours, `sylph sketch` = "grey50", `sourmash sketch` = "grey50")
 
 memory <- use %>%
@@ -206,18 +205,39 @@ memory <- use %>%
   summarise(Mem_GB = max(Mem_GB), .by = c(Step, Dataset, Sample)) %>%
   mutate(Step = factor(Step, levels = steps))
 
-mem_plot <- ggplot(memory, aes(Mem_GB, Step, colour = Step)) +
-  geom_point(position = position_jitter(width = 0, height = 0.2, seed = 1), size = 0.8, alpha = 0.6) +
+mem_plot <- ggplot(memory, aes(x = Mem_GB, y = Step, colour = Step)) +
+  geom_point(position = position_jitter(width = 0, height = 0.2, seed = 1), size = 1, alpha = 0.5, shape = 21) +
   stat_summary(fun = median, geom = "point", shape = "|", size = 6, colour = "black") +
   scale_x_log10(labels = number, limits = c(NA, 1000), breaks = c(1, 10, 100, 1000)) +
   scale_y_discrete(limits = rev(steps)) +
   scale_colour_manual(values = step_colours, guide = "none") +
   labs(x = "Peak memory (GB)", y = NULL) +
   theme_classic() +
-  theme(panel.grid.major.x = element_line(colour = "grey92", linewidth = 0.3))
+  theme(panel.grid.major = element_line(colour = "grey92", linewidth = 0.3))
 
-resources <- fit_plot / mem_plot +
+resources <- free(fit_plot, type = "label") / mem_plot +
   plot_layout(widths = c(3, 2), guides = "collect") +
   plot_annotation(tag_levels = "A"); resources
 
-ggsave(file.path(dir, "benchmark_resources.pdf"), resources, width = 13, height = 7)
+ggsave(file.path(dir, "benchmark_resources.pdf"), 
+       plot = resources, bg = 'white', units = 'px',
+       width = 2600, height = 2200)
+
+
+memory %>% 
+  group_by(Step) %>% 
+  summarise(Median = median(Mem_GB),
+            Max = max(Mem_GB))
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  

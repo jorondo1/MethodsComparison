@@ -1,13 +1,34 @@
-if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) rstudioapi::applyTheme("Fastverse Light") # RStudio only (not Rscript on the HPC)
+# Shared configuration, sourced by every analysis script.
+#
+# Contents
+#   1. Setup
+#   2. Datasets
+#   3. Methods
+#      3.1 Methods table
+#      3.2 Labels
+#   4. Aesthetics
+#      4.1 Colours and shapes
+#      4.2 Themes
+#   5. Figure settings
+#   6. Samples
+#   7. Classification rates
+
+# 1. Setup ----------------------------------------------------------------
+
+# RStudio only (not Rscript on the HPC)
+if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
+  rstudioapi::applyTheme("Fastverse Light")
+}
 ggplot2::theme_set(ggplot2::theme_light())
 
 conflicted::conflicts_prefer(
-  dplyr::select, 
+  dplyr::select,
   dplyr::filter,
   .quiet = TRUE)
 
-my_datasets_factorlevels <- c('P19_Saliva', 'P19_Gut', 'RA_Gut', 'AD_Skin', 'Moss', 'NAFLD')
+# 2. Datasets -------------------------------------------------------------
 
+# Variable tested in each dataset (Wilcoxon, PERMANOVA)
 grouping_variable <- c(
   AD_Skin = 'Gender',
   Moss = 'Compartment',
@@ -19,8 +40,8 @@ grouping_variable <- c(
   RA_Gut = 'Group',
   Maple = 'Provenance',
   Oilfield = 'Oilfield',
-  Grapevine = 'Health',   # alternative in the sample data: Compartment (paired by Plant)
-  Horse = 'island_side'   # alternative in the sample data: age_class_rev
+  Grapevine = 'Health',   # alternative: Compartment (paired by Plant)
+  Horse = 'island_side'   # alternative: age_class_rev
 )
 
 # Display names; this order is the dataset order in every figure
@@ -35,30 +56,171 @@ dataset_names <- c(
   Moss = 'Moss',
   Maple = 'Maple',
   Grapevine = 'Grapevine',
-  Oilfield = 'Oilfield',
+  Oilfield = 'Oil field',
   Horse = 'Horse'
 )
 
-these_datasets <- names(dataset_names) # datasets to use for plots
-stopifnot(!anyDuplicated(names(dataset_names)), !anyDuplicated(dataset_names))
+these_datasets <- names(dataset_names)
 
 human_datasets <- c('PD', 'RA_Gut', 'NAFLD', 'P19_Gut', 'P19_Saliva', 'AD_Skin')
 
-# One colour per dataset (RColorBrewer Paired, pale yellow darkened)
-dataset_colours <- setNames(c('#A6CEE3', '#1F78B4', '#B2DF8A', '#33A02C', '#FB9A99', '#E31A1C',
-                              '#FDBF6F', '#FF7F00', '#CAB2D6', '#6A3D9A', '#E5C100', '#B15928'), these_datasets)
+# 3. Methods --------------------------------------------------------------
 
-# Method triads compared in 2_alpha_compare.R: abundance type > reference > c(Database = label), in loop order
+## 3.1 Methods table ----
+# One row per profile object (Database)
+#   Reference: database profiled against (MetaPhlAn, mOTUs: their own markers)
+#   Param:     what tells apart methods sharing tool and reference
+#   Abundance: Sequence (read counts, rarefied) or Taxonomic (proportions)
+#   Approach:  D2M = DNA-to-marker, D2D = DNA-to-DNA
+#   Short:     abbreviation for crowded axes (RS = RefSeq)
+#   colour:    per-method colour (10_benchmark_plot.R)
+methods <- tribble(
+  ~Database,              ~Short,        ~Tool,            ~Reference,  ~Param, ~Abundance,  ~Approach, ~colour,
+  'MPA_db2022',           'MPA 2022',    'MetaPhlAn',      'MetaPhlAn', '2022', 'Taxonomic', 'D2M',     'green4',
+  'MPA_db2023',           'MPA 2023',    'MetaPhlAn',      'MetaPhlAn', '2023', 'Taxonomic', 'D2M',     '#3d8f58',
+  'MPA_db2025',           'MPA 2025',    'MetaPhlAn',      'MetaPhlAn', '2025', 'Taxonomic', 'D2M',     '#00A759',
+  'MOTUS3',               'mOTUs 3.0',   'mOTUs',          'mOTUs',     '3.0',  'Taxonomic', 'D2M',     'orange',
+  'MOTUS4',               'mOTUs 4.0',   'mOTUs',          'mOTUs',     '4.0',  'Taxonomic', 'D2M',     '#FDBF6F',
+  'KB10',                 'KB10 RS',     'Kraken-Bracken', 'RefSeq',    '0.10', 'Sequence',  'D2D',     'indianred1',
+  'KB45',                 'KB45 RS',     'Kraken-Bracken', 'RefSeq',    '0.45', 'Sequence',  'D2D',     'indianred3',
+  'KB90',                 'KB90 RS',     'Kraken-Bracken', 'RefSeq',    '0.90', 'Sequence',  'D2D',     'indianred4',
+  'KB10_GTDB',            'KB10 GTDB',   'Kraken-Bracken', 'GTDB r220', '0.10', 'Sequence',  'D2D',     'purple',
+  'KB45_GTDB',            'KB45 GTDB',   'Kraken-Bracken', 'GTDB r220', '0.45', 'Sequence',  'D2D',     'purple2',
+  'KB90_GTDB',            'KB90 GTDB',   'Kraken-Bracken', 'GTDB r220', '0.90', 'Sequence',  'D2D',     'purple3',
+  'SM_RefSeq_20250528',   'SM RS',       'sourmash',       'RefSeq',    NA,     'Sequence',  'D2D',     '#b41f1f',
+  'SM_gtdb-rs220-rep',    'SM GTDB',     'sourmash',       'GTDB r220', NA,     'Sequence',  'D2D',     '#1F78B4',
+  'SYLPH_RefSeq_Seq',     'SY Seq RS',   'sylph',          'RefSeq',    NA,     'Sequence',  'D2D',     '#8C510A',
+  'SYLPH_RefSeq_Tax',     'SY Tax RS',   'sylph',          'RefSeq',    NA,     'Taxonomic', 'D2D',     '#BF812D',
+  'SYLPH_gtdb_rs220_Seq', 'SY Seq GTDB', 'sylph',          'GTDB r220', NA,     'Sequence',  'D2D',     '#D8B365',
+  'SYLPH_gtdb_rs220_Tax', 'SY Tax GTDB', 'sylph',          'GTDB r220', NA,     'Taxonomic', 'D2D',     '#F6E8C3'
+) %>%
+  mutate(
+    Tool = factor(
+      Tool,
+      levels = c('Kraken-Bracken', 'sourmash', 'sylph', 'MetaPhlAn', 'mOTUs')),
+    Reference = factor(
+      Reference,
+      levels = c('GTDB r220', 'RefSeq', 'MetaPhlAn', 'mOTUs')),
+    Abundance = factor(
+      Abundance,
+      levels = c('Sequence', 'Taxonomic')),
+    # GTDB, RefSeq, or the tool's own marker database
+    RefClass = factor(
+      if_else(Reference %in% c('MetaPhlAn', 'mOTUs'), 'Tool-specific', as.character(Reference)),
+      levels = c('GTDB r220', 'RefSeq', 'Tool-specific')))
+
+stopifnot(
+  !anyDuplicated(methods$Database),
+  !anyDuplicated(methods$Short))
+
+## 3.2 Labels ----
+# e.g. labels = method_abbrev in a discrete scale
+method_abbrev <- setNames(methods$Short, methods$Database)
+
+# "Kraken-Bracken 0.45 (GTDB r220)", "MetaPhlAn 2022", "sylph seq (RefSeq)";
+# unknown ids come back unchanged
+method_label <- function(db) {
+  m <- methods[match(db, methods$Database), ]
+  label <- case_when(
+    m$Tool %in% c('MetaPhlAn', 'mOTUs') ~ paste(m$Tool, m$Param),
+    m$Tool == 'sylph' ~ paste0(
+      'sylph ', if_else(m$Abundance == 'Sequence', 'seq', 'tax'),
+      ' (', m$Reference, ')'),
+    is.na(m$Param) ~ paste0(m$Tool, ' (', m$Reference, ')'),
+    .default = paste0(m$Tool, ' ', m$Param, ' (', m$Reference, ')'))
+  setNames(coalesce(label, db), db)
+}
+
+approach_labels <- c(
+  D2M = 'DNA-to-marker',
+  D2D = 'DNA-to-DNA')
+
+# 4. Aesthetics -----------------------------------------------------------
+
+## 4.1 Colours and shapes ----
+# Method points (Figs 3-5): colour = tool, shape = reference class
+# Okabe-Ito: colour-blind safe, still visible as light tints
+tool_colours <- c(
+  `Kraken-Bracken` = '#0072B2',
+  sourmash = '#D55E00',
+  sylph = '#CC79A7',
+  MetaPhlAn = '#009E73',
+  mOTUs = '#E69F00')
+
+# fillable shapes (21-25)
+refclass_shapes <- c(
+  `GTDB r220` = 24,
+  RefSeq = 22,
+  `Tool-specific` = 21)
+
+# Strips of 22_compare_beta.R
+refclass_colours <- c(
+  `GTDB r220` = '#823D51',
+  RefSeq = '#515A82',
+  `Tool-specific` = '#45733A')
+
+# Neutral: hues are taken by tool_colours
+approach_colours <- c(
+  `DNA-to-marker` = '#C8C8C8',
+  `DNA-to-DNA` = '#4D4D4D')
+
+dataset_colours <- c(
+  PD = '#E16A86',
+  RA_Gut = '#00AD9A',
+  NAFLD = '#B88A00',
+  P19_Gut = '#E063B6',
+  P19_Saliva = '#50A315',
+  AD_Skin = '#9183E6',
+  # non-human
+  Bee = '#D37A4A',
+  Moss = '#00A8C3',
+  Maple = '#C86DD7',
+  Grapevine = '#909800',
+  Oilfield = '#00AB66',
+  Horse = '#009ADE')
+
+## 4.2 Themes ----
+strip_theme <- list(
+  strip.text = element_text(colour = 'grey20'),
+  strip.background = element_rect(
+    fill = 'grey90',
+    colour = 'grey90',
+    linewidth = 0.1),
+  panel.border = element_rect(colour = 'grey90'),
+  panel.grid = element_blank(),
+  panel.spacing = unit(0, "lines"))
+
+# 5. Figure settings ------------------------------------------------------
+
+# Alpha indices shown, with display names
+these_indices <- c(
+  Richness = 'Richness',
+  Shannon = 'Shannon',
+  Hill_2 = 'Inverse Simpson',
+  Tail = 'Tail')
+
+# Triads of 21_compare_alpha.R: abundance type > reference > c(Database = label);
+# the loop repeats the first method (sylph, common to all triads) as last axis
 alpha_triads <- list(
   `Sequence abundances` = list(
-    `GTDB r220` = c(KB45_GTDB = 'Kraken 0.45', SYLPH_gtdb_rs220_Seq = 'sylph', `SM_gtdb-rs220-rep` = 'sourmash'),
-    RefSeq      = c(KB45 = 'Kraken 0.45', SYLPH_RefSeq_Seq = 'sylph', SM_RefSeq_20250528 = 'sourmash')),
+    `GTDB r220` = c(
+      SYLPH_gtdb_rs220_Seq = 'sylph',
+      KB45_GTDB = 'Kraken-Bracken 0.45',
+      `SM_gtdb-rs220-rep` = 'sourmash'),
+    RefSeq = c(
+      SYLPH_RefSeq_Seq = 'sylph',
+      KB45 = 'Kraken-Bracken 0.45',
+      SM_RefSeq_20250528 = 'sourmash')),
   `Taxonomic abundances` = list(
-    `Tool-specific` = c(MPA_db2025 = 'MetaPhlAn 4', MOTUS4 = 'mOTUs 4', SYLPH_gtdb_rs220_Tax = 'sylph (GTDB)')))
+    `Tool-specific` = c(
+      SYLPH_gtdb_rs220_Tax = 'sylph (GTDB)',
+      MPA_db2025 = 'MetaPhlAn 4',
+      MOTUS4 = 'mOTUs 4')))
 
-# Figure labels with n, e.g. "Gut PD\n(n=719)", named by dataset and in dataset_names order.
-# The name comes from dataset_names above; only n (samples in the Wilcoxon tests) is read from
-# dataset_names_n_lookup_alphadiv.RDS (built by 0_run_all.R), so renaming here needs no HPC rerun.
+# 6. Samples --------------------------------------------------------------
+
+# "Gut PD\n(n=719)", in dataset_names order; n = samples in the Wilcoxon tests
+# (dataset_names_n_lookup_alphadiv.RDS, from 0_run_all.R)
 dataset_names_n <- function(sep = '\n') {
   lookup <- readRDS('Out/_Rdata/dataset_names_n_lookup_alphadiv.RDS')
   ds <- intersect(names(dataset_names), names(lookup))
@@ -66,157 +228,75 @@ dataset_names_n <- function(sep = '\n') {
   setNames(paste0(dataset_names[ds], sep, '(n=', n, ')'), ds)
 }
 
-# Per-sample rates (Out/classification_rates/, from scripts/src/classification_rates.sh on the HPC), used by 6.x:
-# Dataset, Database (tool dir, named like the phyloseq objects), Sample, then the file's columns
-read_rates <- function(tool, columns) {
-  read_tsv(paste0('Out/classification_rates/', tool, '_classification_rate.tsv'),
-           col_names = c('path', columns), show_col_types = FALSE) %>%
-    mutate(Dataset = str_split_i(path, '/', 3),
-           Database = recode(str_split_i(path, '/', 4), MOTUS = 'MOTUS3', `SM_gtdb-rs220-reps` = 'SM_gtdb-rs220-rep'),
-           Sample = str_remove(basename(path), '(_profile\\.(txt|log)|_(RefSeq|gtdb|genbank).*_gather\\.csv|_bracken_S\\.MPA\\.TXT|\\.kreport)$'),
-           .before = 1, .keep = 'unused') %>%
-    filter(Dataset %in% these_datasets)
-}
-
-# Post-QC samples (KneadData logs: pairs, reads = pairs x 2 + orphans), minus scripts/src/dropped_samples.tsv:
-# the samples of the diversity comparisons
+# Post-QC samples (KneadData logs), minus scripts/src/dropped_samples.tsv
 samples_qc <- function() {
-  dropped <- read_tsv('scripts/src/dropped_samples.tsv', comment = '#', col_names = c('Dataset', 'Sample', 'reason'),
-                      show_col_types = FALSE)
-  read_rates('reads', c('pairs', 'reads')) %>% anti_join(dropped, by = c('Dataset', 'Sample'))
+  dropped <- read_tsv(
+    'scripts/src/dropped_samples.tsv',
+    comment = '#',
+    col_names = c('Dataset', 'Sample', 'reason'),
+    show_col_types = FALSE)
+  read_rates('reads', c('pairs', 'reads')) %>%
+    anti_join(dropped, by = c('Dataset', 'Sample'))
 }
 
-# Samples with a value for the grouping variable: the only ones in the Wilcoxon tests and PERMANOVA
+# Samples with a grouping value: those in the Wilcoxon tests and PERMANOVA
 samples_grouped <- function() {
   read_rds('Out/_Rdata/ps_raw.ls.RDS') %>%
     imap_dfr(\(l, ds) map_dfr(l, \(p) {
       sd <- as(phyloseq::sample_data(p), 'data.frame')
-      tibble(Dataset = ds, Sample = rownames(sd), group = as.character(sd[[grouping_variable[[ds]]]] %||% NA))
+      tibble(
+        Dataset = ds,
+        Sample = rownames(sd),
+        group = as.character(sd[[grouping_variable[[ds]]]] %||% NA))
     })) %>%
     filter(!is.na(group)) %>%
     distinct(Dataset, Sample)
 }
 
-# Dataset labels "<name> (n samples)", named by dataset
+# "<name> (n)", named by dataset
 dataset_names_n_qc <- function(samples) {
   n <- count(samples, Dataset)
   setNames(paste0(dataset_names[n$Dataset], ' (', n$n, ')'), n$Dataset)
 }
 
-# Databases of the study in the rate files (sylph: one per database, not _Seq/_Tax), in display order
-rate_databases <- c(MPA_db2022 = 'MetaPhlAn 2022', MPA_db2023 = 'MetaPhlAn 2023', MPA_db2025 = 'MetaPhlAn 2025',
-                    MOTUS3 = 'mOTUs 3', MOTUS4 = 'mOTUs 4',
-                    KB10 = 'Kraken 0.10 RefSeq', KB45 = 'Kraken 0.45 RefSeq', KB90 = 'Kraken 0.90 RefSeq',
-                    KB10_GTDB = 'Kraken 0.10 GTDB', KB45_GTDB = 'Kraken 0.45 GTDB', KB90_GTDB = 'Kraken 0.90 GTDB',
-                    SM_RefSeq_20250528 = 'sourmash RefSeq', `SM_gtdb-rs220-rep` = 'sourmash GTDB',
-                    SYLPH_RefSeq = 'sylph RefSeq', SYLPH_gtdb_rs220 = 'sylph GTDB')
+# 7. Classification rates -------------------------------------------------
 
-# Methods of the study: one row per profile object (Database), one column per methodological dimension.
-# Replaced CCE_metadata, CCE_names, tooldb_colours and tool_colours on 2026-11-19 (legacy copy in scripts/archive/).
-#   Reference: the database the tool profiles against (MetaPhlAn and mOTUs: their own marker database)
-#   Param:     what distinguishes methods sharing a tool and reference (Kraken confidence, database year, version)
-#   Abundance: Sequence (read counts, rarefied) or Taxonomic (proportions, not rarefied)
-#   Approach:  D2M = DNA-to-marker, D2D = DNA-to-DNA
-methods <- tribble(
-  ~Database,              ~Tool,       ~Reference,  ~Param, ~Abundance,  ~Approach, ~colour,
-  'MPA_db2022',           'MetaPhlAn', 'MetaPhlAn', '2022', 'Taxonomic', 'D2M',     'green4',
-  'MPA_db2023',           'MetaPhlAn', 'MetaPhlAn', '2023', 'Taxonomic', 'D2M',     '#3d8f58',
-  'MPA_db2025',           'MetaPhlAn', 'MetaPhlAn', '2025', 'Taxonomic', 'D2M',     '#00A759',
-  'MOTUS3',               'mOTUs',     'mOTUs',     '3.0',    'Taxonomic', 'D2M',     'orange',
-  'MOTUS4',               'mOTUs',     'mOTUs',     '4.0',    'Taxonomic', 'D2M',     '#FDBF6F',
-  'KB10',                 'Kraken',    'RefSeq',    '0.10', 'Sequence',  'D2D',     'indianred1',
-  'KB45',                 'Kraken',    'RefSeq',    '0.45', 'Sequence',  'D2D',     'indianred3',
-  'KB90',                 'Kraken',    'RefSeq',    '0.90', 'Sequence',  'D2D',     'indianred4',
-  'KB10_GTDB',            'Kraken',    'GTDB r220', '0.10', 'Sequence',  'D2D',     'purple',
-  'KB45_GTDB',            'Kraken',    'GTDB r220', '0.45', 'Sequence',  'D2D',     'purple2',
-  'KB90_GTDB',            'Kraken',    'GTDB r220', '0.90', 'Sequence',  'D2D',     'purple3',
-  'SM_RefSeq_20250528',   'sourmash',  'RefSeq',    NA,     'Sequence',  'D2D',     '#b41f1f',
-  'SM_gtdb-rs220-rep',    'sourmash',  'GTDB r220', NA,     'Sequence',  'D2D',     '#1F78B4',
-  'SYLPH_RefSeq_Seq',     'sylph',     'RefSeq',    NA,     'Sequence',  'D2D',     '#8C510A',
-  'SYLPH_RefSeq_Tax',     'sylph',     'RefSeq',    NA,     'Taxonomic', 'D2D',     '#BF812D',
-  'SYLPH_gtdb_rs220_Seq', 'sylph',     'GTDB r220', NA,     'Sequence',  'D2D',     '#D8B365',
-  'SYLPH_gtdb_rs220_Tax', 'sylph',     'GTDB r220', NA,     'Taxonomic', 'D2D',     '#F6E8C3'
-) %>%
-  mutate(Tool = factor(Tool, levels = c('Kraken', 'sourmash', 'sylph', 'MetaPhlAn', 'mOTUs')),
-         Reference = factor(Reference, levels = c('GTDB r220', 'RefSeq', 'MetaPhlAn', 'mOTUs')),
-         Abundance = factor(Abundance, levels = c('Sequence', 'Taxonomic')))
-stopifnot(!anyDuplicated(methods$Database))
-
-reference_colours <- c(`GTDB r220` = '#823D51', RefSeq = '#515A82', MetaPhlAn = '#00A759', mOTUs = '#FDBF6F')
-tool_shapes <- c(Kraken = 24, sourmash = 22, sylph = 23, MetaPhlAn = 21, mOTUs = 25) # fillable shapes (21-25)
-
-# Full label of a method, e.g. "Kraken 0.45 (GTDB r220)", "MetaPhlAn 2022", "sylph seq (RefSeq)".
-# Unknown Database ids come back unchanged.
-method_label <- function(db) {
-  m <- methods[match(db, methods$Database), ]
-  label <- case_when(
-    m$Tool %in% c('MetaPhlAn', 'mOTUs') ~ paste(m$Tool, m$Param),
-    m$Tool == 'sylph' ~ paste0('sylph ', if_else(m$Abundance == 'Sequence', 'seq', 'tax'), ' (', m$Reference, ')'),
-    is.na(m$Param) ~ paste0(m$Tool, ' (', m$Reference, ')'),
-    .default = paste0(m$Tool, ' ', m$Param, ' (', m$Reference, ')'))
-  setNames(coalesce(label, db), db)
+# Out/classification_rates/<tool>_classification_rate.tsv (HPC):
+# returns Dataset, Database, Sample, then the file's columns
+read_rates <- function(tool, columns) {
+  read_tsv(
+    paste0('Out/classification_rates/', tool, '_classification_rate.tsv'),
+    col_names = c('path', columns),
+    show_col_types = FALSE) %>%
+    mutate(
+      Dataset = str_split_i(path, '/', 3),
+      # tool dir, renamed like the phyloseq objects
+      Database = recode(
+        str_split_i(path, '/', 4),
+        MOTUS = 'MOTUS3',
+        `SM_gtdb-rs220-reps` = 'SM_gtdb-rs220-rep'),
+      Sample = str_remove(
+        basename(path),
+        '(_profile\\.(txt|log)|_(RefSeq|gtdb|genbank).*_gather\\.csv|_bracken_S\\.MPA\\.TXT|\\.kreport)$'),
+      .before = 1,
+      .keep = 'unused') %>%
+    filter(Dataset %in% these_datasets)
 }
 
-# Short label, for plots that already show the reference: "Kraken 0.45", "sourmash", "sylph seq", "2022" (MetaPhlAn),
-# "3.0" (mOTUs)
-method_short <- function(db) {
-  m <- methods[match(db, methods$Database), ]
-  label <- case_when(
-    m$Tool %in% c('MetaPhlAn', 'mOTUs') ~ m$Param,
-    m$Tool == 'sylph' ~ paste('sylph', if_else(m$Abundance == 'Sequence', 'seq', 'tax')),
-    is.na(m$Param) ~ as.character(m$Tool),
-    .default = paste(m$Tool, m$Param))
-  setNames(coalesce(label, db), db)
-}
-
-approach_labels <- c(D2M = 'DNA-to-marker', D2D = 'DNA-to-DNA')
-
-# Facet columns for plots with one column per method (4_alpha_tests.R, 5_beta_tests.R), for
-# facet_nested(~ Approach + Reference + Method): Approach and Reference from methods, Method = method_short()
-add_method_facets <- function(data) {
-  data %>%
-    left_join(dplyr::select(methods, Database, Approach, Reference), by = 'Database') %>%
-    mutate(Approach = factor(approach_labels[Approach], levels = approach_labels),
-           Method = factor(method_short(Database), levels = unique(method_short(methods$Database))))
-}
-# 
-# tool_vars <- tibble(
-#   "Aldex2" = "wi.eBH",
-#   "ANCOMBC2" = "adj_p",
-#   "radEmu" = "pval",
-#   "corncob" = "p_fdr",
-#   "DESeq2" = "padj",
-#   "edgeR" = "FDR", 
-#   "MaAsLin2" = "qval"
-# )
-# 
-# DAA_metadata <- tibble(
-#   DAA_tool = names(tool_vars),
-#   Compositional = c(TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE),
-#   Distribution = c('DM', 'LL', 'LL', 'BB', 'NB', 'NB', 'N'),
-#   Transformation = c('CLR', 'LT', 'LT', 'NONE', 'NONE', 'NONE', 'AST'),
-#   Taxon_bias = c(FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE),
-#   Target_ = c('RA', 'AA','AA','RA','RA','RA','RA'), # Absolute or relative abundance
-#   plot_shape = c(15, 19, 17, 18, 4, 3, 6)
-# )
-
-strip_theme <- list(
-  strip.text = element_text(colour = 'grey20'),
-  strip.background = element_rect(
-    fill = 'grey90', colour = 'grey90', linewidth = 0.1),
-  panel.border = element_rect(colour = 'grey90'),
-  panel.grid = element_blank(),
-  panel.spacing = unit(0, "lines")   # default is 0.5, shrink gutters between panels
-  
-)
-
-
-strip_theme_dark <- list(
-  strip.text = element_text(colour = 'white'),
-  strip.background = element_rect(
-    fill = 'grey50', colour = 'grey50', linewidth = 0.1),
-  panel.border = element_rect(colour = 'grey50'),
-  panel.grid = element_blank(),
-  panel.spacing = unit(0, "lines")   # default is 0.5, shrink gutters between panels
-  
-)
+# Databases in the rate files (sylph: one per database), in display order
+rate_databases <- c(
+  MPA_db2022 = 'MetaPhlAn 2022',
+  MPA_db2023 = 'MetaPhlAn 2023',
+  MPA_db2025 = 'MetaPhlAn 2025',
+  MOTUS3 = 'mOTUs 3',
+  MOTUS4 = 'mOTUs 4',
+  KB10 = 'Kraken-Bracken 0.10 RefSeq',
+  KB45 = 'Kraken-Bracken 0.45 RefSeq',
+  KB90 = 'Kraken-Bracken 0.90 RefSeq',
+  KB10_GTDB = 'Kraken-Bracken 0.10 GTDB',
+  KB45_GTDB = 'Kraken-Bracken 0.45 GTDB',
+  KB90_GTDB = 'Kraken-Bracken 0.90 GTDB',
+  SM_RefSeq_20250528 = 'sourmash RefSeq',
+  `SM_gtdb-rs220-rep` = 'sourmash GTDB',
+  SYLPH_RefSeq = 'sylph RefSeq',
+  SYLPH_gtdb_rs220 = 'sylph GTDB')

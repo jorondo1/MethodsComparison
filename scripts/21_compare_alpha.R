@@ -15,7 +15,6 @@ source('scripts/0_config.R')
 # every pair is adjacent once. Within a triad, only samples profiled by all 3 databases are kept.
 # Differences are compared on indices scaled within dataset x database (median/MAD).
 
-these_indices <- c(Richness = 'Richness', Shannon = 'Shannon', Hill_2 = 'Inverse Simpson', Tail = 'Tail')
 axis_desc <- c(
   Richness = 'Richness',
   Shannon = 'Shannon entropy',
@@ -23,14 +22,20 @@ axis_desc <- c(
   Tail = 'Tail statistic')
 
 # One row per database: triad, position in the loop, labels
-triads <- imap_dfr(alpha_triads, \(refs, type) imap_dfr(refs, \(dbs, ref)
-  tibble(Type = type, Reference = ref, Database = names(dbs), Method = unname(dbs), pos = seq_along(dbs)))) %>%
-  mutate(Triad = if_else(Type == 'Taxonomic abundances', 'Taxonomic', Reference),
-         Panel = LETTERS[match(Triad, unique(Triad))])
-triad_colours <- setNames(c('#2a78d6', '#eb6834', '#1baf7a'), unique(paste0(triads$Panel, '. ', triads$Triad)))
+triads <- imap_dfr(alpha_triads, \(refs, type) 
+                   imap_dfr(refs, \(dbs, ref)
+                            tibble(
+                              Type = type, 
+                              Triad = ref, 
+                              Database = names(dbs), 
+                              Method = unname(dbs), pos = seq_along(dbs)))) 
+triad_colours <- setNames(c('#2a78d6', '#eb6834', '#1baf7a'), unique(triads$Triad))
 
 alpha_div <- read_rds('Out/_Rdata/alpha_div.RDS')[['plot_data']] %>%
-  filter(Dataset %in% these_datasets, Database %in% triads$Database, Index %in% names(these_indices)) %>%
+  filter(
+    Dataset %in% these_datasets, 
+    Database %in% triads$Database, 
+    Index %in% names(these_indices)) %>%
   group_by(Dataset, Database, Index) %>%
   # MAD is 0 when most samples share one value (Moss, sylph RefSeq: 64 % single-species): fall back to the SD
   mutate(z = (Index_value - median(Index_value)) / if_else(mad(Index_value) > 0, mad(Index_value), sd(Index_value)),
@@ -45,70 +50,98 @@ triad_dat <- alpha_div %>%
 
 # Loop segments 1 -> 2, 2 -> 3, 3 -> 1 (the last one ends on the repeated first axis, x = 4)
 segments <- triad_dat %>%
-  inner_join(triad_dat %>% select(Index, Triad, Dataset, Sample, pos_b = pos, Method_b = Method, value_b = Index_value, z_b = z),
-             by = c('Index', 'Triad', 'Dataset', 'Sample'), relationship = 'many-to-many') %>%
+  inner_join(
+    triad_dat %>% 
+      select(Index, Triad, Dataset, Sample, pos_b = pos, 
+             Method_b = Method, value_b = Index_value, z_b = z),
+    by = c('Index', 'Triad', 'Dataset', 'Sample'), relationship = 'many-to-many') %>%
   filter(pos_b == pos %% 3 + 1) %>%
   mutate(dz = abs(z_b - z),
-         Strip = if_else(Type == 'Taxonomic abundances',
-                         paste0(Panel, '. ', Type, ' (n = ', n, ')'),
-                         paste0(Panel, '. ', Reference, ' (n = ', n, ')')))
+         Strip = if_else(
+           # two origins for the strip label
+           Type == 'Taxonomic abundances',
+           paste0(Type, ' (n = ', n, ')'),
+           paste0(Triad, ' (n = ', n, ')')))
 
-# PANELS A-C : closed loops, one segment per sample and pair -------------
-# Colour = dataset, alpha = |difference in scaled index|; strongest changes drawn last (on top)
-loop_plot <- function(dat, idx, nested) {
+# PANELS A-C : one closed loop per triad, one segment per sample and pair -------------
+# Alpha = |difference in scaled index|; strongest changes drawn last (on top).
+# ylim is shared by the 3 loops so their spreads compare directly; the single strip is the panel's title.
+loop_plot <- function(dat, idx, ylim, y_title = TRUE) {
   methods <- dat %>% distinct(pos, Method) %>% arrange(pos) %>% pull(Method)
   dat %>%
     arrange(dz) %>%
-    ggplot(aes(x = pos, xend = pos + 1, y = Index_value, yend = value_b, colour = Dataset, alpha = dz)) +
+    ggplot(aes(x = pos, xend = pos + 1, y = Index_value, yend = value_b, alpha = dz)) +
     geom_segment(linewidth = 0.15) +
-    { if (nested) facet_nested(~ Type + Strip) else facet_wrap(~ Strip) } +
+    facet_wrap(~ Strip) +
     scale_x_continuous(breaks = 1:4, labels = c(methods, methods[1]), expand = expansion(add = 0.25)) +
-    scale_colour_manual(values = dataset_colours, limits = these_datasets, labels = dataset_names) +
-    scale_alpha_continuous(range = c(0.01, 0.8), limits = c(0, 3), oob = scales::squish,
-                           breaks = 0:3, labels = c('0', '1', '2', '3+')) +
-    labs(x = NULL, y = axis_desc[idx], colour = NULL, alpha = '|Difference in\nscaled index|') +
-    guides(colour = guide_legend(nrow = 2, order = 1, override.aes = list(linewidth = 1, alpha = 1)),
-           alpha = guide_legend(order = 2)) +
+    scale_y_continuous(limits = ylim) +
+    scale_alpha_continuous(
+      range = c(0.1, 0.7),
+      limits = c(0, 3),
+      # convex: opacity grows with the squared difference, so small changes stay faint and large ones stand out
+      transform = scales::new_transform('square', \(x) x^2, sqrt, domain = c(0, Inf)),
+      oob = scales::squish,
+      breaks = 0:3) +
+    labs(x = NULL, y = if (y_title) axis_desc[idx], alpha = 'Absolute difference in scaled index') +
     theme_light(base_size = 8) +
-    theme(!!!strip_theme,
-          panel.spacing = unit(0.4, 'lines'),
-          panel.grid.major.x = element_line(colour = 'grey70', linewidth = 0.3))
+    theme(
+      !!!strip_theme,
+      panel.spacing = unit(0.4, 'lines'),
+      panel.grid.major.x = element_line(colour = 'grey70', linewidth = 0.3),
+      legend.title.position = 'top')
 }
 
 # PANEL D : largest pairwise difference per sample, by triad ------------
 spread_plot <- function(dat) {
   spread <- dat %>%
-    group_by(Panel, Triad, Dataset, Sample) %>%
+    group_by(Triad, Dataset, Sample) %>%
     summarise(spread = max(dz), .groups = 'drop')
-  x_max <- quantile(spread$spread, 0.99) # x axis cut at the 99th percentile (long tails, e.g. Inverse Simpson)
+  
+  x_max <- quantile(spread$spread, 0.995) # x axis cut at the 99th percentile (long tails, e.g. Inverse Simpson)
+  
   spread %>%
-    mutate(Triad = paste0(Panel, '. ', Triad),
-           Host = if_else(Dataset %in% human_datasets, 'Human', 'Non-human'),
-           Dataset = factor(Dataset, rev(these_datasets)),
-           Strip = 'D. Per-sample disagreement') %>%
+    mutate(
+      Host = if_else(Dataset %in% human_datasets, 'Human', 'Non-human'),
+      Dataset = factor(Dataset, rev(these_datasets)),
+      Strip = 'Within-triads disagreement') %>%
     ggplot(aes(x = spread, y = Dataset, fill = Triad)) +
     geom_density_ridges(
-      stat = 'binline', binwidth = x_max / 30, boundary = 0, scale = 0.9, alpha = 0.5,
-                        linewidth = 0.1, draw_baseline = FALSE) +
+      #stat = 'binline', 
+      # binwidth = x_max / 30, 
+      #  boundary = 0, 
+      scale = 1, alpha = 0.5,
+      linewidth = 0.1
+      # draw_baseline = FALSE
+    ) +
     facet_grid(Host ~ Strip, scales = 'free_y', space = 'free_y') +
     scale_x_continuous(expand = c(0, 0)) +
     scale_y_discrete(labels = dataset_names, expand = expansion(add = c(0.1, 0.9))) +
     scale_fill_manual(values = triad_colours, guide = guide_legend(order = 3)) +
     coord_cartesian(xlim = c(0, x_max)) +
-    labs(x = 'Largest |difference in scaled index| among the 3 pairs', y = NULL, fill = NULL) +
+    labs(x = 'Largest absolute difference in scaled index among triads', y = NULL, fill = NULL) +
     theme_light(base_size = 8) +
     theme(!!!strip_theme, panel.spacing = unit(0.4, 'lines'))
 }
 
 alpha_figs <- imap(these_indices, function(label, idx) {
   dat <- filter(segments, Index == idx)
-  loop_plot(filter(dat, Type == 'Sequence abundances'), idx, nested = TRUE) /
-    (loop_plot(filter(dat, Type == 'Taxonomic abundances'), idx, nested = FALSE) + guides(colour = 'none') | # no Bee, Maple: legend from the top row
-       spread_plot(dat)) +
-    plot_layout(guides = 'collect') &
-    theme(legend.position = 'bottom', legend.box = 'vertical', legend.margin = margin(0, 0, 0, 0))
+  ylim <- range(dat$Index_value, dat$value_b)
+  loop <- \(triad, ...) loop_plot(filter(dat, Triad == triad), idx, ylim, ...)
+  triad_names <- unique(triads$Triad) # A, B: sequence-abundance triads; C: taxonomic-abundance triad
+
+  # 2 x 2 grid, so A sits over C and B over D. Legends not collected: each is centred under its own column
+  # (difference scale under C, triads under D).
+  # guides(), not theme(legend.position): the closing & theme() would override the latter
+  loop(triad_names[1]) + guides(alpha = 'none') +
+    loop(triad_names[2], y_title = FALSE) + guides(alpha = 'none') +
+    loop(triad_names[3]) +
+    spread_plot(dat) +
+    plot_layout(ncol = 2) +
+    plot_annotation(tag_levels = 'A') &
+    theme(legend.position = 'bottom', legend.margin = margin(0, 0, 0, 0))
 })
 
+alpha_figs$Shannon
 # Figure 1 : Shannon
 ggsave('Out/Manuscript/1.1.alpha_diff_Shannon.pdf', alpha_figs$Shannon,
        width = 190, height = 200, units = 'mm')
@@ -117,9 +150,9 @@ ggsave('Out/Manuscript/PLOS/Fig1.tiff', alpha_figs$Shannon, device = 'tiff', com
 
 # Figure SUPP : the same for the other indices
 iwalk(alpha_figs[names(alpha_figs) != 'Shannon'], \(p, idx)
-  ggsave(paste0('Out/Manuscript/1.2.alpha_diff_', idx, '.pdf'), p, width = 190, height = 200, units = 'mm'))
+      ggsave(paste0('Out/Manuscript/1.2.alpha_diff_', idx, '.pdf'), p, width = 190, height = 200, units = 'mm'))
 
-# Figure SUPP : pair matrix of the 9 databases ----------------------------
+# Figure SUPP : pair matrix of the databases ----------------------------
 # Lower: within-dataset percentiles, one point per sample (diagonal = same rank with both databases).
 # Upper: Spearman rho per dataset (bar = median). Samples profiled by both databases of each pair.
 db_labels <- method_label(triads$Database)
@@ -155,7 +188,7 @@ pair_matrix <- function(idx) {
 }
 
 iwalk(these_indices, \(label, idx)
-  ggsave(paste0('Out/Manuscript/1.3.alpha_pairs_', idx, '.pdf'), pair_matrix(idx), width = 250, height = 255, units = 'mm'))
+      ggsave(paste0('Out/Manuscript/1.3.alpha_pairs_', idx, '.pdf'), pair_matrix(idx), width = 250, height = 255, units = 'mm'))
 
 # Pitman-Morgan tests -----------------------------------------------------
 # Do two method pairs differ in the variance of their per-sample differences (scaled index)?
@@ -206,3 +239,4 @@ pitman %>%
   kable(format = 'simple', digits = 3) %T>%
   print() %>%
   writeLines('Out/Manuscript/1.4.alpha_pitmanMorgan.txt')
+
